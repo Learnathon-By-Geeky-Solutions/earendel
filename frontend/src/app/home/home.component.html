@@ -1,0 +1,21 @@
+<table>
+  <thead>
+    <tr>
+      <th scope="col">#</th>
+      <th scope="col">Date</th>
+      <th scope="col">temperatureC</th>
+      <th scope="col">sumary</th>
+      <th scope="col">temperatureF</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let weather of weatherData; let i = index">
+      <th scope="row">{{i+1}}</th>
+      <td>{{weather.date}}</td>
+      <td>{{weather.temperatureC}}</td>
+      <td>{{weather.summary}}</td>
+      <td>{{weather.temperatureF}}</td>
+    </tr>
+  </tbody>
+</table>
+
