@@ -1,20 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "D:\\FullStack\\learnathon\\earendel\\backend\\backend.csproj": {}
+    "/Users/rakibulhasan/Dev Project/Learnathon/earendel/backend/backend.csproj": {}
   },
   "projects": {
-    "D:\\FullStack\\learnathon\\earendel\\backend\\backend.csproj": {
+    "/Users/rakibulhasan/Dev Project/Learnathon/earendel/backend/backend.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\FullStack\\learnathon\\earendel\\backend\\backend.csproj",
+        "projectUniqueName": "/Users/rakibulhasan/Dev Project/Learnathon/earendel/backend/backend.csproj",
         "projectName": "backend",
-        "projectPath": "D:\\FullStack\\learnathon\\earendel\\backend\\backend.csproj",
-        "packagesPath": "C:\\Users\\User\\.nuget\\packages\\",
-        "outputPath": "D:\\FullStack\\learnathon\\earendel\\backend\\obj\\",
+        "projectPath": "/Users/rakibulhasan/Dev Project/Learnathon/earendel/backend/backend.csproj",
+        "packagesPath": "/Users/rakibulhasan/.nuget/packages/",
+        "outputPath": "/Users/rakibulhasan/Dev Project/Learnathon/earendel/backend/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "C:\\Users\\User\\AppData\\Roaming\\NuGet\\NuGet.Config"
+          "/Users/rakibulhasan/.nuget/NuGet/NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net8.0"
@@ -71,7 +71,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.403/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/8.0.404/PortableRuntimeIdentifierGraph.json"
         }
       }
     }
