@@ -12,13 +12,9 @@
 
 ## Project Description
 
-# TalentMesh — _A Place Where Talent Meets Opportunities_
-
-![TalentMesh Logo](path/to/logo.png) <!-- Replace with your logo path or remove if you don't have one -->
+### TalentMesh — _"A Place Where Talent Meets Opportunities"_
 
 TalentMesh is an **Interview as a Service** platform designed to accelerate the hiring process by delivering **instant, affordable, scalable, and standardized interview outsourcing**. This innovative solution aims to address critical challenges in the recruitment space, connecting talent with opportunities seamlessly.
-
----
 
 ## 🚀 Features
 
@@ -27,14 +23,10 @@ TalentMesh is an **Interview as a Service** platform designed to accelerate the 
 - **Scalable Infrastructure**: Support for startups to enterprises, scaling with your growth.
 - **Standardized Evaluations**: Ensuring fairness and consistency across all interviews.
 
----
-
 ## 🎯 Vision and Mission
 
-**Vision**: To bridge the gap between talent and opportunities through innovative recruitment solutions.  
-**Mission**: To provide an efficient, unbiased, and scalable interview service that empowers businesses and candidates alike.
-
----
+- **Vision**: To bridge the gap between talent and opportunities through innovative recruitment solutions.
+- **Mission**: To provide an efficient, unbiased, and scalable interview service that empowers businesses and candidates alike.
 
 ## 🔧 Technologies Used
 
@@ -42,9 +34,7 @@ TalentMesh is an **Interview as a Service** platform designed to accelerate the 
 - **Backend**: ASP.NET Core
 - **Database**: PostgreSQL
 
----
-
-## 📂 Project Structure
+<!-- ## 📂 Project Structure -->
 
 ## Getting Started
 
