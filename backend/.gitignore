@@ -3,7 +3,12 @@
 [Oo]bj/
 ./bin/*
 ./obj/*
-backend/obj/*
+./obj/Debug/net8.0/*
+obj/Debug/net8.0/*
+*.dlls
+*.pdb
+*.pdbs
+
 
 # Logs
 Logs/
