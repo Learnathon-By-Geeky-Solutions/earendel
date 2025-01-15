@@ -66,3 +66,37 @@ D:/FullStack/learnathon/earendel/backend/obj/Debug/net8.0/ref/backend.dll
 /Users/rakibulhasan/Dev Project/Learnathon/earendel/backend/obj/Debug/net8.0/backend.pdb
 /Users/rakibulhasan/Dev Project/Learnathon/earendel/backend/obj/Debug/net8.0/backend.genruntimeconfig.cache
 /Users/rakibulhasan/Dev Project/Learnathon/earendel/backend/obj/Debug/net8.0/ref/backend.dll
+D:\FullStack\learnathon\earendel\backend\bin\Debug\net8.0\appsettings.Development.json
+D:\FullStack\learnathon\earendel\backend\bin\Debug\net8.0\appsettings.json
+D:\FullStack\learnathon\earendel\backend\bin\Debug\net8.0\backend.exe
+D:\FullStack\learnathon\earendel\backend\bin\Debug\net8.0\backend.deps.json
+D:\FullStack\learnathon\earendel\backend\bin\Debug\net8.0\backend.runtimeconfig.json
+D:\FullStack\learnathon\earendel\backend\bin\Debug\net8.0\backend.dll
+D:\FullStack\learnathon\earendel\backend\bin\Debug\net8.0\backend.pdb
+D:\FullStack\learnathon\earendel\backend\bin\Debug\net8.0\Microsoft.AspNetCore.OpenApi.dll
+D:\FullStack\learnathon\earendel\backend\bin\Debug\net8.0\Microsoft.OpenApi.dll
+D:\FullStack\learnathon\earendel\backend\bin\Debug\net8.0\Swashbuckle.AspNetCore.Swagger.dll
+D:\FullStack\learnathon\earendel\backend\bin\Debug\net8.0\Swashbuckle.AspNetCore.SwaggerGen.dll
+D:\FullStack\learnathon\earendel\backend\bin\Debug\net8.0\Swashbuckle.AspNetCore.SwaggerUI.dll
+D:\FullStack\learnathon\earendel\backend\obj\Debug\net8.0\backend.csproj.AssemblyReference.cache
+D:\FullStack\learnathon\earendel\backend\obj\Debug\net8.0\backend.GeneratedMSBuildEditorConfig.editorconfig
+D:\FullStack\learnathon\earendel\backend\obj\Debug\net8.0\backend.AssemblyInfoInputs.cache
+D:\FullStack\learnathon\earendel\backend\obj\Debug\net8.0\backend.AssemblyInfo.cs
+D:\FullStack\learnathon\earendel\backend\obj\Debug\net8.0\backend.csproj.CoreCompileInputs.cache
+D:\FullStack\learnathon\earendel\backend\obj\Debug\net8.0\backend.MvcApplicationPartsAssemblyInfo.cs
+D:\FullStack\learnathon\earendel\backend\obj\Debug\net8.0\backend.MvcApplicationPartsAssemblyInfo.cache
+D:\FullStack\learnathon\earendel\backend\obj\Debug\net8.0\backend.sourcelink.json
+D:\FullStack\learnathon\earendel\backend\obj\Debug\net8.0\staticwebassets.build.json
+D:\FullStack\learnathon\earendel\backend\obj\Debug\net8.0\staticwebassets.development.json
+D:\FullStack\learnathon\earendel\backend\obj\Debug\net8.0\staticwebassets\msbuild.backend.Microsoft.AspNetCore.StaticWebAssets.props
+D:\FullStack\learnathon\earendel\backend\obj\Debug\net8.0\staticwebassets\msbuild.build.backend.props
+D:\FullStack\learnathon\earendel\backend\obj\Debug\net8.0\staticwebassets\msbuild.buildMultiTargeting.backend.props
+D:\FullStack\learnathon\earendel\backend\obj\Debug\net8.0\staticwebassets\msbuild.buildTransitive.backend.props
+D:\FullStack\learnathon\earendel\backend\obj\Debug\net8.0\staticwebassets.pack.json
+D:\FullStack\learnathon\earendel\backend\obj\Debug\net8.0\scopedcss\bundle\backend.styles.css
+D:\FullStack\learnathon\earendel\backend\obj\Debug\net8.0\backend.csproj.Up2Date
+D:\FullStack\learnathon\earendel\backend\obj\Debug\net8.0\backend.dll
+D:\FullStack\learnathon\earendel\backend\obj\Debug\net8.0\refint\backend.dll
+D:\FullStack\learnathon\earendel\backend\obj\Debug\net8.0\backend.pdb
+D:\FullStack\learnathon\earendel\backend\obj\Debug\net8.0\backend.genruntimeconfig.cache
+D:\FullStack\learnathon\earendel\backend\obj\Debug\net8.0\ref\backend.dll

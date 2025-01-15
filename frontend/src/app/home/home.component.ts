@@ -13,7 +13,7 @@ import { CommonModule } from '@angular/common';
 export class HomeComponent implements OnInit {
   weatherData: any;
 
-  constructor(private router: Router, private homeService: HomeService) {}
+  constructor(private readonly router: Router, private readonly homeService: HomeService) {}
 
   ngOnInit(): void {
     this.getAllWeatherData();

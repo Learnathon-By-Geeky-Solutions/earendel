@@ -12,7 +12,7 @@ export class ApiService {
       'Access-Control-Allow-Origin': '*',
     }),
   };
-  constructor(private http: HttpClient) {}
+  constructor(private readonly http: HttpClient) {}
 
   private formatErrors(error: any) {
     return throwError(error.error);
