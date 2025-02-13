@@ -1,0 +1,17 @@
+/* settings.component.css */
+.container {
+  max-width: 900px;
+}
+.card {
+  border-radius: 8px;
+}
+input[readonly] {
+  background-color: #f8f9fa;
+  cursor: not-allowed;
+}
+.bg-black {
+  background-color: #000 !important;
+}
+.dropdown-menu {
+  min-width: 150px;
+}

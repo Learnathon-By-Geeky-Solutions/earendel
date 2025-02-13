@@ -1,0 +1,91 @@
+<app-header></app-header>
+<!-- settings.component.html -->
+<div class="container mt-4">
+  <h3 class="mb-4">Settings</h3>
+  <div class="card shadow-sm">
+    <div class="card-body">
+      <!-- Profile Section -->
+      <div class="row align-items-center mb-4">
+        <div class="col-md-2 text-center">
+          <img
+            src="https://via.placeholder.com/100"
+            alt="Profile"
+            class="img-thumbnail rounded-circle"
+          />
+        </div>
+        <div class="col-md-10">
+          <label for="name" class="form-label">Name</label>
+          <div class="input-group">
+            <input
+              id="name"
+              type="text"
+              class="form-control"
+              value="Md. Naiful Hasan Ha-mim"
+            />
+            <button class="btn btn-dark">Update Name</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Phone Number Section -->
+      <div class="mb-4">
+        <label for="phone" class="form-label">Phone Number</label>
+        <p class="text-muted">
+          We will need this number to access two-factor authentication-enabled
+          accounts.
+        </p>
+        <div class="input-group">
+          <input
+            id="phone"
+            type="text"
+            class="form-control"
+            placeholder="+91"
+          />
+          <button class="btn btn-dark">Update Phone Number</button>
+        </div>
+      </div>
+
+      <!-- Email Section -->
+      <div class="mb-4">
+        <label for="email" class="form-label">Email</label>
+        <p class="text-muted">
+          We will need this email to send notifications and updates.
+        </p>
+        <input
+          id="email"
+          type="email"
+          class="form-control"
+          value="mdnaifulhasanhamim12345@gmail.com"
+          readonly
+        />
+      </div>
+
+      <!-- Change Password Section -->
+      <div>
+        <label for="password" class="form-label">Change Password</label>
+        <p class="text-muted">
+          Use 8 or more characters with a mix of uppercase, lowercase letters
+          and special characters as a password.
+        </p>
+        <div class="row g-2">
+          <div class="col-md-6">
+            <input
+              id="password"
+              type="password"
+              class="form-control"
+              placeholder="Password"
+            />
+          </div>
+          <div class="col-md-6">
+            <input
+              type="password"
+              class="form-control"
+              placeholder="Confirm Password"
+            />
+          </div>
+        </div>
+        <button class="btn btn-dark mt-3">Change Password</button>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,31 @@
+ <header class="header">
+        <div class="header-left">
+          <a routerLink="/">
+            <img
+            src="https://placehold.jp/3d4070/ffffff/120x40.png?text=Talent%20Mesh"
+            alt="Talent Mesh Logo"
+            class="logo"
+          />
+          </a>
+        </div>
+        <div class="header-right">
+          <button class="contact-btn">Contact us</button>
+          <div class="user-profile" (clickOutside)="closeDropdown()">
+            <div class="avatar">MN</div>
+            <div class="dropdown">
+              <button class="dropdown-toggle" (click)="toggleDropdown()">
+                Md. Nafiul Hasan
+                <i class="bi bi-chevron-down"></i>
+              </button>
+              <div class="dropdown-menu" [class.show]="showDropdown">
+                <a routerLink="/settings" class="dropdown-item">
+                  <i class="bi bi-gear"></i> Settings
+                </a>
+                <a href="#" class="dropdown-item">
+                  <i class="bi bi-box-arrow-right"></i> Logout
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </header>
