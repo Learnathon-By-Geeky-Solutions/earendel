@@ -1,6 +1,28 @@
-# Frontend
+<div align="center">
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 17.3.11.
+# 🌟 Talent Mesh Frontend
+
+### Your Complete Talent Assessment Platform
+
+[![Angular](https://img.shields.io/badge/Angular-17.3.11-red.svg)](https://angular.io)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.2-blue.svg)](https://www.typescriptlang.org/)
+
+</div>
+
+## 🎯 Dashboard Quick Access
+
+<div align="center">
+
+|            Portal            |               Description               |                            Quick Access                            |
+| :--------------------------: | :-------------------------------------: | :----------------------------------------------------------------: |
+| 👨‍💼 **Interviewer Dashboard** | Manage interviews, schedules & earnings |  [🔗 Launch Portal](http://localhost:4200/interviewer-dashboard)   |
+|  👨‍💻 **Candidate Dashboard**  |    Take assessments & track progress    |   [🔗 Launch Portal](http://localhost:4200/candidate-dashboard)    |
+|    👑 **Admin Dashboard**    |    System administration & oversight    | [🔗 Launch Portal](http://localhost:4200/admin-dashboard/overview) |
+|     🏢 **HR Dashboard**      |    Manage recruitment & assessments     |  [🔗 Launch Portal](http://localhost:4200/hr-dashboard/overview)   |
+
+</div>
+
+---
 
 ## Development server
 
