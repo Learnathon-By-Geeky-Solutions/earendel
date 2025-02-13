@@ -5,6 +5,10 @@
 /tmp
 /out-tsc
 /bazel-out
+/talent-mesh-frontend/dist
+/talent-mesh-frontend/.angular
+/talent-mesh-frontend/node_modules
+
 
 # Node
 /node_modules
