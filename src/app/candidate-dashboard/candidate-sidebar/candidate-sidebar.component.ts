@@ -122,6 +122,7 @@ import { RouterModule } from '@angular/router';
         gap: 8px;
 
         .nav-item {
+          position: relative;
           display: flex;
           align-items: center;
           gap: 12px;
@@ -162,9 +163,9 @@ import { RouterModule } from '@angular/router';
       }
       .notification-badge {
         position: absolute;
-        top: 58%;
-        right: 12px;
-        transform: translateY(-50%);
+        top: 50%; /* Centers it relative to the icon/text */
+        right: 10px; /* Adjust to align it properly */
+        transform: translateY(-50%); /* Keeps it vertically centered */
         background-color: #dc3545;
         color: white;
         font-size: 12px;
@@ -173,6 +174,9 @@ import { RouterModule } from '@angular/router';
         border-radius: 10px;
         min-width: 20px;
         text-align: center;
+        display: flex;
+        justify-content: center;
+        align-items: center;
       }
 
       .modal-overlay {
