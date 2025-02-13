@@ -1,14 +1,7 @@
 [build]
-  command = "npm run build && cp netlify.redirects dist/frontend/_redirects"
+  command = "bash ./netlify-build.sh"
   publish = "dist/frontend"
 
 [build.environment]
   NODE_VERSION = "18.17.0"
-
-[[headers]]
-  for = "/*"
-    [headers.values]
-    X-Frame-Options = "DENY"
-    X-XSS-Protection = "1; mode=block"
-    X-Content-Type-Options = "nosniff"
-    Referrer-Policy = "strict-origin-when-cross-origin"
+  CI = "true"
