@@ -1,4 +1,4 @@
-import { Component, HostListener } from '@angular/core';
+import { AfterViewInit, Component, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { MatDialog } from '@angular/material/dialog';
@@ -207,29 +207,36 @@ import { LogoutModalComponent } from '../logout-modal/logout-modal.component';
     `,
   ],
 })
-export class SidebarComponent {
+export class SidebarComponent implements AfterViewInit {
   unreadNotificationsCount = 5;
-
-  isOpen = window.innerWidth >= 1366; // Sidebar open by default for large screens
-  showToggleButton = window.innerWidth <= 1366; // Show toggle button when screen is <= 1366px
+  isOpen = false;
+  showToggleButton = false;
 
   constructor(private dialog: MatDialog) {}
 
+  ngAfterViewInit() {
+    // Set initial state based on window width
+    this.updateSidebar(window.innerWidth);
+  }
+
   @HostListener('window:resize', ['$event'])
   onResize(event: any) {
-    const width = event.target.innerWidth;
+    this.updateSidebar(event.target.innerWidth);
+  }
+
+  updateSidebar(width: number) {
     this.isOpen = width >= 1000; // Sidebar always open for large screens
     this.showToggleButton = width <= 1000; // Show toggle button when width <= 1366px
   }
 
   toggleSidebar() {
-    if (window.innerWidth < 1360) {
+    if (window.innerWidth < 1366) {
       this.isOpen = !this.isOpen;
     }
   }
 
   closeSidebarOnMobile() {
-    if (window.innerWidth < 1360) {
+    if (window.innerWidth < 1366) {
       this.isOpen = false;
     }
   }
@@ -238,9 +245,9 @@ export class SidebarComponent {
     const dialogRef = this.dialog.open(LogoutModalComponent, {
       width: '300px',
     });
-
     dialogRef.afterClosed().subscribe((result) => {
       if (result) {
+        // Perform logout action here
         console.log('User confirmed logout');
       }
     });
