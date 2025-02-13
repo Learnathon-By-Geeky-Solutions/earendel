@@ -147,4 +147,5 @@ export const routes: Routes = [
     ],
   },
   { path: 'admin-dashboard', redirectTo: 'overview', pathMatch: 'full' },
+  { path: '**', redirectTo: '' }
 ];
