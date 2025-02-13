@@ -1,8 +1,14 @@
 [build]
-  command = "npm run build"
+  command = "npm run build && cp src/_redirects dist/frontend/_redirects"
   publish = "dist/frontend"
+  environment = { NODE_VERSION = "18.17.0" }
 
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
+
+[[headers]]
+  for = "/*"
+    [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
