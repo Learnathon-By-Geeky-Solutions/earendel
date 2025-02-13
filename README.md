@@ -13,12 +13,12 @@
 
 <div align="center">
 
-|            Portal            |               Description               |                            Quick Access                            |
-| :--------------------------: | :-------------------------------------: | :----------------------------------------------------------------: |
-| 👨‍💼 **Interviewer Dashboard** | Manage interviews, schedules & earnings |  [🔗 Launch Portal](http://localhost:4200/interviewer-dashboard)   |
-|  👨‍💻 **Candidate Dashboard**  |    Take assessments & track progress    |   [🔗 Launch Portal](http://localhost:4200/candidate-dashboard)    |
-|    👑 **Admin Dashboard**    |    System administration & oversight    | [🔗 Launch Portal](http://localhost:4200/admin-dashboard/overview) |
-|     🏢 **HR Dashboard**      |    Manage recruitment & assessments     |  [🔗 Launch Portal](http://localhost:4200/hr-dashboard/overview)   |
+|            Portal            |               Description               |                                     Quick Access                                      |
+| :--------------------------: | :-------------------------------------: | :-----------------------------------------------------------------------------------: |
+| 👨‍💼 **Interviewer Dashboard** | Manage interviews, schedules & earnings |  [🔗 Launch Portal](https://talent-mesh-frontend.netlify.app/interviewer-dashboard)   |
+|  👨‍💻 **Candidate Dashboard**  |    Take assessments & track progress    |   [🔗 Launch Portal](https://talent-mesh-frontend.netlify.app/candidate-dashboard)    |
+|    👑 **Admin Dashboard**    |    System administration & oversight    | [🔗 Launch Portal](https://talent-mesh-frontend.netlify.app/admin-dashboard/overview) |
+|     🏢 **HR Dashboard**      |    Manage recruitment & assessments     |  [🔗 Launch Portal](https://talent-mesh-frontend.netlify.app/hr-dashboard/overview)   |
 
 </div>
 
