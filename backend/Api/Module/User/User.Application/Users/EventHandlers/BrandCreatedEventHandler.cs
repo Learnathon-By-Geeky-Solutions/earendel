@@ -1,16 +1,16 @@
-﻿using FSH.Starter.WebApi.Catalog.Domain.Events;
+﻿using TalentMesh.Module.User.Domain.Events;
 using MediatR;
 using Microsoft.Extensions.Logging;
 
 namespace FSH.Starter.WebApi.Catalog.Application.Brands.EventHandlers;
 
-public class BrandCreatedEventHandler(ILogger<BrandCreatedEventHandler> logger) : INotificationHandler<BrandCreated>
+public class UserCreatedEventHandler(ILogger<UserCreatedEventHandler> logger) : INotificationHandler<UserCreated>
 {
-    public async Task Handle(BrandCreated notification,
+    public async Task Handle(UserCreated notification,
         CancellationToken cancellationToken)
     {
-        logger.LogInformation("handling brand created domain event..");
+        logger.LogInformation("handling User created domain event..");
         await Task.FromResult(notification);
-        logger.LogInformation("finished handling brand created domain event..");
+        logger.LogInformation("finished handling User created domain event..");
     }
 }

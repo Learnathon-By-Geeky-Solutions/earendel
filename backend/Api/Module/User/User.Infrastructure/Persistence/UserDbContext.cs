@@ -19,7 +19,7 @@ public sealed class UserDbContext : DbContext
     }
 
     // DbSet properties for your domain entities.
-    public DbSet<User> Products { get; set; } = null!;
+    public DbSet<User.Domain.User> Products { get; set; } = null!;
 
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -30,6 +30,6 @@ public sealed class UserDbContext : DbContext
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(UserDbContext).Assembly);
 
         // Set the default schema. You can either keep the constant or use a literal.
-        modelBuilder.HasDefaultSchema("Catalog");
+        modelBuilder.HasDefaultSchema("User");
     }
 }

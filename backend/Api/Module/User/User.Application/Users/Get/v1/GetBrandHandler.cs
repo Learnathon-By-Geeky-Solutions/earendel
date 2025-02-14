@@ -1,8 +1,8 @@
 using Microsoft.Extensions.DependencyInjection;
-using FSH.Starter.WebApi.Catalog.Domain.Exceptions;
-using FSH.Framework.Core.Persistence;
-using FSH.Framework.Core.Caching;
-using FSH.Starter.WebApi.Catalog.Domain;
+using TalentMesh.Module.User.Domain.Exceptions;
+using TalentMesh.Framework.Core.Persistence;
+using TalentMesh.Framework.Core.Caching;
+using TalentMesh.Module.User.Domain;
 using MediatR;
 
 namespace FSH.Starter.WebApi.Catalog.Application.Brands.Get.v1;

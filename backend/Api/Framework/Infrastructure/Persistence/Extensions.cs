@@ -1,5 +1,5 @@
-﻿using FSH.Framework.Core.Persistence;
-using FSH.Framework.Infrastructure.Persistence.Interceptors;
+﻿using TalentMesh.Framework.Core.Persistence;
+using TalentMesh.Framework.Infrastructure.Persistence.Interceptors;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -7,7 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Serilog;
 
-namespace FSH.Framework.Infrastructure.Persistence;
+namespace TalentMesh.Framework.Infrastructure.Persistence;
 public static class Extensions
 {
     private static readonly ILogger Logger = Log.ForContext(typeof(Extensions));

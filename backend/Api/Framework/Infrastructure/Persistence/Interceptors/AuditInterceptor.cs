@@ -1,9 +1,9 @@
 ﻿using System.Collections.ObjectModel;
-using FSH.Framework.Core.Audit;
-using FSH.Framework.Core.Domain;
-using FSH.Framework.Core.Domain.Contracts;
-using FSH.Framework.Core.Identity.Users.Abstractions;
-using FSH.Framework.Infrastructure.Identity.Audit;
+using TalentMesh.Framework.Core.Audit;
+using TalentMesh.Framework.Core.Domain;
+using TalentMesh.Framework.Core.Domain.Contracts;
+using TalentMesh.Framework.Core.Identity.Users.Abstractions;
+using TalentMesh.Framework.Infrastructure.Identity.Audit;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
