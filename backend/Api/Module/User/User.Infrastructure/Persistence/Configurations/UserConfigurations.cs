@@ -1,11 +1,11 @@
-﻿using TalentMesh.Module.User.Domain;
+﻿using TalentMesh.Module.Job.Domain;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace TalentMesh.Module.User.Infrastructure.Persistence.Configurations;
-internal sealed class BrandConfiguration : IEntityTypeConfiguration<User.Domain.User>
+namespace TalentMesh.Module.Job.Infrastructure.Persistence.Configurations;
+internal sealed class BrandConfiguration : IEntityTypeConfiguration<Job.Domain.Jobs>
 {
-    public void Configure(EntityTypeBuilder<User.Domain.User> builder)
+    public void Configure(EntityTypeBuilder<Job.Domain.Jobs> builder)
     {
         builder.HasKey(x => x.Id);
         builder.Property(x => x.Name).HasMaxLength(100);

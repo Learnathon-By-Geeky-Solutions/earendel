@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 
-namespace FSH.Framework.Infrastructure.Persistence.Interceptors;
+namespace TalentMesh.Framework.Infrastructure.Persistence.Interceptors;
 public class AuditInterceptor(ICurrentUser currentUser, TimeProvider timeProvider, IPublisher publisher) : SaveChangesInterceptor
 {
 
