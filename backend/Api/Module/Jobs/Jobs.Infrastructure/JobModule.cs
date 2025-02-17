@@ -14,7 +14,7 @@ public static class JobModule
 {
     public class Endpoints : CarterModule
     {
-        public Endpoints() : base("catalog") { }
+        public Endpoints() : base("job") { }
         public override void AddRoutes(IEndpointRouteBuilder app)
         {
             var productGroup = app.MapGroup("jobs").WithTags("jobs");
@@ -27,7 +27,7 @@ public static class JobModule
 
         }
     }
-    public static WebApplicationBuilder RegisterCatalogServices(this WebApplicationBuilder builder)
+    public static WebApplicationBuilder RegisterJobServices(this WebApplicationBuilder builder)
     {
         ArgumentNullException.ThrowIfNull(builder);
         builder.Services.BindDbContext<JobDbContext>();
@@ -36,7 +36,7 @@ public static class JobModule
         builder.Services.AddKeyedScoped<IReadRepository<Jobs>, JobRepository<Jobs>>("jobs:job");
         return builder;
     }
-    public static WebApplication UseCatalogModule(this WebApplication app)
+    public static WebApplication UseJobModule(this WebApplication app)
     {
         return app;
     }
