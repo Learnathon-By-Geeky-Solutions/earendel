@@ -1,3 +1,5 @@
+using TalentMesh.Module.Job.Infrastructure.Persistence;
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.AddServiceDefaults();
@@ -21,6 +23,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
 
 
 app.UseAuthorization();

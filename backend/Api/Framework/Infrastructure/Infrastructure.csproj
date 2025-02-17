@@ -6,6 +6,12 @@
 		<Nullable>enable</Nullable>
 	</PropertyGroup>
 
+	<PropertyGroup>
+		<RootNamespace>TalentMesh.Framework.Infrastructure</RootNamespace>
+		<AssemblyName>TalentMesh.Framework.Infrastructure</AssemblyName>
+		<IsAspireSharedProject>true</IsAspireSharedProject>
+	</PropertyGroup>
+	
 	<ItemGroup>
 		<ProjectReference Include="..\Core\Core.csproj" />
 	</ItemGroup>
@@ -39,6 +45,6 @@
 		<PackageReference Include="SerilogTimings" Version="3.1.0" />
 		<PackageReference Include="Serilog.Sinks.Debug" Version="3.0.0" />
 	</ItemGroup>
-	
+
 
 </Project>
