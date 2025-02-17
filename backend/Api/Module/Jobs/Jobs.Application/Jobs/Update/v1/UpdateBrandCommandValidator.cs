@@ -1,7 +1,7 @@
 using FluentValidation;
 
-namespace TalentMesh.Starter.WebApi.Catalog.Application.Brands.Update.v1;
-public class UpdateBrandCommandValidator : AbstractValidator<UpdateBrandCommand>
+namespace TalentMesh.Module.Job.Application.Jobs.Update.v1;
+public class UpdateBrandCommandValidator : AbstractValidator<UpdateJobCommand>
 {
     public UpdateBrandCommandValidator()
     {

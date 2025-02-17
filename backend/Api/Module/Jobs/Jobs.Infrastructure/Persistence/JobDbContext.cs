@@ -30,6 +30,6 @@ public sealed class JobDbContext : DbContext
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(JobDbContext).Assembly);
 
         // Set the default schema. You can either keep the constant or use a literal.
-        modelBuilder.HasDefaultSchema("User");
+        modelBuilder.HasDefaultSchema("Jobs");
     }
 }
