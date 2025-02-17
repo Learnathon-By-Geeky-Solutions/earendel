@@ -31,5 +31,6 @@ public sealed class JobDbContext : DbContext
 
         // Set the default schema. You can either keep the constant or use a literal.
         modelBuilder.HasDefaultSchema("Jobs");
+        // GG
     }
 }
