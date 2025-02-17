@@ -8,7 +8,7 @@ using TalentMesh.Framework.Core.Identity.Users.Features.ResetPassword;
 using TalentMesh.Framework.Core.Identity.Users.Features.ToggleUserStatus;
 using TalentMesh.Framework.Core.Identity.Users.Features.UpdateUser;
 
-namespace FSH.Framework.Core.Identity.Users.Abstractions;
+namespace TalentMesh.Framework.Core.Identity.Users.Abstractions;
 public interface IUserService
 {
     Task<bool> ExistsWithNameAsync(string name);

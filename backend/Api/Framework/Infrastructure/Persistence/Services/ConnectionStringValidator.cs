@@ -1,10 +1,9 @@
-﻿using FSH.Framework.Core.Persistence;
-using Microsoft.Data.SqlClient;
+﻿using TalentMesh.Framework.Core.Persistence;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Npgsql;
 
-namespace FSH.Framework.Infrastructure.Persistence.Services;
+namespace TalentMesh.Framework.Infrastructure.Persistence.Services;
 internal sealed class ConnectionStringValidator(IOptions<DatabaseOptions> dbSettings, ILogger<ConnectionStringValidator> logger) : IConnectionStringValidator
 {
     private readonly DatabaseOptions _dbSettings = dbSettings.Value;
@@ -23,9 +22,6 @@ internal sealed class ConnectionStringValidator(IOptions<DatabaseOptions> dbSett
             {
                 case DbProviders.PostgreSQL:
                     _ = new NpgsqlConnectionStringBuilder(connectionString);
-                    break;
-                case DbProviders.MSSQL:
-                    _ = new SqlConnectionStringBuilder(connectionString);
                     break;
                 default:
                     break;

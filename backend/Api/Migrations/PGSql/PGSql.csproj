@@ -8,7 +8,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\Framework\Infrastructure\Infrastructure.csproj" />
-    <ProjectReference Include="..\..\Module\User\User.Infrastructure\User.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\Module\Jobs\Jobs.Infrastructure\Jobs.Infrastructure.csproj" />
   </ItemGroup>
 
   <ItemGroup>
