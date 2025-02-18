@@ -30,7 +30,7 @@ namespace TalentMesh.Framework.Infrastructure;
 
 public static class Extensions
 {
-    public static WebApplicationBuilder ConfigureFshFramework(this WebApplicationBuilder builder)
+    public static WebApplicationBuilder ConfigureTMFramework(this WebApplicationBuilder builder)
     {
         ArgumentNullException.ThrowIfNull(builder);
         builder.AddServiceDefaults();
@@ -38,7 +38,7 @@ public static class Extensions
         builder.ConfigureDatabase();
         builder.Services.ConfigureIdentity();
         builder.Services.AddCorsPolicy(builder.Configuration);
-        //builder.Services.ConfigureFileStorage();
+        builder.Services.ConfigureFileStorage();
         builder.Services.ConfigureJwtAuth();
         //builder.Services.ConfigureOpenApi();
         builder.Services.ConfigureJobs(builder.Configuration);
