@@ -9,7 +9,7 @@ try
 {
     var builder = WebApplication.CreateBuilder(args);
     builder.ConfigureTMFramework();
-    //builder.RegisterModules();
+    builder.RegisterModules();
 
     var app = builder.Build();
 
