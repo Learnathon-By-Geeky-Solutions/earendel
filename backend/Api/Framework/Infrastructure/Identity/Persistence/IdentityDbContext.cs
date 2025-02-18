@@ -1,17 +1,18 @@
-﻿using TalentMesh.Framework.Core.Audit;
+﻿using Finbuckle.MultiTenant.Abstractions;
+using Finbuckle.MultiTenant.EntityFrameworkCore;
+using TalentMesh.Framework.Core.Audit;
 using TalentMesh.Framework.Core.Persistence;
 using TalentMesh.Framework.Infrastructure.Identity.RoleClaims;
 using TalentMesh.Framework.Infrastructure.Identity.Roles;
 using TalentMesh.Framework.Infrastructure.Identity.Users;
 using TalentMesh.Framework.Infrastructure.Persistence;
+using TalentMesh.Framework.Infrastructure.Tenant;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 
 namespace TalentMesh.Framework.Infrastructure.Identity.Persistence;
-
-public class IdentityDbContext : IdentityDbContext<TalentMeshUser,
+public class IdentityDbContext : MultiTenantIdentityDbContext<TMUser,
     TMRole,
     string,
     IdentityUserClaim<string>,
@@ -21,11 +22,11 @@ public class IdentityDbContext : IdentityDbContext<TalentMeshUser,
     IdentityUserToken<string>>
 {
     private readonly DatabaseOptions _settings;
-
-    public IdentityDbContext(DbContextOptions<IdentityDbContext> options, IOptions<DatabaseOptions> settings)
-        : base(options)
+    private new TMTenantInfo TenantInfo { get; set; }
+    public IdentityDbContext(IMultiTenantContextAccessor<TMTenantInfo> multiTenantContextAccessor, DbContextOptions<IdentityDbContext> options, IOptions<DatabaseOptions> settings) : base(multiTenantContextAccessor, options)
     {
         _settings = settings.Value;
+        TenantInfo = multiTenantContextAccessor.MultiTenantContext.TenantInfo!;
     }
 
     public DbSet<AuditTrail> AuditTrails { get; set; }
@@ -38,9 +39,9 @@ public class IdentityDbContext : IdentityDbContext<TalentMeshUser,
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        if (!string.IsNullOrWhiteSpace(_settings.ConnectionString))
+        if (!string.IsNullOrWhiteSpace(TenantInfo?.ConnectionString))
         {
-            optionsBuilder.ConfigureDatabase(_settings.Provider, _settings.ConnectionString);
+            optionsBuilder.ConfigureDatabase(_settings.Provider, TenantInfo.ConnectionString);
         }
     }
 }

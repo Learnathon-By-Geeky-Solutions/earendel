@@ -33,7 +33,7 @@ public static class JobModule
         builder.Services.BindDbContext<JobDbContext>();
         builder.Services.AddScoped<IDbInitializer, JobDbInitializer>();
         builder.Services.AddKeyedScoped<IRepository<Jobs>, JobRepository<Jobs>>("jobs:job");
-        builder.Services.AddKeyedScoped<IReadRepository<Jobs>, JobRepository<Jobs>>("jobs:job");
+        builder.Services.AddKeyedScoped<IReadRepository<Jobs>, JobRepository<Jobs>>("jobs:jobReadOnly");
         return builder;
     }
     public static WebApplication UseJobModule(this WebApplication app)

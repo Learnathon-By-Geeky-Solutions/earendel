@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 
-
 namespace TalentMesh.Framework.Infrastructure.Identity.Tokens.Endpoints;
 public static class TokenGenerationEndpoint
 {

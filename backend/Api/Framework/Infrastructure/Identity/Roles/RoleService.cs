@@ -1,25 +1,24 @@
-﻿using TalentMesh.Framework.Core.Exceptions;
+﻿using Finbuckle.MultiTenant.Abstractions;
+using TalentMesh.Framework.Core.Exceptions;
 using TalentMesh.Framework.Core.Identity.Roles;
 using TalentMesh.Framework.Core.Identity.Roles.Features.CreateOrUpdateRole;
 using TalentMesh.Framework.Core.Identity.Roles.Features.UpdatePermissions;
 using TalentMesh.Framework.Core.Identity.Users.Abstractions;
 using TalentMesh.Framework.Infrastructure.Identity.Persistence;
 using TalentMesh.Framework.Infrastructure.Identity.RoleClaims;
+using TalentMesh.Framework.Infrastructure.Tenant;
 using TalentMesh.Shared.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using TalentMesh.Framework.Infrastructure.Identity.Roles;
 
 namespace TalentMesh.Framework.Infrastructure.Identity.Roles;
 
-public class RoleService(
-    RoleManager<TMRole> roleManager,
+public class RoleService(RoleManager<TMRole> roleManager,
     IdentityDbContext context,
+    IMultiTenantContextAccessor<TMTenantInfo> multiTenantContextAccessor,
     ICurrentUser currentUser) : IRoleService
 {
     private readonly RoleManager<TMRole> _roleManager = roleManager;
-    private readonly IdentityDbContext _context = context;
-    private readonly ICurrentUser _currentUser = currentUser;
 
     public async Task<IEnumerable<RoleDto>> GetRolesAsync()
     {
@@ -31,6 +30,7 @@ public class RoleService(
     public async Task<RoleDto?> GetRoleAsync(string id)
     {
         TMRole? role = await _roleManager.FindByIdAsync(id);
+
         _ = role ?? throw new NotFoundException("role not found");
 
         return new RoleDto { Id = role.Id, Name = role.Name!, Description = role.Description };
@@ -58,6 +58,7 @@ public class RoleService(
     public async Task DeleteRoleAsync(string id)
     {
         TMRole? role = await _roleManager.FindByIdAsync(id);
+
         _ = role ?? throw new NotFoundException("role not found");
 
         await _roleManager.DeleteAsync(role);
@@ -68,7 +69,7 @@ public class RoleService(
         var role = await GetRoleAsync(id);
         _ = role ?? throw new NotFoundException("role not found");
 
-        role.Permissions = await _context.RoleClaims
+        role.Permissions = await context.RoleClaims
             .Where(c => c.RoleId == id && c.ClaimType == TMClaims.Permission)
             .Select(c => c.ClaimValue!)
             .ToListAsync(cancellationToken);
@@ -80,17 +81,20 @@ public class RoleService(
     {
         var role = await _roleManager.FindByIdAsync(request.RoleId);
         _ = role ?? throw new NotFoundException("role not found");
-
         if (role.Name == TMRoles.Admin)
         {
             throw new TalentMeshException("operation not permitted");
         }
 
-        // Multi-tenant check removed in single-tenant scenario
+        if (multiTenantContextAccessor?.MultiTenantContext?.TenantInfo?.Id != TenantConstants.Root.Id)
+        {
+            // Remove Root Permissions if the Role is not created for Root Tenant.
+            request.Permissions.RemoveAll(u => u.StartsWith("Permissions.Root.", StringComparison.InvariantCultureIgnoreCase));
+        }
 
         var currentClaims = await _roleManager.GetClaimsAsync(role);
 
-        // Remove permissions that are no longer selected
+        // Remove permissions that were previously selected
         foreach (var claim in currentClaims.Where(c => !request.Permissions.Exists(p => p == c.Value)))
         {
             var result = await _roleManager.RemoveClaimAsync(role, claim);
@@ -101,19 +105,19 @@ public class RoleService(
             }
         }
 
-        // Add new permissions that weren't previously selected
+        // Add all permissions that were not previously selected
         foreach (string permission in request.Permissions.Where(c => !currentClaims.Any(p => p.Value == c)))
         {
             if (!string.IsNullOrEmpty(permission))
             {
-                _context.RoleClaims.Add(new TMRoleClaim
+                context.RoleClaims.Add(new TMRoleClaim
                 {
                     RoleId = role.Id,
                     ClaimType = TMClaims.Permission,
                     ClaimValue = permission,
-                    CreatedBy = _currentUser.GetUserId().ToString()
+                    CreatedBy = currentUser.GetUserId().ToString()
                 });
-                await _context.SaveChangesAsync();
+                await context.SaveChangesAsync();
             }
         }
 

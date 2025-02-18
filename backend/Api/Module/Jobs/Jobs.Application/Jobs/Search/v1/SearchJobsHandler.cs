@@ -7,7 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace TalentMesh.Module.Job.Application.Jobs.Search.v1;
 public sealed class SearchJobsHandler(
-    [FromKeyedServices("catalog:brands")] IReadRepository<Job.Domain.Jobs> repository)
+    [FromKeyedServices("jobs:jobReadOnly")] IReadRepository<Job.Domain.Jobs> repository)
     : IRequestHandler<SearchJobsCommand, PagedList<JobResponse>>
 {
     public async Task<PagedList<JobResponse>> Handle(SearchJobsCommand request, CancellationToken cancellationToken)

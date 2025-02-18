@@ -6,8 +6,8 @@ using TalentMesh.Module.Job.Domain;
 using MediatR;
 
 namespace TalentMesh.Module.Job.Application.Jobs.Get.v1;
-public sealed class GetBrandHandler(
-    [FromKeyedServices("job:jobs")] IReadRepository<Job.Domain.Jobs> repository,
+public sealed class GetJobHandler(
+    [FromKeyedServices("jobs:jobReadOnly")] IReadRepository<Job.Domain.Jobs> repository,
     ICacheService cache)
     : IRequestHandler<GetJobRequest, JobResponse>
 {

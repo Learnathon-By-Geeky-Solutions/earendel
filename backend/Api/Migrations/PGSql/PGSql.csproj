@@ -6,6 +6,12 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+	<PropertyGroup>
+		<RootNamespace>TalentMesh.Migrations.PGSql</RootNamespace>
+		<AssemblyName>TalentMesh.Migrations.PGSql</AssemblyName>
+	</PropertyGroup>
+	
+	
   <ItemGroup>
     <ProjectReference Include="..\..\Framework\Infrastructure\Infrastructure.csproj" />
     <ProjectReference Include="..\..\Module\Jobs\Jobs.Infrastructure\Jobs.Infrastructure.csproj" />

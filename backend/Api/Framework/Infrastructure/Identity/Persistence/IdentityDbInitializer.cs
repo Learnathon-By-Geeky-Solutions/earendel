@@ -1,25 +1,25 @@
-﻿using TalentMesh.Framework.Core.Origin;
+﻿using Finbuckle.MultiTenant.Abstractions;
+using TalentMesh.Framework.Core.Origin;
 using TalentMesh.Framework.Core.Persistence;
 using TalentMesh.Framework.Infrastructure.Identity.RoleClaims;
 using TalentMesh.Framework.Infrastructure.Identity.Roles;
 using TalentMesh.Framework.Infrastructure.Identity.Users;
+using TalentMesh.Framework.Infrastructure.Tenant;
 using TalentMesh.Shared.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using TalentMesh.Framework.Infrastructure.Identity.Persistence;
-
 using IdentityConstants = TalentMesh.Shared.Authorization.IdentityConstants;
 
 namespace TalentMesh.Framework.Infrastructure.Identity.Persistence;
-
 internal sealed class IdentityDbInitializer(
     ILogger<IdentityDbInitializer> logger,
     IdentityDbContext context,
     RoleManager<TMRole> roleManager,
-    UserManager<TalentMeshUser> userManager,
+    UserManager<TMUser> userManager,
     TimeProvider timeProvider,
+    IMultiTenantContextAccessor<TMTenantInfo> multiTenantContextAccessor,
     IOptions<OriginOptions> originSettings) : IDbInitializer
 {
     public async Task MigrateAsync(CancellationToken cancellationToken)
@@ -27,7 +27,7 @@ internal sealed class IdentityDbInitializer(
         if ((await context.Database.GetPendingMigrationsAsync(cancellationToken).ConfigureAwait(false)).Any())
         {
             await context.Database.MigrateAsync(cancellationToken).ConfigureAwait(false);
-            logger.LogInformation("Applied database migrations for identity module");
+            logger.LogInformation("[{Tenant}] applied database migrations for identity module", context.TenantInfo?.Identifier);
         }
     }
 
@@ -41,16 +41,15 @@ internal sealed class IdentityDbInitializer(
     {
         foreach (string roleName in TMRoles.DefaultRoles)
         {
-            // Check if the role already exists
-            TMRole role = await roleManager.Roles.SingleOrDefaultAsync(r => r.Name == roleName);
-            if (role == null)
+            if (await roleManager.Roles.SingleOrDefaultAsync(r => r.Name == roleName)
+                is not TMRole role)
             {
-                // Create a new role with a simple description (without tenant info)
-                role = new TMRole(roleName, $"{roleName} Role");
+                // create role
+                role = new TMRole(roleName, $"{roleName} Role for {multiTenantContextAccessor.MultiTenantContext.TenantInfo?.Id} Tenant");
                 await roleManager.CreateAsync(role);
             }
 
-            // Assign permissions based on role type
+            // Assign permissions
             if (roleName == TMRoles.Basic)
             {
                 await AssignPermissionsToRoleAsync(context, TMPermissions.Basic, role);
@@ -58,8 +57,11 @@ internal sealed class IdentityDbInitializer(
             else if (roleName == TMRoles.Admin)
             {
                 await AssignPermissionsToRoleAsync(context, TMPermissions.Admin, role);
-                // In a single-tenant scenario, you might always assign root permissions to the admin role.
-                await AssignPermissionsToRoleAsync(context, TMPermissions.Root, role);
+
+                if (multiTenantContextAccessor.MultiTenantContext.TenantInfo?.Id == TenantConstants.Root.Id)
+                {
+                    await AssignPermissionsToRoleAsync(context, TMPermissions.Root, role);
+                }
             }
         }
     }
@@ -81,47 +83,53 @@ internal sealed class IdentityDbInitializer(
 
         foreach (var claim in newClaims)
         {
-            logger.LogInformation("Seeding {Role} Permission '{Permission}'.", role.Name, claim.ClaimValue);
+            logger.LogInformation("Seeding {Role} Permission '{Permission}' for '{TenantId}' Tenant.", role.Name, claim.ClaimValue, multiTenantContextAccessor.MultiTenantContext.TenantInfo?.Id);
             await dbContext.RoleClaims.AddAsync(claim);
         }
 
+        // Save changes to the database context
         if (newClaims.Count != 0)
         {
             await dbContext.SaveChangesAsync();
         }
+
     }
 
     private async Task SeedAdminUserAsync()
     {
-        // Use a default admin email for a single-tenant scenario.
-        string adminEmail = "admin@example.com";
-        TalentMeshUser? adminUser = await userManager.Users.FirstOrDefaultAsync(u => u.Email == adminEmail);
-        if (adminUser == null)
+        if (string.IsNullOrWhiteSpace(multiTenantContextAccessor.MultiTenantContext.TenantInfo?.Id) || string.IsNullOrWhiteSpace(multiTenantContextAccessor.MultiTenantContext.TenantInfo?.AdminEmail))
         {
-            string adminUserName = "ADMIN";
-            adminUser = new TalentMeshUser
+            return;
+        }
+
+        if (await userManager.Users.FirstOrDefaultAsync(u => u.Email == multiTenantContextAccessor.MultiTenantContext.TenantInfo!.AdminEmail)
+            is not TMUser adminUser)
+        {
+            string adminUserName = $"{multiTenantContextAccessor.MultiTenantContext.TenantInfo?.Id.Trim()}.{TMRoles.Admin}".ToUpperInvariant();
+            adminUser = new TMUser
             {
-                FirstName = "Admin",
-                LastName = "User",
-                Email = adminEmail,
+                FirstName = multiTenantContextAccessor.MultiTenantContext.TenantInfo?.Id.Trim().ToUpperInvariant(),
+                LastName = TMRoles.Admin,
+                Email = multiTenantContextAccessor.MultiTenantContext.TenantInfo?.AdminEmail,
                 UserName = adminUserName,
                 EmailConfirmed = true,
                 PhoneNumberConfirmed = true,
-                NormalizedEmail = adminEmail.ToUpperInvariant(),
+                NormalizedEmail = multiTenantContextAccessor.MultiTenantContext.TenantInfo?.AdminEmail!.ToUpperInvariant(),
                 NormalizedUserName = adminUserName.ToUpperInvariant(),
                 ImageUrl = new Uri(originSettings.Value.OriginUrl! + TenantConstants.Root.DefaultProfilePicture),
                 IsActive = true
             };
 
-            logger.LogInformation("Seeding Default Admin User.");
-            var password = new PasswordHasher<TalentMeshUser>();
+            logger.LogInformation("Seeding Default Admin User for '{TenantId}' Tenant.", multiTenantContextAccessor.MultiTenantContext.TenantInfo?.Id);
+            var password = new PasswordHasher<TMUser>();
             adminUser.PasswordHash = password.HashPassword(adminUser, TenantConstants.DefaultPassword);
             await userManager.CreateAsync(adminUser);
         }
 
+        // Assign role to user
         if (!await userManager.IsInRoleAsync(adminUser, TMRoles.Admin))
         {
-            logger.LogInformation("Assigning Admin Role to Admin User.");
+            logger.LogInformation("Assigning Admin Role to Admin User for '{TenantId}' Tenant.", multiTenantContextAccessor.MultiTenantContext.TenantInfo?.Id);
             await userManager.AddToRoleAsync(adminUser, TMRoles.Admin);
         }
     }

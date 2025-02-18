@@ -8,7 +8,7 @@ using Microsoft.Extensions.Logging;
 namespace TalentMesh.Module.Job.Application.Jobs.Update.v1;
 public sealed class UpdateJobHandler(
     ILogger<UpdateJobHandler> logger,
-    [FromKeyedServices("job:jobs")] IRepository<Job.Domain.Jobs> repository)
+    [FromKeyedServices("jobs:job")] IRepository<Job.Domain.Jobs> repository)
     : IRequestHandler<UpdateJobCommand, UpdateJobResponse>
 {
     public async Task<UpdateJobResponse> Handle(UpdateJobCommand request, CancellationToken cancellationToken)

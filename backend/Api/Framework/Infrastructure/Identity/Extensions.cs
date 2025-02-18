@@ -36,7 +36,7 @@ internal static class Extensions
         services.AddTransient<IAuditService, AuditService>();
         services.BindDbContext<IdentityDbContext>();
         services.AddScoped<IDbInitializer, IdentityDbInitializer>();
-        services.AddIdentity<TalentMeshUser, TMRole>(options =>
+        services.AddIdentity<TMUser, TMRole>(options =>
            {
                options.Password.RequiredLength = IdentityConstants.PasswordLength;
                options.Password.RequireDigit = false;

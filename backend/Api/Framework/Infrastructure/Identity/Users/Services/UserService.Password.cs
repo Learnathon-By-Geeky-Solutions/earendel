@@ -12,6 +12,7 @@ internal sealed partial class UserService
 {
     public async Task ForgotPasswordAsync(ForgotPasswordCommand request, string origin, CancellationToken cancellationToken)
     {
+        EnsureValidTenant();
 
         var user = await userManager.FindByEmailAsync(request.Email);
         if (user == null)
@@ -38,6 +39,7 @@ internal sealed partial class UserService
 
     public async Task ResetPasswordAsync(ResetPasswordCommand request, CancellationToken cancellationToken)
     {
+        EnsureValidTenant();
 
         var user = await userManager.FindByEmailAsync(request.Email);
         if (user == null)

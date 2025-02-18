@@ -18,6 +18,7 @@ public static class Extensions
         {
             DbProviders.PostgreSQL => builder.UseNpgsql(connectionString, e =>
                                  e.MigrationsAssembly("TalentMesh.Migrations.PGSql")).EnableSensitiveDataLogging(),
+            
             _ => throw new InvalidOperationException($"DB Provider {dbProvider} is not supported."),
         };
     }

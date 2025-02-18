@@ -1,4 +1,4 @@
-﻿
+﻿namespace TalentMesh.Framework.Infrastructure.Mail;
 using System;
 using System.IO;
 using System.Linq;
@@ -11,7 +11,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MimeKit;
 
-namespace TalentMesh.Framework.Infrastructure.Mail;
 public class SmtpMailService(IOptions<MailOptions> settings, ILogger<SmtpMailService> logger) : IMailService
 {
     private readonly MailOptions _settings = settings.Value;

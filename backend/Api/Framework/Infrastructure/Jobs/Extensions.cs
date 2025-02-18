@@ -36,6 +36,7 @@ internal static class Extensions
                     });
                     break;
 
+
                 default:
                     throw new TalentMeshException($"hangfire storage provider {dbOptions.Provider} is not supported");
             }

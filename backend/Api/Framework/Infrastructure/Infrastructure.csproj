@@ -22,6 +22,9 @@
 		<PackageReference Include="Asp.Versioning.Http" Version="8.1.0" />
 		<PackageReference Include="Asp.Versioning.Mvc.ApiExplorer" Version="8.1.0" />
 		<PackageReference Include="Carter" Version="8.2.1" />
+		<PackageReference Include="Finbuckle.MultiTenant" Version="9.0.0" />
+		<PackageReference Include="Finbuckle.MultiTenant.AspNetCore" Version="9.0.0" />
+		<PackageReference Include="Finbuckle.MultiTenant.EntityFrameworkCore" Version="9.0.0" />
 		<PackageReference Include="Hangfire" Version="1.8.18" />
 		<PackageReference Include="Hangfire.Core" Version="1.8.18" />
 		<PackageReference Include="Hangfire.PostgreSql" Version="1.20.10" />
@@ -53,6 +56,7 @@
 		<PackageReference Include="Serilog.Sinks.SpectreConsole" Version="0.3.3" />
 		<PackageReference Include="SerilogTimings" Version="3.1.0" />
 		<PackageReference Include="Serilog.Sinks.Debug" Version="3.0.0" />
+		<PackageReference Include="Swashbuckle.AspNetCore" Version="7.2.0" />
 	</ItemGroup>
 
 

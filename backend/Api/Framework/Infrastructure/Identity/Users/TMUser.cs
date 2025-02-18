@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 
 namespace TalentMesh.Framework.Infrastructure.Identity.Users;
-public class TalentMeshUser : IdentityUser
+public class TMUser : IdentityUser
 {
     public string? FirstName { get; set; }
     public string? LastName { get; set; }

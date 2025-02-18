@@ -1,10 +1,12 @@
-﻿using TalentMesh.Framework.Core.Identity.Users.Abstractions;
+﻿using Finbuckle.MultiTenant;
+using Finbuckle.MultiTenant.Abstractions;
+using TalentMesh.Framework.Core.Identity.Users.Abstractions;
 using TalentMesh.Framework.Infrastructure.Constants;
+using TalentMesh.Framework.Infrastructure.Tenant;
 using TalentMesh.Shared.Authorization;
 using Hangfire;
 using Hangfire.Server;
 using Microsoft.Extensions.DependencyInjection;
-
 
 namespace TalentMesh.Framework.Infrastructure.Jobs;
 
@@ -33,7 +35,15 @@ public class TMJobActivator : JobActivator
 
         private void ReceiveParameters()
         {
-            // Removed tenant handling since we are using normal EF without multi-tenancy.
+            var tenantInfo = _context.GetJobParameter<TMTenantInfo>(TenantConstants.Identifier);
+            if (tenantInfo is not null)
+            {
+                _scope.ServiceProvider.GetRequiredService<IMultiTenantContextSetter>()
+                    .MultiTenantContext = new MultiTenantContext<TMTenantInfo>
+                    {
+                        TenantInfo = tenantInfo
+                    };
+            }
 
             string userId = _context.GetJobParameter<string>(QueryStringKeys.UserId);
             if (!string.IsNullOrEmpty(userId))

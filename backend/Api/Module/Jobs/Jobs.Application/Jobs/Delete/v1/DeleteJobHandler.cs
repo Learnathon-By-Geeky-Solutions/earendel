@@ -8,7 +8,7 @@ using Microsoft.Extensions.Logging;
 namespace TalentMesh.Module.Job.Application.Jobs.Delete.v1;
 public sealed class DeleteJobHandler(
     ILogger<DeleteJobHandler> logger,
-    [FromKeyedServices("user:users")] IRepository<Job.Domain.Jobs> repository)
+    [FromKeyedServices("jobs:job")] IRepository<Job.Domain.Jobs> repository)
     : IRequestHandler<DeleteJobCommand>
 {
     public async Task Handle(DeleteJobCommand request, CancellationToken cancellationToken)

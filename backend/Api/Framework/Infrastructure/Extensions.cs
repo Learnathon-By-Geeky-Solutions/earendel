@@ -14,11 +14,12 @@ using TalentMesh.Framework.Infrastructure.Jobs;
 using TalentMesh.Framework.Infrastructure.Logging.Serilog;
 using TalentMesh.Framework.Infrastructure.Mail;
 using TalentMesh.Framework.Infrastructure.Persistence;
-//using TalentMesh.Framework.Infrastructure.RateLimit;
+using TalentMesh.Framework.Infrastructure.OpenApi;
+using TalentMesh.Framework.Infrastructure.RateLimit;
 using TalentMesh.Framework.Infrastructure.SecurityHeaders;
 using TalentMesh.Framework.Infrastructure.Storage.Files;
-//using TalentMesh.Framework.Infrastructure.Tenant;
-//using TalentMesh.Framework.Infrastructure.Tenant.Endpoints;
+using TalentMesh.Framework.Infrastructure.Tenant;
+using TalentMesh.Framework.Infrastructure.Tenant.Endpoints;
 using TalentMesh.Aspire.ServiceDefaults;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
@@ -27,7 +28,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
 
 namespace TalentMesh.Framework.Infrastructure;
-
 public static class Extensions
 {
     public static WebApplicationBuilder ConfigureTMFramework(this WebApplicationBuilder builder)
@@ -36,11 +36,12 @@ public static class Extensions
         builder.AddServiceDefaults();
         builder.ConfigureSerilog();
         builder.ConfigureDatabase();
+        builder.Services.ConfigureMultitenancy();
         builder.Services.ConfigureIdentity();
         builder.Services.AddCorsPolicy(builder.Configuration);
         builder.Services.ConfigureFileStorage();
         builder.Services.ConfigureJwtAuth();
-        //builder.Services.ConfigureOpenApi();
+        builder.Services.ConfigureOpenApi();
         builder.Services.ConfigureJobs(builder.Configuration);
         builder.Services.ConfigureMailing();
         builder.Services.ConfigureCaching(builder.Configuration);
@@ -66,7 +67,7 @@ public static class Extensions
             cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
         });
 
-        //builder.Services.ConfigureRateLimit(builder.Configuration);
+        builder.Services.ConfigureRateLimit(builder.Configuration);
         builder.Services.ConfigureSecurityHeaders(builder.Configuration);
 
         return builder;
@@ -75,12 +76,12 @@ public static class Extensions
     public static WebApplication UseFshFramework(this WebApplication app)
     {
         app.MapDefaultEndpoints();
-        //app.UseRateLimit();
+        app.UseRateLimit();
         app.UseSecurityHeaders();
-        //app.UseMultitenancy();
+        app.UseMultitenancy();
         app.UseExceptionHandler();
         app.UseCorsPolicy();
-        //app.UseOpenApi();
+        app.UseOpenApi();
         app.UseJobDashboard(app.Configuration);
         app.UseRouting();
         app.UseStaticFiles();
@@ -91,7 +92,7 @@ public static class Extensions
         });
         app.UseAuthentication();
         app.UseAuthorization();
-        //app.MapTenantEndpoints();
+        app.MapTenantEndpoints();
         app.MapIdentityEndpoints();
 
         // Current user middleware

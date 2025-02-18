@@ -1,6 +1,7 @@
 ﻿using System.Collections.ObjectModel;
 using System.Security.Claims;
 using System.Text;
+using Finbuckle.MultiTenant.Abstractions;
 using TalentMesh.Framework.Core.Caching;
 using TalentMesh.Framework.Core.Exceptions;
 using TalentMesh.Framework.Core.Identity.Users.Abstractions;
@@ -16,31 +17,34 @@ using TalentMesh.Framework.Core.Storage.File;
 using TalentMesh.Framework.Infrastructure.Constants;
 using TalentMesh.Framework.Infrastructure.Identity.Persistence;
 using TalentMesh.Framework.Infrastructure.Identity.Roles;
+using TalentMesh.Framework.Infrastructure.Tenant;
 using TalentMesh.Shared.Authorization;
 using Mapster;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.EntityFrameworkCore;
-using TalentMesh.Framework.Infrastructure.Identity.Users;
-using TalentMesh.Framework.Core.Identity.Users.Features.ForgotPassword;
-using TalentMesh.Framework.Core.Identity.Users.Features.ResetPassword;
-using TalentMesh.Framework.Core.Identity.Users.Features.ChangePassword;
-
 
 namespace TalentMesh.Framework.Infrastructure.Identity.Users.Services;
 
 internal sealed partial class UserService(
-    UserManager<TalentMeshUser> userManager,
-    SignInManager<TalentMeshUser> signInManager,
+    UserManager<TMUser> userManager,
+    SignInManager<TMUser> signInManager,
     RoleManager<TMRole> roleManager,
     IdentityDbContext db,
     ICacheService cache,
     IJobService jobService,
     IMailService mailService,
+    IMultiTenantContextAccessor<TMTenantInfo> multiTenantContextAccessor,
     IStorageService storageService
     ) : IUserService
 {
-    // Removed EnsureValidTenant() since multi-tenancy is no longer supported.
+    private void EnsureValidTenant()
+    {
+        if (string.IsNullOrWhiteSpace(multiTenantContextAccessor?.MultiTenantContext?.TenantInfo?.Id))
+        {
+            throw new UnauthorizedException("invalid tenant");
+        }
+    }
 
     public Task<string> ConfirmEmailAsync(string userId, string code, string tenant, CancellationToken cancellationToken)
     {
@@ -54,17 +58,20 @@ internal sealed partial class UserService(
 
     public async Task<bool> ExistsWithEmailAsync(string email, string? exceptId = null)
     {
-        return await userManager.FindByEmailAsync(email.Normalize()) is TalentMeshUser user && user.Id != exceptId;
+        EnsureValidTenant();
+        return await userManager.FindByEmailAsync(email.Normalize()) is TMUser user && user.Id != exceptId;
     }
 
     public async Task<bool> ExistsWithNameAsync(string name)
     {
+        EnsureValidTenant();
         return await userManager.FindByNameAsync(name) is not null;
     }
 
     public async Task<bool> ExistsWithPhoneNumberAsync(string phoneNumber, string? exceptId = null)
     {
-        return await userManager.Users.FirstOrDefaultAsync(x => x.PhoneNumber == phoneNumber) is TalentMeshUser user && user.Id != exceptId;
+        EnsureValidTenant();
+        return await userManager.Users.FirstOrDefaultAsync(x => x.PhoneNumber == phoneNumber) is TMUser user && user.Id != exceptId;
     }
 
     public async Task<UserDetail> GetAsync(string userId, CancellationToken cancellationToken)
@@ -96,7 +103,7 @@ internal sealed partial class UserService(
     public async Task<RegisterUserResponse> RegisterAsync(RegisterUserCommand request, string origin, CancellationToken cancellationToken)
     {
         // create user entity
-        var user = new TalentMeshUser
+        var user = new TMUser
         {
             Email = request.Email,
             FirstName = request.FirstName,
@@ -158,7 +165,7 @@ internal sealed partial class UserService(
         Uri imageUri = user.ImageUrl ?? null!;
         if (request.Image != null || request.DeleteCurrentImage)
         {
-            user.ImageUrl = await storageService.UploadAsync<TalentMeshUser>(request.Image, FileType.Image);
+            user.ImageUrl = await storageService.UploadAsync<TMUser>(request.Image, FileType.Image);
             if (request.DeleteCurrentImage && imageUri != null)
             {
                 storageService.Remove(imageUri);
@@ -185,7 +192,7 @@ internal sealed partial class UserService(
 
     public async Task DeleteAsync(string userId)
     {
-        TalentMeshUser? user = await userManager.FindByIdAsync(userId);
+        TMUser? user = await userManager.FindByIdAsync(userId);
 
         _ = user ?? throw new NotFoundException("User Not Found.");
 
@@ -199,9 +206,9 @@ internal sealed partial class UserService(
         }
     }
 
-    private async Task<string> GetEmailVerificationUriAsync(TalentMeshUser user, string origin)
+    private async Task<string> GetEmailVerificationUriAsync(TMUser user, string origin)
     {
-        // Removed tenant validation for single-tenant scenario.
+        EnsureValidTenant();
 
         string code = await userManager.GenerateEmailConfirmationTokenAsync(user);
         code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
@@ -209,7 +216,9 @@ internal sealed partial class UserService(
         var endpointUri = new Uri(string.Concat($"{origin}/", route));
         string verificationUri = QueryHelpers.AddQueryString(endpointUri.ToString(), QueryStringKeys.UserId, user.Id);
         verificationUri = QueryHelpers.AddQueryString(verificationUri, QueryStringKeys.Code, code);
-        // Removed tenant query string parameter.
+        verificationUri = QueryHelpers.AddQueryString(verificationUri,
+            TenantConstants.Identifier,
+            multiTenantContextAccessor?.MultiTenantContext?.TenantInfo?.Id!);
         return verificationUri;
     }
 
@@ -228,10 +237,14 @@ internal sealed partial class UserService(
             // Get count of users in Admin Role
             int adminCount = (await userManager.GetUsersInRoleAsync(TMRoles.Admin)).Count;
 
-            // For single-tenant, simply prevent removal if the user is the root admin
+            // Check if user is not Root Tenant Admin
+            // Edge Case : there are chances for other tenants to have users with the same email as that of Root Tenant Admin. Probably can add a check while User Registration
             if (user.Email == TenantConstants.Root.EmailAddress)
             {
-                throw new TalentMeshException("action not permitted");
+                if (multiTenantContextAccessor?.MultiTenantContext?.TenantInfo?.Id == TenantConstants.Root.Id)
+                {
+                    throw new TalentMeshException("action not permitted");
+                }
             }
             else if (adminCount <= 2)
             {
@@ -259,6 +272,7 @@ internal sealed partial class UserService(
         }
 
         return "User Roles Updated Successfully.";
+
     }
 
     public async Task<List<UserRoleDetail>> GetUserRolesAsync(string userId, CancellationToken cancellationToken)
@@ -282,5 +296,4 @@ internal sealed partial class UserService(
 
         return userRoles;
     }
-
 }
