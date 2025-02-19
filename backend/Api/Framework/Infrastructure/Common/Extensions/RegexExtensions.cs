@@ -1,12 +1,16 @@
-﻿using System.Text.RegularExpressions;
+﻿using System;
+using System.Text.RegularExpressions;
 
-namespace TalentMesh.Framework.Infrastructure.Common.Extensions;
-public static class RegexExtensions
+namespace TalentMesh.Framework.Infrastructure.Common.Extensions
 {
-    private static readonly Regex Whitespace = new(@"\s+");
-
-    public static string ReplaceWhitespace(this string input, string replacement)
+    public static class RegexExtensions
     {
-        return Whitespace.Replace(input, replacement);
+        private static readonly TimeSpan RegexTimeout = TimeSpan.FromMilliseconds(500); // Set a reasonable timeout
+        private static readonly Regex Whitespace = new(@"\s+", RegexOptions.None, RegexTimeout);
+
+        public static string ReplaceWhitespace(this string input, string replacement)
+        {
+            return Whitespace.Replace(input, replacement);
+        }
     }
 }
