@@ -1,29 +1,30 @@
-var builder = WebApplication.CreateBuilder(args);
+using TalentMesh.Framework.Infrastructure;
+using TalentMesh.Framework.Infrastructure.Logging.Serilog;
+using TalentMesh.WebApi.Host;
+using Serilog;
 
-builder.AddServiceDefaults();
-
-// Add services to the container.
-
-builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-
-var app = builder.Build();
-
-app.MapDefaultEndpoints();
-
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+StaticLogger.EnsureInitialized();
+Log.Information("server booting up..");
+try
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
+    var builder = WebApplication.CreateBuilder(args);
+    builder.ConfigureTMFramework();
+    builder.RegisterModules();
+
+    var app = builder.Build();
+
+    app.UseFshFramework();
+    app.UseModules();
+    await app.RunAsync();
 }
-
-app.UseHttpsRedirection();
-
-app.UseAuthorization();
-
-app.MapControllers();
-
-app.Run();
+catch (Exception ex) when (!ex.GetType().Name.Equals("HostAbortedException", StringComparison.Ordinal))
+{
+    StaticLogger.EnsureInitialized();
+    Log.Fatal(ex.Message, "unhandled exception");
+}
+finally
+{
+    StaticLogger.EnsureInitialized();
+    Log.Information("server shutting down..");
+    await Log.CloseAndFlushAsync();
+}
