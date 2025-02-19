@@ -1,4 +1,5 @@
 backend/bin/
 backend/obj/
 *.cache
-
+**/appsettings.Development.json
+**/appsettings.json
