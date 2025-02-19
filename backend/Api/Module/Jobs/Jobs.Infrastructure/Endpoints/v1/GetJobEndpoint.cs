@@ -20,7 +20,7 @@ public static class GetJobEndpoint
             .WithSummary("gets product by id")
             .WithDescription("gets prodct by id")
             .Produces<JobResponse>()
-            .RequirePermission("Permissions.Products.View")
+            .RequirePermission("Permissions.Jobs.View")
             .MapToApiVersion(1);
     }
 }

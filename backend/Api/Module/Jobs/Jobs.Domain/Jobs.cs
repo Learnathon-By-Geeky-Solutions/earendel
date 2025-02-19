@@ -1,4 +1,5 @@
-﻿using TalentMesh.Framework.Core.Domain;
+﻿using System.Net.Http.Headers;
+using TalentMesh.Framework.Core.Domain;
 using TalentMesh.Framework.Core.Domain.Contracts;
 using TalentMesh.Module.Job.Domain.Events;
 
@@ -8,7 +9,7 @@ public class Jobs : AuditableEntity, IAggregateRoot
 {
     public string Name { get; private set; } = default!;
     public string? Description { get; private set; }
-
+    
     public static Jobs Create(string name, string? description)
     {
         var user = new Jobs
