@@ -6,10 +6,13 @@ using TalentMesh.Framework.Core.Storage.File;
 using TalentMesh.Framework.Core.Storage.File.Features;
 using TalentMesh.Framework.Infrastructure.Common.Extensions;
 using Microsoft.Extensions.Options;
+
 namespace TalentMesh.Framework.Infrastructure.Storage.Files
 {
     public class LocalFileStorageService(IOptions<OriginOptions> originSettings) : IStorageService
     {
+        private static readonly TimeSpan RegexTimeout = TimeSpan.FromMilliseconds(500);
+
         public async Task<Uri> UploadAsync<T>(FileUploadCommand? request, FileType supportedFileType, CancellationToken cancellationToken = default)
             where T : class
         {
@@ -18,12 +21,14 @@ namespace TalentMesh.Framework.Infrastructure.Storage.Files
                 return null!;
             }
 
-            if (request.Extension is null || !supportedFileType.GetDescriptionList().Contains(request.Extension.ToLower(System.Globalization.CultureInfo.CurrentCulture)))
+            if (request.Extension is null || !supportedFileType.GetDescriptionList()
+                .Contains(request.Extension.ToLower(System.Globalization.CultureInfo.CurrentCulture)))
                 throw new InvalidOperationException("File Format Not Supported.");
             if (request.Name is null)
                 throw new InvalidOperationException("Name is required.");
 
-            string base64Data = Regex.Match(request.Data, "data:image/(?<type>.+?),(?<data>.+)").Groups["data"].Value;
+            var base64Match = Regex.Match(request.Data, @"data:image/(?<type>.+?),(?<data>.+)", RegexOptions.None, RegexTimeout);
+            string base64Data = base64Match.Groups["data"].Value;
 
             var streamData = new MemoryStream(Convert.FromBase64String(base64Data));
             if (streamData.Length > 0)
@@ -68,7 +73,7 @@ namespace TalentMesh.Framework.Infrastructure.Storage.Files
 
         public static string RemoveSpecialCharacters(string str)
         {
-            return Regex.Replace(str, "[^a-zA-Z0-9_.]+", string.Empty, RegexOptions.Compiled);
+            return Regex.Replace(str, "[^a-zA-Z0-9_.]+", string.Empty, RegexOptions.Compiled, RegexTimeout);
         }
 
         public void Remove(Uri? path)
