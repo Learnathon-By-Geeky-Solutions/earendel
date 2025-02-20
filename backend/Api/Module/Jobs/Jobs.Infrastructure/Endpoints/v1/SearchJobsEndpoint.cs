@@ -1,0 +1,31 @@
+using TalentMesh.Framework.Core.Paging;
+using TalentMesh.Framework.Infrastructure.Auth.Policy;
+using TalentMesh.Module.Job.Application.Jobs.Get.v1;
+using TalentMesh.Module.Job.Application.Jobs.Search.v1;
+using MediatR;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Routing;
+
+namespace TalentMesh.Module.Job.Infrastructure.Endpoints.v1;
+
+public static class SearchJobsEndpoint
+{
+    internal static RouteHandlerBuilder MapGetJobListEndpoint(this IEndpointRouteBuilder endpoints)
+    {
+        return endpoints
+            .MapPost("/search", async (ISender mediator, [FromBody] SearchJobsCommand command) =>
+            {
+                var response = await mediator.Send(command);
+                return Results.Ok(response);
+            })
+            .WithName(nameof(SearchJobsEndpoint))
+            .WithSummary("Gets a list of products")
+            .WithDescription("Gets a list of products with pagination and filtering support")
+            .Produces<PagedList<JobResponse>>()
+            .RequirePermission("Permissions.Products.View")
+            .MapToApiVersion(1);
+    }
+}
+

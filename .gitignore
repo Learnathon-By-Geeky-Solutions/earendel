@@ -1,4 +1,7 @@
 backend/bin/
 backend/obj/
 *.cache
-
+**/TenantConstant.cs
+**/appsettings.Development.json
+**/appsettings.json
+backend/Shared/Authorization/TenantConstants.cs

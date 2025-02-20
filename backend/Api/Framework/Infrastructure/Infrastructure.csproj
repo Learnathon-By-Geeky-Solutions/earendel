@@ -1,0 +1,63 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net8.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+	</PropertyGroup>
+
+	<PropertyGroup>
+		<RootNamespace>TalentMesh.Framework.Infrastructure</RootNamespace>
+		<AssemblyName>TalentMesh.Framework.Infrastructure</AssemblyName>
+		<IsAspireSharedProject>true</IsAspireSharedProject>
+	</PropertyGroup>
+	
+	<ItemGroup>
+		<ProjectReference Include="..\..\..\Aspire\Aspire.ServiceDefaults\Aspire.ServiceDefaults.csproj" />
+		<ProjectReference Include="..\Core\Core.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Ardalis.Specification.EntityFrameworkCore" Version="8.0.0" />
+		<PackageReference Include="Asp.Versioning.Http" Version="8.1.0" />
+		<PackageReference Include="Asp.Versioning.Mvc.ApiExplorer" Version="8.1.0" />
+		<PackageReference Include="Carter" Version="8.2.1" />
+		<PackageReference Include="Finbuckle.MultiTenant" Version="9.0.0" />
+		<PackageReference Include="Finbuckle.MultiTenant.AspNetCore" Version="9.0.0" />
+		<PackageReference Include="Finbuckle.MultiTenant.EntityFrameworkCore" Version="9.0.0" />
+		<PackageReference Include="Hangfire" Version="1.8.18" />
+		<PackageReference Include="Hangfire.Core" Version="1.8.18" />
+		<PackageReference Include="Hangfire.PostgreSql" Version="1.20.10" />
+		<PackageReference Include="MailKit" Version="4.10.0" />
+		<PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.13" />
+		<PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.13" />
+		<PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.2" />
+		<PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="9.0.2" />
+		<PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.3" />
+	</ItemGroup>
+
+
+	<ItemGroup>
+		<PackageReference Include="Serilog" Version="4.2.0" />
+		<PackageReference Include="Serilog.AspNetCore" Version="9.0.0" />
+		<PackageReference Include="Serilog.Enrichers.CorrelationId" Version="3.0.1" />
+		<PackageReference Include="Serilog.Enrichers.Environment" Version="3.0.1" />
+		<PackageReference Include="Serilog.Enrichers.Span" Version="3.1.0" />
+		<PackageReference Include="Serilog.Exceptions" Version="8.4.0" />
+		<PackageReference Include="Serilog.Expressions" Version="5.0.0" />
+		<PackageReference Include="Serilog.Extensions.Hosting" Version="9.0.0" />
+		<PackageReference Include="Serilog.Formatting.Elasticsearch" Version="10.0.0" />
+		<PackageReference Include="Serilog.Sinks.Async" Version="2.1.0" />
+		<PackageReference Include="Serilog.Sinks.Console" Version="6.0.0" />
+		<PackageReference Include="Serilog.Sinks.Elasticsearch" Version="9.0.3" />
+		<PackageReference Include="Serilog.Sinks.File" Version="6.0.0" />
+		<PackageReference Include="Serilog.Sinks.OpenTelemetry" Version="4.1.1" />
+		<PackageReference Include="Serilog.Sinks.Seq" Version="9.0.0" />
+		<PackageReference Include="Serilog.Sinks.SpectreConsole" Version="0.3.3" />
+		<PackageReference Include="SerilogTimings" Version="3.1.0" />
+		<PackageReference Include="Serilog.Sinks.Debug" Version="3.0.0" />
+		<PackageReference Include="Swashbuckle.AspNetCore" Version="7.2.0" />
+	</ItemGroup>
+
+
+</Project>
