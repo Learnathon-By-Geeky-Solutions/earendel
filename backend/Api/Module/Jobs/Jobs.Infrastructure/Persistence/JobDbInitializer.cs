@@ -13,7 +13,7 @@ internal sealed class JobDbInitializer(
         if ((await context.Database.GetPendingMigrationsAsync(cancellationToken)).Any())
         {
             await context.Database.MigrateAsync(cancellationToken).ConfigureAwait(false);
-            logger.LogInformation("[{Tenant}] applied database migrations for catalog module", context.TenantInfo!.Identifier);
+            logger.LogInformation("[{Tenant}] applied database migrations for Job module", context.TenantInfo!.Identifier);
         }
     }
 
@@ -21,10 +21,10 @@ internal sealed class JobDbInitializer(
     {
         const string Name = "Rickshaw Puller";
         const string Description = "You Drive a Tesla Around Dhaka";
-        if (await context.Products.FirstOrDefaultAsync(t => t.Name == Name, cancellationToken).ConfigureAwait(false) is null)
+        if (await context.Jobs.FirstOrDefaultAsync(t => t.Name == Name, cancellationToken).ConfigureAwait(false) is null)
         {
             var product = Job.Domain.Jobs.Create(Name, Description);
-            await context.Products.AddAsync(product, cancellationToken);
+            await context.Jobs.AddAsync(product, cancellationToken);
             await context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
             logger.LogInformation("[{Tenant}] seeding default catalog data", context.TenantInfo!.Identifier);
         }
