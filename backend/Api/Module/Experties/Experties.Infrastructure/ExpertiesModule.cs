@@ -25,12 +25,11 @@ public static class ExpertiesModule
             skillGroup.MapSkillDeleteEndpoint();
 
             var subSkillGroup = app.MapGroup("subskills").WithTags("subskills");
-            skillGroup.MapSubSkillCreationEndpoint();
-            skillGroup.MapGetSubSkillEndpoint();
-            skillGroup.MapGetSubSkillListEndpoint();
-            skillGroup.MapSubSkillUpdateEndpoint();
-            skillGroup.MapSubSkillDeleteEndpoint();
-
+            subSkillGroup.MapSubSkillCreationEndpoint();
+            subSkillGroup.MapGetSubSkillEndpoint();
+            subSkillGroup.MapGetSubSkillListEndpoint();
+            subSkillGroup.MapSubSkillUpdateEndpoint();
+            subSkillGroup.MapSubSkillDeleteEndpoint();
         }
     }
     public static WebApplicationBuilder RegisterExpertiesServices(this WebApplicationBuilder builder)
