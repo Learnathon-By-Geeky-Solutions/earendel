@@ -20,8 +20,7 @@ public sealed class ExpertiesDbContext : TMDbContext
 
     public DbSet<Skill> Skills { get; set; } = null!;
     public DbSet<SubSkill> SubSkills { get; set; } = null!;
-
-
+    public DbSet<Rubric> Rubrics { get; set; } = null!;
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         ArgumentNullException.ThrowIfNull(modelBuilder);

@@ -30,6 +30,13 @@ public static class ExpertiesModule
             subSkillGroup.MapGetSubSkillListEndpoint();
             subSkillGroup.MapSubSkillUpdateEndpoint();
             subSkillGroup.MapSubSkillDeleteEndpoint();
+
+            var rubricGroup = app.MapGroup("rubrics").WithTags("rubrics");
+            rubricGroup.MapRubricCreationEndpoint();
+            rubricGroup.MapGetRubricEndpoint();
+            rubricGroup.MapGetRubricListEndpoint();
+            rubricGroup.MapRubricUpdateEndpoint();
+            rubricGroup.MapRubricDeleteEndpoint();
         }
     }
     public static WebApplicationBuilder RegisterExpertiesServices(this WebApplicationBuilder builder)
@@ -37,10 +44,16 @@ public static class ExpertiesModule
         ArgumentNullException.ThrowIfNull(builder);
         builder.Services.BindDbContext<ExpertiesDbContext>();
         builder.Services.AddScoped<IDbInitializer, ExpertiesDbInitializer>();
+
         builder.Services.AddKeyedScoped<IRepository<Skill>, ExpertiesRepository<Skill>>("skills:skill");
         builder.Services.AddKeyedScoped<IReadRepository<Skill>, ExpertiesRepository<Skill>>("skills:skillReadOnly");
+
         builder.Services.AddKeyedScoped<IRepository<SubSkill>, ExpertiesRepository<SubSkill>>("subskills:subskill");
         builder.Services.AddKeyedScoped<IReadRepository<SubSkill>, ExpertiesRepository<SubSkill>>("subskills:subskillReadOnly");
+
+        builder.Services.AddKeyedScoped<IRepository<Rubric>, ExpertiesRepository<Rubric>>("rubrics:rubric");
+        builder.Services.AddKeyedScoped<IReadRepository<Rubric>, ExpertiesRepository<Rubric>>("rubrics:rubricReadOnly");
+
         return builder;
     }
     public static WebApplication UseExpertiesModule(this WebApplication app)
