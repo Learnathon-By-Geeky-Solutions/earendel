@@ -18,16 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Api\Framework\Core\Core.csproj" />
-    <ProjectReference Include="..\Api\Framework\Infrastructure\Infrastructure.csproj" />
-    <ProjectReference Include="..\Api\Migrations\PGSql\PGSql.csproj" />
-    <ProjectReference Include="..\Api\Module\Experties\Experties.Application\Experties.Application.csproj" />
-    <ProjectReference Include="..\Api\Module\Experties\Experties.Domain\Experties.Domain.csproj" />
-    <ProjectReference Include="..\Api\Module\Experties\Experties.Infrastructure\Experties.Infrastructure.csproj" />
     <ProjectReference Include="..\Api\Server\Server.csproj" />
-    <ProjectReference Include="..\Aspire\Aspire.AppHost\Aspire.AppHost.csproj" />
-    <ProjectReference Include="..\Aspire\Aspire.ServiceDefaults\Aspire.ServiceDefaults.csproj" />
-    <ProjectReference Include="..\Shared\Shared.csproj" />
   </ItemGroup>
 
   <ItemGroup>
