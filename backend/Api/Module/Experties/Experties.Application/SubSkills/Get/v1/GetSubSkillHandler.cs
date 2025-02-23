@@ -20,7 +20,7 @@ public sealed class GetSubSkillHandler(
             {
                 var skillItem = await repository.GetByIdAsync(request.Id, cancellationToken);
                 if (skillItem == null || skillItem.DeletedBy != Guid.Empty) throw new SubSkillNotFoundException(request.Id);
-                return new SubSkillResponse(skillItem.Id, skillItem.Name, skillItem.Description);
+                return new SubSkillResponse(skillItem.Id, skillItem.Name, skillItem.Description, skillItem.SkillId);
             },
             cancellationToken: cancellationToken);
         return item!;
