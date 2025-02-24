@@ -5,3 +5,7 @@ backend/obj/
 **/appsettings.Development.json
 **/appsettings.json
 backend/Shared/Authorization/TenantConstants.cs
+backend/Api/Migrations/PGSql/Experties
+backend/Api/Migrations/PGSql/Job
+backend/Api/Migrations/PGSql/Tenant
+backend/Api/Migrations/PGSql/Identity
