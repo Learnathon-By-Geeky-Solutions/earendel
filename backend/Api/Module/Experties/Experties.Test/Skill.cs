@@ -1,4 +1,4 @@
-﻿using Moq;
+using Moq;
 using Xunit;
 using TalentMesh.Module.Experties.Application.Skills.Create.v1;
 using TalentMesh.Module.Experties.Application.Skills.Delete.v1;
