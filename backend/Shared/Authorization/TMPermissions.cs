@@ -29,12 +29,12 @@ public static class TMPermissions
         new("Update RoleClaims", TMActions.Update, TMResources.RoleClaims),
         
         //Jobs
-        new("View Products", TMActions.View, TMResources.Jobs, IsBasic: true),
-        new("Search Products", TMActions.Search, TMResources.Jobs, IsBasic: true),
-        new("Create Products", TMActions.Create, TMResources.Jobs),
-        new("Update Products", TMActions.Update, TMResources.Jobs),
-        new("Delete Products", TMActions.Delete, TMResources.Jobs),
-        new("Export Products", TMActions.Export, TMResources.Jobs),
+        new("View Jobs", TMActions.View, TMResources.Jobs, IsBasic: true),
+        new("Search Jobs", TMActions.Search, TMResources.Jobs, IsBasic: true),
+        new("Create Jobs", TMActions.Create, TMResources.Jobs),
+        new("Update Jobs", TMActions.Update, TMResources.Jobs),
+        new("Delete Jobs", TMActions.Delete, TMResources.Jobs),
+        new("Export Jobs", TMActions.Export, TMResources.Jobs),
 
 
 
