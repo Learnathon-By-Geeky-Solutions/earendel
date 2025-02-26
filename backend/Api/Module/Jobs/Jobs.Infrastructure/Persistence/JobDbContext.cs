@@ -18,8 +18,8 @@ public sealed class JobDbContext : TMDbContext
     {
     }
 
-    public DbSet<Jobs> Products { get; set; } = null!;
-
+    public DbSet<Jobs> Jobs { get; set; } = null!;
+    public DbSet<JobApplication> JobApplications { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

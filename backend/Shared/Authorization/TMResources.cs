@@ -9,5 +9,6 @@ public static class TMResources
     public const string Roles = nameof(Roles);
     public const string RoleClaims = nameof(RoleClaims);
     public const string Jobs = nameof(Jobs);
+    public const string JobApplication = nameof(JobApplication);
     public const string AuditTrails = nameof(AuditTrails);
 }

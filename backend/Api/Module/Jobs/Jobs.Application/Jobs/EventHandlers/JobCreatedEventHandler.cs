@@ -2,7 +2,7 @@
 using MediatR;
 using Microsoft.Extensions.Logging;
 
-namespace TalentMesh.Starter.WebApi.Catalog.Application.Brands.EventHandlers;
+namespace TalentMesh.Module.Job.Application.Jobs.EventHandlers;
 
 public class JobCreatedEventHandler(ILogger<JobCreatedEventHandler> logger) : INotificationHandler<JobCreated>
 {

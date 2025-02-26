@@ -15,12 +15,14 @@ public sealed class GetJobHandler(
     {
         ArgumentNullException.ThrowIfNull(request);
         var item = await cache.GetOrSetAsync(
-            $"brand:{request.Id}",
+            $"jobs:{request.Id}",
             async () =>
             {
                 var brandItem = await repository.GetByIdAsync(request.Id, cancellationToken);
                 if (brandItem == null) throw new JobNotFoundException(request.Id);
-                return new JobResponse(brandItem.Id, brandItem.Name, brandItem.Description);
+                return new JobResponse(brandItem.Id, brandItem.Name, brandItem.Description, 
+                    brandItem.Requirments, brandItem.Location, brandItem.JobType, brandItem.ExperienceLevel
+                    );
             },
             cancellationToken: cancellationToken);
         return item!;

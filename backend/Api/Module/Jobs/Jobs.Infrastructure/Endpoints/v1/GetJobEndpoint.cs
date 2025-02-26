@@ -17,8 +17,8 @@ public static class GetJobEndpoint
                 return Results.Ok(response);
             })
             .WithName(nameof(GetJobEndpoint))
-            .WithSummary("gets product by id")
-            .WithDescription("gets prodct by id")
+            .WithSummary("gets job by id")
+            .WithDescription("gets job by id")
             .Produces<JobResponse>()
             .RequirePermission("Permissions.Jobs.View")
             .MapToApiVersion(1);

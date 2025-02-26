@@ -1,4 +1,4 @@
-﻿using System.Collections.ObjectModel;
+using System.Collections.ObjectModel;
 
 namespace TalentMesh.Shared.Authorization;
 
@@ -31,10 +31,21 @@ public static class TMPermissions
         //Jobs
         new("View Products", TMActions.View, TMResources.Jobs, IsBasic: true),
         new("Search Products", TMActions.Search, TMResources.Jobs, IsBasic: true),
-        new("Create Products", TMActions.Create, TMResources.Jobs),
-        new("Update Products", TMActions.Update, TMResources.Jobs),
-        new("Delete Products", TMActions.Delete, TMResources.Jobs),
-        new("Export Products", TMActions.Export, TMResources.Jobs),
+        new("Create Products", TMActions.Create, TMResources.Jobs, IsBasic:true),
+        new("Update Products", TMActions.Update, TMResources.Jobs, IsBasic : true),
+        new("Delete Products", TMActions.Delete, TMResources.Jobs, IsBasic : true),
+        new("Export Products", TMActions.Export, TMResources.Jobs, IsBasic : true),
+
+
+        //JobApplications
+        new("View JobApplications", TMActions.View, TMResources.JobApplication, IsBasic: true),
+        new("Search JobApplications", TMActions.Search, TMResources.JobApplication, IsBasic: true),
+        new("Create JobApplications", TMActions.Create, TMResources.JobApplication, IsBasic:true),
+        new("Update JobApplications", TMActions.Update, TMResources.JobApplication,  IsBasic:true),
+        new("Delete JobApplications", TMActions.Delete, TMResources.JobApplication, IsBasic : true),
+        new("Export JobApplications", TMActions.Export, TMResources.JobApplication, IsBasic : true),
+
+
 
 
 
@@ -59,5 +70,4 @@ public record FshPermission(string Description, string Action, string Resource, 
         return $"Permissions.{resource}.{action}";
     }
 }
-
 
