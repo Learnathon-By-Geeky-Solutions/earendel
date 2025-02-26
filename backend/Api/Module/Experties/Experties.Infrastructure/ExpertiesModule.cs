@@ -37,6 +37,13 @@ public static class ExpertiesModule
             rubricGroup.MapGetRubricListEndpoint();
             rubricGroup.MapRubricUpdateEndpoint();
             rubricGroup.MapRubricDeleteEndpoint();
+
+            var seniorityGroup = app.MapGroup("seniorities").WithTags("seniorities");
+            seniorityGroup.MapSeniorityCreationEndpoint();
+            seniorityGroup.MapGetSeniorityEndpoint();
+            seniorityGroup.MapGetSeniorityListEndpoint();
+            seniorityGroup.MapSeniorityUpdateEndpoint();
+            seniorityGroup.MapSeniorityDeleteEndpoint();
         }
     }
     public static WebApplicationBuilder RegisterExpertiesServices(this WebApplicationBuilder builder)
@@ -53,6 +60,9 @@ public static class ExpertiesModule
 
         builder.Services.AddKeyedScoped<IRepository<Rubric>, ExpertiesRepository<Rubric>>("rubrics:rubric");
         builder.Services.AddKeyedScoped<IReadRepository<Rubric>, ExpertiesRepository<Rubric>>("rubrics:rubricReadOnly");
+
+        builder.Services.AddKeyedScoped<IRepository<Seniority>, ExpertiesRepository<Seniority>>("seniorities:seniority");
+        builder.Services.AddKeyedScoped<IReadRepository<Seniority>, ExpertiesRepository<Seniority>>("seniorities:seniorityReadOnly");
 
         return builder;
     }
