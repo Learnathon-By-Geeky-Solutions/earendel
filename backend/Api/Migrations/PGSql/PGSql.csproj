@@ -18,9 +18,4 @@
     <ProjectReference Include="..\..\Module\Jobs\Jobs.Infrastructure\Jobs.Infrastructure.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Identity\" />
-    <Folder Include="Job\" />
-  </ItemGroup>
-
 </Project>

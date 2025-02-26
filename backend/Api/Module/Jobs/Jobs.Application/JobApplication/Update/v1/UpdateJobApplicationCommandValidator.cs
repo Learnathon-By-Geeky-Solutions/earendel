@@ -9,6 +9,10 @@ namespace TalentMesh.Module.Job.Application.JobApplication.Update.v1
             RuleFor(x => x.Id)
                 .NotEmpty().WithMessage("Application Id is required.");
 
+            RuleFor(x => x.JobId).NotEmpty().WithMessage("Job Id is required.");
+
+            RuleFor(x => x.CandidateId).NotEmpty().WithMessage("Candidate Id is required.");
+
             RuleFor(x => x.Status)
                 .NotEmpty().WithMessage("Status is required.")
                 .MaximumLength(50).WithMessage("Status must not exceed 50 characters.");

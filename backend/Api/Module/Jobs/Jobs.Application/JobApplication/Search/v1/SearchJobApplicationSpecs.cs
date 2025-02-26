@@ -13,17 +13,25 @@ namespace TalentMesh.Module.Job.Application.JobApplication.Search.v1
         {
             Query.OrderBy(c => c.ApplicationDate, !command.HasOrderBy());
 
-            // If a specific JobId filter is provided, apply an exact match
+            if (command.CandidateId.HasValue)
+            {
+                Query.Where(b => b.CandidateId == command.CandidateId.Value);
+            }
+
+            if (command.ApplicationDate.HasValue)
+            {
+                // Compare just the date portion if needed.
+                Query.Where(b => b.ApplicationDate.Date == command.ApplicationDate.Value.Date);
+            }
+
+            if (!string.IsNullOrEmpty(command.Status))
+            {
+                Query.Where(b => b.Status.Contains(command.Status));
+            }
+
             if (command.JobId.HasValue)
             {
                 Query.Where(b => b.JobId == command.JobId.Value);
-            }
-
-            // If a keyword is provided, search by CandidateId or JobId (as strings)
-            if (!string.IsNullOrEmpty(command.Keyword))
-            {
-                Query.Where(b => b.CandidateId.ToString().Contains(command.Keyword)
-                                 || b.JobId.ToString().Contains(command.Keyword));
             }
         }
     }

@@ -1,20 +1,21 @@
-﻿using System.Net.Http.Headers;
-using TalentMesh.Framework.Core.Domain;
+﻿using TalentMesh.Framework.Core.Domain;
 using TalentMesh.Framework.Core.Domain.Contracts;
 using TalentMesh.Module.Job.Domain.Events;
-
 
 namespace TalentMesh.Module.Job.Domain
 {
     public class JobApplication : AuditableEntity, IAggregateRoot
     {
-        public int JobId { get;  set; }
-        public int CandidateId { get; set; }
+        // Foreign key for the Job
+        public Guid JobId { get; set; }
+
+        public Guid CandidateId { get; set; }
         public DateTime ApplicationDate { get; set; }
         public string Status { get; set; } = default!;  // e.g., "applied", "under review", "accepted", "rejected"
-        public string? CoverLetter { get;  set; }
+        public string? CoverLetter { get; set; }
 
-        //public virtual Job.Domain.Jobs Job { get;  set; } = default!;
+        // Navigation property to the Job
+        public virtual Jobs Job { get; set; } = default!;
 
         /// <summary>
         /// Creates a new job application with the default status set to "applied".
@@ -23,7 +24,7 @@ namespace TalentMesh.Module.Job.Domain
         /// <param name="candidateId">Identifier of the candidate applying.</param>
         /// <param name="coverLetter">Optional cover letter content.</param>
         /// <returns>A new instance of <see cref="JobApplication"/>.</returns>
-        public static JobApplication Create(int jobId, int candidateId, string? coverLetter)
+        public static JobApplication Create(Guid jobId, Guid candidateId, string? coverLetter)
         {
             var application = new JobApplication
             {
@@ -57,9 +58,8 @@ namespace TalentMesh.Module.Job.Domain
         }
 
         /// <summary>
-        /// Creates an updated instance of a job application with a given identifier.
+        /// Creates an updated instance of a job application with the specified values.
         /// </summary>
-        /// <param name="id">Identifier of the application.</param>
         /// <param name="jobId">Identifier of the job posting.</param>
         /// <param name="candidateId">Identifier of the candidate.</param>
         /// <param name="applicationDate">The date when the application was submitted.</param>
@@ -67,8 +67,8 @@ namespace TalentMesh.Module.Job.Domain
         /// <param name="coverLetter">Cover letter content.</param>
         /// <returns>A new instance with updated values.</returns>
         public static JobApplication Update(
-            int jobId,
-            int candidateId,
+            Guid jobId,
+            Guid candidateId,
             DateTime applicationDate,
             string status,
             string? coverLetter)

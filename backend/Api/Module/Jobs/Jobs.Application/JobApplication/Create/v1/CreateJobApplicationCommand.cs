@@ -4,9 +4,9 @@ using MediatR;
 namespace TalentMesh.Module.Job.Application.JobApplication.Create.v1
 {
     public sealed record CreateJobApplicationCommand(
-        int JobId,
-        int CandidateId,
-        string? CoverLetter = "Sample CoverLetter"
+        Guid JobId,
+        Guid CandidateId,
+        string? CoverLetter = "Provide a CoverLetter MAX Length 500"
     ) : IRequest<CreateJobApplicationResponse>;
 }
 
