@@ -2,8 +2,10 @@
 using Asp.Versioning.Conventions;
 using Carter;
 using FluentValidation;
+using TalentMesh.Module.Experties.Application;
 using TalentMesh.Module.Job.Application;
 using TalentMesh.Module.Job.Infrastructure;
+using TalentMesh.Module.Experties.Infrastructure;
 
 
 namespace TalentMesh.WebApi.Host;
@@ -18,6 +20,7 @@ public static class Extensions
         var assemblies = new Assembly[]
         {
             typeof(JobMetadata).Assembly,
+            typeof(ExpertiesMetadata).Assembly,
 
         };
 
@@ -32,11 +35,13 @@ public static class Extensions
 
         //register module services
         builder.RegisterJobServices();
+        builder.RegisterExpertiesServices();
 
         //add carter endpoint modules
         builder.Services.AddCarter(configurator: config =>
         {
             config.WithModule<JobModule.Endpoints>();
+            config.WithModule<ExpertiesModule.Endpoints>();
 
         });
 
@@ -49,6 +54,7 @@ public static class Extensions
 
         //register modules
         app.UseJobModule();
+        app.UseExpertiesModule();
 
         //register api versions
         var versions = app.NewApiVersionSet()

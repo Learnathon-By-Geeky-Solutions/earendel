@@ -1,4 +1,4 @@
-﻿using TalentMesh.Framework.Infrastructure.Auth.Policy;
+using TalentMesh.Framework.Infrastructure.Auth.Policy;
 using TalentMesh.Module.Job.Application.Jobs.Create.v1;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
