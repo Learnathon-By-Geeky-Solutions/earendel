@@ -17,10 +17,10 @@ public static class CreateJobEndpoint
                 return Results.Ok(response);
             })
             .WithName(nameof(CreateJobEndpoint))
-            .WithSummary("creates a product")
-            .WithDescription("creates a product")
+            .WithSummary("Creates a Job")
+            .WithDescription("Creates a Job")
             .Produces<CreateJobResponse>()
-            .RequirePermission("Permissions.Products.Create")
+            .RequirePermission("Permissions.Job.Create")
             .MapToApiVersion(1);
     }
 }

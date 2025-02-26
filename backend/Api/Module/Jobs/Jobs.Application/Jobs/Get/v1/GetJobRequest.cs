@@ -5,4 +5,7 @@ public class GetJobRequest : IRequest<JobResponse>
 {
     public Guid Id { get; set; }
     public GetJobRequest(Guid id) => Id = id;
+
+    
+
 }

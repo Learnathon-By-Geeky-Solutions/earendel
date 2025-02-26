@@ -21,10 +21,10 @@ public static class SearchJobsEndpoint
                 return Results.Ok(response);
             })
             .WithName(nameof(SearchJobsEndpoint))
-            .WithSummary("Gets a list of products")
-            .WithDescription("Gets a list of products with pagination and filtering support")
+            .WithSummary("Gets a list of jobs")
+            .WithDescription("Gets a list of jobs with pagination and filtering support")
             .Produces<PagedList<JobResponse>>()
-            .RequirePermission("Permissions.Products.View")
+            .RequirePermission("Permissions.Job.View")
             .MapToApiVersion(1);
     }
 }

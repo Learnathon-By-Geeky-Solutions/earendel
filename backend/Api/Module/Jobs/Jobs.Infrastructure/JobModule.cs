@@ -25,6 +25,14 @@ public static class JobModule
             productGroup.MapJobDeleteEndpoint();
 
 
+            // Group endpoints for job applications
+            var jobApplicationGroup = app.MapGroup("jobapplications").WithTags("jobapplications");
+            jobApplicationGroup.MapJobApplicationCreationEndpoint();
+            jobApplicationGroup.MapGetJobApplicationEndpoint();
+            jobApplicationGroup.MapGetJobApplicationListEndpoint();
+            jobApplicationGroup.MapJobApplicationUpdateEndpoint();
+            jobApplicationGroup.MapJobApplicationDeleteEndpoint();
+
         }
     }
     public static WebApplicationBuilder RegisterJobServices(this WebApplicationBuilder builder)
@@ -32,8 +40,16 @@ public static class JobModule
         ArgumentNullException.ThrowIfNull(builder);
         builder.Services.BindDbContext<JobDbContext>();
         builder.Services.AddScoped<IDbInitializer, JobDbInitializer>();
+
+        //Job
         builder.Services.AddKeyedScoped<IRepository<Jobs>, JobRepository<Jobs>>("jobs:job");
         builder.Services.AddKeyedScoped<IReadRepository<Jobs>, JobRepository<Jobs>>("jobs:jobReadOnly");
+
+        //JobApplication
+        builder.Services.AddKeyedScoped<IRepository<JobApplication>, JobRepository<JobApplication>>("jobs:jobapplication");
+        builder.Services.AddKeyedScoped<IReadRepository<JobApplication>, JobRepository<JobApplication>>("jobs:jobApplicationReadOnly"); 
+
+
         return builder;
     }
     public static WebApplication UseJobModule(this WebApplication app)

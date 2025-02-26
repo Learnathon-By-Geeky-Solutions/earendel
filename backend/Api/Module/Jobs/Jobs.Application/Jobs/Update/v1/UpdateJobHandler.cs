@@ -16,7 +16,14 @@ public sealed class UpdateJobHandler(
         ArgumentNullException.ThrowIfNull(request);
         var brand = await repository.GetByIdAsync(request.Id, cancellationToken);
         _ = brand ?? throw new JobNotFoundException(request.Id);
-        var updatedBrand = brand.Update(request.Name, request.Description);
+        var updatedBrand = brand.Update(
+            request.Name,
+            request.Description,
+            request.Requirments,
+            request.Location,
+            request.JobType,
+            request.ExperienceLevel
+            );
         await repository.UpdateAsync(updatedBrand, cancellationToken);
         logger.LogInformation("Brand with id : {BrandId} updated.", brand.Id);
         return new UpdateJobResponse(brand.Id);

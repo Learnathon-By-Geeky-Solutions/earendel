@@ -21,9 +21,13 @@ internal sealed class JobDbInitializer(
     {
         const string Name = "Rickshaw Puller";
         const string Description = "You Drive a Tesla Around Dhaka";
+        const string Requirments = "Must be able to drive a Tesla";
+        const string Location = "Dhaka";
+        const string JobType = "Driver";
+        const string ExperienceLevel = "Entry Level";
         if (await context.Jobs.FirstOrDefaultAsync(t => t.Name == Name, cancellationToken).ConfigureAwait(false) is null)
         {
-            var product = Job.Domain.Jobs.Create(Name, Description);
+            var product = Job.Domain.Jobs.Create(Name, Description,Requirments,Location,JobType,ExperienceLevel);
             await context.Jobs.AddAsync(product, cancellationToken);
             await context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
             logger.LogInformation("[{Tenant}] seeding default catalog data", context.TenantInfo!.Identifier);

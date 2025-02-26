@@ -8,4 +8,8 @@ public class SearchJobsCommand : PaginationFilter, IRequest<PagedList<JobRespons
 {
     public string? Name { get; set; }
     public string? Description { get; set; }
+    public string? Requirments { get; set; }
+    public string? Location { get; set; }
+    public string? JobType { get; set; }
+    public string? ExperienceLevel { get; set; }
 }
