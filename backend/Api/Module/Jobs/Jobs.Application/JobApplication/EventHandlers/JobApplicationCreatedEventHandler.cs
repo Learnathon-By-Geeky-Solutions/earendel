@@ -2,11 +2,11 @@
 using MediatR;
 using Microsoft.Extensions.Logging;
 
-namespace TalentMesh.Module.Job.Application.Jobs.EventHandlers;
+namespace TalentMesh.Module.Job.Application.JobApplication.EventHandlers;
 
-public class JobCreatedEventHandler(ILogger<JobCreatedEventHandler> logger) : INotificationHandler<JobCreated>
+public class JobApplicationCreatedEventHandler(ILogger<JobApplicationCreatedEventHandler> logger) : INotificationHandler<JobApplicationCreated>
 {
-    public async Task Handle(JobCreated notification,
+    public async Task Handle(JobApplicationCreated notification,
         CancellationToken cancellationToken)
     {
         logger.LogInformation("handling User created domain event..");

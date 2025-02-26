@@ -5,24 +5,22 @@ using TalentMesh.Framework.Core.Caching;
 using TalentMesh.Module.Job.Domain;
 using MediatR;
 
-namespace TalentMesh.Module.Job.Application.Jobs.Get.v1;
-public sealed class GetJobHandler(
-    [FromKeyedServices("jobs:jobReadOnly")] IReadRepository<Job.Domain.Jobs> repository,
+namespace TalentMesh.Module.Job.Application.JobApplication.Get.v1;
+public sealed class GetJobApplicationHandler(
+    [FromKeyedServices("jobs:jobApplicationReadOnly")] IReadRepository<Domain.JobApplication> repository,
     ICacheService cache)
-    : IRequestHandler<GetJobRequest, JobResponse>
+    : IRequestHandler<GetJobApplicationRequest, JobApplicationResponse>
 {
-    public async Task<JobResponse> Handle(GetJobRequest request, CancellationToken cancellationToken)
+    public async Task<JobApplicationResponse> Handle(GetJobApplicationRequest request, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(request);
         var item = await cache.GetOrSetAsync(
-            $"jobs:{request.Id}",
+            $"brand:{request.Id}",
             async () =>
             {
                 var brandItem = await repository.GetByIdAsync(request.Id, cancellationToken);
                 if (brandItem == null) throw new JobNotFoundException(request.Id);
-                return new JobResponse(brandItem.Id, brandItem.Name, brandItem.Description, 
-                    brandItem.Requirments, brandItem.Location, brandItem.JobType, brandItem.ExperienceLevel
-                    );
+                return new JobApplicationResponse(brandItem.Id, brandItem.JobId, brandItem.CandidateId, brandItem.ApplicationDate, brandItem.Status, brandItem.CoverLetter);
             },
             cancellationToken: cancellationToken);
         return item!;
