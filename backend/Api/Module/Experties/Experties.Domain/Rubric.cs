@@ -12,6 +12,7 @@ public class Rubric : AuditableEntity, IAggregateRoot
     public Guid? SubSkillId { get; private set; }
     public Guid? SeniorityLevelId { get; private set; }
     public decimal Weight { get; private set; }
+    public virtual Seniority Seniority { get; private set; } = default!;
 
     public static Rubric Create(string title, string rubricDescription, Guid? subSkillId, Guid? seniorityLevelId, decimal weight)
     {

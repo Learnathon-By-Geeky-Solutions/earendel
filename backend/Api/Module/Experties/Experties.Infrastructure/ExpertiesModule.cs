@@ -40,7 +40,7 @@ public static class ExpertiesModule
 
             var seniorityGroup = app.MapGroup("seniorities").WithTags("seniorities");
             seniorityGroup.MapSeniorityCreationEndpoint();
-            // seniorityGroup.MapGetSeniorityEndpoint();
+            seniorityGroup.MapGetSeniorityEndpoint();
             seniorityGroup.MapGetSeniorityListEndpoint();
             seniorityGroup.MapSeniorityUpdateEndpoint();
             seniorityGroup.MapSeniorityDeleteEndpoint();
