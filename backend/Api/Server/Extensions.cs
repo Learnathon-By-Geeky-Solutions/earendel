@@ -4,8 +4,10 @@ using Carter;
 using FluentValidation;
 using TalentMesh.Module.Experties.Application;
 using TalentMesh.Module.Job.Application;
+using TalentMesh.Module.Quizzes.Application;
 using TalentMesh.Module.Job.Infrastructure;
 using TalentMesh.Module.Experties.Infrastructure;
+using TalentMesh.Module.Quizzes.Infrastructure;
 
 
 namespace TalentMesh.WebApi.Host;
@@ -21,6 +23,7 @@ public static class Extensions
         {
             typeof(JobMetadata).Assembly,
             typeof(ExpertiesMetadata).Assembly,
+            typeof(QuizzesMetadata).Assembly,
 
         };
 
@@ -36,12 +39,14 @@ public static class Extensions
         //register module services
         builder.RegisterJobServices();
         builder.RegisterExpertiesServices();
+        builder.RegisterQuizzesServices();
 
         //add carter endpoint modules
         builder.Services.AddCarter(configurator: config =>
         {
             config.WithModule<JobModule.Endpoints>();
             config.WithModule<ExpertiesModule.Endpoints>();
+            config.WithModule<QuizzesModule.Endpoints>();
 
         });
 
@@ -55,6 +60,7 @@ public static class Extensions
         //register modules
         app.UseJobModule();
         app.UseExpertiesModule();
+        app.UseQuizzesModule();
 
         //register api versions
         var versions = app.NewApiVersionSet()
