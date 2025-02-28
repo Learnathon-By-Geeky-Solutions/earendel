@@ -20,6 +20,7 @@ public sealed class QuizzesDbContext : TMDbContext
 
     public DbSet<QuizAttempt> QuizAttempts { get; set; } = null!;
     public DbSet<QuizQuestion> QuizQuestions { get; set; } = null!;
+    public DbSet<QuizAttemptAnswer> QuizAttemptAnswers { get; set; } = null!;
     
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

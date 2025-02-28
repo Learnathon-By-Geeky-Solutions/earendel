@@ -31,6 +31,13 @@ public static class QuizzesModule
             quizQuestionGroup.MapQuizQuestionUpdateEndpoint();
             quizQuestionGroup.MapQuizQuestionDeleteEndpoint();
 
+            var quizAttemptAnswerGroup = app.MapGroup("quizattemptanswers").WithTags("quizattemptanswers");
+            quizAttemptAnswerGroup.MapQuizAttemptAnswerCreationEndpoint();
+            quizAttemptAnswerGroup.MapGetQuizAttemptAnswerEndpoint();
+            quizAttemptAnswerGroup.MapGetQuizAttemptAnswerListEndpoint();
+            quizAttemptAnswerGroup.MapQuizAttemptAnswerUpdateEndpoint();
+            quizAttemptAnswerGroup.MapQuizAttemptAnswerDeleteEndpoint();
+
         }
     }
     public static WebApplicationBuilder RegisterQuizzesServices(this WebApplicationBuilder builder)
@@ -44,6 +51,9 @@ public static class QuizzesModule
 
         builder.Services.AddKeyedScoped<IRepository<QuizQuestion>, QuizzesRepository<QuizQuestion>>("quizquestions:quizquestion");
         builder.Services.AddKeyedScoped<IReadRepository<QuizQuestion>, QuizzesRepository<QuizQuestion>>("quizquestions:quizquestionReadOnly");
+
+        builder.Services.AddKeyedScoped<IRepository<QuizAttemptAnswer>, QuizzesRepository<QuizAttemptAnswer>>("quizattemptanswers:quizattemptanswer");
+        builder.Services.AddKeyedScoped<IReadRepository<QuizAttemptAnswer>, QuizzesRepository<QuizAttemptAnswer>>("quizattemptanswers:quizattemptanswerReadOnly");
 
         return builder;
     }
