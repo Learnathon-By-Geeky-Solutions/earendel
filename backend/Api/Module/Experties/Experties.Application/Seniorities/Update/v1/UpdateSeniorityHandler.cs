@@ -15,7 +15,7 @@ public sealed class UpdateSeniorityHandler(
     {
         ArgumentNullException.ThrowIfNull(request);
         var seniority = await repository.GetByIdAsync(request.Id, cancellationToken);
-        if (seniority is null || seniority.DeletedBy is not null)
+        if (seniority is null || seniority.DeletedBy != Guid.Empty)
         {
             throw new SeniorityNotFoundException(request.Id);
         }

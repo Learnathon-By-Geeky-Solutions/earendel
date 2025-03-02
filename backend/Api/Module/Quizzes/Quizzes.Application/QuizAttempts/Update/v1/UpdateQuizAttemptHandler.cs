@@ -15,7 +15,7 @@ public sealed class UpdateQuizAttemptHandler(
     {
         ArgumentNullException.ThrowIfNull(request);
         var quizAttempt = await repository.GetByIdAsync(request.Id, cancellationToken);
-        if (quizAttempt is null || quizAttempt.DeletedBy is not null)
+        if (quizAttempt is null || quizAttempt.DeletedBy != Guid.Empty)
         {
             throw new QuizAttemptNotFoundException(request.Id);
         }
