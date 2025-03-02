@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Text;
 using System.Text.Json;
 using System.Threading;
@@ -26,7 +27,8 @@ namespace TalentMesh.Framework.Infrastructure.Messaging
         public Task PublishAsync<T>(T message, string exchange, string routingKey, CancellationToken cancellationToken = default)
         {
             if (_disposed) throw new ObjectDisposedException(nameof(RabbitMQMessageBus));
-            if (message == null) throw new ArgumentNullException(nameof(message));
+            if (EqualityComparer<T>.Default.Equals(message, default(T)))
+                throw new ArgumentException("Message cannot be null or default.", nameof(message));
             if (string.IsNullOrWhiteSpace(exchange)) throw new ArgumentException("Exchange cannot be null or empty.", nameof(exchange));
             if (string.IsNullOrWhiteSpace(routingKey)) throw new ArgumentException("Routing key cannot be null or empty.", nameof(routingKey));
 
@@ -34,7 +36,7 @@ namespace TalentMesh.Framework.Infrastructure.Messaging
             var json = JsonSerializer.Serialize(message);
             var body = Encoding.UTF8.GetBytes(json);
 
-            // Declare the exchange (if needed)
+            // Declare the exchange (ensures it exists before publishing)
             _channel.ExchangeDeclare(exchange: exchange, type: ExchangeType.Direct, durable: true);
 
             // Publish the message
