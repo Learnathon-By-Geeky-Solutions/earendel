@@ -32,7 +32,7 @@ public class QuizAttemptAnswer : AuditableEntity, IAggregateRoot
     // Update the QuizAttemptAnswer
     public QuizAttemptAnswer Update(Guid? attemptId, Guid? questionId, int? selectedOption, bool? isCorrect)
     {
-        if (attemptId.HasValue && attemptId.Value != Guid.Empty && attemptId != AttemptId)
+        if (attemptId.HasValue && attemptId.Value is not null && attemptId != AttemptId)
             AttemptId = attemptId.Value;
 
         if (questionId.HasValue && questionId != QuestionId)

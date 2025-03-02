@@ -27,7 +27,7 @@ public class QuizAttempt : AuditableEntity, IAggregateRoot
 
     public QuizAttempt Update(Guid? userId, decimal? score, int totalQuestions)
     {
-        if (userId.HasValue && userId.Value != Guid.Empty && userId != userId.Value)
+        if (userId.HasValue && userId.Value is not null && userId != userId.Value)
         {
             UserId = userId.Value;
         }
@@ -36,7 +36,7 @@ public class QuizAttempt : AuditableEntity, IAggregateRoot
             Score = score.Value;
         if (totalQuestions > 0)
             TotalQuestions = totalQuestions;
-        
+
         this.QueueDomainEvent(new QuizAttemptUpdated() { QuizAttempt = this });
 
         return this;

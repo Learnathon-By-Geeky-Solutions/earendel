@@ -17,8 +17,10 @@ public sealed class UpdateQuizQuestionHandler(
         ArgumentNullException.ThrowIfNull(request);
 
         var quizQuestion = await repository.GetByIdAsync(request.Id, cancellationToken);
+        Console.WriteLine(quizQuestion!.Id);
+        Console.WriteLine(quizQuestion!.DeletedBy);
 
-        if (quizQuestion is null || quizQuestion.DeletedBy != Guid.Empty)
+        if (quizQuestion is null || quizQuestion.DeletedBy is not null)
         {
             throw new QuizQuestionNotFoundException(request.Id);
         }
@@ -26,10 +28,6 @@ public sealed class UpdateQuizQuestionHandler(
         // Update the quiz question using the command parameters.
         var updatedQuizQuestion = quizQuestion.Update(
             request.QuestionText,
-            request.Option1,
-            request.Option2,
-            request.Option3,
-            request.Option4,
             request.CorrectOption);
 
         await repository.UpdateAsync(updatedQuizQuestion, cancellationToken);

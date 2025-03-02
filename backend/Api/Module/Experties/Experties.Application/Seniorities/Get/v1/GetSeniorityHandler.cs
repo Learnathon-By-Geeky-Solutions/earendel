@@ -19,7 +19,7 @@ public sealed class GetSeniorityHandler(
             async () =>
             {
                 var seniorityItem = await repository.GetByIdAsync(request.Id, cancellationToken);
-                if (seniorityItem == null || seniorityItem.DeletedBy != Guid.Empty) throw new SeniorityNotFoundException(request.Id);
+                if (seniorityItem == null || seniorityItem.DeletedBy is not null) throw new SeniorityNotFoundException(request.Id);
                 return new SeniorityResponse(seniorityItem.Id, seniorityItem.Name, seniorityItem.Description);
             },
             cancellationToken: cancellationToken);

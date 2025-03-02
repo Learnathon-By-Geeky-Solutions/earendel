@@ -19,7 +19,7 @@ public sealed class GetSkillHandler(
             async () =>
             {
                 var skillItem = await repository.GetByIdAsync(request.Id, cancellationToken);
-                if (skillItem == null || skillItem.DeletedBy != Guid.Empty) throw new SkillNotFoundException(request.Id);
+                if (skillItem == null || skillItem.DeletedBy is not null) throw new SkillNotFoundException(request.Id);
                 return new SkillResponse(skillItem.Id, skillItem.Name, skillItem.Description);
             },
             cancellationToken: cancellationToken);

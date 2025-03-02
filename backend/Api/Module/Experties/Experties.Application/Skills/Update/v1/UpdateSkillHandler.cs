@@ -15,7 +15,7 @@ public sealed class UpdateSkillHandler(
     {
         ArgumentNullException.ThrowIfNull(request);
         var skill = await repository.GetByIdAsync(request.Id, cancellationToken);
-        if (skill is null || skill.DeletedBy != Guid.Empty)
+        if (skill is null || skill.DeletedBy is not null)
         {
             throw new SkillNotFoundException(request.Id);
         }

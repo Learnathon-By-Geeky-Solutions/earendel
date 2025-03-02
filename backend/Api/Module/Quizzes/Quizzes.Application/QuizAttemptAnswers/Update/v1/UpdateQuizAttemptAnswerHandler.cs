@@ -19,7 +19,7 @@ public sealed class UpdateQuizAttemptAnswerHandler(
         // Retrieve the quiz attempt answer from the repository using the provided ID.
         var quizAttemptAnswer = await repository.GetByIdAsync(request.Id, cancellationToken);
 
-        if (quizAttemptAnswer is null || quizAttemptAnswer.DeletedBy != Guid.Empty)
+        if (quizAttemptAnswer is null || quizAttemptAnswer.DeletedBy is not null)
         {
             throw new QuizAttemptAnswerNotFoundException(request.Id);
         }
