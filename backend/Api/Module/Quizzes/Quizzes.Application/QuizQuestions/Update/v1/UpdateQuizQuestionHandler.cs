@@ -17,10 +17,8 @@ public sealed class UpdateQuizQuestionHandler(
         ArgumentNullException.ThrowIfNull(request);
 
         var quizQuestion = await repository.GetByIdAsync(request.Id, cancellationToken);
-        Console.WriteLine(quizQuestion!.Id);
-        Console.WriteLine(quizQuestion!.DeletedBy);
-
-        if (quizQuestion is null || quizQuestion.DeletedBy is not null)
+        
+        if (quizQuestion == null || quizQuestion.DeletedBy is not null)
         {
             throw new QuizQuestionNotFoundException(request.Id);
         }
