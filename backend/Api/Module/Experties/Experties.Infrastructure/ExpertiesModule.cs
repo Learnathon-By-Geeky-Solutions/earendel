@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
+using TalentMesh.Module.Experties.Infrastructure.Messaging;
 
 namespace TalentMesh.Module.Experties.Infrastructure;
 public static class ExpertiesModule
@@ -51,6 +52,8 @@ public static class ExpertiesModule
         ArgumentNullException.ThrowIfNull(builder);
         builder.Services.BindDbContext<ExpertiesDbContext>();
         builder.Services.AddScoped<IDbInitializer, ExpertiesDbInitializer>();
+
+        builder.Services.AddHostedService<SkillsCreatedConsumer>();
 
         builder.Services.AddKeyedScoped<IRepository<Skill>, ExpertiesRepository<Skill>>("skills:skill");
         builder.Services.AddKeyedScoped<IReadRepository<Skill>, ExpertiesRepository<Skill>>("skills:skillReadOnly");
