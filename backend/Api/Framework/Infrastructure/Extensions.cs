@@ -26,6 +26,8 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
+using TalentMesh.Framework.Infrastructure.Messaging;
+using TalentMesh.Framework.Infrastructure.SignalR;
 
 namespace TalentMesh.Framework.Infrastructure;
 public static class Extensions
@@ -45,6 +47,8 @@ public static class Extensions
         builder.Services.ConfigureJobs(builder.Configuration);
         builder.Services.ConfigureMailing();
         builder.Services.ConfigureCaching(builder.Configuration);
+        builder.Services.ConfigureRabbitMQ(builder.Configuration);
+        builder.Services.ConfigureSignalR();
         builder.Services.AddExceptionHandler<CustomExceptionHandler>();
         builder.Services.AddProblemDetails();
         builder.Services.AddHealthChecks();
@@ -92,6 +96,8 @@ public static class Extensions
         });
         app.UseAuthentication();
         app.UseAuthorization();
+        // Use SignalR hubs
+        app.UseSignalRHubs();
         app.MapTenantEndpoints();
         app.MapIdentityEndpoints();
 

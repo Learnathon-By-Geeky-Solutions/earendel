@@ -24,7 +24,7 @@ public class Rubric : AuditableEntity, IAggregateRoot
             SubSkillId = subSkillId,
             SeniorityLevelId = seniorityLevelId,
             Weight = weight
-            
+
         };
 
         Rubric.QueueDomainEvent(new RubricCreated() { Rubric = Rubric });
@@ -36,11 +36,11 @@ public class Rubric : AuditableEntity, IAggregateRoot
     {
         if (title is not null && Title?.Equals(title, StringComparison.OrdinalIgnoreCase) is not true) Title = title;
         if (rubricDescription is not null && RubricDescription?.Equals(rubricDescription, StringComparison.OrdinalIgnoreCase) is not true) RubricDescription = rubricDescription;
-        if (subSkillId.HasValue && subSkillId.Value != Guid.Empty && subSkillId != subSkillId.Value)
+        if (subSkillId.HasValue && subSkillId.Value is not null && subSkillId != subSkillId.Value)
         {
             SubSkillId = subSkillId.Value;
         }
-        if (seniorityLevelId.HasValue && seniorityLevelId.Value != Guid.Empty && seniorityLevelId != seniorityLevelId.Value)
+        if (seniorityLevelId.HasValue && seniorityLevelId.Value is not null && seniorityLevelId != seniorityLevelId.Value)
         {
             SeniorityLevelId = seniorityLevelId.Value;
         }
