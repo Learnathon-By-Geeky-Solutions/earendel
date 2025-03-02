@@ -1,5 +1,8 @@
+using System;
 using System.Text;
 using System.Text.Json;
+using System.Threading;
+using System.Threading.Tasks;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 
@@ -7,28 +10,31 @@ namespace TalentMesh.Framework.Infrastructure.Messaging
 {
     public class RabbitMQMessageBus : IMessageBus, IDisposable
     {
-        private readonly IConnectionFactory _connectionFactory;
         private readonly IConnection _connection;
         private readonly IModel _channel;
         private bool _disposed;
 
         public RabbitMQMessageBus(IConnectionFactory connectionFactory)
         {
-            _connectionFactory = connectionFactory;
+            if (connectionFactory == null) throw new ArgumentNullException(nameof(connectionFactory));
+
             // Create a connection and open a channel
-            _connection = _connectionFactory.CreateConnection();
+            _connection = connectionFactory.CreateConnection();
             _channel = _connection.CreateModel();
         }
 
         public Task PublishAsync<T>(T message, string exchange, string routingKey, CancellationToken cancellationToken = default)
         {
             if (_disposed) throw new ObjectDisposedException(nameof(RabbitMQMessageBus));
+            if (message == null) throw new ArgumentNullException(nameof(message));
+            if (string.IsNullOrWhiteSpace(exchange)) throw new ArgumentException("Exchange cannot be null or empty.", nameof(exchange));
+            if (string.IsNullOrWhiteSpace(routingKey)) throw new ArgumentException("Routing key cannot be null or empty.", nameof(routingKey));
 
             // Serialize the message to JSON
             var json = JsonSerializer.Serialize(message);
             var body = Encoding.UTF8.GetBytes(json);
 
-            // Ensure the exchange exists (you might want to declare it elsewhere based on your application design)
+            // Declare the exchange (if needed)
             _channel.ExchangeDeclare(exchange: exchange, type: ExchangeType.Direct, durable: true);
 
             // Publish the message
@@ -41,14 +47,31 @@ namespace TalentMesh.Framework.Infrastructure.Messaging
             return Task.CompletedTask;
         }
 
+        // Proper implementation of IDisposable pattern
         public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
         {
             if (!_disposed)
             {
-                _channel?.Close();
-                _connection?.Close();
+                if (disposing)
+                {
+                    _channel?.Close();
+                    _channel?.Dispose();
+                    _connection?.Close();
+                    _connection?.Dispose();
+                }
                 _disposed = true;
             }
+        }
+
+        ~RabbitMQMessageBus()
+        {
+            Dispose(false);
         }
     }
 }

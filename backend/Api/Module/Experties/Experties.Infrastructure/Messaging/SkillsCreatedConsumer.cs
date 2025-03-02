@@ -38,13 +38,8 @@ namespace TalentMesh.Module.Experties.Infrastructure.Messaging
                 _logger.LogInformation("hello..........");
                 var body = ea.Body.ToArray();
                 var messageJson = Encoding.UTF8.GetString(body);
-                // Deserialize message (assuming anonymous object structure as used in publisher)
-                var message = JsonSerializer.Deserialize<dynamic>(messageJson);
 
                 _logger.LogInformation("Received SkillCreated message: {Message}", messageJson);
-                
-                // Process the message (e.g., update a dashboard, trigger notifications, etc.)
-                // ... Your processing logic here ...
 
                 // Acknowledge message processing
                 _channel.BasicAck(ea.DeliveryTag, multiple: false);
