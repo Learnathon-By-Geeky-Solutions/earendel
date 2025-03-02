@@ -27,7 +27,7 @@ public class QuizAttempt : AuditableEntity, IAggregateRoot
 
     public QuizAttempt Update(Guid? userId, decimal? score, int totalQuestions)
     {
-        if (userId.HasValue && userId.Value is not null && userId != userId.Value)
+        if (userId.HasValue && userId.HasValue && userId != userId.Value)
         {
             UserId = userId.Value;
         }

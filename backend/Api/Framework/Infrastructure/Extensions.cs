@@ -94,15 +94,16 @@ public static class Extensions
             FileProvider = new PhysicalFileProvider(Path.Combine(Directory.GetCurrentDirectory(), "assets")),
             RequestPath = new PathString("/assets")
         });
+
         app.UseAuthentication();
         app.UseAuthorization();
-        // Use SignalR hubs
-        app.UseSignalRHubs();
         app.MapTenantEndpoints();
         app.MapIdentityEndpoints();
 
         // Current user middleware
         app.UseMiddleware<CurrentUserMiddleware>();
+        // Use SignalR hubs
+        app.UseSignalRHubs();
 
         // Register API versions
         var versions = app.NewApiVersionSet()

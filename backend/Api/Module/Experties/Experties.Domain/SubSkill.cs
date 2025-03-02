@@ -30,7 +30,7 @@ public class SubSkill : AuditableEntity, IAggregateRoot
     {
         if (name is not null && Name?.Equals(name, StringComparison.OrdinalIgnoreCase) is not true) Name = name;
         if (description is not null && Description?.Equals(description, StringComparison.OrdinalIgnoreCase) is not true) Description = description;
-        if (skillId.HasValue && skillId.Value is not null && skillId != skillId.Value)
+        if (skillId.HasValue && skillId.HasValue && skillId != skillId.Value)
         {
             SkillId = skillId.Value;
         }

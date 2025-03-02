@@ -36,11 +36,11 @@ public class Rubric : AuditableEntity, IAggregateRoot
     {
         if (title is not null && Title?.Equals(title, StringComparison.OrdinalIgnoreCase) is not true) Title = title;
         if (rubricDescription is not null && RubricDescription?.Equals(rubricDescription, StringComparison.OrdinalIgnoreCase) is not true) RubricDescription = rubricDescription;
-        if (subSkillId.HasValue && subSkillId.Value is not null && subSkillId != subSkillId.Value)
+        if (subSkillId.HasValue && subSkillId.HasValue && subSkillId != subSkillId.Value)
         {
             SubSkillId = subSkillId.Value;
         }
-        if (seniorityLevelId.HasValue && seniorityLevelId.Value is not null && seniorityLevelId != seniorityLevelId.Value)
+        if (seniorityLevelId.HasValue && seniorityLevelId.HasValue && seniorityLevelId != seniorityLevelId.Value)
         {
             SeniorityLevelId = seniorityLevelId.Value;
         }
