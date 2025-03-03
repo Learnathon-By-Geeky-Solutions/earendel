@@ -23,7 +23,7 @@ namespace TalentMesh.Module.Experties.Tests
         [Fact]
         public async Task CreateSeniority_ReturnsSeniorityResponse()
         {
-            var request = new CreateSeniorityCommand("Internship", "0 Years of Experience");
+            const request = new CreateSeniorityCommand("Internship", "0 Years of Experience");
             var expectedId = Guid.NewGuid();
             var response = new CreateSeniorityResponse(expectedId);
 
