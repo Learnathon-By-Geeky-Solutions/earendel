@@ -19,7 +19,7 @@ public sealed class GetJobApplicationHandler(
             async () =>
             {
                 var brandItem = await repository.GetByIdAsync(request.Id, cancellationToken);
-                if (brandItem == null) throw new JobNotFoundException(request.Id);
+                if (brandItem == null || brandItem.DeletedBy != Guid.Empty) throw new JobApplicationNotFoundException(request.Id);
                 return new JobApplicationResponse(brandItem.Id, brandItem.JobId ,brandItem.CandidateId, brandItem.ApplicationDate, brandItem.Status, brandItem.CoverLetter);
             },
             cancellationToken: cancellationToken);
