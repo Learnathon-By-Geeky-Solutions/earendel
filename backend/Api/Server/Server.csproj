@@ -21,6 +21,7 @@
     <ProjectReference Include="..\Migrations\PGSql\PGSql.csproj" />
     <ProjectReference Include="..\Module\Experties\Experties.Infrastructure\Experties.Infrastructure.csproj" />
     <ProjectReference Include="..\Module\Jobs\Jobs.Infrastructure\Jobs.Infrastructure.csproj" />
+    <ProjectReference Include="..\Module\Notifications\Notifications.Infrastructure\Notifications.Infrastructure.csproj" />
     <ProjectReference Include="..\Module\Quizzes\Quizzes.Infrastructure\Quizzes.Infrastructure.csproj" />
   </ItemGroup>
 
