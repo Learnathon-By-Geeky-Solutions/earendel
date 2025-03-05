@@ -51,7 +51,7 @@ public static class ExpertiesModule
             seniorityLevelJunctionGroup.MapGetSeniorityLevelJunctionEndpoint();
             seniorityLevelJunctionGroup.MapGetSeniorityLevelJunctionListEndpoint();
             seniorityLevelJunctionGroup.MapSeniorityLevelJunctionUpdateEndpoint();
-            seniorityLevelJunctionGroup.MapSeniorityLevelJunctionDeleteEndpoint();
+            seniorityLevelJunctionGroup.MapSeniorityLevelJunctionDeletionEndpoint();
 
         }
     }

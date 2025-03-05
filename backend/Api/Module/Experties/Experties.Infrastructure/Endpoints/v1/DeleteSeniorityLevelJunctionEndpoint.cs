@@ -14,7 +14,7 @@ public static class DeleteSeniorityLevelJunctionEndpoint
             .MapDelete("/{id:guid}", async (Guid id, ISender mediator) =>
             {
                 await mediator.Send(new DeleteSeniorityLevelJunctionCommand(id));
-                return Results.Ok(response);
+                return Results.NoContent();
             })
             .WithName(nameof(DeleteSeniorityLevelJunctionEndpoint))
             .WithSummary("deletes a seniority level junction")

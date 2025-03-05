@@ -7,7 +7,7 @@ using MediatR;
 
 namespace TalentMesh.Module.Experties.Application.SeniorityLevelJunctions.Get.v1;
 public sealed class GetSeniorityLevelJunctionHandler(
-    [FromKeyedServices("seniorityleveljunctions:seniorityleveljunctionreadOnly")] IReadRepository<Experties.Domain.SeniorityLevelJunction> repository,
+    [FromKeyedServices("seniorityleveljunctions:seniorityleveljunctionReadOnly")] IReadRepository<Experties.Domain.SeniorityLevelJunction> repository,
     ICacheService cache)
     : IRequestHandler<GetSeniorityLevelJunctionRequest, SeniorityLevelJunctionResponse>
 {

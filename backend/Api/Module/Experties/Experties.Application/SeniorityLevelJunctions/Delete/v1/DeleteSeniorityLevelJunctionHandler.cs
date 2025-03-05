@@ -14,9 +14,9 @@ public sealed class DeleteSeniorityLevelJunctionHandler(
     public async Task Handle(DeleteSeniorityLevelJunctionCommand request, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(request);
-        var SeniorityLevelJunction = await repository.GetByIdAsync(request.Id, cancellationToken);
-        if (SeniorityLevelJunction == null || seniorityleveljunction.DeletedBy != Guid.Empty) throw new SeniorityLevelJunctionNotFoundException(request.Id);
-        await repository.DeleteAsync(seniorityleveljunction, cancellationToken);
-        logger.LogInformation("SeniorityLevelJunction with id : {SeniorityLevelId} deleted", SeniorityLevelJunction.Id);
+        var seniorityLevelJunction = await repository.GetByIdAsync(request.Id, cancellationToken);
+        if (seniorityLevelJunction == null || seniorityLevelJunction.DeletedBy != Guid.Empty) throw new SeniorityLevelJunctionNotFoundException(request.Id);
+        await repository.DeleteAsync(seniorityLevelJunction, cancellationToken);
+        logger.LogInformation("SeniorityLevelJunction with id : {SeniorityLevelId} deleted", seniorityLevelJunction.Id);
     }
 }

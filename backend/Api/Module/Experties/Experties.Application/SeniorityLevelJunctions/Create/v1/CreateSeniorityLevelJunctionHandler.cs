@@ -13,7 +13,7 @@ public sealed class CreateSeniorityLevelJunctionHandler(
     public async Task<CreateSeniorityLevelJunctionResponse> Handle(CreateSeniorityLevelJunctionCommand request, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(request);
-        var seniorityLevelJunction = new SeniorityLevelJunction(request.SeniorityLevelId, request.SkillId);
+        var seniorityLevelJunction = Experties.Domain.SeniorityLevelJunction.Create(request.SeniorityLevelId, request.SkillId);
         await repository.AddAsync(seniorityLevelJunction, cancellationToken);
         logger.LogInformation("Seniority Level Junction created {SeniorityLevelJunctionId}", seniorityLevelJunction.Id);
         return new CreateSeniorityLevelJunctionResponse(seniorityLevelJunction.Id);

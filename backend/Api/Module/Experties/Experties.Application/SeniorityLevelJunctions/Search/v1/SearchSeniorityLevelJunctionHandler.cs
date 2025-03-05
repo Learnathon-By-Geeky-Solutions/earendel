@@ -6,7 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace TalentMesh.Module.Experties.Application.SeniorityLevelJunctions.Search.v1;
 public sealed class SearchSeniorityLevelJunctionHandler(
-    [FromKeyedServices("seniorityleveljunctions:seniorityleveljunctionreadOnly")] IReadRepository<Experties.Domain.SeniorityLevelJunction> repository)
+    [FromKeyedServices("seniorityleveljunctions:seniorityleveljunctionReadOnly")] IReadRepository<Experties.Domain.SeniorityLevelJunction> repository)
     : IRequestHandler<SearchSeniorityLevelJunctionCommand, PagedList<SeniorityLevelJunctionResponse>>
 {
     public async Task<PagedList<SeniorityLevelJunctionResponse>> Handle(SearchSeniorityLevelJunctionCommand request, CancellationToken cancellationToken)
