@@ -183,14 +183,9 @@ namespace TalentMesh.Module.Quizzes.Tests
         {
             // Arrange
             var quizQuestionId = Guid.NewGuid();
-            var userId = Guid.NewGuid();
             var request = new UpdateQuizQuestionCommand(
                 quizQuestionId,
                 "Updated Question",
-                "Opt1",
-                "Opt2",
-                "Opt3",
-                "Opt4",
                 3);
             var response = new UpdateQuizQuestionResponse(quizQuestionId);
 
@@ -212,14 +207,9 @@ namespace TalentMesh.Module.Quizzes.Tests
         {
             // Arrange
             var quizQuestionId = Guid.NewGuid();
-            var userId = Guid.NewGuid();
             var request = new UpdateQuizQuestionCommand(
                 quizQuestionId,
                 "Updated Question",
-                "Opt1",
-                "Opt2",
-                "Opt3",
-                "Opt4",
                 3);
             _mediatorMock.Setup(m => m.Send(It.IsAny<UpdateQuizQuestionCommand>(), It.IsAny<CancellationToken>()))
                          .ThrowsAsync(new QuizQuestionNotFoundException(quizQuestionId));
