@@ -5,5 +5,6 @@ public static class SchemaNames
     public const string Experties = "experties";
     public const string Quizzes = "quizzes";
     public const string Notifications = "notifications";
+    public const string Interviews = "interviews";
 
 }

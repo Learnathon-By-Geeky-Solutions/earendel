@@ -6,10 +6,12 @@ using TalentMesh.Module.Experties.Application;
 using TalentMesh.Module.Job.Application;
 using TalentMesh.Module.Quizzes.Application;
 using TalentMesh.Module.Notifications.Application;
+using TalentMesh.Module.Interviews.Application;
 using TalentMesh.Module.Job.Infrastructure;
 using TalentMesh.Module.Experties.Infrastructure;
 using TalentMesh.Module.Quizzes.Infrastructure;
 using TalentMesh.Module.Notifications.Infrastructure;
+using TalentMesh.Module.Interviews.Infrastructure;
 
 
 namespace TalentMesh.WebApi.Host;
@@ -27,6 +29,7 @@ public static class Extensions
             typeof(ExpertiesMetadata).Assembly,
             typeof(QuizzesMetadata).Assembly,
             typeof(NotificationsMetadata).Assembly,
+            typeof(InterviewsMetadata).Assembly,
 
         };
 
@@ -44,6 +47,7 @@ public static class Extensions
         builder.RegisterExpertiesServices();
         builder.RegisterQuizzesServices();
         builder.RegisterNotificationsServices();
+        builder.RegisterInterviewsServices();
 
         //add carter endpoint modules
         builder.Services.AddCarter(configurator: config =>
@@ -52,6 +56,7 @@ public static class Extensions
             config.WithModule<ExpertiesModule.Endpoints>();
             config.WithModule<QuizzesModule.Endpoints>();
             config.WithModule<NotificationsModule.Endpoints>();
+            config.WithModule<InterviewsModule.Endpoints>();
 
         });
 
@@ -67,6 +72,7 @@ public static class Extensions
         app.UseExpertiesModule();
         app.UseQuizzesModule();
         app.UseNotificationsModule();
+        app.UseInterviewsModule();
 
         //register api versions
         var versions = app.NewApiVersionSet()
