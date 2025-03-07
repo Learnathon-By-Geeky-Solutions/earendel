@@ -6,5 +6,6 @@ namespace TalentMesh.Module.Interviews.Application.InterviewQuestions.Create.v1;
 
 public sealed record CreateInterviewQuestionCommand(
     Guid RubricId,
+    Guid InterviewId,
     string QuestionText
 ) : IRequest<CreateInterviewQuestionResponse>;

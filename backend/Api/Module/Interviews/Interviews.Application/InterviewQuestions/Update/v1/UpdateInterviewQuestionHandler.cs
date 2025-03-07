@@ -27,7 +27,7 @@ public sealed class UpdateInterviewQuestionHandler(
         }
 
         // Update the interview entity with the new fields
-        interviewQuestion.Update(request.RubricId, request.QuestionText!);
+        interviewQuestion.Update(request.RubricId, request.InterviewId, request.QuestionText!);
 
         // Save the updated interview back to the repository
         await repository.UpdateAsync(interviewQuestion, cancellationToken);

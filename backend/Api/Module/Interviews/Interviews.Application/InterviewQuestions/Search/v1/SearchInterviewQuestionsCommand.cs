@@ -7,5 +7,6 @@ namespace TalentMesh.Module.Interviews.Application.InterviewQuestions.Search.v1;
 public class SearchInterviewQuestionsCommand : PaginationFilter, IRequest<PagedList<InterviewQuestionResponse>>
 {
     public Guid? RubricId { get; set; }
+    public Guid? InterviewId { get; set; }
     public string? QuestionText { get; set; }  
 }

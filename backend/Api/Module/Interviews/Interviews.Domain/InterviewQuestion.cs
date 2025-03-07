@@ -6,13 +6,17 @@ namespace TalentMesh.Module.Interviews.Domain;
 public class InterviewQuestion : AuditableEntity, IAggregateRoot
 {
     public Guid RubricId { get; private set; }
+    public Guid InterviewId { get; private set; }
     public string QuestionText { get; private set; } = null!;
 
-    public static InterviewQuestion Create(Guid rubricId, string questionText)
+    public virtual Interview Interview { get; private set; } = default!;
+
+    public static InterviewQuestion Create(Guid rubricId, Guid interviewId, string questionText)
     {
         var interviewQuestion = new InterviewQuestion
         {
             RubricId = rubricId,
+            InterviewId = interviewId,
             QuestionText = questionText
         };
 
@@ -21,10 +25,13 @@ public class InterviewQuestion : AuditableEntity, IAggregateRoot
         return interviewQuestion;
     }
 
-    public InterviewQuestion Update(Guid rubricId, string questionText)
+    public InterviewQuestion Update(Guid rubricId, Guid interviewId, string questionText)
     {
         if (RubricId != rubricId)
             RubricId = rubricId;
+
+        if (InterviewId != interviewId)
+            InterviewId = interviewId;
 
         if (!string.IsNullOrWhiteSpace(questionText) && !QuestionText.Equals(questionText, StringComparison.OrdinalIgnoreCase))
         {
@@ -34,12 +41,13 @@ public class InterviewQuestion : AuditableEntity, IAggregateRoot
 
         return this;
     }
-    public static InterviewQuestion Update(Guid id, Guid rubricId, string questionText)
+    public static InterviewQuestion Update(Guid id, Guid rubricId, Guid interviewId, string questionText)
     {
         var interviewQuestion = new InterviewQuestion
         {
             Id = id,
             RubricId = rubricId,
+            InterviewId = interviewId,
             QuestionText = questionText
         };
 

@@ -18,6 +18,7 @@ public sealed class CreateInterviewQuestionHandler(
         // Create InterviewQuestion using only RubricId and QuestionText
         var interviewQuestion = InterviewQuestion.Create(
             request.RubricId,
+            request.InterviewId,
             request.QuestionText
         );
 

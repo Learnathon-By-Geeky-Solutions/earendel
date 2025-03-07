@@ -26,7 +26,7 @@ namespace TalentMesh.Module.Interviews.Tests
         [Fact]
         public async Task CreateInterviewQuestion_ReturnsInterviewQuestionResponse()
         {
-            var request = new CreateInterviewQuestionCommand(Guid.NewGuid(), "What is polymorphism?");
+            var request = new CreateInterviewQuestionCommand(Guid.NewGuid(), Guid.NewGuid(), "What is polymorphism?");
             var expectedId = Guid.NewGuid();
             var response = new CreateInterviewQuestionResponse(expectedId);
 
@@ -79,8 +79,9 @@ namespace TalentMesh.Module.Interviews.Tests
         {
             var questionId = Guid.NewGuid();
             var rubricId = Guid.NewGuid();
+            var interviewId = Guid.NewGuid();
             var questionText = "What is polymorphism?";
-            var interviewResponse = new InterviewQuestionResponse(questionId, rubricId, questionText);
+            var interviewResponse = new InterviewQuestionResponse(questionId, rubricId, interviewId, questionText);
 
             _mediatorMock
                 .Setup(m => m.Send(It.IsAny<GetInterviewQuestionRequest>(), It.IsAny<CancellationToken>()))
@@ -120,8 +121,8 @@ namespace TalentMesh.Module.Interviews.Tests
             var pagedList = new PagedList<InterviewQuestionResponse>(
                 new[]
                 {
-                    new InterviewQuestionResponse(Guid.NewGuid(), Guid.NewGuid(), "Explain encapsulation."),
-                    new InterviewQuestionResponse(Guid.NewGuid(), Guid.NewGuid(), "What is inheritance?")
+                    new InterviewQuestionResponse(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), "Explain encapsulation."),
+                    new InterviewQuestionResponse(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), "What is inheritance?")
                 },
                 1,
                 10,
@@ -146,8 +147,9 @@ namespace TalentMesh.Module.Interviews.Tests
         {
             var questionId = Guid.NewGuid();
             var rubricId = Guid.NewGuid();
+            var interviewId = Guid.NewGuid();
             var questionText = "Explain dependency injection";
-            var request = new UpdateInterviewQuestionCommand(questionId, rubricId, questionText);
+            var request = new UpdateInterviewQuestionCommand(questionId, rubricId, interviewId, questionText);
             var response = new UpdateInterviewQuestionResponse(questionId);
 
             _mediatorMock
@@ -168,7 +170,8 @@ namespace TalentMesh.Module.Interviews.Tests
         {
             var questionId = Guid.NewGuid();
             var rubricId = Guid.NewGuid();
-            var request = new UpdateInterviewQuestionCommand(questionId, rubricId, "Explain dependency injection.");
+            var interviewId = Guid.NewGuid();
+            var request = new UpdateInterviewQuestionCommand(questionId, rubricId, interviewId, "Explain dependency injection.");
 
             _mediatorMock
                 .Setup(m => m.Send(It.IsAny<UpdateInterviewQuestionCommand>(), It.IsAny<CancellationToken>()))

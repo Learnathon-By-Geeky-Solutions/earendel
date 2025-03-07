@@ -6,7 +6,6 @@ using TalentMesh.Module.Interviews.Domain;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
-using static Org.BouncyCastle.Asn1.Cmp.Challenge;
 
 
 namespace TalentMesh.Module.Interviews.Infrastructure.Persistence;
@@ -20,6 +19,7 @@ public sealed class InterviewsDbContext : TMDbContext
 
     public DbSet<Interview> Interviews { get; set; } = null!;
     public DbSet<InterviewQuestion> InterviewQuestions { get; set; } = null!;
+    public DbSet<InterviewFeedback> InterviewFeedbacks { get; set; } = null!;
     
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

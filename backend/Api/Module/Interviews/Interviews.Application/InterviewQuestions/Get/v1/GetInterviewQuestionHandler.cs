@@ -27,6 +27,7 @@ public sealed class GetInterviewQuestionHandler(
                 return new InterviewQuestionResponse(
                     interviewQuestion.Id,
                     interviewQuestion.RubricId,
+                    interviewQuestion.InterviewId,
                     interviewQuestion.QuestionText
                 );
             },
