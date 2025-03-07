@@ -24,6 +24,13 @@ public static class InterviewsModule
             interviewGroup.MapInterviewUpdateEndpoint();
             interviewGroup.MapInterviewDeleteEndpoint();
 
+            var interviewQuestionGroup = app.MapGroup("interviewquestions").WithTags("interviewquestions");
+            interviewQuestionGroup.MapInterviewQuestionCreationEndpoint();
+            interviewQuestionGroup.MapGetInterviewQuestionEndpoint();
+            interviewQuestionGroup.MapGetInterviewQuestionListEndpoint();
+            interviewQuestionGroup.MapInterviewQuestionUpdateEndpoint();
+            interviewQuestionGroup.MapInterviewQuestionDeleteEndpoint();
+
 
         }
     }
@@ -35,6 +42,9 @@ public static class InterviewsModule
 
         builder.Services.AddKeyedScoped<IRepository<Interview>, InterviewsRepository<Interview>>("interviews:interview");
         builder.Services.AddKeyedScoped<IReadRepository<Interview>, InterviewsRepository<Interview>>("interviews:interviewReadOnly");
+
+        builder.Services.AddKeyedScoped<IRepository<InterviewQuestion>, InterviewsRepository<InterviewQuestion>>("interviewquestions:interviewquestion");
+        builder.Services.AddKeyedScoped<IReadRepository<InterviewQuestion>, InterviewsRepository<InterviewQuestion>>("interviewquestions:interviewquestionReadOnly");
 
         return builder;
     }

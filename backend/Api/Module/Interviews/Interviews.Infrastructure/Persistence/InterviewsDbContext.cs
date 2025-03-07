@@ -19,6 +19,7 @@ public sealed class InterviewsDbContext : TMDbContext
     }
 
     public DbSet<Interview> Interviews { get; set; } = null!;
+    public DbSet<InterviewQuestion> InterviewQuestions { get; set; } = null!;
     
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
