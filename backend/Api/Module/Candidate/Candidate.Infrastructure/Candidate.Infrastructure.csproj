@@ -7,8 +7,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Api\Framework\Infrastructure\Infrastructure.csproj" />
-    <ProjectReference Include="..\..\Api\Module\Candidate\Candidate.Application\Candidate.Application.csproj" />
+    <ProjectReference Include="..\..\..\Framework\Infrastructure\Infrastructure.csproj" />
+    <ProjectReference Include="..\Candidate.Application\Candidate.Application.csproj" />
   </ItemGroup>
+
 
 </Project>

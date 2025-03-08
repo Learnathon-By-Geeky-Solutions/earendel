@@ -50,7 +50,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Candidate.Domain", "..\Api\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Candidate.Application", "..\Api\Module\Candidate\Candidate.Application\Candidate.Application.csproj", "{541E920F-BD44-4589-8979-565CE1B33F7D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Candidate.Infrastructure", "Candidate.Infrastructure\Candidate.Infrastructure.csproj", "{06C56D9D-7BEB-46B8-98C7-92FCF60CDAAC}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Candidate.Infrastructure", "..\Api\Module\Candidate\Candidate.Infrastructure\Candidate.Infrastructure.csproj", "{D0F6DFB9-F984-7E64-A9E4-FDE2DD72A93A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -126,10 +126,10 @@ Global
 		{541E920F-BD44-4589-8979-565CE1B33F7D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{541E920F-BD44-4589-8979-565CE1B33F7D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{541E920F-BD44-4589-8979-565CE1B33F7D}.Release|Any CPU.Build.0 = Release|Any CPU
-		{06C56D9D-7BEB-46B8-98C7-92FCF60CDAAC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{06C56D9D-7BEB-46B8-98C7-92FCF60CDAAC}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{06C56D9D-7BEB-46B8-98C7-92FCF60CDAAC}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{06C56D9D-7BEB-46B8-98C7-92FCF60CDAAC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D0F6DFB9-F984-7E64-A9E4-FDE2DD72A93A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D0F6DFB9-F984-7E64-A9E4-FDE2DD72A93A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D0F6DFB9-F984-7E64-A9E4-FDE2DD72A93A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D0F6DFB9-F984-7E64-A9E4-FDE2DD72A93A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -152,7 +152,7 @@ Global
 		{DFB86BA6-7A38-400E-B090-83256A7A0DC7} = {E5DA2A94-76C5-460A-88A4-CEECDF1DB1DC}
 		{9CDE8763-90D5-4317-BCA4-F9DD0EB96135} = {DFB86BA6-7A38-400E-B090-83256A7A0DC7}
 		{541E920F-BD44-4589-8979-565CE1B33F7D} = {DFB86BA6-7A38-400E-B090-83256A7A0DC7}
-		{06C56D9D-7BEB-46B8-98C7-92FCF60CDAAC} = {DFB86BA6-7A38-400E-B090-83256A7A0DC7}
+		{D0F6DFB9-F984-7E64-A9E4-FDE2DD72A93A} = {DFB86BA6-7A38-400E-B090-83256A7A0DC7}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {3F0797FB-39B5-40DB-99C8-40E2B73F0B41}
