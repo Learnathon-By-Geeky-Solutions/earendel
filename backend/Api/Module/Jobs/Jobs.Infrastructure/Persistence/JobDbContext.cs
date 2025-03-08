@@ -6,7 +6,6 @@ using TalentMesh.Module.Job.Domain;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
-using static Org.BouncyCastle.Asn1.Cmp.Challenge;
 
 
 namespace TalentMesh.Module.Job.Infrastructure.Persistence;
