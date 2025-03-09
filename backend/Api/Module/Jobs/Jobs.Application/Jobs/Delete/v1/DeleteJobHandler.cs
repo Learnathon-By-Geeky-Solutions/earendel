@@ -4,7 +4,7 @@ using TalentMesh.Module.Job.Domain.Exceptions;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using TalentMesh.Module.Job.Domain.Extention;
+using TalentMesh.Module.Job.Domain.Extentsion;
 
 namespace TalentMesh.Module.Job.Application.Jobs.Delete.v1;
 public sealed class DeleteJobHandler(

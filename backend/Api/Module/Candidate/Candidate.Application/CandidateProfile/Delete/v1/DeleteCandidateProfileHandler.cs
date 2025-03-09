@@ -3,7 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using TalentMesh.Framework.Core.Persistence;
 using TalentMesh.Module.Candidate.Domain.Exceptions;
-using TalentMesh.Module.Candidate.Domain.Extention;
+using TalentMesh.Module.Candidate.Domain.Extentsion;
 
 
 namespace TalentMesh.Module.Candidate.Application.CandidateProfile.Delete.v1;

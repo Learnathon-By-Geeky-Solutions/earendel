@@ -1,11 +1,11 @@
 ﻿
 using TalentMesh.Framework.Core.Domain;
 
-namespace TalentMesh.Module.Job.Domain.Extention
+namespace TalentMesh.Module.Job.Domain.Extentsion
 {
-    public static class CommonExtention
+    public static class CommonExtension
     {
-        public static bool IsDeletedOrNotFound(this Jobs? entity)         {
+        public static bool IsDeletedOrNotFound(this Jobs? entity){
             return entity == null || entity.DeletedBy != Guid.Empty;
         }
 

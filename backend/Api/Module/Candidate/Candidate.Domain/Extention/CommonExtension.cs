@@ -1,7 +1,7 @@
 ﻿
-namespace TalentMesh.Module.Candidate.Domain.Extention
+namespace TalentMesh.Module.Candidate.Domain.Extentsion
 {
-    public static class CommonExtention
+    public static class CommonExtension
     {
         public static bool IsDeletedOrNotFound(this CandidateProfile? entity)
         {
@@ -12,4 +12,4 @@ namespace TalentMesh.Module.Candidate.Domain.Extention
 
     }
 }
-}
+

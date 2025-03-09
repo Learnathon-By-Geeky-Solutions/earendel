@@ -16,7 +16,7 @@ public class CandidateProfile : AuditableEntity, IAggregateRoot
     public string? Education { get; private set; }
 
     // Reference to the user via a UserId (kept as a Guid here).
-    public Guid UserId { get; set; }
+    public Guid UserId { get; private set; }
 
     /// <summary>
     /// Factory method to create a CandidateProfile.
