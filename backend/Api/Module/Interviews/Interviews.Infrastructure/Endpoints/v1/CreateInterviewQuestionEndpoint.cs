@@ -16,7 +16,7 @@ public static class CreateInterviewQuestionEndpoint
                 var response = await mediator.Send(request);
                 return Results.Ok(response);
             })
-            .WithName(nameof(CreateInterviewFeedbackEndpoint))
+            .WithName(nameof(CreateInterviewQuestionEndpoint))
             .WithSummary("InterviewQuestion")
             .WithDescription("Interview Question")
             .Produces<CreateInterviewQuestionResponse>()
