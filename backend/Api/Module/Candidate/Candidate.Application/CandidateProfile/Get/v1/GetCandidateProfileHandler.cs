@@ -9,7 +9,7 @@ using TalentMesh.Module.Candidate.Domain.Exceptions;
 namespace TalentMesh.Module.Candidate.Application.CandidateProfile.Get.v1;
 
 public sealed class GetCandidateProfileHandler(
-    [FromKeyedServices("candidate:candidateprofile")] IReadRepository<Domain.CandidateProfile> repository,
+    [FromKeyedServices("candidate:candidateprofileReadOnly")] IReadRepository<Domain.CandidateProfile> repository,
     ICacheService cache)
     : IRequestHandler<GetCandidateProfileRequest, CandidateProfileResponse>
 {
@@ -17,7 +17,7 @@ public sealed class GetCandidateProfileHandler(
     {
         ArgumentNullException.ThrowIfNull(request);
         var item = await cache.GetOrSetAsync(
-            $"jobApplication:{request.Id}",
+            $"candidateprofile:{request.Id}",
             async () =>
             {
                 var candidateProfile = await repository.GetByIdAsync(request.Id, cancellationToken);

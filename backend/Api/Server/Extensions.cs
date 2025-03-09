@@ -6,6 +6,8 @@ using TalentMesh.Module.Experties.Application;
 using TalentMesh.Module.Job.Application;
 using TalentMesh.Module.Job.Infrastructure;
 using TalentMesh.Module.Experties.Infrastructure;
+using TalentMesh.Module.Candidate.Infrastructure;
+using TalentMesh.Module.Candidate.Application;
 
 
 namespace TalentMesh.WebApi.Host;
@@ -21,6 +23,7 @@ public static class Extensions
         {
             typeof(JobMetadata).Assembly,
             typeof(ExpertiesMetadata).Assembly,
+            typeof(CandidateMetadata).Assembly
 
         };
 
@@ -36,12 +39,14 @@ public static class Extensions
         //register module services
         builder.RegisterJobServices();
         builder.RegisterExpertiesServices();
+        builder.RegisterCandidateServices();
 
         //add carter endpoint modules
         builder.Services.AddCarter(configurator: config =>
         {
             config.WithModule<JobModule.Endpoints>();
             config.WithModule<ExpertiesModule.Endpoints>();
+            config.WithModule<CandidateModule.Endpoints>();
 
         });
 

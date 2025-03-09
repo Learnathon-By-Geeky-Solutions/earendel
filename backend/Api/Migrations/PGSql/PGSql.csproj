@@ -14,6 +14,7 @@
 	
   <ItemGroup>
     <ProjectReference Include="..\..\Framework\Infrastructure\Infrastructure.csproj" />
+    <ProjectReference Include="..\..\Module\Candidate\Candidate.Infrastructure\Candidate.Infrastructure.csproj" />
     <ProjectReference Include="..\..\Module\Experties\Experties.Infrastructure\Experties.Infrastructure.csproj" />
     <ProjectReference Include="..\..\Module\Jobs\Jobs.Infrastructure\Jobs.Infrastructure.csproj" />
   </ItemGroup>
