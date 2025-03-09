@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
@@ -21,7 +21,10 @@
     <ProjectReference Include="..\Migrations\PGSql\PGSql.csproj" />
     <ProjectReference Include="..\Module\Candidate\Candidate.Infrastructure\Candidate.Infrastructure.csproj" />
     <ProjectReference Include="..\Module\Experties\Experties.Infrastructure\Experties.Infrastructure.csproj" />
+    <ProjectReference Include="..\Module\Interviews\Interviews.Infrastructure\Interviews.Infrastructure.csproj" />
     <ProjectReference Include="..\Module\Jobs\Jobs.Infrastructure\Jobs.Infrastructure.csproj" />
+    <ProjectReference Include="..\Module\Notifications\Notifications.Infrastructure\Notifications.Infrastructure.csproj" />
+    <ProjectReference Include="..\Module\Quizzes\Quizzes.Infrastructure\Quizzes.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>

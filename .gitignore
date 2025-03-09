@@ -12,3 +12,8 @@ backend/Api/Migrations/PGSql/Identity
 /backend/Api/Migrations/PGSql/Tenant
 /backend/Api/Migrations/PGSql/Indentity
 /backend/Api/Migrations/PGSql/Candidate
+backend/Api/Migrations/PGSql/Tenant
+backend/Api/Migrations/PGSql/Identity
+backend/Api/Migrations/PGSql/Quizzes
+backend/Api/Migrations/PGSql/Notifications
+backend/Api/Migrations/PGSql/Interviews

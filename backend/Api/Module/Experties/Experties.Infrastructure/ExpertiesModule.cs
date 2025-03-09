@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
+using TalentMesh.Module.Experties.Infrastructure.Messaging;
 
 namespace TalentMesh.Module.Experties.Infrastructure;
 public static class ExpertiesModule
@@ -44,6 +45,14 @@ public static class ExpertiesModule
             seniorityGroup.MapGetSeniorityListEndpoint();
             seniorityGroup.MapSeniorityUpdateEndpoint();
             seniorityGroup.MapSeniorityDeleteEndpoint();
+
+            var seniorityLevelJunctionGroup = app.MapGroup("seniorityleveljunctions").WithTags("seniorityleveljunctions");
+            seniorityLevelJunctionGroup.MapSeniorityLevelJunctionCreationEndpoint();
+            seniorityLevelJunctionGroup.MapGetSeniorityLevelJunctionEndpoint();
+            seniorityLevelJunctionGroup.MapGetSeniorityLevelJunctionListEndpoint();
+            seniorityLevelJunctionGroup.MapSeniorityLevelJunctionUpdateEndpoint();
+            seniorityLevelJunctionGroup.MapSeniorityLevelJunctionDeletionEndpoint();
+
         }
     }
     public static WebApplicationBuilder RegisterExpertiesServices(this WebApplicationBuilder builder)
@@ -51,6 +60,8 @@ public static class ExpertiesModule
         ArgumentNullException.ThrowIfNull(builder);
         builder.Services.BindDbContext<ExpertiesDbContext>();
         builder.Services.AddScoped<IDbInitializer, ExpertiesDbInitializer>();
+
+        builder.Services.AddHostedService<SkillsCreatedConsumer>();
 
         builder.Services.AddKeyedScoped<IRepository<Skill>, ExpertiesRepository<Skill>>("skills:skill");
         builder.Services.AddKeyedScoped<IReadRepository<Skill>, ExpertiesRepository<Skill>>("skills:skillReadOnly");
@@ -64,6 +75,8 @@ public static class ExpertiesModule
         builder.Services.AddKeyedScoped<IRepository<Seniority>, ExpertiesRepository<Seniority>>("seniorities:seniority");
         builder.Services.AddKeyedScoped<IReadRepository<Seniority>, ExpertiesRepository<Seniority>>("seniorities:seniorityReadOnly");
 
+        builder.Services.AddKeyedScoped<IRepository<SeniorityLevelJunction>, ExpertiesRepository<SeniorityLevelJunction>>("seniorityleveljunctions:seniorityleveljunction");
+        builder.Services.AddKeyedScoped<IReadRepository<SeniorityLevelJunction>, ExpertiesRepository<SeniorityLevelJunction>>("seniorityleveljunctions:seniorityleveljunctionReadOnly");
         return builder;
     }
     public static WebApplication UseExpertiesModule(this WebApplication app)
