@@ -21,10 +21,19 @@ public sealed class GetCandidateProfileHandler(
             async () =>
             {
                 var candidateProfile = await repository.GetByIdAsync(request.Id, cancellationToken);
-                if (candidateProfile == null || candidateProfile.DeletedBy != Guid.Empty) throw new CandidateProfileNotFoundException(request.Id);
-                return new CandidateProfileResponse(candidateProfile.Id, candidateProfile.Resume!, candidateProfile.Skills!, candidateProfile.Experience!, candidateProfile.Education!, candidateProfile.UserId);
+                if (candidateProfile == null || candidateProfile.DeletedBy != Guid.Empty)
+                    throw new CandidateProfileNotFoundException(request.Id);
+                return new CandidateProfileResponse(
+                    candidateProfile.Id,
+                    candidateProfile.Resume!,
+                    candidateProfile.Skills!,
+                    candidateProfile.Experience!,
+                    candidateProfile.Education!,
+                    candidateProfile.UserId);
             },
             cancellationToken: cancellationToken);
+        // Example logging snippet:
+         //_logger.LogInformation("Retrieving profile {Id} from cache.", request.Id);
         return item!;
     }
 }

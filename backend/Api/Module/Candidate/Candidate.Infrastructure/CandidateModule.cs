@@ -44,7 +44,19 @@ namespace TalentMesh.Module.Candidate.Infrastructure
 
         public static WebApplication UseCandidateModule(this WebApplication app)
         {
-            // This method can be used to configure middleware or endpoint mapping specific to the Candidate module.
+            // Apply any candidate-specific middleware or configurations
+            ArgumentNullException.ThrowIfNull(app);
+
+            // Initialize database if needed
+            //using (var scope = app.Services.CreateScope())
+            //{
+            //    var initializers = scope.ServiceProvider.GetServices<IDbInitializer>();
+            //    foreach (var initializer in initializers)
+            //    {
+            //        initializer.Initialize();
+            //    }
+            //}
+
             return app;
         }
     }

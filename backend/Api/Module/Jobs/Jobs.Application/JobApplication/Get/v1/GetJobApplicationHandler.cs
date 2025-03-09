@@ -18,9 +18,13 @@ public sealed class GetJobApplicationHandler(
             $"jobApplication:{request.Id}",
             async () =>
             {
-                var brandItem = await repository.GetByIdAsync(request.Id, cancellationToken);
-                if (brandItem == null || brandItem.DeletedBy != Guid.Empty) throw new JobApplicationNotFoundException(request.Id);
-                return new JobApplicationResponse(brandItem.Id, brandItem.JobId ,brandItem.CandidateId, brandItem.ApplicationDate, brandItem.Status, brandItem.CoverLetter);
+                var jobApplication = await repository.GetByIdAsync(request.Id, cancellationToken);
+                if (jobApplication == null || jobApplication.DeletedBy != Guid.Empty)
+                    throw new JobApplicationNotFoundException(request.Id);
+                return new JobApplicationResponse(jobApplication.Id, 
+                    jobApplication.JobId, jobApplication.CandidateId, 
+                    jobApplication.ApplicationDate, jobApplication.Status, 
+                    jobApplication.CoverLetter);
             },
             cancellationToken: cancellationToken);
         return item!;

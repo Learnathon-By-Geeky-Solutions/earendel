@@ -10,10 +10,10 @@ public class CandidateProfile : AuditableEntity, IAggregateRoot
 {
 
     // Candidate-specific properties.
-    public string? Resume { get; set; }
-    public string? Skills { get; set; }
-    public string? Experience { get; set; }
-    public string? Education { get; set; }
+    public string? Resume { get; private set; }
+    public string? Skills { get; private set; }
+    public string? Experience { get; private set; }
+    public string? Education { get; private set; }
 
     // Reference to the user via a UserId (kept as a Guid here).
     public Guid UserId { get; set; }
