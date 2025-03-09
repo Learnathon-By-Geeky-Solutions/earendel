@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using TalentMesh.Framework.Core.Persistence;
 using TalentMesh.Module.Candidate.Domain.Exceptions;
+using TalentMesh.Module.Candidate.Domain.Extention;
 
 
 namespace TalentMesh.Module.Candidate.Application.CandidateProfile.Delete.v1;
@@ -16,7 +17,7 @@ public sealed class DeleteCandidateProfileHandler(
     {
         ArgumentNullException.ThrowIfNull(request);
         var candidateProfile = await repository.GetByIdAsync(request.Id, cancellationToken);
-        if (candidateProfile == null || candidateProfile.DeletedBy != Guid.Empty) throw new CandidateProfileNotFoundException(request.Id);
+        if (candidateProfile.IsDeletedOrNotFound()) throw new CandidateProfileNotFoundException(request.Id);
         await repository.DeleteAsync(candidateProfile, cancellationToken);
         logger.LogInformation("CandidateProfile with id : {Id} deleted", candidateProfile.Id);
     }

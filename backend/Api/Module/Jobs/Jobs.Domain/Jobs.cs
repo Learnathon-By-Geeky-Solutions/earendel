@@ -52,6 +52,6 @@ public class Jobs : AuditableEntity, IAggregateRoot
         return this;
     }
 
-    
+
 }
 

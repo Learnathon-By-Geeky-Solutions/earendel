@@ -46,6 +46,7 @@ namespace TalentMesh.Module.Job.Domain
             return this;
         }
 
-        
+     
+
     }
 }

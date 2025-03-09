@@ -10,6 +10,8 @@ public class AuditableEntity<TId> : BaseEntity<TId>, IAuditable, ISoftDeletable
     public Guid? LastModifiedBy { get; set; }
     public DateTimeOffset? Deleted { get; set; }
     public Guid? DeletedBy { get; set; }
+    
+
 }
 
 public abstract class AuditableEntity : AuditableEntity<Guid>
