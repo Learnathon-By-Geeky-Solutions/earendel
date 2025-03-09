@@ -28,7 +28,7 @@ public static class Extensions
         {
             typeof(JobMetadata).Assembly,
             typeof(ExpertiesMetadata).Assembly,
-            typeof(CandidateMetadata).Assembly
+            typeof(CandidateMetadata).Assembly,
             typeof(QuizzesMetadata).Assembly,
             typeof(NotificationsMetadata).Assembly,
             typeof(InterviewsMetadata).Assembly,
