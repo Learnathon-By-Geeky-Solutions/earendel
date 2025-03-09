@@ -9,10 +9,11 @@ using TalentMesh.Module.Notifications.Application;
 using TalentMesh.Module.Interviews.Application;
 using TalentMesh.Module.Job.Infrastructure;
 using TalentMesh.Module.Experties.Infrastructure;
+using TalentMesh.Module.Candidate.Infrastructure;
+using TalentMesh.Module.Candidate.Application;
 using TalentMesh.Module.Quizzes.Infrastructure;
 using TalentMesh.Module.Notifications.Infrastructure;
 using TalentMesh.Module.Interviews.Infrastructure;
-
 
 namespace TalentMesh.WebApi.Host;
 
@@ -27,10 +28,10 @@ public static class Extensions
         {
             typeof(JobMetadata).Assembly,
             typeof(ExpertiesMetadata).Assembly,
+            typeof(CandidateMetadata).Assembly
             typeof(QuizzesMetadata).Assembly,
             typeof(NotificationsMetadata).Assembly,
             typeof(InterviewsMetadata).Assembly,
-
         };
 
         //register validators
@@ -45,6 +46,7 @@ public static class Extensions
         //register module services
         builder.RegisterJobServices();
         builder.RegisterExpertiesServices();
+        builder.RegisterCandidateServices();
         builder.RegisterQuizzesServices();
         builder.RegisterNotificationsServices();
         builder.RegisterInterviewsServices();
@@ -54,6 +56,7 @@ public static class Extensions
         {
             config.WithModule<JobModule.Endpoints>();
             config.WithModule<ExpertiesModule.Endpoints>();
+            config.WithModule<CandidateModule.Endpoints>();
             config.WithModule<QuizzesModule.Endpoints>();
             config.WithModule<NotificationsModule.Endpoints>();
             config.WithModule<InterviewsModule.Endpoints>();

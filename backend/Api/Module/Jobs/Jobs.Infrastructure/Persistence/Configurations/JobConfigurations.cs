@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace TalentMesh.Module.Job.Infrastructure.Persistence.Configurations;
-internal sealed class BrandConfiguration : IEntityTypeConfiguration<Job.Domain.Jobs>
+internal sealed class JobConfiguration : IEntityTypeConfiguration<Job.Domain.Jobs>
 {
     public void Configure(EntityTypeBuilder<Job.Domain.Jobs> builder)
     {

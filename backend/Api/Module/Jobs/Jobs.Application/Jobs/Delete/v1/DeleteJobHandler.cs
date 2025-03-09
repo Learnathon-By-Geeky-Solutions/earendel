@@ -4,6 +4,7 @@ using TalentMesh.Module.Job.Domain.Exceptions;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using TalentMesh.Module.Job.Domain.Extentsion;
 
 namespace TalentMesh.Module.Job.Application.Jobs.Delete.v1;
 public sealed class DeleteJobHandler(
@@ -14,9 +15,9 @@ public sealed class DeleteJobHandler(
     public async Task Handle(DeleteJobCommand request, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(request);
-        var user = await repository.GetByIdAsync(request.Id, cancellationToken);
-        _ = user ?? throw new JobNotFoundException(request.Id);
-        await repository.DeleteAsync(user, cancellationToken);
-        logger.LogInformation("User with id : {UserId} deleted", user.Id);
+        var job = await repository.GetByIdAsync(request.Id, cancellationToken);
+        if (job.IsDeletedOrNotFound()) throw new JobApplicationNotFoundException(request.Id);
+        await repository.DeleteAsync(job, cancellationToken);
+        logger.LogInformation("User with id : {UserId} deleted", job.Id);
     }
 }

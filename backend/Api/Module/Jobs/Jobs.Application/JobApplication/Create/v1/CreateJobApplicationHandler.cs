@@ -14,8 +14,8 @@ public sealed class CreateJobApplicationHandler(
     {
         ArgumentNullException.ThrowIfNull(request);
         var jobApplication = Domain.JobApplication.Create(
-            (int)request.JobId!,
-            (int)request.CandidateId!,
+            request.JobId!,
+            request.CandidateId!,
             request.CoverLetter!
         );
         await repository.AddAsync(jobApplication, cancellationToken);

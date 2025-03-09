@@ -38,12 +38,12 @@ public static class TMPermissions
 
 
         //JobApplications
-        new("View JobApplications", TMActions.View, TMResources.JobApplication, IsBasic: true),
-        new("Search JobApplications", TMActions.Search, TMResources.JobApplication, IsBasic: true),
-        new("Create JobApplications", TMActions.Create, TMResources.JobApplication, IsBasic:true),
-        new("Update JobApplications", TMActions.Update, TMResources.JobApplication,  IsBasic:true),
-        new("Delete JobApplications", TMActions.Delete, TMResources.JobApplication, IsBasic : true),
-        new("Export JobApplications", TMActions.Export, TMResources.JobApplication, IsBasic : true),
+        new("View JobApplications", TMActions.View, TMResources.JobApplications, IsBasic: true),
+        new("Search JobApplications", TMActions.Search, TMResources.JobApplications, IsBasic: true),
+        new("Create JobApplications", TMActions.Create, TMResources.JobApplications, IsBasic:true),
+        new("Update JobApplications", TMActions.Update, TMResources.JobApplications,  IsBasic:true),
+        new("Delete JobApplications", TMActions.Delete, TMResources.JobApplications, IsBasic : true),
+        new("Export JobApplications", TMActions.Export, TMResources.JobApplications, IsBasic : true),
 
 
 

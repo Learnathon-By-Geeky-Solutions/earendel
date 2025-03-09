@@ -18,7 +18,9 @@ namespace TalentMesh.Module.Job.Application.JobApplication.Update.v1
             ArgumentNullException.ThrowIfNull(request);
 
             var jobApplication = await repository.GetByIdAsync(request.Id, cancellationToken);
-            _ = jobApplication ?? throw new JobApplicationNotFoundException(request.Id);
+
+            if (jobApplication == null || jobApplication.DeletedBy != Guid.Empty) throw new JobApplicationNotFoundException(request.Id);
+
 
             var updatedJobApplication = jobApplication.Update(request.Status, request.CoverLetter);
             await repository.UpdateAsync(updatedJobApplication, cancellationToken);
