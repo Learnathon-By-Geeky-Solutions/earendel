@@ -7,10 +7,9 @@ namespace TalentMesh.Module.Job.Application.JobApplication.Search.v1;
 
 public class SearchJobApplicationsCommand : PaginationFilter, IRequest<PagedList<JobApplicationResponse>>
 {
-    public int? JobId { get; set; }
-    public int? CandidateId { get; set; }
+    public Guid? CandidateId { get; set; }
+    public Guid? JobId { get; set; }    
     public DateTime? ApplicationDate { get; set; }
     public string? Status { get; set; }
-    
 
 }

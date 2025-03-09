@@ -6,8 +6,8 @@ public class CreateJobApplicationCommandValidator : AbstractValidator<CreateJobA
 {
     public CreateJobApplicationCommandValidator()
     {
-        RuleFor(b => b.CandidateId).NotEmpty();
         RuleFor(b => b.JobId).NotEmpty();
+        RuleFor(b => b.CandidateId).NotEmpty();
         RuleFor(b => b.CoverLetter).MaximumLength(500);
 
     }

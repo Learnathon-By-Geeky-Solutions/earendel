@@ -17,12 +17,12 @@ public sealed class UpdateJobHandler(
         ArgumentNullException.ThrowIfNull(request);
 
         var brand = await repository.GetByIdAsync(request.Id, cancellationToken);
-        
+
         if (brand is null || brand.DeletedBy != Guid.Empty)
         {
             throw new JobNotFoundException(request.Id);
         }
-    
+
         var updatedBrand = brand.Update(
             request.Name,
             request.Description,
@@ -31,7 +31,7 @@ public sealed class UpdateJobHandler(
             request.JobType,
             request.ExperienceLevel
             );
-            
+
         await repository.UpdateAsync(updatedBrand, cancellationToken);
 
         logger.LogInformation("Brand with id : {BrandId} updated.", brand.Id);

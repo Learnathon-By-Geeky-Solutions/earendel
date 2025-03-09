@@ -9,3 +9,11 @@ backend/Api/Migrations/PGSql/Experties
 backend/Api/Migrations/PGSql/Job
 backend/Api/Migrations/PGSql/Tenannt
 backend/Api/Migrations/PGSql/Identity
+/backend/Api/Migrations/PGSql/Tenant
+/backend/Api/Migrations/PGSql/Indentity
+/backend/Api/Migrations/PGSql/Candidates
+backend/Api/Migrations/PGSql/Tenant
+backend/Api/Migrations/PGSql/Identity
+backend/Api/Migrations/PGSql/Quizzes
+backend/Api/Migrations/PGSql/Notifications
+backend/Api/Migrations/PGSql/Interviews

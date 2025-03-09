@@ -52,25 +52,6 @@ public class Jobs : AuditableEntity, IAggregateRoot
         return this;
     }
 
-    public static Jobs Update(
-        Guid id, string name, string? description,
-        string requirments, string location, string jobType, string experienceLevel
-        )
-    {
-        var user = new Jobs
-        {
-            Id = id,
-            Name = name,
-            Description = description,
-            Requirments = requirments,
-            Location = location,
-            JobType = jobType,
-            ExperienceLevel = experienceLevel
-        };
 
-        user.QueueDomainEvent(new JobUpdated() { User = user });
-
-        return user;
-    }
 }
 

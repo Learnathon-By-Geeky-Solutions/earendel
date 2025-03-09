@@ -53,7 +53,7 @@ public static class Extensions
         {
             ["host.name"] = Environment.MachineName,
             ["service.names"] =
-                "FSH.Starter.WebApi.Host", //builder.Configuration["OpenTelemetrySettings:ServiceName"]!, //It's a WA Fix because the service.name tag is not completed automatically by Resource.Builder()...AddService(serviceName) https://github.com/open-telemetry/opentelemetry-dotnet/issues/2027
+                "TalentMesh.Starter.WebApi.Host", //builder.Configuration["OpenTelemetrySettings:ServiceName"]!, //It's a WA Fix because the service.name tag is not completed automatically by Resource.Builder()...AddService(serviceName) https://github.com/open-telemetry/opentelemetry-dotnet/issues/2027
             ["os.description"] = System.Runtime.InteropServices.RuntimeInformation.OSDescription,
             ["deployment.environment"] = builder.Environment.EnvironmentName.ToLowerInvariant()
         };
