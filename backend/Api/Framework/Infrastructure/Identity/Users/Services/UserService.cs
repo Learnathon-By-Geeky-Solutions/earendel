@@ -123,7 +123,10 @@ internal sealed partial class UserService(
         }
 
         // add basic role
-        await userManager.AddToRoleAsync(user, TMRoles.Basic);
+        // await userManager.AddToRoleAsync(user, TMRoles.Basic);
+        
+        await userManager.AddToRoleAsync(user, request.Role.ToString());
+
 
         // send confirmation mail
         if (!string.IsNullOrEmpty(user.Email))
