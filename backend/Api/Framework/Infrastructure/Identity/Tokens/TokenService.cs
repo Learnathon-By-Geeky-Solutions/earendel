@@ -36,11 +36,32 @@ public sealed class TokenService : ITokenService
 
     public async Task<TokenResponse> GenerateTokenAsync(TokenGenerationCommand request, string ipAddress, CancellationToken cancellationToken)
     {
+        // Ensure that we are checking the tenant first
         var currentTenant = _multiTenantContextAccessor!.MultiTenantContext.TenantInfo;
-        if (currentTenant == null) throw new UnauthorizedException();
-        if (string.IsNullOrWhiteSpace(currentTenant.Id)
-           || await _userManager.FindByEmailAsync(request.Email.Trim().Normalize()) is not { } user
-           || !await _userManager.CheckPasswordAsync(user, request.Password))
+        if (string.IsNullOrWhiteSpace(currentTenant.Id) || currentTenant == null)
+        {
+            throw new UnauthorizedException();
+        }
+
+        // Find the user by email
+        var user = await _userManager.FindByEmailAsync(request.Email.Trim().Normalize());
+        if (user == null)
+        {
+            throw new UnauthorizedException();
+        }
+
+        // Retrieve external logins for the user
+        var externalLogins = await _userManager.GetLoginsAsync(user);
+        bool hasGoogleLogin = externalLogins.Any(x => x.LoginProvider == "Google");
+
+        if (hasGoogleLogin)
+        {
+            // User logged in via Google, skip password check
+            return await GenerateTokensAndUpdateUser(user, ipAddress);
+        }
+
+        // If the user is not logging in via Google, check the password for non-Google users
+        if (!await _userManager.CheckPasswordAsync(user, request.Password))
         {
             throw new UnauthorizedException();
         }
