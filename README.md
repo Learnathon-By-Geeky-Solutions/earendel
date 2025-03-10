@@ -9,6 +9,24 @@
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-316192?style=for-the-badge&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
 [![Angular](https://img.shields.io/badge/Angular-17-DD0031?style=for-the-badge&logo=angular&logoColor=white)](https://angular.io)
 
+<br>
+
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=Learnathon-By-Geeky-Solutions_earendel&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=Learnathon-By-Geeky-Solutions_earendel)
+
+[![Lines of Code](https://sonarcloud.io/api/project_badges/measure?project=Learnathon-By-Geeky-Solutions_earendel&metric=ncloc)](https://sonarcloud.io/summary/new_code?id=Learnathon-By-Geeky-Solutions_earendel)
+
+[![Bugs](https://sonarcloud.io/api/project_badges/measure?project=Learnathon-By-Geeky-Solutions_earendel&metric=bugs)](https://sonarcloud.io/summary/new_code?id=Learnathon-By-Geeky-Solutions_earendel)
+
+[![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=Learnathon-By-Geeky-Solutions_earendel&metric=vulnerabilities)](https://sonarcloud.io/summary/new_code?id=Learnathon-By-Geeky-Solutions_earendel)
+
+[![Code Smells](https://sonarcloud.io/api/project_badges/measure?project=Learnathon-By-Geeky-Solutions_earendel&metric=code_smells)](https://sonarcloud.io/summary/new_code?id=Learnathon-By-Geeky-Solutions_earendel)
+
+[![Technical Debt](https://sonarcloud.io/api/project_badges/measure?project=Learnathon-By-Geeky-Solutions_earendel&metric=sqale_index)](https://sonarcloud.io/summary/new_code?id=Learnathon-By-Geeky-Solutions_earendel)
+
+[![Duplicated Lines (%)](https://sonarcloud.io/api/project_badges/measure?project=Learnathon-By-Geeky-Solutions_earendel&metric=duplicated_lines_density)](https://sonarcloud.io/summary/new_code?id=Learnathon-By-Geeky-Solutions_earendel)
+
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=Learnathon-By-Geeky-Solutions_earendel&metric=coverage)](https://sonarcloud.io/summary/new_code?id=Learnathon-By-Geeky-Solutions_earendel)
+
 </div>
 
 ---
@@ -60,7 +78,7 @@ While this repository only hosts our backend services. But for convenience, we h
 
 ## 🌟 Overview
 
-Earendel is a revolutionary **Interview as a Service (IaaS)** platform that leverages cutting-edge .NET 8 microservices architecture to deliver instant, affordable, and standardized technical assessments. Our platform seamlessly connects talent with opportunities through an innovative approach to technical recruitment.
+TalentMesh is a revolutionary **Interview as a Service (IaaS)** platform that leverages cutting-edge .NET 8 Modular Monolithic & Clean Architecture to deliver instant, affordable, and standardized technical assessments. Our platform seamlessly connects talent with opportunities through an innovative approach to technical recruitment.
 
 ### 🎯 Core Features
 
