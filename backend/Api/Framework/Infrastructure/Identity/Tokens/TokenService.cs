@@ -136,10 +136,10 @@ public sealed class TokenService : ITokenService
             new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
             new(ClaimTypes.NameIdentifier, user.Id),
             new(ClaimTypes.Email, user.Email!),
-            new(ClaimTypes.Name, user.FirstName ?? string.Empty),
+            // new(ClaimTypes.Name, user.FirstName ?? string.Empty),
             new(ClaimTypes.MobilePhone, user.PhoneNumber ?? string.Empty),
-            new(TMClaims.Fullname, $"{user.FirstName} {user.LastName}"),
-            new(ClaimTypes.Surname, user.LastName ?? string.Empty),
+            // new(TMClaims.Fullname, $"{user.FirstName} {user.LastName}"),
+            // new(ClaimTypes.Surname, user.LastName ?? string.Empty),
             new(TMClaims.IpAddress, ipAddress),
             new(TMClaims.Tenant, _multiTenantContextAccessor!.MultiTenantContext.TenantInfo!.Id),
             new(TMClaims.ImageUrl, user.ImageUrl == null ? string.Empty : user.ImageUrl.ToString())

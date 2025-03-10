@@ -12,10 +12,11 @@ public static class RefreshTokenEndpoint
     internal static RouteHandlerBuilder MapRefreshTokenEndpoint(this IEndpointRouteBuilder endpoints)
     {
         return endpoints.MapPost("/refresh", (RefreshTokenCommand request,
-            [FromHeader(Name = TenantConstants.Identifier)] string tenant,
+            // [FromHeader(Name = TenantConstants.Identifier)] string tenant, 
             ITokenService service,
             HttpContext context,
-            CancellationToken cancellationToken) =>
+            CancellationToken cancellationToken,
+            [FromHeader(Name = TenantConstants.Identifier)] string? tenant = "root") =>
         {
             string ip = context.GetIpAddress();
             return service.RefreshTokenAsync(request, ip!, cancellationToken);

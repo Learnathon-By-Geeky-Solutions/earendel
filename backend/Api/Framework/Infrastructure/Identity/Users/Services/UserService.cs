@@ -106,10 +106,10 @@ internal sealed partial class UserService(
         var user = new TMUser
         {
             Email = request.Email,
-            FirstName = request.FirstName,
-            LastName = request.LastName,
+            // FirstName = request.FirstName,
+            // LastName = request.LastName,
             UserName = request.UserName,
-            PhoneNumber = request.PhoneNumber,
+            // PhoneNumber = request.PhoneNumber,
             IsActive = true,
             EmailConfirmed = true
         };
@@ -172,8 +172,8 @@ internal sealed partial class UserService(
             }
         }
 
-        user.FirstName = request.FirstName;
-        user.LastName = request.LastName;
+        // user.FirstName = request.FirstName;
+        // user.LastName = request.LastName;
         user.PhoneNumber = request.PhoneNumber;
         string? phoneNumber = await userManager.GetPhoneNumberAsync(user);
         if (request.PhoneNumber != phoneNumber)
