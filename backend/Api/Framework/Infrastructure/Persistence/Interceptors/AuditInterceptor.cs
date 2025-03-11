@@ -29,84 +29,105 @@ public class AuditInterceptor(ICurrentUser currentUser, TimeProvider timeProvide
         await PublishAuditTrailsAsync(eventData);
         return await base.SavingChangesAsync(eventData, result, cancellationToken);
     }
-
     private async Task PublishAuditTrailsAsync(DbContextEventData eventData)
     {
         if (eventData.Context == null) return;
+
         eventData.Context.ChangeTracker.DetectChanges();
         var trails = new List<TrailDto>();
         var utcNow = timeProvider.GetUtcNow();
-        foreach (var entry in eventData.Context.ChangeTracker.Entries<IAuditable>().Where(x => x.State is EntityState.Added or EntityState.Deleted or EntityState.Modified).ToList())
+
+        var modifiedEntries = eventData.Context.ChangeTracker.Entries<IAuditable>()
+            .Where(x => x.State is EntityState.Added or EntityState.Deleted or EntityState.Modified)
+            .ToList();
+
+        foreach (var entry in modifiedEntries)
         {
-            var userId = currentUser.GetUserId();
-            var trail = new TrailDto()
+            var trail = await CreateTrailAsync(entry, utcNow);
+            if (trail != null)
             {
-                Id = Guid.NewGuid(),
-                TableName = entry.Entity.GetType().Name,
-                UserId = userId,
-                DateTime = utcNow
-            };
+                trails.Add(trail);
+            }
+        }
 
-            foreach (var property in entry.Properties)
+        if (trails.Any())
+        {
+            var auditTrails = trails.Select(trail => trail.ToAuditTrail()).ToList();
+            await publisher.Publish(new AuditPublishedEvent(auditTrails));
+        }
+    }
+
+    private async Task<TrailDto?> CreateTrailAsync(EntityEntry<IAuditable> entry, DateTime utcNow)
+    {
+        var userId = currentUser.GetUserId();
+        var trail = new TrailDto
+        {
+            Id = Guid.NewGuid(),
+            TableName = entry.Entity.GetType().Name,
+            UserId = userId,
+            DateTime = utcNow
+        };
+
+        foreach (var property in entry.Properties)
+        {
+            if (property.IsTemporary) continue;
+
+            string propertyName = property.Metadata.Name;
+            if (property.Metadata.IsPrimaryKey())
             {
-                if (property.IsTemporary)
-                {
-                    continue;
-                }
-                string propertyName = property.Metadata.Name;
-                if (property.Metadata.IsPrimaryKey())
-                {
-                    trail.KeyValues[propertyName] = property.CurrentValue;
-                    continue;
-                }
-
-                switch (entry.State)
-                {
-                    case EntityState.Added:
-                        trail.Type = TrailType.Create;
-                        trail.NewValues[propertyName] = property.CurrentValue;
-                        break;
-
-                    case EntityState.Deleted:
-                        trail.Type = TrailType.Delete;
-                        trail.OldValues[propertyName] = property.OriginalValue;
-                        break;
-
-                    case EntityState.Modified:
-                        if (property.IsModified)
-                        {
-                            if (entry.Entity is ISoftDeletable && property.OriginalValue == null && property.CurrentValue != null)
-                            {
-                                trail.ModifiedProperties.Add(propertyName);
-                                trail.Type = TrailType.Delete;
-                                trail.OldValues[propertyName] = property.OriginalValue;
-                                trail.NewValues[propertyName] = property.CurrentValue;
-                            }
-                            else if (property.OriginalValue?.Equals(property.CurrentValue) == false)
-                            {
-                                trail.ModifiedProperties.Add(propertyName);
-                                trail.Type = TrailType.Update;
-                                trail.OldValues[propertyName] = property.OriginalValue;
-                                trail.NewValues[propertyName] = property.CurrentValue;
-                            }
-                            else
-                            {
-                                property.IsModified = false;
-                            }
-                        }
-                        break;
-                }
+                trail.KeyValues[propertyName] = property.CurrentValue;
+                continue;
             }
 
-            trails.Add(trail);
+            await ProcessPropertyAsync(entry, trail, property, propertyName);
         }
-        if (trails.Count == 0) return;
-        var auditTrails = new Collection<AuditTrail>();
-        foreach (var trail in trails)
+
+        return trail.ModifiedProperties.Any() || trail.NewValues.Any() || trail.OldValues.Any() ? trail : null;
+    }
+
+    private static async Task ProcessPropertyAsync(EntityEntry<IAuditable> entry, TrailDto trail, PropertyEntry property, string propertyName)
+    {
+        switch (entry.State)
         {
-            auditTrails.Add(trail.ToAuditTrail());
+            case EntityState.Added:
+                trail.Type = TrailType.Create;
+                trail.NewValues[propertyName] = property.CurrentValue;
+                break;
+
+            case EntityState.Deleted:
+                trail.Type = TrailType.Delete;
+                trail.OldValues[propertyName] = property.OriginalValue;
+                break;
+
+            case EntityState.Modified:
+                if (property.IsModified)
+                {
+                    await ProcessModifiedPropertyAsync(entry, trail, property, propertyName);
+                }
+                break;
         }
-        await publisher.Publish(new AuditPublishedEvent(auditTrails));
+    }
+
+    private static async Task ProcessModifiedPropertyAsync(EntityEntry<IAuditable> entry, TrailDto trail, PropertyEntry property, string propertyName)
+    {
+        if (entry.Entity is ISoftDeletable && property.OriginalValue == null && property.CurrentValue != null)
+        {
+            trail.ModifiedProperties.Add(propertyName);
+            trail.Type = TrailType.Delete;
+            trail.OldValues[propertyName] = property.OriginalValue;
+            trail.NewValues[propertyName] = property.CurrentValue;
+        }
+        else if (property.OriginalValue?.Equals(property.CurrentValue) == false)
+        {
+            trail.ModifiedProperties.Add(propertyName);
+            trail.Type = TrailType.Update;
+            trail.OldValues[propertyName] = property.OriginalValue;
+            trail.NewValues[propertyName] = property.CurrentValue;
+        }
+        else
+        {
+            property.IsModified = false;
+        }
     }
 
     public void UpdateEntities(DbContext? context)
@@ -125,7 +146,7 @@ public class AuditInterceptor(ICurrentUser currentUser, TimeProvider timeProvide
                 entry.Entity.LastModifiedBy = currentUser.GetUserId();
                 entry.Entity.LastModified = utcNow;
             }
-            if(entry.State is EntityState.Deleted && entry.Entity is ISoftDeletable softDelete)
+            if (entry.State is EntityState.Deleted && entry.Entity is ISoftDeletable softDelete)
             {
                 softDelete.DeletedBy = currentUser.GetUserId();
                 softDelete.Deleted = utcNow;
