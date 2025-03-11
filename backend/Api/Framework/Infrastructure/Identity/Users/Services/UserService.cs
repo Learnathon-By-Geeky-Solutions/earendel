@@ -131,11 +131,7 @@ internal sealed partial class UserService(
             throw new TalentMeshException("error while registering a new user", errors);
         }
 
-        // add basic role
-        // await userManager.AddToRoleAsync(user, TMRoles.Basic);
-
         await userManager.AddToRoleAsync(user, request.Role.ToString());
-
 
         // send confirmation mail
         if (!string.IsNullOrEmpty(user.Email))
@@ -151,7 +147,7 @@ internal sealed partial class UserService(
         return new RegisterUserResponse(user.Id);
     }
 
-    public async Task<GoogleLoginUserResponse> GoogleLogin(TokenRequestCommand request, string ipAddress, string origin, CancellationToken cancellationToken)
+    public async Task<GoogleLoginUserResponse> GoogleLogin(TokenRequestCommand request, string ip, string origin, CancellationToken cancellationToken)
     {
         try
         {
@@ -174,7 +170,7 @@ internal sealed partial class UserService(
                     // Generate JWT token for existing user
                     var tokenResponseForExistingUser = await tokenService.GenerateTokenAsync(
                         tokenGenerationCommandForExistingUser,
-                        ipAddress,
+                        ip,
                         cancellationToken
                     );
 
@@ -219,7 +215,7 @@ internal sealed partial class UserService(
             // Generate JWT token for existing user
             var tokenResponse = await tokenService.GenerateTokenAsync(
              tokenGenerationCommand,
-             ipAddress,
+             ip,
              cancellationToken
          );
 
@@ -265,8 +261,6 @@ internal sealed partial class UserService(
             }
         }
 
-        // user.FirstName = request.FirstName;
-        // user.LastName = request.LastName;
         user.PhoneNumber = request.PhoneNumber;
         string? phoneNumber = await userManager.GetPhoneNumberAsync(user);
         if (request.PhoneNumber != phoneNumber)

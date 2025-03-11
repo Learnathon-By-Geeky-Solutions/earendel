@@ -38,7 +38,7 @@ public sealed class TokenService : ITokenService
     {
         // Ensure that we are checking the tenant first
         var currentTenant = _multiTenantContextAccessor!.MultiTenantContext.TenantInfo;
-        if (string.IsNullOrWhiteSpace(currentTenant.Id) || currentTenant == null)
+        if (currentTenant == null || string.IsNullOrWhiteSpace(currentTenant.Id))
         {
             throw new UnauthorizedException();
         }

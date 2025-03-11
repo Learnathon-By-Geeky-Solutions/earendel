@@ -23,7 +23,6 @@ public static class GoogleLoginUserEndpoint
             string ip = context.GetIpAddress();
             var origin = $"{context.Request.Scheme}://{context.Request.Host.Value}{context.Request.PathBase.Value}";
             return service.GoogleLogin(request, ip, origin, cancellationToken);
-            // return service.GoogleLogin(request, origin, cancellationToken);
         })
         
         .WithName(nameof(GoogleLoginUserEndpoint))
