@@ -108,8 +108,8 @@ internal sealed class IdentityDbInitializer(
             string adminUserName = $"{multiTenantContextAccessor.MultiTenantContext.TenantInfo?.Id.Trim()}.{TMRoles.Admin}".ToUpperInvariant();
             adminUser = new TMUser
             {
-                FirstName = multiTenantContextAccessor.MultiTenantContext.TenantInfo?.Id.Trim().ToUpperInvariant(),
-                LastName = TMRoles.Admin,
+                // FirstName = multiTenantContextAccessor.MultiTenantContext.TenantInfo?.Id.Trim().ToUpperInvariant(),
+                // LastName = TMRoles.Admin,
                 Email = multiTenantContextAccessor.MultiTenantContext.TenantInfo?.AdminEmail,
                 UserName = adminUserName,
                 EmailConfirmed = true,

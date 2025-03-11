@@ -36,11 +36,32 @@ public sealed class TokenService : ITokenService
 
     public async Task<TokenResponse> GenerateTokenAsync(TokenGenerationCommand request, string ipAddress, CancellationToken cancellationToken)
     {
+        // Ensure that we are checking the tenant first
         var currentTenant = _multiTenantContextAccessor!.MultiTenantContext.TenantInfo;
-        if (currentTenant == null) throw new UnauthorizedException();
-        if (string.IsNullOrWhiteSpace(currentTenant.Id)
-           || await _userManager.FindByEmailAsync(request.Email.Trim().Normalize()) is not { } user
-           || !await _userManager.CheckPasswordAsync(user, request.Password))
+        if (currentTenant == null || string.IsNullOrWhiteSpace(currentTenant.Id))
+        {
+            throw new UnauthorizedException();
+        }
+
+        // Find the user by email
+        var user = await _userManager.FindByEmailAsync(request.Email.Trim().Normalize());
+        if (user == null)
+        {
+            throw new UnauthorizedException();
+        }
+
+        // Retrieve external logins for the user
+        var externalLogins = await _userManager.GetLoginsAsync(user);
+        bool hasGoogleLogin = externalLogins.Any(x => x.LoginProvider == "Google");
+
+        if (hasGoogleLogin)
+        {
+            // User logged in via Google, skip password check
+            return await GenerateTokensAndUpdateUser(user, ipAddress);
+        }
+
+        // If the user is not logging in via Google, check the password for non-Google users
+        if (!await _userManager.CheckPasswordAsync(user, request.Password))
         {
             throw new UnauthorizedException();
         }
@@ -136,10 +157,10 @@ public sealed class TokenService : ITokenService
             new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
             new(ClaimTypes.NameIdentifier, user.Id),
             new(ClaimTypes.Email, user.Email!),
-            new(ClaimTypes.Name, user.FirstName ?? string.Empty),
+            // new(ClaimTypes.Name, user.FirstName ?? string.Empty),
             new(ClaimTypes.MobilePhone, user.PhoneNumber ?? string.Empty),
-            new(TMClaims.Fullname, $"{user.FirstName} {user.LastName}"),
-            new(ClaimTypes.Surname, user.LastName ?? string.Empty),
+            // new(TMClaims.Fullname, $"{user.FirstName} {user.LastName}"),
+            // new(ClaimTypes.Surname, user.LastName ?? string.Empty),
             new(TMClaims.IpAddress, ipAddress),
             new(TMClaims.Tenant, _multiTenantContextAccessor!.MultiTenantContext.TenantInfo!.Id),
             new(TMClaims.ImageUrl, user.ImageUrl == null ? string.Empty : user.ImageUrl.ToString())

@@ -23,6 +23,14 @@ using Mapster;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.EntityFrameworkCore;
+using Google.Apis.Auth;
+using TalentMesh.Framework.Core.Identity.Tokens;
+using TalentMesh.Framework.Core.Identity.Tokens.Features.Generate;
+using Microsoft.AspNetCore.Http;
+using TalentMesh.Framework.Core.Identity.Users.Features.GoogleLogin;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Cryptography;
+using Google.Apis.Auth.OAuth2.Responses;
 
 namespace TalentMesh.Framework.Infrastructure.Identity.Users.Services;
 
@@ -35,7 +43,8 @@ internal sealed partial class UserService(
     IJobService jobService,
     IMailService mailService,
     IMultiTenantContextAccessor<TMTenantInfo> multiTenantContextAccessor,
-    IStorageService storageService
+    IStorageService storageService,
+    ITokenService tokenService
     ) : IUserService
 {
     private void EnsureValidTenant()
@@ -106,10 +115,10 @@ internal sealed partial class UserService(
         var user = new TMUser
         {
             Email = request.Email,
-            FirstName = request.FirstName,
-            LastName = request.LastName,
+            // FirstName = request.FirstName,
+            // LastName = request.LastName,
             UserName = request.UserName,
-            PhoneNumber = request.PhoneNumber,
+            // PhoneNumber = request.PhoneNumber,
             IsActive = true,
             EmailConfirmed = true
         };
@@ -122,8 +131,7 @@ internal sealed partial class UserService(
             throw new TalentMeshException("error while registering a new user", errors);
         }
 
-        // add basic role
-        await userManager.AddToRoleAsync(user, TMRoles.Basic);
+        await userManager.AddToRoleAsync(user, request.Role.ToString());
 
         // send confirmation mail
         if (!string.IsNullOrEmpty(user.Email))
@@ -138,6 +146,87 @@ internal sealed partial class UserService(
 
         return new RegisterUserResponse(user.Id);
     }
+
+    public async Task<GoogleLoginUserResponse> GoogleLogin(TokenRequestCommand request, string ip, string origin, CancellationToken cancellationToken)
+    {
+        try
+        {
+
+            // Validate Google token
+            var payload = await GoogleJsonWebSignature.ValidateAsync(request.Token);
+            var email = payload.Email;
+            var providerKey = payload.Subject; // Google unique user ID
+            // Check if user already exists
+            var existingUser = await userManager.FindByEmailAsync(email);
+            if (existingUser != null)
+            {
+                // Check if user is an external login
+                var logins = await userManager.GetLoginsAsync(existingUser);
+                if (logins.Any(l => l.LoginProvider == "Google"))
+                {
+                    Console.WriteLine("inside loginsss");
+                    var tokenGenerationCommandForExistingUser = new TokenGenerationCommand(email, null); // Pass email and password
+
+                    // Generate JWT token for existing user
+                    var tokenResponseForExistingUser = await tokenService.GenerateTokenAsync(
+                        tokenGenerationCommandForExistingUser,
+                        ip,
+                        cancellationToken
+                    );
+
+                    return new GoogleLoginUserResponse(existingUser.Id, tokenResponseForExistingUser.Token, tokenResponseForExistingUser.RefreshToken);
+                }
+                else
+                {
+                    return new GoogleLoginUserResponse("Email is already registered with a different method.", "", "");
+                }
+            }
+
+            // Create new user WITHOUT a password
+            var newUser = new TMUser
+            {
+                Email = email,
+                UserName = email,
+                IsActive = true,
+                ImageUrl = new Uri(payload.Picture),
+                EmailConfirmed = true
+            };
+
+            var createUserResult = await userManager.CreateAsync(newUser);
+            if (!createUserResult.Succeeded)
+            {
+                return new GoogleLoginUserResponse("User creation failed", "", "");
+            }
+
+            // Link Google account to this user
+            var loginInfo = new UserLoginInfo("Google", providerKey, "Google");
+            var addLoginResult = await userManager.AddLoginAsync(newUser, loginInfo);
+            if (!addLoginResult.Succeeded)
+            {
+                return new GoogleLoginUserResponse("Failed to add external login", "", "");
+            }
+
+            // Assign default role
+            await userManager.AddToRoleAsync(newUser, TMRoles.Candidate);
+
+            // Generate JWT for the new user
+            var tokenGenerationCommand = new TokenGenerationCommand(email, null); // Pass email and password
+
+            // Generate JWT token for existing user
+            var tokenResponse = await tokenService.GenerateTokenAsync(
+             tokenGenerationCommand,
+             ip,
+             cancellationToken
+         );
+
+            return new GoogleLoginUserResponse(newUser.Id, tokenResponse.Token, tokenResponse.RefreshToken);
+        }
+        catch (Exception ex)
+        {
+            return new GoogleLoginUserResponse($"Error: {ex.Message}", "", "");
+        }
+    }
+
 
     public async Task ToggleStatusAsync(ToggleUserStatusCommand request, CancellationToken cancellationToken)
     {
@@ -172,8 +261,6 @@ internal sealed partial class UserService(
             }
         }
 
-        user.FirstName = request.FirstName;
-        user.LastName = request.LastName;
         user.PhoneNumber = request.PhoneNumber;
         string? phoneNumber = await userManager.GetPhoneNumberAsync(user);
         if (request.PhoneNumber != phoneNumber)

@@ -12,10 +12,11 @@ public static class TokenGenerationEndpoint
     internal static RouteHandlerBuilder MapTokenGenerationEndpoint(this IEndpointRouteBuilder endpoints)
     {
         return endpoints.MapPost("/", (TokenGenerationCommand request,
-            [FromHeader(Name = TenantConstants.Identifier)] string tenant,
+            // [FromHeader(Name = TenantConstants.Identifier)] string tenant,
             ITokenService service,
             HttpContext context,
-            CancellationToken cancellationToken) =>
+            CancellationToken cancellationToken,
+            [FromHeader(Name = TenantConstants.Identifier)] string? tenant = "root") =>
         {
             string ip = context.GetIpAddress();
             return service.GenerateTokenAsync(request, ip!, cancellationToken);
