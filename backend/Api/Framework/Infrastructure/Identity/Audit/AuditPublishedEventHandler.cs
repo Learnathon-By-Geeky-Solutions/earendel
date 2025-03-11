@@ -9,16 +9,17 @@ public class AuditPublishedEventHandler(ILogger<AuditPublishedEventHandler> logg
     public async Task Handle(AuditPublishedEvent notification, CancellationToken cancellationToken)
     {
         if (context == null) return;
-        logger.LogInformation("received audit trails");
+        logger.LogInformation("Received audit trails");
+
         try
         {
-            await context.Set<AuditTrail>().AddRangeAsync(notification.Trails!, default);
-            await context.SaveChangesAsync(default);
+            await context.Set<AuditTrail>().AddRangeAsync(notification.Trails!, cancellationToken);
+            await context.SaveChangesAsync(cancellationToken);
         }
-        catch
+        catch (Exception ex)
         {
-            logger.LogError("error while saving audit trail");
+            logger.LogError(ex, "Error while saving audit trail");
         }
-        return;
     }
+
 }

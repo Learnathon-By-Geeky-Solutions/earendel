@@ -125,7 +125,7 @@ public class AuditInterceptor(ICurrentUser currentUser, TimeProvider timeProvide
                 entry.Entity.LastModifiedBy = currentUser.GetUserId();
                 entry.Entity.LastModified = utcNow;
             }
-            if(entry.State is EntityState.Deleted && entry.Entity is ISoftDeletable softDelete)
+            if (entry.State is EntityState.Deleted && entry.Entity is ISoftDeletable softDelete)
             {
                 softDelete.DeletedBy = currentUser.GetUserId();
                 softDelete.Deleted = utcNow;

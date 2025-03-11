@@ -9,7 +9,7 @@
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-316192?style=for-the-badge&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
 [![Angular](https://img.shields.io/badge/Angular-17-DD0031?style=for-the-badge&logo=angular&logoColor=white)](https://angular.io)
 
-## <br>
+<br>
 
 <p align="center"> <a href="https://sonarcloud.io/summary/new_code?id=Learnathon-By-Geeky-Solutions_earendel"> <img src="https://img.shields.io/badge/SonarCloud-Analysis-4E9BCD?style=for-the-badge&logo=sonarcloud&logoColor=white" alt="SonarCloud Analysis" width="250"> </a> </p>
 

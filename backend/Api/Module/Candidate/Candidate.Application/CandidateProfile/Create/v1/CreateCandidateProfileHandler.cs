@@ -16,11 +16,7 @@ public sealed class CreateCandidateProfileHandler(
 {
     public async Task<CreateCandidateProfileResponse> Handle(CreateCandidateProfileCommand request, CancellationToken cancellationToken)
     {
-        //ArgumentNullException.ThrowIfNull(request);
-        //if (user.GetUserId() is not { } userId || string.IsNullOrEmpty(userId))
-        //{
-        //    throw new UnauthorizedException();
-        //}
+
         var candidateProfile = Domain.CandidateProfile.Create(
             request.UserId!,
             request.Resume!,

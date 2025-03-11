@@ -23,6 +23,14 @@ using Mapster;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.EntityFrameworkCore;
+using Google.Apis.Auth;
+using TalentMesh.Framework.Core.Identity.Tokens;
+using TalentMesh.Framework.Core.Identity.Tokens.Features.Generate;
+using Microsoft.AspNetCore.Http;
+using TalentMesh.Framework.Core.Identity.Users.Features.GoogleLogin;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Cryptography;
+using Google.Apis.Auth.OAuth2.Responses;
 
 namespace TalentMesh.Framework.Infrastructure.Identity.Users.Services;
 
@@ -35,9 +43,12 @@ internal sealed partial class UserService(
     IJobService jobService,
     IMailService mailService,
     IMultiTenantContextAccessor<TMTenantInfo> multiTenantContextAccessor,
-    IStorageService storageService
+    IStorageService storageService,
+    ITokenService tokenService
     ) : IUserService
 {
+    private const string UserNotFoundMessage = "user not found";
+
     private void EnsureValidTenant()
     {
         if (string.IsNullOrWhiteSpace(multiTenantContextAccessor?.MultiTenantContext?.TenantInfo?.Id))
@@ -81,7 +92,7 @@ internal sealed partial class UserService(
             .Where(u => u.Id == userId)
             .FirstOrDefaultAsync(cancellationToken);
 
-        _ = user ?? throw new NotFoundException("user not found");
+        _ = user ?? throw new NotFoundException(UserNotFoundMessage);
 
         return user.Adapt<UserDetail>();
     }
@@ -106,10 +117,10 @@ internal sealed partial class UserService(
         var user = new TMUser
         {
             Email = request.Email,
-            FirstName = request.FirstName,
-            LastName = request.LastName,
+            // FirstName = request.FirstName,
+            // LastName = request.LastName,
             UserName = request.UserName,
-            PhoneNumber = request.PhoneNumber,
+            // PhoneNumber = request.PhoneNumber,
             IsActive = true,
             EmailConfirmed = true
         };
@@ -122,8 +133,7 @@ internal sealed partial class UserService(
             throw new TalentMeshException("error while registering a new user", errors);
         }
 
-        // add basic role
-        await userManager.AddToRoleAsync(user, TMRoles.Basic);
+        await userManager.AddToRoleAsync(user, request.Role.ToString());
 
         // send confirmation mail
         if (!string.IsNullOrEmpty(user.Email))
@@ -139,11 +149,92 @@ internal sealed partial class UserService(
         return new RegisterUserResponse(user.Id);
     }
 
+    public async Task<GoogleLoginUserResponse> GoogleLogin(TokenRequestCommand request, string ip, string origin, CancellationToken cancellationToken)
+    {
+        try
+        {
+
+            // Validate Google token
+            var payload = await GoogleJsonWebSignature.ValidateAsync(request.Token);
+            var email = payload.Email;
+            var providerKey = payload.Subject; // Google unique user ID
+            // Check if user already exists
+            var existingUser = await userManager.FindByEmailAsync(email);
+            if (existingUser != null)
+            {
+                // Check if user is an external login
+                var logins = await userManager.GetLoginsAsync(existingUser);
+                if (logins.Any(l => l.LoginProvider == "Google"))
+                {
+                    Console.WriteLine("inside loginsss");
+                    var tokenGenerationCommandForExistingUser = new TokenGenerationCommand(email, null); // Pass email and password
+
+                    // Generate JWT token for existing user
+                    var tokenResponseForExistingUser = await tokenService.GenerateTokenAsync(
+                        tokenGenerationCommandForExistingUser,
+                        ip,
+                        cancellationToken
+                    );
+
+                    return new GoogleLoginUserResponse(existingUser.Id, tokenResponseForExistingUser.Token, tokenResponseForExistingUser.RefreshToken);
+                }
+                else
+                {
+                    return new GoogleLoginUserResponse("Email is already registered with a different method.", "", "");
+                }
+            }
+
+            // Create new user WITHOUT a password
+            var newUser = new TMUser
+            {
+                Email = email,
+                UserName = email,
+                IsActive = true,
+                ImageUrl = new Uri(payload.Picture),
+                EmailConfirmed = true
+            };
+
+            var createUserResult = await userManager.CreateAsync(newUser);
+            if (!createUserResult.Succeeded)
+            {
+                return new GoogleLoginUserResponse("User creation failed", "", "");
+            }
+
+            // Link Google account to this user
+            var loginInfo = new UserLoginInfo("Google", providerKey, "Google");
+            var addLoginResult = await userManager.AddLoginAsync(newUser, loginInfo);
+            if (!addLoginResult.Succeeded)
+            {
+                return new GoogleLoginUserResponse("Failed to add external login", "", "");
+            }
+
+            // Assign default role
+            await userManager.AddToRoleAsync(newUser, TMRoles.Candidate);
+
+            // Generate JWT for the new user
+            var tokenGenerationCommand = new TokenGenerationCommand(email, null); // Pass email and password
+
+            // Generate JWT token for existing user
+            var tokenResponse = await tokenService.GenerateTokenAsync(
+             tokenGenerationCommand,
+             ip,
+             cancellationToken
+         );
+
+            return new GoogleLoginUserResponse(newUser.Id, tokenResponse.Token, tokenResponse.RefreshToken);
+        }
+        catch (Exception ex)
+        {
+            return new GoogleLoginUserResponse($"Error: {ex.Message}", "", "");
+        }
+    }
+
+
     public async Task ToggleStatusAsync(ToggleUserStatusCommand request, CancellationToken cancellationToken)
     {
         var user = await userManager.Users.Where(u => u.Id == request.UserId).FirstOrDefaultAsync(cancellationToken);
 
-        _ = user ?? throw new NotFoundException("User Not Found.");
+        _ = user ?? throw new NotFoundException(UserNotFoundMessage);
 
         bool isAdmin = await userManager.IsInRoleAsync(user, TMRoles.Admin);
         if (isAdmin)
@@ -160,7 +251,7 @@ internal sealed partial class UserService(
     {
         var user = await userManager.FindByIdAsync(userId);
 
-        _ = user ?? throw new NotFoundException("user not found");
+        _ = user ?? throw new NotFoundException(UserNotFoundMessage);
 
         Uri imageUri = user.ImageUrl ?? null!;
         if (request.Image != null || request.DeleteCurrentImage)
@@ -172,8 +263,6 @@ internal sealed partial class UserService(
             }
         }
 
-        user.FirstName = request.FirstName;
-        user.LastName = request.LastName;
         user.PhoneNumber = request.PhoneNumber;
         string? phoneNumber = await userManager.GetPhoneNumberAsync(user);
         if (request.PhoneNumber != phoneNumber)
@@ -194,7 +283,7 @@ internal sealed partial class UserService(
     {
         TMUser? user = await userManager.FindByIdAsync(userId);
 
-        _ = user ?? throw new NotFoundException("User Not Found.");
+        _ = user ?? throw new NotFoundException(UserNotFoundMessage);
 
         user.IsActive = false;
         IdentityResult? result = await userManager.UpdateAsync(user);
@@ -226,25 +315,21 @@ internal sealed partial class UserService(
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        var user = await userManager.Users.Where(u => u.Id == userId).FirstOrDefaultAsync(cancellationToken);
+        var user = await userManager.Users
+            .Where(u => u.Id == userId)
+            .FirstOrDefaultAsync(cancellationToken)
+            ?? throw new NotFoundException(UserNotFoundMessage);
 
-        _ = user ?? throw new NotFoundException("user not found");
-
-        // Check if the user is an admin for which the admin role is getting disabled
-        if (await userManager.IsInRoleAsync(user, TMRoles.Admin)
-            && request.UserRoles.Exists(a => !a.Enabled && a.RoleName == TMRoles.Admin))
+        // Check if disabling the admin role for an admin user
+        if (await userManager.IsInRoleAsync(user, TMRoles.Admin) &&
+            request.UserRoles.Any(r => !r.Enabled && r.RoleName == TMRoles.Admin))
         {
-            // Get count of users in Admin Role
             int adminCount = (await userManager.GetUsersInRoleAsync(TMRoles.Admin)).Count;
 
-            // Check if user is not Root Tenant Admin
-            // Edge Case : there are chances for other tenants to have users with the same email as that of Root Tenant Admin. Probably can add a check while User Registration
-            if (user.Email == TenantConstants.Root.EmailAddress)
+            if (user.Email == TenantConstants.Root.EmailAddress &&
+                multiTenantContextAccessor?.MultiTenantContext?.TenantInfo?.Id == TenantConstants.Root.Id)
             {
-                if (multiTenantContextAccessor?.MultiTenantContext?.TenantInfo?.Id == TenantConstants.Root.Id)
-                {
-                    throw new TalentMeshException("action not permitted");
-                }
+                throw new TalentMeshException("action not permitted");
             }
             else if (adminCount <= 2)
             {
@@ -252,35 +337,43 @@ internal sealed partial class UserService(
             }
         }
 
-        foreach (var userRole in request.UserRoles)
+        // Process roles to add
+        var rolesToAdd = request.UserRoles
+       .Where(r => r.Enabled)
+       .Select(r => r.RoleName!)
+       .ToList();
+
+        foreach (var roleName in rolesToAdd)
         {
-            // Check if Role Exists
-            if (await roleManager.FindByNameAsync(userRole.RoleName!) is not null)
+            if (await roleManager.FindByNameAsync(roleName) is not null &&
+                !await userManager.IsInRoleAsync(user, roleName))
             {
-                if (userRole.Enabled)
-                {
-                    if (!await userManager.IsInRoleAsync(user, userRole.RoleName!))
-                    {
-                        await userManager.AddToRoleAsync(user, userRole.RoleName!);
-                    }
-                }
-                else
-                {
-                    await userManager.RemoveFromRoleAsync(user, userRole.RoleName!);
-                }
+                await userManager.AddToRoleAsync(user, roleName);
             }
         }
 
-        return "User Roles Updated Successfully.";
 
+        // Process roles to remove
+        await Task.WhenAll(
+         request.UserRoles
+             .Where(r => !r.Enabled)
+             .Select(async r =>
+                 await roleManager.FindByNameAsync(r.RoleName!) is not null
+                     ? userManager.RemoveFromRoleAsync(user, r.RoleName!)
+                     : Task.CompletedTask)
+     );
+
+
+        return "User Roles Updated Successfully.";
     }
+
 
     public async Task<List<UserRoleDetail>> GetUserRolesAsync(string userId, CancellationToken cancellationToken)
     {
         var userRoles = new List<UserRoleDetail>();
 
         var user = await userManager.FindByIdAsync(userId);
-        if (user is null) throw new NotFoundException("user not found");
+        if (user is null) throw new NotFoundException(UserNotFoundMessage);
         var roles = await roleManager.Roles.AsNoTracking().ToListAsync(cancellationToken);
         if (roles is null) throw new NotFoundException("roles not found");
         foreach (var role in roles)

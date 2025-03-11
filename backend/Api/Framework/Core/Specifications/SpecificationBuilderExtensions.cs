@@ -332,17 +332,26 @@ public static class SpecificationBuilderExtensions
     }
 
     private static Dictionary<string, OrderTypeEnum> ParseOrderBy(string[] orderByFields) =>
-        new(orderByFields.Select((orderByfield, index) =>
+        new(orderByFields.Select((orderByField, index) =>
         {
-            string[] fieldParts = orderByfield.Split(' ');
+            string[] fieldParts = orderByField.Split(' ');
             string field = fieldParts[0];
             bool descending = fieldParts.Length > 1 && fieldParts[1].StartsWith("Desc", StringComparison.OrdinalIgnoreCase);
-            var orderBy = index == 0
-                ? descending ? OrderTypeEnum.OrderByDescending
-                                : OrderTypeEnum.OrderBy
-                : descending ? OrderTypeEnum.ThenByDescending
-                                : OrderTypeEnum.ThenBy;
+
+            OrderTypeEnum orderBy;
+            if (index == 0)
+            {
+                orderBy = descending ? OrderTypeEnum.OrderByDescending : OrderTypeEnum.OrderBy;
+            }
+            else
+            {
+                orderBy = descending ? OrderTypeEnum.ThenByDescending : OrderTypeEnum.ThenBy;
+            }
 
             return new KeyValuePair<string, OrderTypeEnum>(field, orderBy);
         }));
+
+
+
+
 }
