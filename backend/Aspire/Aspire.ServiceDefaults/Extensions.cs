@@ -81,7 +81,7 @@ public static class Extensions
                     .AddHttpClientInstrumentation()
                     .AddRuntimeInstrumentation()
                     .AddMeter(MetricsConstants.Jobs);
-                //.AddConsoleExporter();
+
             })
             .WithTracing(tracing =>
             {
@@ -94,7 +94,7 @@ public static class Extensions
                     .AddAspNetCoreInstrumentation(nci => nci.RecordException = true)
                     .AddHttpClientInstrumentation()
                     .AddEntityFrameworkCoreInstrumentation();
-                //.AddConsoleExporter();
+
             });
 
         builder.AddOpenTelemetryExporters();

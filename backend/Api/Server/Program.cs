@@ -4,7 +4,8 @@ using TalentMesh.WebApi.Host;
 using Serilog;
 
 StaticLogger.EnsureInitialized();
-Log.Information("server booting up..");
+Log.Information("Server booting up...");
+
 try
 {
     var builder = WebApplication.CreateBuilder(args);
@@ -20,11 +21,11 @@ try
 catch (Exception ex) when (!ex.GetType().Name.Equals("HostAbortedException", StringComparison.Ordinal))
 {
     StaticLogger.EnsureInitialized();
-    Log.Fatal(ex.Message, "unhandled exception");
+    Log.Fatal(ex, "Unhandled exception occurred"); // Proper exception logging
 }
 finally
 {
     StaticLogger.EnsureInitialized();
-    Log.Information("server shutting down..");
+    Log.Information("Server shutting down...");
     await Log.CloseAndFlushAsync();
 }

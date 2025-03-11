@@ -32,8 +32,7 @@ public sealed class GetCandidateProfileHandler(
                     candidateProfile.UserId);
             },
             cancellationToken: cancellationToken);
-        // Example logging snippet:
-         //_logger.LogInformation("Retrieving profile {Id} from cache.", request.Id);
+
         return item!;
     }
 }
