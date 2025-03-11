@@ -82,7 +82,7 @@ public class RoleService(RoleManager<TMRole> roleManager,
     public async Task<string> UpdatePermissionsAsync(UpdatePermissionsCommand request)
     {
         var role = await _roleManager.FindByIdAsync(request.RoleId);
-        _ = role ?? throw new NotFoundException(RoleNotFoundMessage;
+        _ = role ?? throw new NotFoundException(RoleNotFoundMessage);
         if (role.Name == TMRoles.Admin)
         {
             throw new TalentMeshException("operation not permitted");
