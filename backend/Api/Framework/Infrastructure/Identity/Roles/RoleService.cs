@@ -18,6 +18,8 @@ public class RoleService(RoleManager<TMRole> roleManager,
     IMultiTenantContextAccessor<TMTenantInfo> multiTenantContextAccessor,
     ICurrentUser currentUser) : IRoleService
 {
+    private const string RoleNotFoundMessage = "Role not found"; // Defined constant
+
     private readonly RoleManager<TMRole> _roleManager = roleManager;
 
     public async Task<IEnumerable<RoleDto>> GetRolesAsync()
@@ -31,7 +33,7 @@ public class RoleService(RoleManager<TMRole> roleManager,
     {
         TMRole? role = await _roleManager.FindByIdAsync(id);
 
-        _ = role ?? throw new NotFoundException("role not found");
+        _ = role ?? throw new NotFoundException(RoleNotFoundMessage);
 
         return new RoleDto { Id = role.Id, Name = role.Name!, Description = role.Description };
     }
@@ -59,7 +61,7 @@ public class RoleService(RoleManager<TMRole> roleManager,
     {
         TMRole? role = await _roleManager.FindByIdAsync(id);
 
-        _ = role ?? throw new NotFoundException("role not found");
+        _ = role ?? throw new NotFoundException(RoleNotFoundMessage);
 
         await _roleManager.DeleteAsync(role);
     }
@@ -67,7 +69,7 @@ public class RoleService(RoleManager<TMRole> roleManager,
     public async Task<RoleDto> GetWithPermissionsAsync(string id, CancellationToken cancellationToken)
     {
         var role = await GetRoleAsync(id);
-        _ = role ?? throw new NotFoundException("role not found");
+        _ = role ?? throw new NotFoundException(RoleNotFoundMessage);
 
         role.Permissions = await context.RoleClaims
             .Where(c => c.RoleId == id && c.ClaimType == TMClaims.Permission)
@@ -80,7 +82,7 @@ public class RoleService(RoleManager<TMRole> roleManager,
     public async Task<string> UpdatePermissionsAsync(UpdatePermissionsCommand request)
     {
         var role = await _roleManager.FindByIdAsync(request.RoleId);
-        _ = role ?? throw new NotFoundException("role not found");
+        _ = role ?? throw new NotFoundException(RoleNotFoundMessage;
         if (role.Name == TMRoles.Admin)
         {
             throw new TalentMeshException("operation not permitted");
