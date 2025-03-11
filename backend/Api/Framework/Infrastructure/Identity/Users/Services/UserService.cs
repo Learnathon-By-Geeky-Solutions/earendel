@@ -47,6 +47,8 @@ internal sealed partial class UserService(
     ITokenService tokenService
     ) : IUserService
 {
+    private const string UserNotFoundMessage = "user not found";
+
     private void EnsureValidTenant()
     {
         if (string.IsNullOrWhiteSpace(multiTenantContextAccessor?.MultiTenantContext?.TenantInfo?.Id))
@@ -90,7 +92,7 @@ internal sealed partial class UserService(
             .Where(u => u.Id == userId)
             .FirstOrDefaultAsync(cancellationToken);
 
-        _ = user ?? throw new NotFoundException("user not found");
+        _ = user ?? throw new NotFoundException(UserNotFoundMessage);
 
         return user.Adapt<UserDetail>();
     }
@@ -232,7 +234,7 @@ internal sealed partial class UserService(
     {
         var user = await userManager.Users.Where(u => u.Id == request.UserId).FirstOrDefaultAsync(cancellationToken);
 
-        _ = user ?? throw new NotFoundException("User Not Found.");
+        _ = user ?? throw new NotFoundException(UserNotFoundMessage);
 
         bool isAdmin = await userManager.IsInRoleAsync(user, TMRoles.Admin);
         if (isAdmin)
@@ -249,7 +251,7 @@ internal sealed partial class UserService(
     {
         var user = await userManager.FindByIdAsync(userId);
 
-        _ = user ?? throw new NotFoundException("user not found");
+        _ = user ?? throw new NotFoundException(UserNotFoundMessage);
 
         Uri imageUri = user.ImageUrl ?? null!;
         if (request.Image != null || request.DeleteCurrentImage)
@@ -281,7 +283,7 @@ internal sealed partial class UserService(
     {
         TMUser? user = await userManager.FindByIdAsync(userId);
 
-        _ = user ?? throw new NotFoundException("User Not Found.");
+        _ = user ?? throw new NotFoundException(UserNotFoundMessage);
 
         user.IsActive = false;
         IdentityResult? result = await userManager.UpdateAsync(user);
@@ -313,25 +315,21 @@ internal sealed partial class UserService(
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        var user = await userManager.Users.Where(u => u.Id == userId).FirstOrDefaultAsync(cancellationToken);
+        var user = await userManager.Users
+            .Where(u => u.Id == userId)
+            .FirstOrDefaultAsync(cancellationToken)
+            ?? throw new NotFoundException(UserNotFoundMessage);
 
-        _ = user ?? throw new NotFoundException("user not found");
-
-        // Check if the user is an admin for which the admin role is getting disabled
-        if (await userManager.IsInRoleAsync(user, TMRoles.Admin)
-            && request.UserRoles.Exists(a => !a.Enabled && a.RoleName == TMRoles.Admin))
+        // Check if disabling the admin role for an admin user
+        if (await userManager.IsInRoleAsync(user, TMRoles.Admin) &&
+            request.UserRoles.Any(r => !r.Enabled && r.RoleName == TMRoles.Admin))
         {
-            // Get count of users in Admin Role
             int adminCount = (await userManager.GetUsersInRoleAsync(TMRoles.Admin)).Count;
 
-            // Check if user is not Root Tenant Admin
-            // Edge Case : there are chances for other tenants to have users with the same email as that of Root Tenant Admin. Probably can add a check while User Registration
-            if (user.Email == TenantConstants.Root.EmailAddress)
+            if (user.Email == TenantConstants.Root.EmailAddress &&
+                multiTenantContextAccessor?.MultiTenantContext?.TenantInfo?.Id == TenantConstants.Root.Id)
             {
-                if (multiTenantContextAccessor?.MultiTenantContext?.TenantInfo?.Id == TenantConstants.Root.Id)
-                {
-                    throw new TalentMeshException("action not permitted");
-                }
+                throw new TalentMeshException("action not permitted");
             }
             else if (adminCount <= 2)
             {
@@ -339,35 +337,43 @@ internal sealed partial class UserService(
             }
         }
 
-        foreach (var userRole in request.UserRoles)
+        // Process roles to add
+        var rolesToAdd = request.UserRoles
+       .Where(r => r.Enabled)
+       .Select(r => r.RoleName!)
+       .ToList();
+
+        foreach (var roleName in rolesToAdd)
         {
-            // Check if Role Exists
-            if (await roleManager.FindByNameAsync(userRole.RoleName!) is not null)
+            if (await roleManager.FindByNameAsync(roleName) is not null &&
+                !await userManager.IsInRoleAsync(user, roleName))
             {
-                if (userRole.Enabled)
-                {
-                    if (!await userManager.IsInRoleAsync(user, userRole.RoleName!))
-                    {
-                        await userManager.AddToRoleAsync(user, userRole.RoleName!);
-                    }
-                }
-                else
-                {
-                    await userManager.RemoveFromRoleAsync(user, userRole.RoleName!);
-                }
+                await userManager.AddToRoleAsync(user, roleName);
             }
         }
 
-        return "User Roles Updated Successfully.";
 
+        // Process roles to remove
+        await Task.WhenAll(
+         request.UserRoles
+             .Where(r => !r.Enabled)
+             .Select(async r =>
+                 await roleManager.FindByNameAsync(r.RoleName!) is not null
+                     ? userManager.RemoveFromRoleAsync(user, r.RoleName!)
+                     : Task.CompletedTask)
+     );
+
+
+        return "User Roles Updated Successfully.";
     }
+
 
     public async Task<List<UserRoleDetail>> GetUserRolesAsync(string userId, CancellationToken cancellationToken)
     {
         var userRoles = new List<UserRoleDetail>();
 
         var user = await userManager.FindByIdAsync(userId);
-        if (user is null) throw new NotFoundException("user not found");
+        if (user is null) throw new NotFoundException(UserNotFoundMessage);
         var roles = await roleManager.Roles.AsNoTracking().ToListAsync(cancellationToken);
         if (roles is null) throw new NotFoundException("roles not found");
         foreach (var role in roles)
