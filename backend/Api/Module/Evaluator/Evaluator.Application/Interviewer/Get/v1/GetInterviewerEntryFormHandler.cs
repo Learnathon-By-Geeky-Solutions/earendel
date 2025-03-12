@@ -5,7 +5,7 @@ using MediatR;
 using TalentMesh.Module.Evaluator.Domain.Exceptions;
 using TalentMesh.Module.Evaluator.Domain;
 
-namespace TalentMesh.Module.Evaluator.Application.Interviewer.Get.v1
+namespace Evaluator.Application.Interviewer.Get.v1
 {
     public sealed class GetInterviewerEntryFormHandler(
         [FromKeyedServices("interviews:interviewerentryformReadOnly")] IReadRepository<InterviewerEntryForm> repository,

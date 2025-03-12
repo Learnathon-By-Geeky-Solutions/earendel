@@ -1,7 +1,7 @@
 ﻿using MediatR;
 using System;
 
-namespace TalentMesh.Module.Evaluator.Application.Interviewer.Get.v1
+namespace Evaluator.Application.Interviewer.Get.v1
 {
     public class GetInterviewerAvailabilityRequest : IRequest<InterviewerAvailabilityResponse>
     {

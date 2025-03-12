@@ -2,7 +2,7 @@
 using Microsoft.Extensions.Logging;
 using TalentMesh.Module.Evaluator.Domain.Events;
 
-namespace TalentMesh.Module.Interviews.Application.EventHandlers
+namespace Evaluator.Application.Interviewer.EventHandlers.v1
 {
     public class InterviewerAvailabilityCreatedEventHandler(ILogger<InterviewerAvailabilityCreatedEventHandler> logger)
         : INotificationHandler<InterviewerAvailabilityCreated>
