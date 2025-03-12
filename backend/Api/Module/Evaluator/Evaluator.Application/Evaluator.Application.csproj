@@ -7,11 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Interviewer\Update\" />
-    <Folder Include="Interviewer\Search\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\..\..\Framework\Core\Core.csproj" />
     <ProjectReference Include="..\Evaluator.Domain\Evaluator.Domain.csproj" />
   </ItemGroup>

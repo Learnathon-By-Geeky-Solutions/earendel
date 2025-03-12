@@ -5,7 +5,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.DependencyInjection;
 using TalentMesh.Module.Evaluator.Application.Interviewer.Create.v1;
 
-namespace TalentMesh.Module.Interviews.Application.Interviewer.Create.v1
+namespace TalentMesh.Module.Evaluator.Application.Interviewer.Create.v1
 {
     public sealed class CreateInterviewerEntryFormHandler(
         ILogger<CreateInterviewerEntryFormHandler> logger,

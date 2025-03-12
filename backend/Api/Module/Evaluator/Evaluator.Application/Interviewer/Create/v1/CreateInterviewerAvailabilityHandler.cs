@@ -3,9 +3,9 @@ using TalentMesh.Module.Evaluator.Domain;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.DependencyInjection;
-using TalentMesh.Module.Evaluator.Application.Interviewer.Create.v1;
 
-namespace TalentMesh.Module.Interviews.Application.Interviewer.Create.v1
+
+namespace TalentMesh.Module.Evaluator.Application.Interviewer.Create.v1
 {
     public sealed class CreateInterviewerAvailabilityHandler(
         ILogger<CreateInterviewerAvailabilityHandler> logger,

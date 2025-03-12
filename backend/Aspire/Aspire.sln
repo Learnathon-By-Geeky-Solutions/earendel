@@ -92,6 +92,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Evaluator.Application", "..
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Evaluator.Infrastructure", "..\Api\Module\Evaluator\Evaluator.Infrastructure\Evaluator.Infrastructure.csproj", "{DB5DF30C-83DD-4987-BCB8-4D587EB5EEA2}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EvaluatorTest", "..\Api\Module\Evaluator\EvaluatorTest\EvaluatorTest.csproj", "{2A69A115-EF41-4C31-86CE-D4576634BD0B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -234,6 +236,10 @@ Global
 		{DB5DF30C-83DD-4987-BCB8-4D587EB5EEA2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DB5DF30C-83DD-4987-BCB8-4D587EB5EEA2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DB5DF30C-83DD-4987-BCB8-4D587EB5EEA2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2A69A115-EF41-4C31-86CE-D4576634BD0B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2A69A115-EF41-4C31-86CE-D4576634BD0B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2A69A115-EF41-4C31-86CE-D4576634BD0B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2A69A115-EF41-4C31-86CE-D4576634BD0B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -277,6 +283,7 @@ Global
 		{8B56EE07-5F98-4A61-BC1B-0E9F27755D4B} = {E4230CF1-547F-4A75-87E5-0A74905F59B6}
 		{002281C5-2416-477E-883F-4BA3F835513C} = {E4230CF1-547F-4A75-87E5-0A74905F59B6}
 		{DB5DF30C-83DD-4987-BCB8-4D587EB5EEA2} = {E4230CF1-547F-4A75-87E5-0A74905F59B6}
+		{2A69A115-EF41-4C31-86CE-D4576634BD0B} = {E4230CF1-547F-4A75-87E5-0A74905F59B6}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {3F0797FB-39B5-40DB-99C8-40E2B73F0B41}
