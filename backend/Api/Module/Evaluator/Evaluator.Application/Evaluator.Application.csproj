@@ -7,7 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Interviewer\Get\" />
     <Folder Include="Interviewer\Update\" />
     <Folder Include="Interviewer\Search\" />
   </ItemGroup>
