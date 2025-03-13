@@ -11,4 +11,9 @@
     <ProjectReference Include="..\Jobs.Domain\Jobs.Domain.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="JobRequiredSkill\Get\" />
+    <Folder Include="JobRequiredSubskill\Get\" />
+  </ItemGroup>
+
 </Project>
