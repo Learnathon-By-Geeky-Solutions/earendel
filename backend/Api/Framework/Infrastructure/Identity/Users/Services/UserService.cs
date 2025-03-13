@@ -87,14 +87,30 @@ internal sealed partial class UserService(
 
     public async Task<UserDetail> GetAsync(string userId, CancellationToken cancellationToken)
     {
-        var user = await userManager.Users
-            .AsNoTracking()
-            .Where(u => u.Id == userId)
-            .FirstOrDefaultAsync(cancellationToken);
+        var userDetail = await (from user in userManager.Users
+                                where user.Id == userId
+                                select new UserDetail
+                                {
+                                    Id = Guid.Parse(user.Id),
+                                    UserName = user.UserName,
+                                    Email = user.Email,
+                                    IsActive = user.IsActive,
+                                    EmailConfirmed = user.EmailConfirmed,
+                                    ImageUrl = user.ImageUrl,
+                                    Roles = (from ur in db.UserRoles
+                                             join r in db.Roles on ur.RoleId equals r.Id
+                                             where ur.UserId == userId
+                                             select r.Name).ToList()
+                                })
+                                .AsNoTracking()
+                                .FirstOrDefaultAsync(cancellationToken);
 
-        _ = user ?? throw new NotFoundException(UserNotFoundMessage);
+        if (userDetail is null)
+        {
+            throw new NotFoundException(UserNotFoundMessage);
+        }
 
-        return user.Adapt<UserDetail>();
+        return userDetail;
     }
 
     public Task<int> GetCountAsync(CancellationToken cancellationToken) =>
@@ -176,11 +192,11 @@ internal sealed partial class UserService(
                         cancellationToken
                     );
 
-                    return new GoogleLoginUserResponse(existingUser.Id, tokenResponseForExistingUser.Token, tokenResponseForExistingUser.RefreshToken);
+                    return new GoogleLoginUserResponse(existingUser.Id, tokenResponseForExistingUser.Token, tokenResponseForExistingUser.RefreshToken, tokenResponseForExistingUser.Roles);
                 }
                 else
                 {
-                    return new GoogleLoginUserResponse("Email is already registered with a different method.", "", "");
+                    return new GoogleLoginUserResponse("Email is already registered with a different method.", "", "", []);
                 }
             }
 
@@ -197,7 +213,7 @@ internal sealed partial class UserService(
             var createUserResult = await userManager.CreateAsync(newUser);
             if (!createUserResult.Succeeded)
             {
-                return new GoogleLoginUserResponse("User creation failed", "", "");
+                return new GoogleLoginUserResponse("User creation failed", "", "", []);
             }
 
             // Link Google account to this user
@@ -205,7 +221,7 @@ internal sealed partial class UserService(
             var addLoginResult = await userManager.AddLoginAsync(newUser, loginInfo);
             if (!addLoginResult.Succeeded)
             {
-                return new GoogleLoginUserResponse("Failed to add external login", "", "");
+                return new GoogleLoginUserResponse("Failed to add external login", "", "", []);
             }
 
             // Assign default role
@@ -221,11 +237,11 @@ internal sealed partial class UserService(
              cancellationToken
          );
 
-            return new GoogleLoginUserResponse(newUser.Id, tokenResponse.Token, tokenResponse.RefreshToken);
+            return new GoogleLoginUserResponse(newUser.Id, tokenResponse.Token, tokenResponse.RefreshToken, tokenResponse.Roles);
         }
         catch (Exception ex)
         {
-            return new GoogleLoginUserResponse($"Error: {ex.Message}", "", "");
+            return new GoogleLoginUserResponse($"Error: {ex.Message}", "", "", []);
         }
     }
 

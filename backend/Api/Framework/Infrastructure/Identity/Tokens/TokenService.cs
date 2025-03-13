@@ -113,6 +113,7 @@ public sealed class TokenService : ITokenService
         user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(_jwtOptions.RefreshTokenExpirationInDays);
 
         await _userManager.UpdateAsync(user);
+        var roles = await _userManager.GetRolesAsync(user);
 
         await _publisher.Publish(new AuditPublishedEvent(new()
         {
@@ -126,7 +127,7 @@ public sealed class TokenService : ITokenService
             }
         }));
 
-        return new TokenResponse(token, user.RefreshToken, user.RefreshTokenExpiryTime);
+        return new TokenResponse(user.Id, token, user.RefreshToken, user.RefreshTokenExpiryTime, roles.ToList());
     }
 
     private string GenerateJwt(TMUser user, string ipAddress) =>
