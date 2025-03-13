@@ -135,27 +135,20 @@ export class LoginComponent implements AfterViewInit {
   }
 
   googleClientId = environment.googleClientId;
-  // Decode JWT token function
-  decodeJWTToken(token: string) {
-    return JSON.parse(atob(token.split('.')[1]));
-  }
 
   // Handle credential response from Google
   handleCredentialResponse(response: any) {
     this.token = response.credential;
     this.loginService.googleLogin(this.token).subscribe((data) => {
-      console.log('Response:', data);
       sessionStorage.setItem('loggedInUser', JSON.stringify(data));
       this.router.navigateByUrl('/candidate-dashboard');
     });
   }
   onSubmit() {
     // Handle login logic here
-    console.log('Login:', this.email);
   }
 
   socialLogin(provider: string) {
     // Handle social login logic here
-    console.log(`Social login with ${provider}`);
   }
 }

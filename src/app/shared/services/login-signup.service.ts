@@ -13,7 +13,6 @@ export class LoginSignupService {
   constructor(private http: HttpClient, private apiService: ApiService) {}
 
   googleLogin(token: string): Observable<any> {
-    console.log(token);
     return this.http.post(
       this.googleLoginUrl.trim(),
       { token: token },

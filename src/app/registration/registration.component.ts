@@ -191,7 +191,6 @@ export class RegistrationComponent implements AfterViewInit {
   handleCredentialResponse(response: any) {
     this.token = response.credential;
     this.loginService.googleLogin(this.token).subscribe((data) => {
-      console.log('Response:', data);
       sessionStorage.setItem('loggedInUser', JSON.stringify(data));
       this.router.navigateByUrl('/candidate-dashboard');
     });
