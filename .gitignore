@@ -17,3 +17,5 @@ backend/Api/Migrations/PGSql/Identity
 backend/Api/Migrations/PGSql/Quizzes
 backend/Api/Migrations/PGSql/Notifications
 backend/Api/Migrations/PGSql/Interviews
+/backend/Api/Migrations/PGSql/Evaluator
+/backend/Api/Migrations/PGSql/Notification

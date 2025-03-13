@@ -1,7 +1,7 @@
 ﻿using FluentValidation;
 using TalentMesh.Module.Evaluator.Application.Interviewer.Update.v1;
 
-namespace TalentMesh.Module.Evaluator.Application.InterviewerEntryForm.Update.v1
+namespace TalentMesh.Module.Evaluator.Application.Interviewer.Update.v1
 {
     public class UpdateInterviewerEntryFormCommandValidator : AbstractValidator<UpdateInterviewerEntryFormCommand>
     {
