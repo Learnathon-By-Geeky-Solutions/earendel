@@ -9,6 +9,8 @@ import { endpoint } from '../../endpoints/endpoint';
 })
 export class LoginSignupService {
   googleLoginUrl = endpoint.googleLoginUrl;
+  userRegistrationUrl = endpoint.userRegistrationUrl;
+  userLoginUrl = endpoint.userLoginUrl;
 
   constructor(private http: HttpClient, private apiService: ApiService) {}
 
@@ -23,5 +25,22 @@ export class LoginSignupService {
         }),
       }
     );
+  }
+  userRegistration(registrationData: any): Observable<any> {
+    return this.http.post(this.userRegistrationUrl.trim(), registrationData, {
+      headers: new HttpHeaders({
+        'Content-Type': 'application/json',
+        tenant: 'root',
+      }),
+    });
+  }
+
+  userLogin(loginData: any): Observable<any> {
+    return this.http.post(this.userLoginUrl.trim(), loginData, {
+      headers: new HttpHeaders({
+        'Content-Type': 'application/json',
+        tenant: 'root',
+      }),
+    });
   }
 }

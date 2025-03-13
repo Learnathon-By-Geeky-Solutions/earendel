@@ -1,3 +1,7 @@
+const base = 'https://localhost:7100';
+
 export const endpoint = {
-  googleLoginUrl : 'https://localhost:7100/api/users/google-login'
+  googleLoginUrl: `${base}/api/users/google-login`,
+  userRegistrationUrl: `${base}/api/users/self-register`,
+  userLoginUrl: `${base}/api/token`,
 };

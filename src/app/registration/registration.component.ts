@@ -1,6 +1,11 @@
 import { Component, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormsModule, ReactiveFormsModule } from '@angular/forms';
+import {
+  FormBuilder,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
@@ -9,21 +14,21 @@ import { Router, RouterLink } from '@angular/router';
 import { environment } from '../../environments/environment';
 import { LoginSignupService } from '../shared/services/login-signup.service';
 import { HttpClientModule } from '@angular/common/http';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-registration',
   standalone: true,
   imports: [
     CommonModule,
-    FormsModule,
     MatTabsModule,
     MatInputModule,
     MatButtonModule,
-    MatIconModule,
     RouterLink,
+    MatIconModule,
     HttpClientModule,
     ReactiveFormsModule,
-    FormsModule,
+    MatButtonModule,
   ],
   template: `
     <div
@@ -38,40 +43,102 @@ import { HttpClientModule } from '@angular/common/http';
             animationDuration="0ms"
             (selectedIndexChange)="selectedTabIndex = $event"
           >
+            <!-- User Registration Tab -->
             <mat-tab label="User">
-              <form (ngSubmit)="onSubmit('user')" class="mt-4">
+              <!-- Summary error message for user form -->
+              <div *ngIf="userFormError" class="error-summary">
+                {{ userFormError }}
+              </div>
+              <form
+                [formGroup]="userForm"
+                (ngSubmit)="onSubmit('user')"
+                class="mt-4"
+              >
+                <mat-form-field appearance="outline" class="w-100 mb-3">
+                  <mat-label>Username</mat-label>
+                  <input
+                    matInput
+                    type="text"
+                    formControlName="userName"
+                    required
+                  />
+                  <mat-error
+                    *ngIf="
+                      userForm.get('userName')?.invalid &&
+                      userForm.get('userName')?.touched
+                    "
+                  >
+                    Username is required.
+                  </mat-error>
+                </mat-form-field>
+
                 <mat-form-field appearance="outline" class="w-100 mb-3">
                   <mat-label>Email</mat-label>
                   <input
                     matInput
                     type="email"
-                    [(ngModel)]="userEmail"
-                    name="userEmail"
+                    formControlName="email"
                     required
                   />
+                  <mat-error
+                    *ngIf="userForm.get('email')?.hasError('required')"
+                  >
+                    Email is required.
+                  </mat-error>
+                  <mat-error *ngIf="userForm.get('email')?.hasError('email')">
+                    Invalid email format.
+                  </mat-error>
                 </mat-form-field>
+
                 <mat-form-field appearance="outline" class="w-100 mb-3">
                   <mat-label>Password</mat-label>
                   <input
                     matInput
                     type="password"
-                    [(ngModel)]="userPassword"
-                    name="userPassword"
+                    formControlName="password"
                     required
                   />
+                  <mat-error
+                    *ngIf="
+                      userForm.get('password')?.invalid &&
+                      userForm.get('password')?.touched
+                    "
+                  >
+                    Password must be at least 6 characters long.
+                  </mat-error>
                 </mat-form-field>
+
+                <mat-form-field appearance="outline" class="w-100 mb-3">
+                  <mat-label>Confirm Password</mat-label>
+                  <input
+                    matInput
+                    type="password"
+                    formControlName="confirmPassword"
+                    required
+                  />
+                  <mat-error
+                    *ngIf="
+                      userForm.get('confirmPassword')?.hasError('mismatch')
+                    "
+                  >
+                    Passwords do not match.
+                  </mat-error>
+                </mat-form-field>
+
                 <button
                   mat-raised-button
                   color="primary"
                   class="w-100 mb-3"
                   type="submit"
+                  [disabled]="userForm.invalid"
                 >
                   Register
                 </button>
               </form>
+
+              <!-- Google Login -->
               <div class="text-center">
                 <p class="mb-3">Or continue with</p>
-                <!-- Google Identity Services Interface -->
                 <div
                   id="g_id_onload"
                   [attr.data-client_id]="googleClientId"
@@ -92,41 +159,105 @@ import { HttpClientModule } from '@angular/common/http';
                 </div>
               </div>
             </mat-tab>
+
+            <!-- Hiring Registration Tab -->
             <mat-tab label="Hiring">
-              <form (ngSubmit)="onSubmit('hiring')" class="mt-4">
+              <!-- Summary error message for hiring form -->
+              <div *ngIf="hiringFormError" class="error-summary">
+                {{ hiringFormError }}
+              </div>
+              <form
+                [formGroup]="hiringForm"
+                (ngSubmit)="onSubmit('hiring')"
+                class="mt-4"
+              >
+                <mat-form-field appearance="outline" class="w-100 mb-3">
+                  <mat-label>Username</mat-label>
+                  <input
+                    matInput
+                    type="text"
+                    formControlName="userName"
+                    required
+                  />
+                  <mat-error
+                    *ngIf="
+                      hiringForm.get('userName')?.invalid &&
+                      hiringForm.get('userName')?.touched
+                    "
+                  >
+                    Username is required.
+                  </mat-error>
+                </mat-form-field>
+
                 <mat-form-field appearance="outline" class="w-100 mb-3">
                   <mat-label>Email</mat-label>
                   <input
                     matInput
                     type="email"
-                    [(ngModel)]="hiringEmail"
-                    name="hiringEmail"
+                    formControlName="email"
                     required
                   />
+                  <mat-error
+                    *ngIf="hiringForm.get('email')?.hasError('required')"
+                  >
+                    Email is required.
+                  </mat-error>
+                  <mat-error *ngIf="hiringForm.get('email')?.hasError('email')">
+                    Invalid email format.
+                  </mat-error>
                 </mat-form-field>
+
                 <mat-form-field appearance="outline" class="w-100 mb-3">
                   <mat-label>Password</mat-label>
                   <input
                     matInput
                     type="password"
-                    [(ngModel)]="hiringPassword"
-                    name="hiringPassword"
+                    formControlName="password"
                     required
                   />
+                  <mat-error
+                    *ngIf="
+                      hiringForm.get('password')?.invalid &&
+                      hiringForm.get('password')?.touched
+                    "
+                  >
+                    Password must be at least 6 characters long.
+                  </mat-error>
                 </mat-form-field>
+
+                <mat-form-field appearance="outline" class="w-100 mb-3">
+                  <mat-label>Confirm Password</mat-label>
+                  <input
+                    matInput
+                    type="password"
+                    formControlName="confirmPassword"
+                    required
+                  />
+                  <mat-error
+                    *ngIf="
+                      hiringForm.get('confirmPassword')?.hasError('mismatch')
+                    "
+                  >
+                    Passwords do not match.
+                  </mat-error>
+                </mat-form-field>
+
                 <button
                   mat-raised-button
                   color="primary"
                   class="w-100 mb-3"
                   type="submit"
+                  [disabled]="hiringForm.invalid"
                 >
                   Register
                 </button>
               </form>
             </mat-tab>
           </mat-tab-group>
+
+          <!-- Already Have an Account -->
           <p class="text-center mb-0 mt-3">
-            Already have an account? <a href="/login">Login</a>
+            Already have an account? <a routerLink="/login">Login</a>
           </p>
         </div>
       </div>
@@ -134,9 +265,16 @@ import { HttpClientModule } from '@angular/common/http';
   `,
   styles: [
     `
+      .google-icon-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 10px;
+      }
+
       :host {
         display: block;
-        height: 100vh;
+        min-height: 100vh;
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       }
       .card {
@@ -149,50 +287,169 @@ import { HttpClientModule } from '@angular/common/http';
       #g_id_onload {
         cursor: default !important;
       }
-      /* Wrap the Google icon and center it */
       .google-icon-container {
         display: flex;
         justify-content: center;
         align-items: center;
       }
+      .error-summary {
+        color: #f44336;
+        margin-bottom: 1rem;
+        font-size: 0.9rem;
+        text-align: center;
+      }
     `,
   ],
 })
 export class RegistrationComponent implements AfterViewInit {
-  hiringEmail = '';
-  hiringPassword = '';
-  userEmail = '';
-  userPassword = '';
-  selectedTabIndex = 0; // 0: User, 1: Hiring
+  userForm: FormGroup;
+  hiringForm: FormGroup;
+  selectedTabIndex = 0;
+  googleClientId = environment.googleClientId;
   token!: string;
+  userFormError: string = '';
+  hiringFormError: string = '';
 
   constructor(
-    private formBuilder: FormBuilder,
+    private fb: FormBuilder,
     private router: Router,
-    private loginService: LoginSignupService
-  ) {}
+    private loginService: LoginSignupService,
+    private snackBar: MatSnackBar // Inject MatSnackBar
+  ) {
+    this.userForm = this.createForm();
+    this.hiringForm = this.createForm();
+  }
 
   ngAfterViewInit() {
-    // Assign the global callback function for Google Identity Services
     (window as any).handleCredentialResponse =
       this.handleCredentialResponse.bind(this);
   }
 
-  googleClientId = environment.googleClientId;
-
-  onSubmit(type: 'hiring' | 'user') {
-    console.log(
-      `${type} registration:`,
-      type === 'hiring' ? this.hiringEmail : this.userEmail
+  createForm(): FormGroup {
+    return this.fb.group(
+      {
+        userName: ['', Validators.required],
+        email: ['', [Validators.required, Validators.email]],
+        password: ['', [Validators.required, Validators.minLength(6)]],
+        confirmPassword: [''],
+      },
+      { validator: this.passwordMatchValidator }
     );
   }
 
-  // Handle credential response from Google
+  passwordMatchValidator(form: FormGroup) {
+    return form.get('password')?.value === form.get('confirmPassword')?.value
+      ? null
+      : { mismatch: true };
+  }
+
+  onSubmit(type: 'hiring' | 'user') {
+    if (type === 'user') {
+      if (this.userForm.valid) {
+        const registrationData = { ...this.userForm.value, role: 0 };
+        this.userFormError = '';
+
+        // Proceed with user registration...
+        this.loginService.userRegistration(registrationData).subscribe(
+          (data: any) => {
+            if (data && data.userId) {
+              this.snackBar.open('Registration successful!', 'Close', {
+                duration: 3000, // duration in milliseconds
+                panelClass: ['snack-bar-success'], // You can define custom styles in your CSS
+              });
+
+              // Redirect to the login page after successful registration
+              this.router.navigateByUrl('/login');
+            } else {
+              this.snackBar.open(
+                'Registration failed, please try again.',
+                'Close',
+                {
+                  duration: 3000,
+                  panelClass: ['snack-bar-error'],
+                }
+              );
+            }
+          },
+          (error) => {
+            // Handle error response and display messages
+            console.log('Error response:', error);
+            if (error.error.errors) {
+              // Check if there are specific errors like duplicate username or email
+              this.userFormError = error.error.errors.join('. ');
+            } else {
+              // Generic error message
+              this.userFormError =
+                'An error occurred while registering. Please try again later.';
+            }
+          }
+        );
+
+        // Reset form values after submission (even if error occurs)
+        this.userForm.reset();
+      } else {
+        this.userFormError = 'Please fix the errors in the form.';
+        // Mark all controls as touched to trigger validation messages
+        Object.values(this.userForm.controls).forEach((control) => {
+          control.markAsTouched();
+        });
+      }
+    } else if (type === 'hiring') {
+      if (this.hiringForm.valid) {
+        const registrationData = { ...this.hiringForm.value, role: 1 };
+
+        console.log('Hiring Form Data:', registrationData);
+        this.hiringFormError = '';
+
+        // Proceed with hiring registration...
+        this.loginService.userRegistration(registrationData).subscribe(
+          (data) => {
+            console.log(data);
+            // Redirect to login or another page after successful registration
+            // this.router.navigateByUrl('/login');
+          },
+          (error) => {
+            // Handle error response and display messages
+            console.log('Error response:', error);
+            if (error.error.errors) {
+              // Check if there are specific errors like duplicate username or email
+              this.hiringFormError = error.error.errors.join('. ');
+            } else {
+              // Generic error message
+              this.hiringFormError =
+                'An error occurred while registering. Please try again later.';
+            }
+          }
+        );
+
+        // Reset form values after submission (even if error occurs)
+        this.hiringForm.reset();
+      } else {
+        this.hiringFormError = 'Please fix the errors in the form.';
+        Object.values(this.hiringForm.controls).forEach((control) => {
+          control.markAsTouched();
+        });
+      }
+    }
+  }
+
   handleCredentialResponse(response: any) {
     this.token = response.credential;
-    this.loginService.googleLogin(this.token).subscribe((data) => {
-      sessionStorage.setItem('loggedInUser', JSON.stringify(data));
-      this.router.navigateByUrl('/candidate-dashboard');
-    });
+    this.loginService.googleLogin(this.token).subscribe(
+      (data) => {
+        sessionStorage.setItem('loggedInUser', JSON.stringify(data));
+        this.snackBar.open('Login successful!', 'Close', {
+          duration: 3000,
+          panelClass: ['snack-bar-success'],
+        });
+        this.router.navigateByUrl('/candidate-dashboard');
+      },
+      (error) => {
+        this.snackBar.open('Google login failed. Please try again.', 'Close', {
+          duration: 3000,
+          panelClass: ['snack-bar-error'],
+        });
+      }
+    );
   }
 }

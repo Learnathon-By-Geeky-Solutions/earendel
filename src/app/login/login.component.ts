@@ -8,6 +8,7 @@ import { Router, RouterLink } from '@angular/router';
 import { environment } from '../../environments/environment';
 import { HttpClientModule } from '@angular/common/http';
 import { LoginSignupService } from '../shared/services/login-signup.service';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-login',
@@ -22,6 +23,7 @@ import { LoginSignupService } from '../shared/services/login-signup.service';
     HttpClientModule,
     ReactiveFormsModule,
     FormsModule,
+    MatSnackBarModule, // Import MatSnackBarModule
   ],
   template: `
     <div
@@ -83,8 +85,7 @@ import { LoginSignupService } from '../shared/services/login-signup.service';
               ></div>
             </div>
             <p class="mb-0 mt-3">
-              Don't have an account?
-              <a href="/register">Register</a>
+              Don't have an account? <a routerLink="/register">Register</a>
             </p>
           </div>
         </div>
@@ -108,7 +109,6 @@ import { LoginSignupService } from '../shared/services/login-signup.service';
       #g_id_onload {
         cursor: default !important;
       }
-      /* Wrap the Google icon and center it */
       .google-icon-container {
         display: flex;
         justify-content: center;
@@ -121,34 +121,84 @@ export class LoginComponent implements AfterViewInit {
   email = '';
   password = '';
   token!: string;
+  googleClientId = environment.googleClientId;
 
   constructor(
     private formBuilder: FormBuilder,
     private router: Router,
-    private loginService: LoginSignupService
+    private loginService: LoginSignupService,
+    private snackBar: MatSnackBar // Inject MatSnackBar
   ) {}
 
   ngAfterViewInit() {
-    // Assign the global callback function for Google Identity Services
     (window as any).handleCredentialResponse =
       this.handleCredentialResponse.bind(this);
   }
 
-  googleClientId = environment.googleClientId;
-
   // Handle credential response from Google
   handleCredentialResponse(response: any) {
     this.token = response.credential;
-    this.loginService.googleLogin(this.token).subscribe((data) => {
-      sessionStorage.setItem('loggedInUser', JSON.stringify(data));
-      this.router.navigateByUrl('/candidate-dashboard');
-    });
-  }
-  onSubmit() {
-    // Handle login logic here
+    this.loginService.googleLogin(this.token).subscribe(
+      (data) => {
+        sessionStorage.setItem('loggedInUser', JSON.stringify(data));
+        this.snackBar.open('Login successful!', 'Close', {
+          duration: 3000,
+          panelClass: ['snack-bar-success'],
+        });
+        this.router.navigateByUrl('/candidate-dashboard');
+      },
+      (error) => {
+        this.snackBar.open('Google login failed. Please try again.', 'Close', {
+          duration: 3000,
+          panelClass: ['snack-bar-error'],
+        });
+      }
+    );
   }
 
-  socialLogin(provider: string) {
-    // Handle social login logic here
+  onSubmit() {
+    if (!this.email || !this.password) {
+      this.snackBar.open('Please enter both email and password.', 'Close', {
+        duration: 3000,
+        panelClass: ['snack-bar-error'],
+      });
+      return;
+    }
+
+    this.loginService
+      .userLogin({ email: this.email, password: this.password })
+      .subscribe(
+        (data: any) => {
+          if (data && data.token && data.refreshToken) {
+            sessionStorage.setItem('loggedInUser', JSON.stringify(data));
+
+            this.snackBar.open('Login successful!', 'Close', {
+              duration: 3000,
+              panelClass: ['snack-bar-success'],
+            });
+
+            this.router.navigateByUrl('/candidate-dashboard');
+          } else {
+            this.snackBar.open(
+              'Invalid credentials. Please try again.',
+              'Close',
+              {
+                duration: 3000,
+                panelClass: ['snack-bar-error'],
+              }
+            );
+          }
+        },
+        (error: any) => {
+          this.snackBar.open(
+            'Login failed. Please check your credentials.',
+            'Close',
+            {
+              duration: 3000,
+              panelClass: ['snack-bar-error'],
+            }
+          );
+        }
+      );
   }
 }
