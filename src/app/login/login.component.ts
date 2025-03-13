@@ -1,11 +1,13 @@
 import { AfterViewInit, Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormBuilder, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { environment } from '../../environments/environment';
+import { HttpClientModule } from '@angular/common/http';
+import { LoginSignupService } from '../shared/services/login-signup.service';
 
 @Component({
   selector: 'app-login',
@@ -16,6 +18,10 @@ import { environment } from '../../environments/environment';
     MatInputModule,
     MatButtonModule,
     MatIconModule,
+    RouterLink,
+    HttpClientModule,
+    ReactiveFormsModule,
+    FormsModule,
   ],
   template: `
     <div
@@ -114,8 +120,14 @@ import { environment } from '../../environments/environment';
 export class LoginComponent implements AfterViewInit {
   email = '';
   password = '';
+  token!: string;
 
-  constructor(private router: Router) {}
+  constructor(
+    private formBuilder: FormBuilder,
+    private router: Router,
+    private loginService: LoginSignupService
+  ) {}
+
   ngAfterViewInit() {
     // Assign the global callback function for Google Identity Services
     (window as any).handleCredentialResponse =
@@ -130,11 +142,12 @@ export class LoginComponent implements AfterViewInit {
 
   // Handle credential response from Google
   handleCredentialResponse(response: any) {
-    console.log(response);
-    const responsePayload = this.decodeJWTToken(response.credential);
-    console.log(responsePayload);
-    sessionStorage.setItem('loggedInUser', JSON.stringify(response.credential));
-    window.location.href = '/candidate-dashboard';
+    this.token = response.credential;
+    this.loginService.googleLogin(this.token).subscribe((data) => {
+      console.log('Response:', data);
+      sessionStorage.setItem('loggedInUser', JSON.stringify(data));
+      this.router.navigateByUrl('/candidate-dashboard');
+    });
   }
   onSubmit() {
     // Handle login logic here

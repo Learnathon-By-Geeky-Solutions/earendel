@@ -1,12 +1,14 @@
 import { Component, AfterViewInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormBuilder, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { environment } from '../../environments/environment';
+import { LoginSignupService } from '../shared/services/login-signup.service';
+import { HttpClientModule } from '@angular/common/http';
 
 @Component({
   selector: 'app-registration',
@@ -18,6 +20,10 @@ import { environment } from '../../environments/environment';
     MatInputModule,
     MatButtonModule,
     MatIconModule,
+    RouterLink,
+    HttpClientModule,
+    ReactiveFormsModule,
+    FormsModule,
   ],
   template: `
     <div
@@ -158,8 +164,13 @@ export class RegistrationComponent implements AfterViewInit {
   userEmail = '';
   userPassword = '';
   selectedTabIndex = 0; // 0: User, 1: Hiring
+  token!: string;
 
-  constructor(private router: Router) {}
+  constructor(
+    private formBuilder: FormBuilder,
+    private router: Router,
+    private loginService: LoginSignupService
+  ) {}
 
   ngAfterViewInit() {
     // Assign the global callback function for Google Identity Services
@@ -176,21 +187,13 @@ export class RegistrationComponent implements AfterViewInit {
     );
   }
 
-  // Decode JWT token function
-  decodeJWTToken(token: string) {
-    return JSON.parse(atob(token.split('.')[1]));
-  }
-
   // Handle credential response from Google
   handleCredentialResponse(response: any) {
-    console.log(response);
-    const responsePayload = this.decodeJWTToken(response.credential);
-    console.log(responsePayload);
-    sessionStorage.setItem('loggedInUser', JSON.stringify(response.credential));
-    window.location.href = '/candidate-dashboard';
-  }
-
-  socialLogin(provider: string) {
-    console.log(`Social login with ${provider}`);
+    this.token = response.credential;
+    this.loginService.googleLogin(this.token).subscribe((data) => {
+      console.log('Response:', data);
+      sessionStorage.setItem('loggedInUser', JSON.stringify(data));
+      this.router.navigateByUrl('/candidate-dashboard');
+    });
   }
 }
