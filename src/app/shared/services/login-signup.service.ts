@@ -15,32 +15,13 @@ export class LoginSignupService {
   constructor(private http: HttpClient, private apiService: ApiService) {}
 
   googleLogin(token: string): Observable<any> {
-    return this.http.post(
-      this.googleLoginUrl.trim(),
-      { token: token },
-      {
-        headers: new HttpHeaders({
-          'Content-Type': 'application/json',
-          tenant: 'root',
-        }),
-      }
-    );
+    return this.http.post(this.googleLoginUrl.trim(), { token: token });
   }
   userRegistration(registrationData: any): Observable<any> {
-    return this.http.post(this.userRegistrationUrl.trim(), registrationData, {
-      headers: new HttpHeaders({
-        'Content-Type': 'application/json',
-        tenant: 'root',
-      }),
-    });
+    return this.http.post(this.userRegistrationUrl.trim(), registrationData);
   }
 
   userLogin(loginData: any): Observable<any> {
-    return this.http.post(this.userLoginUrl.trim(), loginData, {
-      headers: new HttpHeaders({
-        'Content-Type': 'application/json',
-        tenant: 'root',
-      }),
-    });
+    return this.http.post(this.userLoginUrl.trim(), loginData);
   }
 }
