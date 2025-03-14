@@ -44,17 +44,17 @@ import { NotificationComponent } from './hr-dashboard/notifications/notification
 import { AdminListComponent } from './admin-dashboard/admin-list/admin-list.component';
 import { AdminProfileComponent } from './admin-dashboard/profile/profile.component';
 import { InterviewerRegistrationComponent } from './candidate-dashboard/interviewer-registration/interviewer-registration.component';
+import { AuthGuardService } from './shared/services/auth-guard.service';
 
 export const routes: Routes = [
   { path: '', component: LandingComponent },
 
-  // { path: 'settings', component: SettingsComponent },
-  // { path: 'candidate-dashboard', component: DashboardComponent },
-  // { path: 'interview-setup', component: InterviewSetupComponent },
-
+  // Candidate dashboard accessible to "Candidate" and "Interviewer"
   {
     path: 'candidate-dashboard',
     component: CandidateLayoutComponent,
+    canActivate: [AuthGuardService],
+    data: { roles: ['Candidate', 'Interviewer'] },
     children: [
       { path: 'requested', component: RequestedInterviewsComponent },
       { path: 'completed', component: CompletedInterviewsComponent },
@@ -74,11 +74,23 @@ export const routes: Routes = [
     ],
   },
 
-  { path: 'register', component: RegistrationComponent },
-  { path: 'login', component: LoginComponent },
-
+  {
+    path: 'register',
+    component: RegistrationComponent,
+    canActivate: [AuthGuardService],
+    data: { public: true, redirectIfLoggedIn: true },
+  },
+  {
+    path: 'login',
+    component: LoginComponent,
+    canActivate: [AuthGuardService],
+    data: { public: true, redirectIfLoggedIn: true },
+  },
+  // HR dashboard (only accessible to HR role)
   {
     path: 'hr-dashboard',
+    canActivate: [AuthGuardService],
+    data: { roles: ['HR'] },
     children: [
       { path: 'overview', component: HrDashboardComponent },
       { path: 'jobs', component: JobComponent },
@@ -98,27 +110,11 @@ export const routes: Routes = [
     ],
   },
 
-  // { path: 'hr-dashboard', component: HrDashboardComponent },
-  // { path: 'job-post', component: ProfileSelectionComponent },
-  // { path: 'customize/:domain', component: TechnologySelectionComponent },
-  // { path: 'seniority/:domain/:tech', component: SenioritySelectionComponent },
-  // {
-  //   path: 'customized/:domain/:tech/:seniority',
-  //   component: CustomizedInterviewComponent,
-  // },
-  // { path: 'backend-skills', component: BackendSkillsComponent },
-  // { path: 'interview-request', component: InterviewRequestComponent },
-
-  // { path: 'seniority-select', component: SenioritySelectComponent },
-  // { path: 'customize-interview', component: CustomizeInterviewComponent },
-
-  // { path: 'availability', component: AvailabilityComponent },
-  // { path: 'upcoming', component: UpcomingInterviewsComponent },
-  // { path: 'earnings', component: EarningsComponent },
-  // { path: 'profile', component: ProfileComponent },
-
+  // Interviewer dashboard (only accessible to Interviewer role)
   {
     path: 'interviewer-dashboard',
+    canActivate: [AuthGuardService],
+    data: { roles: ['Interviewer'] },
     children: [
       { path: '', component: InterviewerDashboardComponent },
       { path: 'availability', component: AvailabilityComponent },
@@ -128,8 +124,11 @@ export const routes: Routes = [
     ],
   },
 
+  // Admin dashboard (only accessible to Admin role)
   {
     path: 'admin-dashboard',
+    canActivate: [AuthGuardService],
+    data: { roles: ['Admin'] },
     children: [
       { path: 'overview', component: AdminDashboardComponent },
       { path: 'candidates', component: CandidatesComponent },
@@ -142,10 +141,9 @@ export const routes: Routes = [
       { path: 'verification', component: VerificationComponent },
       { path: 'admin-list', component: AdminListComponent },
       { path: 'profile', component: AdminProfileComponent },
-
       { path: '', redirectTo: 'overview', pathMatch: 'full' },
     ],
   },
+  // In case of duplicate path definition, you might remove or adjust the following redirect.
   { path: 'admin-dashboard', redirectTo: 'overview', pathMatch: 'full' },
-  { path: '**', redirectTo: '' }
 ];
