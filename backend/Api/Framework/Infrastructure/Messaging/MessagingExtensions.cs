@@ -12,13 +12,11 @@ namespace TalentMesh.Framework.Infrastructure.Messaging
         {
             // Bind RabbitMQ settings
             services.Configure<RabbitMQOptions>(configuration.GetSection(nameof(RabbitMQOptions)));
-
+            
             // Register the RabbitMQ connection factory as a singleton
             services.AddSingleton<IConnectionFactory>(sp =>
             {
-                var rabbitOptions = sp.GetRequiredService<IOptions<RabbitMQOptions>>().Value
-                    ?? throw new TalentMeshException("RabbitMQ options cannot be null");
-
+                var rabbitOptions = sp.GetRequiredService<IOptions<RabbitMQOptions>>().Value;
                 return new ConnectionFactory
                 {
                     HostName = rabbitOptions.HostName,
