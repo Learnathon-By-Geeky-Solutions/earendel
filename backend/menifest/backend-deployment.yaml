@@ -30,11 +30,11 @@ spec:
             - name: ASPNETCORE_ENVIRONMENT
               value: Development
             - name: ASPNETCORE_URLS
-              value: http://+:8000
+              value: https://+:8000
             - name: ConnectionStrings__DefaultConnection
               value: Host=postgres;Port=5432;Database=TalentMesh;Username=postgres;Password=postgres
             - name: DOTNET_DASHBOARD_URL
-              value: http://aspire:18888
+              value: https://aspire:18888
             - name: RabbitMQ__Host
               value: rabbitmq
             - name: RabbitMQ__Password
