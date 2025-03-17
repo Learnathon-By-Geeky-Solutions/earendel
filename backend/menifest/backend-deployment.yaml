@@ -20,8 +20,13 @@ spec:
       labels:
         io.kompose.service: backend
     spec:
+      serviceAccountName: default  # Set a service account if needed
+      automountServiceAccountToken: false
       containers:
-        - env:
+        - name: backend-container
+          image: backend-image:v1.0  # Use a specific version instead of latest/untagged
+          imagePullPolicy: Never
+          env:
             - name: ASPNETCORE_ENVIRONMENT
               value: Development
             - name: ASPNETCORE_URLS
@@ -42,7 +47,18 @@ spec:
               value: redis
             - name: Redis__Port
               value: "6379"
-          image: backend-image
+          ports:
+            - containerPort: 8000
+              protocol: TCP
+          resources:
+            requests:
+              cpu: "250m"         # Minimum CPU request
+              memory: "256Mi"     # Minimum memory request
+              ephemeral-storage: "512Mi"  # Minimum storage request
+            limits:
+              cpu: "500m"         # Maximum CPU limit
+              memory: "512Mi"     # Maximum memory limit
+              ephemeral-storage: "1Gi"  # Maximum storage limit
           livenessProbe:
             exec:
               command:
@@ -52,9 +68,4 @@ spec:
                 - http://localhost:8000/metrics
             failureThreshold: 5
             periodSeconds: 10
-          name: backend-container
-          imagePullPolicy: Never
-          ports:
-            - containerPort: 8000
-              protocol: TCP
       restartPolicy: Always

@@ -1,12 +1,9 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  annotations:
-    kompose.cmd: C:\ProgramData\chocolatey\lib\kubernetes-kompose\tools\kompose.exe convert -f .\docker-compose.yml --out menifest/
-    kompose.version: 1.35.0 (9532ceef3)
+  name: postgres
   labels:
     io.kompose.service: postgres
-  name: postgres
 spec:
   replicas: 1
   selector:
@@ -16,21 +13,22 @@ spec:
     type: Recreate
   template:
     metadata:
-      annotations:
-        kompose.cmd: C:\ProgramData\chocolatey\lib\kubernetes-kompose\tools\kompose.exe convert -f .\docker-compose.yml --out menifest/
-        kompose.version: 1.35.0 (9532ceef3)
       labels:
         io.kompose.service: postgres
     spec:
+      automountServiceAccountToken: false
       containers:
-        - env:
+        - name: postgres-db
+          image: postgres:15.3
+          ports:
+            - containerPort: 5432
+          env:
             - name: POSTGRES_DB
               value: TalentMesh
-            - name: POSTGRES_PASSWORD
-              value: postgres
             - name: POSTGRES_USER
               value: postgres
-          image: postgres:latest
+            - name: POSTGRES_PASSWORD
+              value: postgres
           livenessProbe:
             exec:
               command:
@@ -41,10 +39,14 @@ spec:
                 - TalentMesh
             failureThreshold: 5
             periodSeconds: 10
-          name: postgres-db
-          ports:
-            - containerPort: 5432
-              protocol: TCP
+          resources:
+            requests:
+              cpu: "250m"
+              memory: "512Mi"
+              ephemeral-storage: "1Gi"  # ✅ Corrected storage request
+            limits:
+              memory: "1Gi"
+              ephemeral-storage: "2Gi"  # ✅ Corrected storage limit
           volumeMounts:
             - mountPath: /var/lib/postgresql/data
               name: postgres-data
@@ -52,4 +54,18 @@ spec:
       volumes:
         - name: postgres-data
           persistentVolumeClaim:
-            claimName: postgres-data
+            claimName: postgres-data-new  # PVC name must match
+
+---
+# PostgreSQL PersistentVolumeClaim (PVC)
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: postgres-data-new
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: standard
+  resources:
+    requests:
+      storage: 1Gi  # ✅ PVC storage request

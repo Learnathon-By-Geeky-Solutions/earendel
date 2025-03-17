@@ -1,12 +1,9 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  annotations:
-    kompose.cmd: C:\ProgramData\chocolatey\lib\kubernetes-kompose\tools\kompose.exe convert -f .\docker-compose.yml --out menifest/
-    kompose.version: 1.35.0 (9532ceef3)
+  name: rabbitmq
   labels:
     io.kompose.service: rabbitmq
-  name: rabbitmq
 spec:
   replicas: 1
   selector:
@@ -14,23 +11,48 @@ spec:
       io.kompose.service: rabbitmq
   template:
     metadata:
-      annotations:
-        kompose.cmd: C:\ProgramData\chocolatey\lib\kubernetes-kompose\tools\kompose.exe convert -f .\docker-compose.yml --out menifest/
-        kompose.version: 1.35.0 (9532ceef3)
       labels:
         io.kompose.service: rabbitmq
     spec:
+      automountServiceAccountToken: false
       containers:
-        - env:
+        - name: rabbitmq
+          image: rabbitmq:3.9-management
+          env:
             - name: RABBITMQ_DEFAULT_PASS
               value: guest
             - name: RABBITMQ_DEFAULT_USER
               value: guest
-          image: rabbitmq:3-management
-          name: rabbitmq
           ports:
             - containerPort: 5672
               protocol: TCP
             - containerPort: 15672
               protocol: TCP
+          resources:
+            requests:
+              cpu: "250m"
+              memory: "512Mi"
+              ephemeral-storage: "1Gi"  # ✅ Corrected
+            limits:
+              memory: "1Gi"
+              ephemeral-storage: "2Gi"
+          volumeMounts:
+            - mountPath: /var/lib/rabbitmq
+              name: rabbitmq-storage
       restartPolicy: Always
+      volumes:
+        - name: rabbitmq-storage
+          persistentVolumeClaim:
+            claimName: rabbitmq-pvc
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: rabbitmq-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: standard
+  resources:
+    requests:
+      storage: 1Gi  # ✅ Correct way to request storage

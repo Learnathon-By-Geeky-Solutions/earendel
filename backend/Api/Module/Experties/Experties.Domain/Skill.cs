@@ -9,7 +9,7 @@ public class Skill : AuditableEntity, IAggregateRoot
 {
     public string Name { get; private set; } = default!;
     public string? Description { get; private set; }
-    
+
     public static Skill Create(string name, string? description)
     {
         var skill = new Skill

@@ -20,8 +20,23 @@ spec:
       labels:
         io.kompose.service: aspire
     spec:
+      serviceAccountName: default  # Set a service account if needed
+      automountServiceAccountToken: false
       containers:
-        - image: mcr.microsoft.com/dotnet/aspire-dashboard:latest
+        - name: aspire-dashboard
+          image: mcr.microsoft.com/dotnet/aspire-dashboard:8.0  # Use a specific version instead of 'latest'
+          ports:
+            - containerPort: 18888
+              protocol: TCP
+          resources:
+            requests:
+              cpu: "250m"         # Minimum CPU request
+              memory: "256Mi"     # Minimum memory request
+              ephemeral-storage: "512Mi"  # Minimum storage request
+            limits:
+              cpu: "500m"         # Maximum CPU limit
+              memory: "512Mi"     # Maximum memory limit
+              ephemeral-storage: "1Gi"  # Maximum storage limit
           livenessProbe:
             exec:
               command:
@@ -31,8 +46,4 @@ spec:
                 - http://localhost:18888/metrics
             failureThreshold: 5
             periodSeconds: 10
-          name: aspire-dashboard
-          ports:
-            - containerPort: 18888
-              protocol: TCP
       restartPolicy: Always

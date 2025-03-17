@@ -20,10 +20,18 @@ spec:
       labels:
         io.kompose.service: node-exporter
     spec:
+      automountServiceAccountToken: false  # ✅ Fix: Disable service account automounting
       containers:
-        - image: prom/node-exporter:latest
+        - image: prom/node-exporter:v1.6.1  # ✅ Fix: Use a specific image version
           name: node-exporter
           ports:
             - containerPort: 9100
               protocol: TCP
+          resources:
+            requests:
+              cpu: "100m"                 # ✅ Fix: Specify CPU request
+              memory: "128Mi"             # ✅ Fix: Specify memory request
+              ephemeral-storage: "1Gi"    # ✅ Fix: Specify storage request
+            limits:
+              memory: "256Mi"             # ✅ Fix: Specify memory limit
       restartPolicy: Always
