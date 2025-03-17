@@ -7,16 +7,14 @@ namespace TalentMesh.Framework.Infrastructure.Messaging
 {
     public class RabbitMQMessageBus : IMessageBus, IDisposable
     {
-        private readonly IConnectionFactory _connectionFactory;
         private readonly IConnection _connection;
         private readonly IModel _channel;
         private bool _disposed;
 
         public RabbitMQMessageBus(IConnectionFactory connectionFactory)
         {
-            _connectionFactory = connectionFactory;
             // Create a connection and open a channel
-            _connection = _connectionFactory.CreateConnection();
+            _connection = connectionFactory.CreateConnection();
             _channel = _connection.CreateModel();
         }
 
@@ -52,4 +50,3 @@ namespace TalentMesh.Framework.Infrastructure.Messaging
         }
     }
 }
-
