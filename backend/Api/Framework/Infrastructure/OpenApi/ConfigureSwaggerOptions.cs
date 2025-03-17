@@ -29,7 +29,7 @@ public class ConfigureSwaggerOptions : IConfigureOptions<SwaggerGenOptions>
 
     private static OpenApiInfo CreateInfoForApiVersion(ApiVersionDescription description)
     {
-        var text = new StringBuilder("TalentMesh , Hiring Talent Manager");
+        var text = new StringBuilder("Team Earendel - Modular Monolithic with Clean, Event Driven, Multi-Tenant and CQRS based Architecture!");
         var info = new OpenApiInfo()
         {
             Title = "TalentMesh.WebApi",

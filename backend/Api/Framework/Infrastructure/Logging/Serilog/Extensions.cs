@@ -17,30 +17,47 @@ public static class Extensions
                 try
                 {
                     options.Endpoint = builder.Configuration["OTEL_EXPORTER_OTLP_ENDPOINT"];
-                    var headers = builder.Configuration["OTEL_EXPORTER_OTLP_HEADERS"]?.Split(',') ?? [];
+
+                    // Get the headers and validate them
+                    var headers = builder.Configuration["OTEL_EXPORTER_OTLP_HEADERS"]?.Split(',') ?? Array.Empty<string>();
                     foreach (var header in headers)
                     {
-                        var (key, value) = header.Split('=') switch
-                        {
-                        [string k, string v] => (k, v),
-                            var v => throw new Exception($"Invalid header format {v}")
-                        };
+                        var headerParts = header.Split('=');
 
-                        options.Headers.Add(key, value);
+                        if (headerParts.Length == 2)
+                        {
+                            var (key, value) = (headerParts[0], headerParts[1]);
+                            options.Headers.Add(key, value);
+                        }
+                        else
+                        {
+                            // Handle invalid header format here, logging or throwing a more specific exception
+                            // For example, we can log the invalid header and continue processing other headers
+                            Console.WriteLine($"Warning: Invalid header format '{header}'");
+                        }
                     }
+
                     options.ResourceAttributes.Add("service.name", "apiservice");
-                    //To remove the duplicate issue, we can use the below code to get the key and value from the configuration
-                    var (otelResourceAttribute, otelResourceAttributeValue) = builder.Configuration["OTEL_RESOURCE_ATTRIBUTES"]?.Split('=') switch
+
+                    // Handle the resource attribute and validate it
+                    var otelResourceAttributes = builder.Configuration["OTEL_RESOURCE_ATTRIBUTES"]?.Split('=');
+                    if (otelResourceAttributes?.Length == 2)
                     {
-                    [string k, string v] => (k, v),
-                        _ => throw new Exception($"Invalid header format {builder.Configuration["OTEL_RESOURCE_ATTRIBUTES"]}")
-                    };
-                    options.ResourceAttributes.Add(otelResourceAttribute, otelResourceAttributeValue);
+                        var (otelResourceAttribute, otelResourceAttributeValue) = (otelResourceAttributes[0], otelResourceAttributes[1]);
+                        options.ResourceAttributes.Add(otelResourceAttribute, otelResourceAttributeValue);
+                    }
+                    else
+                    {
+                        // Handle invalid format for OTEL_RESOURCE_ATTRIBUTES gracefully
+                        Console.WriteLine("Warning: Invalid OTEL_RESOURCE_ATTRIBUTES format.");
+                    }
                 }
-                catch
+                catch (Exception ex)
                 {
-                    //ignore
+                    // Log the exception if necessary, but avoid throwing a generic exception
+                    Console.WriteLine($"Error during configuration setup: {ex.Message}");
                 }
+
             });
             logger.ReadFrom.Configuration(context.Configuration);
             logger.Enrich.FromLogContext();

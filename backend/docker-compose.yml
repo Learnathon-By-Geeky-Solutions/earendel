@@ -1,0 +1,136 @@
+version: "3.3"
+
+services:
+  backend:
+    container_name: backend-container
+    image: backend-image:v1.0
+    build:
+      context: ./
+      dockerfile: ./Dockerfile
+    ports:
+      - "8000:8000"
+    depends_on:
+      - postgres
+      - aspire
+      - redis
+      - rabbitmq
+      - prometheus
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:8000
+      - DOTNET_DASHBOARD_URL=http://aspire:18888
+      - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=TalentMesh;Username=postgres;Password=postgres
+      - Redis__Host=redis
+      - Redis__Port=6379
+      - RabbitMQ__Host=rabbitmq
+      - RabbitMQ__Port=5672
+      - RabbitMQ__Username=guest
+      - RabbitMQ__Password=guest
+    restart: always
+    networks:
+      - aspire_network
+    healthcheck:
+      test:
+        ["CMD", "curl", "--silent", "--fail", "http://localhost:8000/metrics"]
+      interval: 10s
+      retries: 5
+
+  postgres:
+    image: postgres:latest
+    container_name: postgres_db
+    restart: always
+    environment:
+      POSTGRES_DB: TalentMesh
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - aspire_network
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres", "-d", "TalentMesh"]
+      interval: 10s
+      retries: 5
+  redis:
+    image: redis:latest
+    container_name: redis-cache
+    restart: always
+    ports:
+      - "6379:6379"
+    networks:
+      - aspire_network
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    restart: always
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    networks:
+      - aspire_network
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    restart: always
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - "9090:9090"
+    networks:
+      - aspire_network
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    restart: always
+    ports:
+      - "3000:3000"
+    networks:
+      - aspire_network
+    volumes:
+      - grafana_data:/var/lib/grafana
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+
+  node-exporter:
+    image: prom/node-exporter:latest
+    container_name: node-exporter
+    restart: always
+    ports:
+      - "9100:9100"
+    networks:
+      - aspire_network
+
+  aspire:
+    image: mcr.microsoft.com/dotnet/aspire-dashboard:latest
+    container_name: aspire-dashboard
+    ports:
+      - "18888:18888" # Aspire Dashboard
+    healthcheck:
+      test: [
+          "CMD",
+          "curl",
+          "--silent",
+          "--fail",
+          "http://localhost:18888/metrics",
+        ] # Adjust if needed
+      interval: 10s
+      retries: 5
+    networks:
+      - aspire_network
+
+volumes:
+  postgres_data:
+  grafana_data:
+
+networks:
+  aspire_network:
+    driver: bridge

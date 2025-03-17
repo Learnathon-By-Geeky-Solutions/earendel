@@ -9,6 +9,29 @@
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-316192?style=for-the-badge&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
 [![Angular](https://img.shields.io/badge/Angular-17-DD0031?style=for-the-badge&logo=angular&logoColor=white)](https://angular.io)
 
+<br>
+
+<p align="center"> <a href="https://sonarcloud.io/summary/new_code?id=Learnathon-By-Geeky-Solutions_earendel"> <img src="https://img.shields.io/badge/SonarCloud-Analysis-4E9BCD?style=for-the-badge&logo=sonarcloud&logoColor=white" alt="SonarCloud Analysis" width="250"> </a> </p>
+
+<!-- SonarCloud Badges - Organized in a borderless table -->
+
+<table style="border: none; border-collapse: collapse;">
+ <tr style="border: none;"> 
+ <td style="border: none; padding: 5px;"> <a href="https://sonarcloud.io/summary/new_code?id=Learnathon-By-Geeky-Solutions_earendel"> <img src="https://sonarcloud.io/api/project_badges/measure?project=Learnathon-By-Geeky-Solutions_earendel&metric=alert_status" alt="Quality Gate Status"> </a> </td> 
+ <td style="border: none; padding: 5px;"> <a href="https://sonarcloud.io/summary/new_code?id=Learnathon-By-Geeky-Solutions_earendel"> <img src="https://sonarcloud.io/api/project_badges/measure?project=Learnathon-By-Geeky-Solutions_earendel&metric=ncloc" alt="Lines of Code"> </a> </td> 
+ 
+ <td style="border: none; padding: 5px;"> <a href="https://sonarcloud.io/summary/new_code?id=Learnathon-By-Geeky-Solutions_earendel"> <img src="https://sonarcloud.io/api/project_badges/measure?project=Learnathon-By-Geeky-Solutions_earendel&metric=vulnerabilities" alt="Vulnerabilities"> </a> </td>
+  <td style="border: none; padding: 5px;"> <a href="https://sonarcloud.io/summary/new_code?id=Learnathon-By-Geeky-Solutions_earendel"> <img src="https://sonarcloud.io/api/project_badges/measure?project=Learnathon-By-Geeky-Solutions_earendel&metric=code_smells" alt="Code Smells"> </a> </td> 
+ 
+  </tr>
+
+ <tr style="border: none;"> 
+ <td style="border: none; padding: 5px;"> <a href="https://sonarcloud.io/summary/new_code?id=Learnathon-By-Geeky-Solutions_earendel"> <img src="https://sonarcloud.io/api/project_badges/measure?project=Learnathon-By-Geeky-Solutions_earendel&metric=sqale_index" alt="Technical Debt"> </a> </td> 
+ <td style="border: none; padding: 5px;"> <a href="https://sonarcloud.io/summary/new_code?id=Learnathon-By-Geeky-Solutions_earendel"> <img src="https://sonarcloud.io/api/project_badges/measure?project=Learnathon-By-Geeky-Solutions_earendel&metric=duplicated_lines_density" alt="Duplicated Lines (%)"> </a> </td> <td style="border: none; padding: 5px;"> <a href="https://sonarcloud.io/summary/new_code?id=Learnathon-By-Geeky-Solutions_earendel"> <img src="https://sonarcloud.io/api/project_badges/measure?project=Learnathon-By-Geeky-Solutions_earendel&metric=coverage" alt="Coverage"> </a> </td> 
+ <td style="border: none; padding: 5px;"> <a href="https://sonarcloud.io/summary/new_code?id=Learnathon-By-Geeky-Solutions_earendel"> <img src="https://sonarcloud.io/api/project_badges/measure?project=Learnathon-By-Geeky-Solutions_earendel&metric=bugs" alt="Bugs"> </a> </td> 
+ </tr>
+</table>
+
 </div>
 
 ---
@@ -60,7 +83,7 @@ While this repository only hosts our backend services. But for convenience, we h
 
 ## 🌟 Overview
 
-Earendel is a revolutionary **Interview as a Service (IaaS)** platform that leverages cutting-edge .NET 8 microservices architecture to deliver instant, affordable, and standardized technical assessments. Our platform seamlessly connects talent with opportunities through an innovative approach to technical recruitment.
+TalentMesh is a revolutionary **Interview as a Service (IaaS)** platform that leverages cutting-edge .NET 8 Modular Monolithic & Clean Architecture to deliver instant, affordable, and standardized technical assessments. Our platform seamlessly connects talent with opportunities through an innovative approach to technical recruitment.
 
 ### 🎯 Core Features
 

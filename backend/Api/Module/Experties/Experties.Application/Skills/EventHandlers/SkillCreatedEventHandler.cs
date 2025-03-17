@@ -29,37 +29,33 @@ namespace TalentMesh.Module.Experties.Application.Skills.EventHandlers
 
         public async Task Handle(SkillCreated notification, CancellationToken cancellationToken)
         {
-            if (notification.Skill is not null)
+            if (notification.Skill is null)
             {
-                _logger.LogInformation("Handling SkillCreated event for Skill ID: {SkillId}", notification.Skill.Id);
-
-                // Prepare a message object with details from the job.
-                var skillMessage = new
-                {
-                    SkillId = notification.Skill.Id,
-                    Name = notification.Skill.Name,
-                    Description = notification.Skill.Description,
-                };
-
-                ClaimsPrincipal? user = _httpContextAccessor.HttpContext?.User;
-                string? email = user?.GetEmail();
-                string? userId = user?.GetUserId();
-
-                _logger.LogInformation("email: {Email}", email);
-                _logger.LogInformation("userId: {UserId}", userId);
-
-
-                // Publish the message to a RabbitMQ exchange.
-                // Example: Exchange "job.events", Routing Key "job.created"
-                await _messageBus.PublishAsync(skillMessage, exchange: "skill.events", routingKey: "skill.created", cancellationToken);
-                await _hubContext.Clients.Group("admin").SendAsync("ReceiveMessage", notification.Skill.Id, notification.Skill.Name);
-
-                _logger.LogInformation("Published SkillCreated message for Skill ID: {SkillId}", notification.Skill.Id);
+                _logger.LogWarning("SkillCreated event received without a valid Skill entity.");
+                return;
             }
-            else
+
+            var skillId = notification.Skill.Id;
+            var skillName = notification.Skill.Name;
+
+            // Combined user context logging
+            ClaimsPrincipal? user = _httpContextAccessor.HttpContext?.User;
+            _logger.LogInformation("Handling SkillCreated event for Skill ID: {SkillId} (User: {UserId}, Email: {Email})",
+                skillId,
+                user?.GetUserId(),
+                user?.GetEmail());
+
+            var skillMessage = new
             {
-                _logger.LogWarning("JobCreated event received without a valid Job entity.");
-            }
+                SkillId = skillId,
+                Name = skillName,
+                notification.Skill.Description,
+            };
+
+            await _messageBus.PublishAsync(skillMessage, "skill.events", "skill.created", cancellationToken);
+            await _hubContext.Clients.Group("admin").SendAsync("ReceiveMessage", skillId, skillName);
+
+            _logger.LogInformation("Published SkillCreated message for {SkillName} (ID: {SkillId})", skillName, skillId);
         }
     }
 }

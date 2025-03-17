@@ -40,7 +40,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Experties.Application", "..
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Experties.Infrastructure", "..\Api\Module\Experties\Experties.Infrastructure\Experties.Infrastructure.csproj", "{88C31733-44C2-4FC7-8D08-34B9391B7DE4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Experties.Test", "..\Api\Module\Experties\Experties.test\Experties.Test.csproj", "{43F60976-1BDC-4407-B13C-4FF0DC7F3485}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Experties.Test", "..\Api\Module\Experties\Experties.Test\Experties.Test.csproj", "{43F60976-1BDC-4407-B13C-4FF0DC7F3485}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test", "..\Test\Test.csproj", "{0C69FD6E-0925-46A2-80C8-449BB755A75B}"
 EndProject
