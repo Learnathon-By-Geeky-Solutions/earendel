@@ -53,6 +53,7 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Candidate.Infrastructure", "..\Api\Module\Candidate\Candidate.Infrastructure\Candidate.Infrastructure.csproj", "{D0F6DFB9-F984-7E64-A9E4-FDE2DD72A93A}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Candidate.Test", "..\Api\Module\Candidate\Candidate.Test\Candidate.Test.csproj", "{C765EEED-F9D3-47E9-9E12-26AE9212F656}"
+EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Quizzes", "Quizzes", "{D1F4E45D-06C7-4C4D-803F-4ACD4B6CE5EC}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Quizzes.Domain", "..\Api\Module\Quizzes\Quizzes.Domain\Quizzes.Domain.csproj", "{9B8EC0F3-CAB7-4973-84D2-39858C09220F}"
@@ -82,6 +83,16 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Interviews.Infrastructure", "..\Api\Module\Interviews\Interviews.Infrastructure\Interviews.Infrastructure.csproj", "{73B95E44-FC55-4527-9734-6F30D8C4E01B}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Interviews.Test", "..\Api\Module\Interviews\Interviews.Test\Interviews.Test.csproj", "{719843AB-37EE-495F-BDD6-FB93E5DFED53}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Evaluator", "Evaluator", "{E4230CF1-547F-4A75-87E5-0A74905F59B6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Evaluator.Domain", "..\Api\Module\Evaluator\Evaluator.Domain\Evaluator.Domain.csproj", "{8B56EE07-5F98-4A61-BC1B-0E9F27755D4B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Evaluator.Application", "..\Api\Module\Evaluator\Evaluator.Application\Evaluator.Application.csproj", "{002281C5-2416-477E-883F-4BA3F835513C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Evaluator.Infrastructure", "..\Api\Module\Evaluator\Evaluator.Infrastructure\Evaluator.Infrastructure.csproj", "{DB5DF30C-83DD-4987-BCB8-4D587EB5EEA2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EvaluatorTest", "..\Api\Module\Evaluator\EvaluatorTest\EvaluatorTest.csproj", "{2A69A115-EF41-4C31-86CE-D4576634BD0B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -213,6 +224,22 @@ Global
 		{719843AB-37EE-495F-BDD6-FB93E5DFED53}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{719843AB-37EE-495F-BDD6-FB93E5DFED53}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{719843AB-37EE-495F-BDD6-FB93E5DFED53}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8B56EE07-5F98-4A61-BC1B-0E9F27755D4B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8B56EE07-5F98-4A61-BC1B-0E9F27755D4B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8B56EE07-5F98-4A61-BC1B-0E9F27755D4B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8B56EE07-5F98-4A61-BC1B-0E9F27755D4B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{002281C5-2416-477E-883F-4BA3F835513C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{002281C5-2416-477E-883F-4BA3F835513C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{002281C5-2416-477E-883F-4BA3F835513C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{002281C5-2416-477E-883F-4BA3F835513C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DB5DF30C-83DD-4987-BCB8-4D587EB5EEA2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DB5DF30C-83DD-4987-BCB8-4D587EB5EEA2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DB5DF30C-83DD-4987-BCB8-4D587EB5EEA2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DB5DF30C-83DD-4987-BCB8-4D587EB5EEA2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2A69A115-EF41-4C31-86CE-D4576634BD0B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2A69A115-EF41-4C31-86CE-D4576634BD0B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2A69A115-EF41-4C31-86CE-D4576634BD0B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2A69A115-EF41-4C31-86CE-D4576634BD0B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -252,6 +279,11 @@ Global
 		{29485257-9E56-469A-ABE3-2E41EA370CC7} = {FC718546-97E2-4052-8887-52E40C565693}
 		{73B95E44-FC55-4527-9734-6F30D8C4E01B} = {FC718546-97E2-4052-8887-52E40C565693}
 		{719843AB-37EE-495F-BDD6-FB93E5DFED53} = {FC718546-97E2-4052-8887-52E40C565693}
+		{E4230CF1-547F-4A75-87E5-0A74905F59B6} = {E5DA2A94-76C5-460A-88A4-CEECDF1DB1DC}
+		{8B56EE07-5F98-4A61-BC1B-0E9F27755D4B} = {E4230CF1-547F-4A75-87E5-0A74905F59B6}
+		{002281C5-2416-477E-883F-4BA3F835513C} = {E4230CF1-547F-4A75-87E5-0A74905F59B6}
+		{DB5DF30C-83DD-4987-BCB8-4D587EB5EEA2} = {E4230CF1-547F-4A75-87E5-0A74905F59B6}
+		{2A69A115-EF41-4C31-86CE-D4576634BD0B} = {E4230CF1-547F-4A75-87E5-0A74905F59B6}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {3F0797FB-39B5-40DB-99C8-40E2B73F0B41}
