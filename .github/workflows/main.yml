@@ -1,0 +1,64 @@
+name: .NET CI/CD Workflow
+
+on:
+  push:
+    branches:
+      - main
+      - development
+  pull_request:
+    branches:
+      - main
+      - development
+
+jobs:
+  build:
+    name: Build and Test Application
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Debug Directory Structure
+        run: ls -R backend
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: "8.0.x"
+
+      - name: Restore Dependencies
+        run: dotnet restore backend/Aspire/Aspire.sln
+
+      - name: Build Application
+        run: dotnet build backend/Aspire/Aspire.sln --no-restore --configuration Release
+
+      - name: Run Tests for All Modules in Parallel
+        run: |
+          find backend/Api/Module -type d -name "*.Test" | xargs -n 1 -P 4 -I {} sh -c 'echo "Running tests for module: {}"; dotnet test "{}"'
+
+  publish:
+    name: Publish Application
+    runs-on: ubuntu-latest
+    needs: build
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: "8.0.x"
+
+      - name: Restore Dependencies
+        run: dotnet restore backend/Aspire/Aspire.sln
+
+      - name: Build and Publish
+        run: dotnet publish backend/Api/Server/Server.csproj -c Release -o backend/Api/Server/publish
+
+      - name: Upload Published Application
+        uses: actions/upload-artifact@v4
+        with:
+          name: published-app
+          path: backend/Api/Server/publish/
