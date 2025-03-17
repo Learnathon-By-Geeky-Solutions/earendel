@@ -92,7 +92,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Evaluator.Application", "..
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Evaluator.Infrastructure", "..\Api\Module\Evaluator\Evaluator.Infrastructure\Evaluator.Infrastructure.csproj", "{DB5DF30C-83DD-4987-BCB8-4D587EB5EEA2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EvaluatorTest", "..\Api\Module\Evaluator\EvaluatorTest\EvaluatorTest.csproj", "{2A69A115-EF41-4C31-86CE-D4576634BD0B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Evaluator.Test", "..\Api\Module\Evaluator\Evaluator.Test\Evaluator.Test.csproj", "{2A69A115-EF41-4C31-86CE-D4576634BD0B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

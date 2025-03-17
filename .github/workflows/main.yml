@@ -36,10 +36,22 @@ jobs:
       - name: Build Application
         run: dotnet build backend/Aspire/Aspire.sln --no-restore --configuration Release
 
-      - name: Run Tests for All Modules in Parallel
+      - name: Run Tests for All Modules in Parallel and Summarize
         run: |
-          find backend/Api/Module -type d -name "*.Test" | xargs -n 1 -P 4 -I {} sh -c 'echo "Running tests for module: {}"; dotnet test "{}"'
-
+           mkdir -p test-results
+           find backend/Api/Module -type f -name "*.Test.csproj" | \
+             xargs -n 1 -P 4 -I {} sh -c 'echo "Running tests for project: {}"; dotnet test "{}" | tee "test-results/$(basename {}).log" || true'
+           echo "### Listing All Test Log Files ###"
+           ls -l test-results
+           echo "### Individual Test Summaries ###"
+           for file in test-results/*.log; do
+             echo "Summary for $(basename "$file"):"
+             grep -E "(Passed!|Total:)" "$file" || echo "No summary found in $file"
+             echo "------"
+           done
+           echo "### Final Aggregated Test Summary ###"
+           grep -H -E "(Passed!|Total:)" test-results/*.log || echo "No test summary lines found."
+      
   publish:
     name: Publish Application
     runs-on: ubuntu-latest
