@@ -5,7 +5,6 @@ on:
     branches:
       - main
       - development
-      - feature/Ci-test
   pull_request:
     branches:
       - main
@@ -39,20 +38,20 @@ jobs:
 
       - name: Run Tests for All Modules in Parallel and Summarize
         run: |
-           mkdir -p test-results
-           find backend/Api/Module -type f -name "*.Test.csproj" | \
-             xargs -n 1 -P 4 -I {} sh -c 'echo "Running tests for project: {}"; dotnet test "{}" | tee "test-results/$(basename {}).log" || true'
-           echo "### Listing All Test Log Files ###"
-           ls -l test-results
-           echo "### Individual Test Summaries ###"
-           for file in test-results/*.log; do
-             echo "Summary for $(basename "$file"):"
-             grep -E "(Passed!|Total:)" "$file" || echo "No summary found in $file"
-             echo "------"
-           done
-           echo "### Final Aggregated Test Summary ###"
-           grep -H -E "(Passed!|Total:)" test-results/*.log || echo "No test summary lines found."
-      
+          mkdir -p test-results
+          find backend/Api/Module -type f -name "*.Test.csproj" | \
+            xargs -I {} sh -c 'echo "Running tests for project: {}"; dotnet test "{}" | tee "test-results/$(basename {}).log" || true'
+          echo "### Listing All Test Log Files ###"
+          ls -l test-results
+          echo "### Individual Test Summaries ###"
+          for file in test-results/*.log; do
+            echo "Summary for $(basename "$file"):"
+            grep -E "(Passed!|Total:)" "$file" || echo "No summary found in $file"
+            echo "------"
+          done
+          echo "### Final Aggregated Test Summary ###"
+          grep -H -E "(Passed!|Total:)" test-results/*.log || echo "No test summary lines found."
+
   publish:
     name: Publish Application
     runs-on: ubuntu-latest
