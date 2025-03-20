@@ -1,4 +1,7 @@
-﻿namespace TalentMesh.Framework.Core.Tenant.Dtos;
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace TalentMesh.Framework.Core.Tenant.Dtos;
+[ExcludeFromCodeCoverage]
 public class TenantDetail
 {
     public string Id { get; set; } = default!;

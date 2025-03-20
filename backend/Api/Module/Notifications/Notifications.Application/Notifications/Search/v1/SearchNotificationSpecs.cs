@@ -3,9 +3,11 @@ using TalentMesh.Framework.Core.Paging;
 using TalentMesh.Framework.Core.Specifications;
 using TalentMesh.Module.Notifications.Application.Notifications.Get.v1;
 using TalentMesh.Module.Notifications.Domain;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Module.Notifications.Application.Notifications.Search.v1;
 
+[ExcludeFromCodeCoverage]
 public class SearchNotificationSpecs : EntitiesByPaginationFilterSpec<Notification, NotificationResponse>
 {
     public SearchNotificationSpecs(SearchNotificationsCommand command)

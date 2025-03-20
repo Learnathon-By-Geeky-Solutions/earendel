@@ -7,8 +7,10 @@ using TalentMesh.Shared.Authorization;
 using Hangfire;
 using Hangfire.Server;
 using Microsoft.Extensions.DependencyInjection;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Framework.Infrastructure.Jobs;
+[ExcludeFromCodeCoverage]
 
 public class TMJobActivator : JobActivator
 {

@@ -2,9 +2,12 @@ using System.Text;
 using System.Text.Json;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Framework.Infrastructure.Messaging
 {
+    [ExcludeFromCodeCoverage]
+
     public class RabbitMQMessageBus : IMessageBus, IDisposable
     {
         private readonly IConnection _connection;

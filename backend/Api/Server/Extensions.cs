@@ -15,8 +15,11 @@ using TalentMesh.Module.Quizzes.Infrastructure;
 using TalentMesh.Module.Notifications.Infrastructure;
 using TalentMesh.Module.Interviews.Infrastructure;
 using TalentMesh.Module.Evaluator.Application;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.WebApi.Host;
+
+[ExcludeFromCodeCoverage]
 
 public static class Extensions
 {

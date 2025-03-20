@@ -8,9 +8,12 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Module.Job.Infrastructure
 {
+    [ExcludeFromCodeCoverage]
+
     public static class JobModule
     {
         public class Endpoints : CarterModule

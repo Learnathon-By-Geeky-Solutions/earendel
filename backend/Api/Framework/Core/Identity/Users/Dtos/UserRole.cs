@@ -1,3 +1,5 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace TalentMesh.Framework.Core.Identity.Users.Dtos
 {
     public enum UserRole
@@ -5,4 +7,5 @@ namespace TalentMesh.Framework.Core.Identity.Users.Dtos
         Candidate,
         HR
     }
+
 }

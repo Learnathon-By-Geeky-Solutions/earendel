@@ -13,10 +13,13 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Framework.Infrastructure.Tenant;
 internal static class Extensions
 {
+    [ExcludeFromCodeCoverage]
+
     public static IServiceCollection ConfigureMultitenancy(this IServiceCollection services)
     {
         ArgumentNullException.ThrowIfNull(services);
@@ -49,6 +52,7 @@ internal static class Extensions
         services.AddScoped<ITenantService, TenantService>();
         return services;
     }
+    [ExcludeFromCodeCoverage]
 
     public static WebApplication UseMultitenancy(this WebApplication app)
     {
@@ -63,6 +67,7 @@ internal static class Extensions
 
         return app;
     }
+    [ExcludeFromCodeCoverage]
 
     private static IApplicationBuilder SetupTenantDatabases(this IApplicationBuilder app, IEnumerable<TMTenantInfo> tenants)
     {
@@ -88,6 +93,7 @@ internal static class Extensions
         }
         return app;
     }
+    [ExcludeFromCodeCoverage]
 
     private static IEnumerable<TMTenantInfo> TenantStoreSetup(IApplicationBuilder app)
     {

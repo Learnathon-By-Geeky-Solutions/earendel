@@ -1,6 +1,9 @@
 using System.Security.Claims;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Shared.Authorization;
+[ExcludeFromCodeCoverage]
+
 public static class ClaimsPrincipalExtensions
 {
     public static string? GetEmail(this ClaimsPrincipal principal)

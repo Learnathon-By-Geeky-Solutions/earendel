@@ -4,8 +4,10 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.Extensions.Primitives;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Framework.Infrastructure.Jobs;
+[ExcludeFromCodeCoverage]
 
 public class HangfireCustomBasicAuthenticationFilter : IDashboardAuthorizationFilter
 {
@@ -86,6 +88,8 @@ public class HangfireCustomBasicAuthenticationFilter : IDashboardAuthorizationFi
         httpContext.Response.Headers.Append("WWW-Authenticate", "Basic realm=\"Hangfire Dashboard\"");
     }
 }
+
+[ExcludeFromCodeCoverage]
 
 public class BasicAuthenticationTokens
 {

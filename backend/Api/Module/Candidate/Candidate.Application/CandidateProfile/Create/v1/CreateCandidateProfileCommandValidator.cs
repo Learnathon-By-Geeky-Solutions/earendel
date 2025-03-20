@@ -1,8 +1,10 @@
 ﻿
 using FluentValidation;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Module.Candidate.Application.CandidateProfile.Create.v1;
 
+[ExcludeFromCodeCoverage]
 public class CreateCandidateProfileCommandValidator : AbstractValidator<CreateCandidateProfileCommand>
 {
     public CreateCandidateProfileCommandValidator()

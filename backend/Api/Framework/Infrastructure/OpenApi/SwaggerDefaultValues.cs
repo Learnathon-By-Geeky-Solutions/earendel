@@ -3,8 +3,11 @@ using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Framework.Infrastructure.OpenApi;
+[ExcludeFromCodeCoverage]
+
 public class SwaggerDefaultValues : IOperationFilter
 {
     /// <inheritdoc />

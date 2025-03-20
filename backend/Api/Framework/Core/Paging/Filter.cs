@@ -1,4 +1,7 @@
-﻿namespace TalentMesh.Framework.Core.Paging;
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace TalentMesh.Framework.Core.Paging;
+[ExcludeFromCodeCoverage]
 
 public static class FilterOperator
 {
@@ -12,6 +15,7 @@ public static class FilterOperator
     public const string ENDSWITH = "endswith";
     public const string CONTAINS = "contains";
 }
+[ExcludeFromCodeCoverage]
 
 public static class FilterLogic
 {
@@ -19,6 +23,7 @@ public static class FilterLogic
     public const string OR = "or";
     public const string XOR = "xor";
 }
+[ExcludeFromCodeCoverage]
 
 public class Filter
 {

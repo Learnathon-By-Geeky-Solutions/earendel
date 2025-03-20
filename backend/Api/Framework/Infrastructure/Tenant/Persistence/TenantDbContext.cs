@@ -1,7 +1,10 @@
 ﻿using Finbuckle.MultiTenant.EntityFrameworkCore.Stores.EFCoreStore;
 using Microsoft.EntityFrameworkCore;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Framework.Infrastructure.Tenant.Persistence;
+[ExcludeFromCodeCoverage]
+
 public class TenantDbContext : EFCoreStoreDbContext<TMTenantInfo>
 {
     public const string Schema = "tenant";

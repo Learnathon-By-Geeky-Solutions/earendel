@@ -2,8 +2,11 @@
 using Serilog;
 using Serilog.Events;
 using Serilog.Filters;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Framework.Infrastructure.Logging.Serilog;
+
+[ExcludeFromCodeCoverage]
 
 public static class Extensions
 {

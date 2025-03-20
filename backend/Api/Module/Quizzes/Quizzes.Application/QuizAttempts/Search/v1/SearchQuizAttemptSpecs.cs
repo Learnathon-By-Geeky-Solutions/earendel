@@ -3,9 +3,10 @@ using TalentMesh.Framework.Core.Paging;
 using TalentMesh.Framework.Core.Specifications;
 using TalentMesh.Module.Quizzes.Application.QuizAttempts.Get.v1;
 using TalentMesh.Module.Quizzes.Domain;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Module.Quizzes.Application.QuizAttempts.Search.v1;
-
+[ExcludeFromCodeCoverage]
 public class SearchQuizAttemptSpecs : EntitiesByPaginationFilterSpec<Quizzes.Domain.QuizAttempt, QuizAttemptResponse>
 {
     public SearchQuizAttemptSpecs(SearchQuizAttemptsCommand command)

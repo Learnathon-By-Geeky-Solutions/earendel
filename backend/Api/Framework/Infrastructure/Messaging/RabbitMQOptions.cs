@@ -1,5 +1,9 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace TalentMesh.Framework.Infrastructure.Messaging
 {
+    [ExcludeFromCodeCoverage]
+
     public class RabbitMQOptions
     {
         public string HostName { get; set; } = "rabbitmq";

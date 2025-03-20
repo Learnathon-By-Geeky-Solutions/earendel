@@ -128,6 +128,7 @@ namespace TalentMesh.Module.Evaluator.Tests
             Assert.Equal(expectedInterviewerApplication.JobId, result.JobId);
             Assert.Equal(expectedInterviewerApplication.InterviewerId, result.InterviewerId);
             Assert.Equal(expectedInterviewerApplication.Comments, result.Comments);
+            Assert.Equal(expectedInterviewerApplication.AppliedDate, result.AppliedDate);
 
             _readRepositoryMock.Verify(repo => repo.GetByIdAsync(InterviewerApplicationId, It.IsAny<CancellationToken>()), Times.Once);
             _cacheServiceMock.Verify(cache => cache.SetAsync(It.IsAny<string>(), It.IsAny<InterviewerApplicationResponse>(), It.IsAny<TimeSpan?>(), It.IsAny<CancellationToken>()), Times.Once);
@@ -212,10 +213,12 @@ namespace TalentMesh.Module.Evaluator.Tests
             // Arrange
             var existingInterviewerApplication = InterviewerApplication.Create(Guid.NewGuid(), Guid.NewGuid(), "no comments");
             var InterviewerApplicationId = existingInterviewerApplication.Id;
+            var jobId = Guid.NewGuid();
+            var interviewerId = Guid.NewGuid();
             var request = new UpdateInterviewerApplicationCommand(
                 InterviewerApplicationId,
-                Guid.NewGuid(),
-                Guid.NewGuid(),
+                jobId,
+                interviewerId,
                 "rejected",
                 "no comments"
             );
@@ -229,6 +232,7 @@ namespace TalentMesh.Module.Evaluator.Tests
             // Assert
             Assert.NotNull(result);
             Assert.Equal(InterviewerApplicationId, result.Id);
+            
 
             _repositoryMock.Verify(repo => repo.GetByIdAsync(InterviewerApplicationId, It.IsAny<CancellationToken>()), Times.Once);
             _repositoryMock.Verify(repo => repo.UpdateAsync(It.IsAny<InterviewerApplication>(), It.IsAny<CancellationToken>()), Times.Once);

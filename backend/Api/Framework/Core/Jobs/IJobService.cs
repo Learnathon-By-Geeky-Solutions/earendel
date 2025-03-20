@@ -1,7 +1,7 @@
 using System.Linq.Expressions;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Framework.Core.Jobs;
-
 public interface IJobService
 {
     bool Delete(string jobId);

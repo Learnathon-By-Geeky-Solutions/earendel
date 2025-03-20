@@ -1,6 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Framework.Core.Persistence;
+[ExcludeFromCodeCoverage]
 public class DatabaseOptions : IValidatableObject
 {
     public string Provider { get; set; } = "postgresql";

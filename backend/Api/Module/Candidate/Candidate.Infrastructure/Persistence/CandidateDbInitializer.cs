@@ -2,12 +2,15 @@
 using TalentMesh.Module.Candidate.Domain;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Module.Candidate.Infrastructure.Persistence
 {
+    [ExcludeFromCodeCoverage]
+
     internal sealed class CandidateDbInitializer(
-        ILogger<CandidateDbInitializer> logger,
-        CandidateDbContext context) : IDbInitializer
+    ILogger<CandidateDbInitializer> logger,
+    CandidateDbContext context) : IDbInitializer
     {
         public async Task MigrateAsync(CancellationToken cancellationToken)
         {

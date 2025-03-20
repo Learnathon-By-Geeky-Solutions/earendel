@@ -1,5 +1,6 @@
-﻿namespace TalentMesh.Framework.Core.Paging;
+﻿using System.Diagnostics.CodeAnalysis;
 
+namespace TalentMesh.Framework.Core.Paging;
 public interface IPagedList<T>
     where T : class
 {

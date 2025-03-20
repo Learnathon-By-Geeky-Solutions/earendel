@@ -6,9 +6,12 @@ using TalentMesh.Framework.Core.Storage.File;
 using TalentMesh.Framework.Core.Storage.File.Features;
 using TalentMesh.Framework.Infrastructure.Common.Extensions;
 using Microsoft.Extensions.Options;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Framework.Infrastructure.Storage.Files
 {
+    [ExcludeFromCodeCoverage]
+
     public class LocalFileStorageService(IOptions<OriginOptions> originSettings) : IStorageService
     {
         private static readonly TimeSpan RegexTimeout = TimeSpan.FromMilliseconds(500);

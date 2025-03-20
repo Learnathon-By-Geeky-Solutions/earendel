@@ -4,9 +4,12 @@ using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Module.Job.Infrastructure.Endpoints.v1
 {
+    [ExcludeFromCodeCoverage]
+
     public static class DeleteJobRequiredSkillEndpoint
     {
         internal static RouteHandlerBuilder MapJobRequiredSkillDeleteEndpoint(this IEndpointRouteBuilder endpoints)

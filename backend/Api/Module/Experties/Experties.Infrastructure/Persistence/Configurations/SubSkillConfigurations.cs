@@ -1,8 +1,11 @@
 ﻿using TalentMesh.Module.Experties.Domain;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Module.Experties.Infrastructure.Persistence.Configurations;
+[ExcludeFromCodeCoverage]
+
 internal sealed class SubSkillConfiguration : IEntityTypeConfiguration<Experties.Domain.SubSkill>
 {
     public void Configure(EntityTypeBuilder<Experties.Domain.SubSkill> builder)

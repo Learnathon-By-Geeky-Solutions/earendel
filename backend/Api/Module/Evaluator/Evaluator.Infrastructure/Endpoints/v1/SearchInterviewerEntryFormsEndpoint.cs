@@ -7,9 +7,11 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using Evaluator.Application.Interviewer.Get.v1;
 using TalentMesh.Module.Evaluator.Application.Interviewer.Search.v1;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Module.Evaluator.Infrastructure.Endpoints.v1
 {
+    [ExcludeFromCodeCoverage]
     public static class SearchInterviewerEntryFormsEndpoint
     {
         internal static RouteHandlerBuilder MapGetInterviewerEntryFormListEndpoint(this IEndpointRouteBuilder endpoints)

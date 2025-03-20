@@ -1,4 +1,6 @@
-﻿// namespace TalentMesh.Framework.Core.Identity.Users.Dtos;
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace TalentMesh.Framework.Core.Identity.Users.Dtos;
 // public class UserDetail
 // {
 //     public Guid Id { get; set; }
@@ -12,7 +14,7 @@
 //     public Uri? ImageUrl { get; set; }
 // }
 
-
+[ExcludeFromCodeCoverage]
 public class UserDetail
 {
     public Guid Id { get; set; }

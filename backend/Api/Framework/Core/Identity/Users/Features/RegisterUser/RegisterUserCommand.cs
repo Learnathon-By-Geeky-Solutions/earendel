@@ -1,8 +1,10 @@
 ﻿using System.Text.Json.Serialization;
 using MediatR;
 using TalentMesh.Framework.Core.Identity.Users.Dtos;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Framework.Core.Identity.Users.Features.RegisterUser;
+[ExcludeFromCodeCoverage]
 public class RegisterUserCommand : IRequest<RegisterUserResponse>
 {
     public string Email { get; set; } = default!;

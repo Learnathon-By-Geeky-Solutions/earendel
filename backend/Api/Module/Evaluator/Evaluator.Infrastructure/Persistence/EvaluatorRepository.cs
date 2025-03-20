@@ -3,6 +3,7 @@ using Ardalis.Specification.EntityFrameworkCore;
 using TalentMesh.Framework.Core.Domain.Contracts;
 using TalentMesh.Framework.Core.Persistence;
 using Mapster;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Module.Evaluator.Infrastructure.Persistence;
 internal sealed class EvaluatorRepository<T> : RepositoryBase<T>, IReadRepository<T>, IRepository<T>

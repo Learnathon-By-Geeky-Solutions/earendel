@@ -2,12 +2,16 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Framework.Infrastructure.Auth.Policy;
+[ExcludeFromCodeCoverage]
 public static class RequiredPermissionDefaults
 {
     public const string PolicyName = "RequiredPermission";
 }
+
+[ExcludeFromCodeCoverage]
 
 public static class RequiredPermissionAuthorizationExtensions
 {

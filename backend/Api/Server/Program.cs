@@ -2,6 +2,7 @@ using TalentMesh.Framework.Infrastructure;
 using TalentMesh.Framework.Infrastructure.Logging.Serilog;
 using TalentMesh.WebApi.Host;
 using Serilog;
+using System.Diagnostics.CodeAnalysis;
 
 StaticLogger.EnsureInitialized();
 Log.Information("Server booting up...");

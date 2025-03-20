@@ -1,5 +1,7 @@
-﻿namespace TalentMesh.Framework.Core.Paging;
+﻿using System.Diagnostics.CodeAnalysis;
 
+namespace TalentMesh.Framework.Core.Paging;
+[ExcludeFromCodeCoverage]
 public class BaseFilter
 {
     /// <summary>

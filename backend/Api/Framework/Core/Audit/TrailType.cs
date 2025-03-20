@@ -1,4 +1,5 @@
 ﻿namespace TalentMesh.Framework.Core.Audit;
+using System.Diagnostics.CodeAnalysis;
 public enum TrailType
 {
     None = 0,

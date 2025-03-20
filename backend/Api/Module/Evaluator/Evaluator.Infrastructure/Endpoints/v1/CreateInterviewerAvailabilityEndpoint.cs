@@ -4,9 +4,12 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using TalentMesh.Module.Evaluator.Application.Interviewer.Create.v1;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Module.Evaluator.Infrastructure.Endpoints.v1
 {
+    [ExcludeFromCodeCoverage]
+
     public static class CreateInterviewerAvailabilityEndpoint
     {
         internal static RouteHandlerBuilder MapInterviewerAvailabilityCreationEndpoint(this IEndpointRouteBuilder endpoints)

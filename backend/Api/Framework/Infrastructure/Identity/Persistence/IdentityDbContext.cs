@@ -10,8 +10,11 @@ using TalentMesh.Framework.Infrastructure.Tenant;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Framework.Infrastructure.Identity.Persistence;
+[ExcludeFromCodeCoverage]
+
 public class IdentityDbContext : MultiTenantIdentityDbContext<TMUser,
     TMRole,
     string,

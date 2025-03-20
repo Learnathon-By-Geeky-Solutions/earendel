@@ -4,9 +4,11 @@ using TalentMesh.Framework.Core.Domain.Contracts;
 using TalentMesh.Framework.Core.Persistence;
 using Mapster;
 using TalentMesh.Module.Candidate.Infrastructure.Persistence;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Module.Candidate.Infrastructure.Persistence
 {
+    [ExcludeFromCodeCoverage]
     internal sealed class CandidateRepository<T> : RepositoryBase<T>, IReadRepository<T>, IRepository<T>
          where T : class, IAggregateRoot
     {

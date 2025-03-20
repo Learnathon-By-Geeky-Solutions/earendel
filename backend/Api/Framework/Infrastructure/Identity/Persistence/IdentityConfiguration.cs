@@ -7,8 +7,10 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using IdentityConstants = TalentMesh.Shared.Authorization.IdentityConstants;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Framework.Infrastructure.Identity.Persistence;
+[ExcludeFromCodeCoverage]
 
 public class AuditTrailConfig : IEntityTypeConfiguration<AuditTrail>
 {
@@ -21,6 +23,7 @@ public class AuditTrailConfig : IEntityTypeConfiguration<AuditTrail>
         builder.HasKey(a => a.Id);
     }
 }
+[ExcludeFromCodeCoverage]
 
 public class ApplicationUserConfig : IEntityTypeConfiguration<TMUser>
 {
@@ -35,6 +38,7 @@ public class ApplicationUserConfig : IEntityTypeConfiguration<TMUser>
                 .HasMaxLength(256);
     }
 }
+[ExcludeFromCodeCoverage]
 
 public class ApplicationRoleConfig : IEntityTypeConfiguration<TMRole>
 {
@@ -44,6 +48,7 @@ public class ApplicationRoleConfig : IEntityTypeConfiguration<TMRole>
             .IsMultiTenant()
                 .AdjustUniqueIndexes();
 }
+[ExcludeFromCodeCoverage]
 
 public class ApplicationRoleClaimConfig : IEntityTypeConfiguration<TMRoleClaim>
 {
@@ -52,6 +57,7 @@ public class ApplicationRoleClaimConfig : IEntityTypeConfiguration<TMRoleClaim>
             .ToTable("RoleClaims", IdentityConstants.SchemaName)
             .IsMultiTenant();
 }
+[ExcludeFromCodeCoverage]
 
 public class IdentityUserRoleConfig : IEntityTypeConfiguration<IdentityUserRole<string>>
 {
@@ -60,6 +66,7 @@ public class IdentityUserRoleConfig : IEntityTypeConfiguration<IdentityUserRole<
             .ToTable("UserRoles", IdentityConstants.SchemaName)
             .IsMultiTenant();
 }
+[ExcludeFromCodeCoverage]
 
 public class IdentityUserClaimConfig : IEntityTypeConfiguration<IdentityUserClaim<string>>
 {
@@ -68,6 +75,7 @@ public class IdentityUserClaimConfig : IEntityTypeConfiguration<IdentityUserClai
             .ToTable("UserClaims", IdentityConstants.SchemaName)
             .IsMultiTenant();
 }
+[ExcludeFromCodeCoverage]
 
 public class IdentityUserLoginConfig : IEntityTypeConfiguration<IdentityUserLogin<string>>
 {
@@ -76,6 +84,7 @@ public class IdentityUserLoginConfig : IEntityTypeConfiguration<IdentityUserLogi
             .ToTable("UserLogins", IdentityConstants.SchemaName)
             .IsMultiTenant();
 }
+[ExcludeFromCodeCoverage]
 
 public class IdentityUserTokenConfig : IEntityTypeConfiguration<IdentityUserToken<string>>
 {

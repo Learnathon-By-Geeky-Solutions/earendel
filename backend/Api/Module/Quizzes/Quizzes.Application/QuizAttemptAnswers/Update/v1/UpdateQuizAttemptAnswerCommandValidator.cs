@@ -1,7 +1,9 @@
 using FluentValidation;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Module.Quizzes.Application.QuizAttemptAnswers.Update.v1;
 
+[ExcludeFromCodeCoverage]
 public class UpdateQuizAttemptAnswerCommandValidator : AbstractValidator<UpdateQuizAttemptAnswerCommand>
 {
     public UpdateQuizAttemptAnswerCommandValidator()

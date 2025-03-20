@@ -3,8 +3,10 @@ using TalentMesh.Framework.Core.Paging;
 using TalentMesh.Framework.Core.Specifications;
 using TalentMesh.Module.Experties.Application.SubSkills.Get.v1;
 using TalentMesh.Module.Experties.Domain;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Module.Experties.Application.SubSkills.Search.v1;
+[ExcludeFromCodeCoverage]
 public class SearchSubSkillSpecs : EntitiesByPaginationFilterSpec<Experties.Domain.SubSkill, SubSkillResponse>
 {
     public SearchSubSkillSpecs(SearchSubSkillsCommand command)

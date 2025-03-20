@@ -1,4 +1,7 @@
-﻿namespace TalentMesh.Framework.Core.Audit;
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace TalentMesh.Framework.Core.Audit;
+[ExcludeFromCodeCoverage]
 public class AuditTrail
 {
     public Guid Id { get; set; }

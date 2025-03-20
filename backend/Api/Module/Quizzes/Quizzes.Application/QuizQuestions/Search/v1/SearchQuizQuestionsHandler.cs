@@ -3,8 +3,10 @@ using TalentMesh.Framework.Core.Persistence;
 using TalentMesh.Module.Quizzes.Application.QuizQuestions.Get.v1;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Module.Quizzes.Application.QuizQuestions.Search.v1;
+[ExcludeFromCodeCoverage]
 public sealed class SearchQuizQuestionsHandler(
     [FromKeyedServices("quizquestions:quizquestionReadOnly")] IReadRepository<Quizzes.Domain.QuizQuestion> repository)
     : IRequestHandler<SearchQuizQuestionsCommand, PagedList<QuizQuestionResponse>>

@@ -9,9 +9,11 @@ using TalentMesh.Module.Experties.Application.SubSkills.EventHandlers;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
 using TalentMesh.Shared.Authorization;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Module.Experties.Application.Skills.EventHandlers
 {
+    [ExcludeFromCodeCoverage]
     public class SkillCreatedEventHandler : INotificationHandler<SkillCreated>
     {
         private readonly ILogger<SkillCreatedEventHandler> _logger;

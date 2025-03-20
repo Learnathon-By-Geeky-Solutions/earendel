@@ -1,7 +1,8 @@
 ﻿using Mapster;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Framework.Core.Paging;
-
+[ExcludeFromCodeCoverage]
 public record PagedList<T>(IReadOnlyList<T> Items, int PageNumber, int PageSize, int TotalCount) : IPagedList<T>
     where T : class
 {

@@ -2,8 +2,11 @@
 using TalentMesh.Framework.Core.Exceptions;
 using TalentMesh.Framework.Infrastructure.Tenant.Abstractions;
 using TalentMesh.Shared.Authorization;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Framework.Infrastructure.Tenant;
+[ExcludeFromCodeCoverage]
+
 public sealed class TMTenantInfo : ITMTenantInfo
 {
     public TMTenantInfo()

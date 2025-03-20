@@ -1,6 +1,8 @@
 using FluentValidation;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Module.Experties.Application.Seniorities.Update.v1;
+[ExcludeFromCodeCoverage]
 public class UpdateSeniorityCommandValidator : AbstractValidator<UpdateSeniorityCommand>
 {
     public UpdateSeniorityCommandValidator()

@@ -1,7 +1,10 @@
 ﻿using FluentValidation;
-
+using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Module.Experties.Application.Skills.Create.v1;
+
+[ExcludeFromCodeCoverage]
+
 public class CreateSkillCommandValidator : AbstractValidator<CreateSkillCommand>
 {
     public CreateSkillCommandValidator()

@@ -3,9 +3,12 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using System;
 using TalentMesh.Module.Evaluator.Domain;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Module.Evaluator.Infrastructure.Persistence
 {
+    [ExcludeFromCodeCoverage]
+
     internal sealed class EvaluatorDbInitializer(
         ILogger<EvaluatorDbInitializer> logger,
         EvaluatorDbContext context) : IDbInitializer

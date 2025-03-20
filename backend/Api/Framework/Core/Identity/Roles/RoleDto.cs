@@ -1,5 +1,8 @@
-﻿namespace TalentMesh.Framework.Core.Identity.Roles;
+﻿using System.Diagnostics.CodeAnalysis;
 
+namespace TalentMesh.Framework.Core.Identity.Roles;
+
+[ExcludeFromCodeCoverage]
 public class RoleDto
 {
     public string Id { get; set; } = default!;

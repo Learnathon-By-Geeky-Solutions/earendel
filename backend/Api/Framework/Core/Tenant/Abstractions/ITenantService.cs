@@ -1,8 +1,8 @@
 ﻿using TalentMesh.Framework.Core.Tenant.Dtos;
 using TalentMesh.Framework.Core.Tenant.Features.CreateTenant;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Framework.Core.Tenant.Abstractions;
-
 public interface ITenantService
 {
     Task<List<TenantDetail>> GetAllAsync();

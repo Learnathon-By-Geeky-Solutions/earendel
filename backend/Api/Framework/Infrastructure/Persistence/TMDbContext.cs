@@ -6,8 +6,11 @@ using TalentMesh.Framework.Infrastructure.Tenant;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Framework.Infrastructure.Persistence;
+[ExcludeFromCodeCoverage]
+
 public class TMDbContext(IMultiTenantContextAccessor<TMTenantInfo> multiTenantContextAccessor,
     DbContextOptions options,
     IPublisher publisher,

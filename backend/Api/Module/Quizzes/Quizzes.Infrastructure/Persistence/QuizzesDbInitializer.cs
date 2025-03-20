@@ -3,8 +3,11 @@ using TalentMesh.Module.Quizzes.Domain;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using TalentMesh.Module.Quizzes.Infrastructure.Persistence;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Module.Quizzes.Infrastructure.Persistence;
+[ExcludeFromCodeCoverage]
+
 internal sealed class QuizzesDbInitializer(
     ILogger<QuizzesDbInitializer> logger,
     QuizzesDbContext context) : IDbInitializer

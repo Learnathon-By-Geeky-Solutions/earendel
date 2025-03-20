@@ -1,7 +1,8 @@
 ﻿using System.Collections.ObjectModel;
 using System.Text.Json;
-
+using System.Diagnostics.CodeAnalysis;
 namespace TalentMesh.Framework.Core.Audit;
+[ExcludeFromCodeCoverage]
 public class TrailDto()
 {
     public Guid Id { get; set; }

@@ -3,8 +3,12 @@ using TalentMesh.Framework.Core.Persistence;
 using TalentMesh.Module.Experties.Application.Rubrics.Get.v1;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Module.Experties.Application.Rubrics.Search.v1;
+
+[ExcludeFromCodeCoverage]
+
 public sealed class SearchRubricsHandler(
     [FromKeyedServices("rubrics:rubricReadOnly")] IReadRepository<Experties.Domain.Rubric> repository)
     : IRequestHandler<SearchRubricsCommand, PagedList<RubricResponse>>

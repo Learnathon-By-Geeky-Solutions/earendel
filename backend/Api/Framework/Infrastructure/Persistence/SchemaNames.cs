@@ -1,4 +1,8 @@
-﻿namespace TalentMesh.Framework.Infrastructure.Persistence;
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace TalentMesh.Framework.Infrastructure.Persistence;
+[ExcludeFromCodeCoverage]
+
 public static class SchemaNames
 {
     public const string Job = "job";

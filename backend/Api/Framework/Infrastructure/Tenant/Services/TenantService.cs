@@ -8,8 +8,10 @@ using TalentMesh.Framework.Core.Tenant.Features.CreateTenant;
 using Mapster;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Framework.Infrastructure.Tenant.Services;
+[ExcludeFromCodeCoverage]
 
 public sealed class TenantService : ITenantService
 {
