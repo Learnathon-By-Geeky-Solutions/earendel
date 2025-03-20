@@ -8,9 +8,12 @@ using Microsoft.Extensions.Options;
 using System.Collections.Generic;
 using System.Reflection.Emit;
 using TalentMesh.Module.Evaluator.Domain;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Module.Evaluator.Infrastructure.Persistence
 {
+    [ExcludeFromCodeCoverage]
+
     public sealed class EvaluatorDbContext : TMDbContext
     {
         public EvaluatorDbContext(

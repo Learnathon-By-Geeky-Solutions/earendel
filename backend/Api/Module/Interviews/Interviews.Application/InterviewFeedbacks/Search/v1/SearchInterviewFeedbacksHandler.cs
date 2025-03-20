@@ -4,9 +4,11 @@ using TalentMesh.Module.Interviews.Domain;
 using TalentMesh.Module.Interviews.Application.InterviewFeedbacks.Get.v1;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Module.Interviews.Application.InterviewFeedbacks.Search.v1;
 
+[ExcludeFromCodeCoverage]
 public sealed class SearchInterviewFeedbacksHandler(
     [FromKeyedServices("interviewfeedbacks:interviewfeedbackReadOnly")] IReadRepository<InterviewFeedback> repository)
     : IRequestHandler<SearchInterviewFeedbacksCommand, PagedList<InterviewFeedbackResponse>>

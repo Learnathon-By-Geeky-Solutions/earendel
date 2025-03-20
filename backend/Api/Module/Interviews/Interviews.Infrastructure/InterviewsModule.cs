@@ -8,8 +8,11 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Module.Interviews.Infrastructure;
+[ExcludeFromCodeCoverage]
+
 public static class InterviewsModule
 {
     public class Endpoints : CarterModule

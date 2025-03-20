@@ -1,8 +1,10 @@
 using TalentMesh.Module.Interviews.Domain;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Module.Interviews.Infrastructure.Persistence.Configurations;
+[ExcludeFromCodeCoverage]
 
 internal sealed class InterviewQuestionConfiguration : IEntityTypeConfiguration<InterviewQuestion>
 {

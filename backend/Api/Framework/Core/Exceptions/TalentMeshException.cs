@@ -1,6 +1,8 @@
 ﻿using System.Net;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Framework.Core.Exceptions;
+[ExcludeFromCodeCoverage]
 public class TalentMeshException : Exception
 {
     public IEnumerable<string> ErrorMessages { get; }

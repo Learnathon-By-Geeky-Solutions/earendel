@@ -1,7 +1,9 @@
 using FluentValidation;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Module.Interviews.Application.InterviewFeedbacks.Update.v1;
 
+[ExcludeFromCodeCoverage]
 public class UpdateInterviewFeedbackCommandValidator : AbstractValidator<UpdateInterviewFeedbackCommand>
 {
     public UpdateInterviewFeedbackCommandValidator()

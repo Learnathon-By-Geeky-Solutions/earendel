@@ -7,8 +7,10 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Module.Experties.Infrastructure.Endpoints.v1;
+[ExcludeFromCodeCoverage]
 
 public static class SearchSkillsEndpoint
 {

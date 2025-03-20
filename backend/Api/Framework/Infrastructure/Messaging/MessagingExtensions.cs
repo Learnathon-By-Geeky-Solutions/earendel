@@ -3,9 +3,12 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using RabbitMQ.Client;
 using TalentMesh.Framework.Core.Exceptions;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Framework.Infrastructure.Messaging
 {
+    [ExcludeFromCodeCoverage]
+
     public static class MessagingExtensions
     {
         public static IServiceCollection ConfigureRabbitMQ(this IServiceCollection services, IConfiguration configuration)

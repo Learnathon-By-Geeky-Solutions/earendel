@@ -2,10 +2,14 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Framework.Infrastructure.Caching;
+[ExcludeFromCodeCoverage]
+
 internal static class Extensions
 {
+
     private static readonly ILogger _logger = Log.ForContext(typeof(Extensions));
     internal static IServiceCollection ConfigureCaching(this IServiceCollection services, IConfiguration configuration)
     {

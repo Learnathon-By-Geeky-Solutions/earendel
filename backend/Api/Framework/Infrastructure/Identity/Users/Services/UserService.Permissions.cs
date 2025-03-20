@@ -2,8 +2,10 @@
 using TalentMesh.Framework.Core.Exceptions;
 using TalentMesh.Shared.Authorization;
 using Microsoft.EntityFrameworkCore;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Framework.Infrastructure.Identity.Users.Services;
+
 internal sealed partial class UserService
 {
     public async Task<List<string>?> GetPermissionsAsync(string userId, CancellationToken cancellationToken)

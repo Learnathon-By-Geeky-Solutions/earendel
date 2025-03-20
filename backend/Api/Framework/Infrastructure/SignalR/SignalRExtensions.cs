@@ -1,9 +1,12 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Framework.Infrastructure.SignalR
 {
+    [ExcludeFromCodeCoverage]
+
     public static class SignalRExtensions
     {
         // Register SignalR services

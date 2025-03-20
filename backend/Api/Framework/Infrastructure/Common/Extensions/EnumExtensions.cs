@@ -2,9 +2,11 @@
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Text.RegularExpressions;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Framework.Infrastructure.Common.Extensions
 {
+    [ExcludeFromCodeCoverage]
     public static class EnumExtensions
     {
         private static readonly TimeSpan RegexTimeout = TimeSpan.FromMilliseconds(500); // Set a reasonable timeout

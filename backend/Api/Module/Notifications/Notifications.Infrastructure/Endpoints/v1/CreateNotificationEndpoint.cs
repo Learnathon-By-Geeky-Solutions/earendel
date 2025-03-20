@@ -4,8 +4,11 @@ using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Module.Notifications.Infrastructure.Endpoints.v1;
+[ExcludeFromCodeCoverage]
+
 public static class CreateNotificationEndpoint
 {
     internal static RouteHandlerBuilder MapNotificationCreationEndpoint(this IEndpointRouteBuilder endpoints)

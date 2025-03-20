@@ -11,8 +11,11 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using IdentityConstants = TalentMesh.Shared.Authorization.IdentityConstants;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Framework.Infrastructure.Identity.Persistence;
+[ExcludeFromCodeCoverage]
+
 internal sealed class IdentityDbInitializer(
     ILogger<IdentityDbInitializer> logger,
     IdentityDbContext context,

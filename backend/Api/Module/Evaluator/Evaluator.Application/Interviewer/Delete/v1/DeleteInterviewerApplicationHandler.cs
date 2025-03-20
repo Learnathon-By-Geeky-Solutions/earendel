@@ -17,7 +17,7 @@ namespace TalentMesh.Module.Evaluator.Application.Interviewer.Delete.v1
         {
             ArgumentNullException.ThrowIfNull(request);
             var application = await repository.GetByIdAsync(request.Id, cancellationToken);
-            if (application.IsDeletedOrNotFound())
+            if (application == null)
                 throw new InterviewerApplicationNotFoundException(request.Id);
 
             await repository.DeleteAsync(application, cancellationToken);

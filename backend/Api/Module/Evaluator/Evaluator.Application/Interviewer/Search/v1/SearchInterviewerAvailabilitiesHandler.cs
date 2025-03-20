@@ -7,9 +7,11 @@ using System.Threading.Tasks;
 using Evaluator.Application.Interviewer.Get.v1;
 using TalentMesh.Module.Evaluator.Application.Interviewer.Search.v1;
 using TalentMesh.Module.Evaluator.Domain;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Module.Evaluator.Application.Interviewer.Search.v1
 {
+    [ExcludeFromCodeCoverage]
     public sealed class SearchInterviewerAvailabilitiesHandler(
         [FromKeyedServices("interviews:intervieweravailabilityReadOnly")] IReadRepository<InterviewerAvailability> repository)
         : IRequestHandler<SearchInterviewerAvailabilitiesCommand, PagedList<InterviewerAvailabilityResponse>>

@@ -1,7 +1,10 @@
 ﻿using Serilog;
 using Serilog.Core;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Framework.Infrastructure.Logging.Serilog;
+
+[ExcludeFromCodeCoverage]
 
 public static class StaticLogger
 {

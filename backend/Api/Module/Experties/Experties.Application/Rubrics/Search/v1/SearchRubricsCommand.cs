@@ -1,8 +1,11 @@
 using TalentMesh.Framework.Core.Paging;
 using TalentMesh.Module.Experties.Application.Rubrics.Get.v1;
 using MediatR;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Module.Experties.Application.Rubrics.Search.v1;
+
+[ExcludeFromCodeCoverage]
 
 public class SearchRubricsCommand : PaginationFilter, IRequest<PagedList<RubricResponse>>
 {

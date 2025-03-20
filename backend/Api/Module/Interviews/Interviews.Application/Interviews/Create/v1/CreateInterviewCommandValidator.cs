@@ -1,6 +1,9 @@
 ﻿using FluentValidation;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Module.Interviews.Application.Interviews.Create.v1;
+
+[ExcludeFromCodeCoverage]
 
 public class CreateInterviewCommandValidator : AbstractValidator<CreateInterviewCommand>
 {

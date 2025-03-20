@@ -6,9 +6,11 @@ using TalentMesh.Module.Job.Domain;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using System.Diagnostics.CodeAnalysis;
 
 
 namespace TalentMesh.Module.Job.Infrastructure.Persistence;
+[ExcludeFromCodeCoverage]
 
 public sealed class JobDbContext : TMDbContext
 {

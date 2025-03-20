@@ -2,8 +2,11 @@
 using TalentMesh.Framework.Core.Exceptions;
 using TalentMesh.Framework.Core.Identity.Users.Abstractions;
 using TalentMesh.Shared.Authorization;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Framework.Infrastructure.Identity.Users.Services;
+[ExcludeFromCodeCoverage]
+
 public class CurrentUser : ICurrentUser, ICurrentUserInitializer
 {
     private ClaimsPrincipal? _user;

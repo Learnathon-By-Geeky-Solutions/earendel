@@ -1,7 +1,7 @@
 ﻿using TalentMesh.Framework.Core.Domain.Contracts;
-
+using System.Diagnostics.CodeAnalysis;
 namespace TalentMesh.Framework.Core.Domain;
-
+[ExcludeFromCodeCoverage]
 public class AuditableEntity<TId> : BaseEntity<TId>, IAuditable, ISoftDeletable
 {
     public DateTimeOffset Created { get; set; }
@@ -13,6 +13,7 @@ public class AuditableEntity<TId> : BaseEntity<TId>, IAuditable, ISoftDeletable
     
 
 }
+[ExcludeFromCodeCoverage]
 
 public abstract class AuditableEntity : AuditableEntity<Guid>
 {

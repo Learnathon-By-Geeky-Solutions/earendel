@@ -2,9 +2,11 @@
 using TalentMesh.Framework.Core.Paging;
 using TalentMesh.Framework.Core.Specifications;
 using TalentMesh.Module.Candidate.Application.CandidateProfile.Get.v1;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Module.Candidate.Application.CandidateProfile.Search.v1;
 
+[ExcludeFromCodeCoverage]
 public class SearchCandidateProfileSpecs : EntitiesByPaginationFilterSpec<Domain.CandidateProfile, CandidateProfileResponse>
 {
     public SearchCandidateProfileSpecs(SearchCandidateProfileCommand command)

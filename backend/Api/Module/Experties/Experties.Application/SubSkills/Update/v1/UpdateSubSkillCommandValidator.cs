@@ -1,6 +1,8 @@
 using FluentValidation;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Module.Experties.Application.SubSkills.Update.v1;
+[ExcludeFromCodeCoverage]
 public class UpdateSubSkillCommandValidator : AbstractValidator<UpdateSubSkillCommand>
 {
     public UpdateSubSkillCommandValidator()

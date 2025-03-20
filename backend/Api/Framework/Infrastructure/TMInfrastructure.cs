@@ -1,4 +1,7 @@
-﻿namespace TalentMesh.Framework.Infrastructure;
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace TalentMesh.Framework.Infrastructure;
+[ExcludeFromCodeCoverage]
 
 public static class TMInfrastructure
 {

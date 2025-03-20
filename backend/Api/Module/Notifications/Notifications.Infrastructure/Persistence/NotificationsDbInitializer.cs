@@ -3,9 +3,12 @@ using TalentMesh.Module.Notifications.Domain;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using TalentMesh.Module.Notifications.Infrastructure.Persistence;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Module.Notifications.Infrastructure.Persistence
 {
+    [ExcludeFromCodeCoverage]
+
     internal sealed class NotificationsDbInitializer(
         ILogger<NotificationsDbInitializer> logger,
         NotificationsDbContext context) : IDbInitializer

@@ -6,8 +6,10 @@ using TalentMesh.Framework.Core.Identity.Users.Features.ForgotPassword;
 using TalentMesh.Framework.Core.Identity.Users.Features.ResetPassword;
 using TalentMesh.Framework.Core.Mail;
 using Microsoft.AspNetCore.WebUtilities;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Framework.Infrastructure.Identity.Users.Services;
+
 internal sealed partial class UserService
 {
     public async Task ForgotPasswordAsync(ForgotPasswordCommand request, string origin, CancellationToken cancellationToken)

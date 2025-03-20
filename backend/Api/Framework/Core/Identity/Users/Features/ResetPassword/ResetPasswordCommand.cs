@@ -1,4 +1,7 @@
-﻿namespace TalentMesh.Framework.Core.Identity.Users.Features.ResetPassword;
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace TalentMesh.Framework.Core.Identity.Users.Features.ResetPassword;
+[ExcludeFromCodeCoverage]
 public class ResetPasswordCommand
 {
     public string Email { get; set; } = default!;

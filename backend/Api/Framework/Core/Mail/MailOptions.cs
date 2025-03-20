@@ -1,4 +1,7 @@
-﻿namespace TalentMesh.Framework.Core.Mail;
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace TalentMesh.Framework.Core.Mail;
+[ExcludeFromCodeCoverage]
 public class MailOptions
 {
     public string? From { get; set; }

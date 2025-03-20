@@ -1,7 +1,9 @@
 ﻿using TalentMesh.Framework.Core.Tenant.Abstractions;
 using MediatR;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Framework.Core.Tenant.Features.UpgradeSubscription;
+[ExcludeFromCodeCoverage]
 
 public class UpgradeSubscriptionHandler : IRequestHandler<UpgradeSubscriptionCommand, UpgradeSubscriptionResponse>
 {

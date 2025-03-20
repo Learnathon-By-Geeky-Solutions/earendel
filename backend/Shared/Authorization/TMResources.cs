@@ -1,4 +1,8 @@
 ﻿namespace TalentMesh.Shared.Authorization;
+using System.Diagnostics.CodeAnalysis;
+
+[ExcludeFromCodeCoverage]
+
 public static class TMResources
 {
     public const string Tenants = nameof(Tenants);

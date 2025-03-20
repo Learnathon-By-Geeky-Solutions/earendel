@@ -3,8 +3,11 @@ using TalentMesh.Framework.Core.Paging;
 using TalentMesh.Framework.Core.Specifications;
 using TalentMesh.Module.Experties.Application.SeniorityLevelJunctions.Get.v1;
 using TalentMesh.Module.Experties.Domain;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Module.Experties.Application.SeniorityLevelJunctions.Search.v1;
+[ExcludeFromCodeCoverage]
+
 public class SearchSeniorityLevelJunctionSpecs : EntitiesByPaginationFilterSpec<Experties.Domain.SeniorityLevelJunction, SeniorityLevelJunctionResponse>
 {
     public SearchSeniorityLevelJunctionSpecs(SearchSeniorityLevelJunctionCommand command)

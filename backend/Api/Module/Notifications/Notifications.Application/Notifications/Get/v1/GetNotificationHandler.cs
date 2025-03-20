@@ -21,7 +21,7 @@ public sealed class GetNotificationHandler(
             async () =>
             {
                 var notificationItem = await repository.GetByIdAsync(request.Id, cancellationToken);
-                if (notificationItem == null || notificationItem.DeletedBy != Guid.Empty)
+                if (notificationItem == null)
                     throw new NotificationNotFoundException(request.Id);
 
                 return new NotificationResponse(

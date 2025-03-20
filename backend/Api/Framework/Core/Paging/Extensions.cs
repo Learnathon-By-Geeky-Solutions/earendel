@@ -1,6 +1,8 @@
 ﻿using Ardalis.Specification;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Framework.Core.Paging;
+[ExcludeFromCodeCoverage]
 public static class Extensions
 {
     public static async Task<PagedList<TDestination>> PaginatedListAsync<T, TDestination>(

@@ -1,5 +1,8 @@
-﻿namespace TalentMesh.Framework.Infrastructure.Cors;
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace TalentMesh.Framework.Infrastructure.Cors;
 using System.Collections.ObjectModel;
+[ExcludeFromCodeCoverage]
 
 public class CorsOptions
 {

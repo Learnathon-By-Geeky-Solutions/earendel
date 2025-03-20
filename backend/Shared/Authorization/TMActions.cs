@@ -1,4 +1,8 @@
 ﻿namespace TalentMesh.Shared.Authorization;
+using System.Diagnostics.CodeAnalysis;
+
+[ExcludeFromCodeCoverage]
+
 public static class TMActions
 {
     public const string View = nameof(View);

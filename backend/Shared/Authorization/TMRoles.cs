@@ -1,6 +1,8 @@
 using System.Collections.ObjectModel;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Shared.Authorization;
+[ExcludeFromCodeCoverage]
 
 public static class TMRoles
 {

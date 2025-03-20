@@ -4,9 +4,12 @@ using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Module.Job.Infrastructure.Endpoints.v1
 {
+    [ExcludeFromCodeCoverage]
+
     public static class UpdateJobRequiredSubskillEndpoint
     {
         internal static RouteHandlerBuilder MapJobRequiredSubskillUpdateEndpoint(this IEndpointRouteBuilder endpoints)

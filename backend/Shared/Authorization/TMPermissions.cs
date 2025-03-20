@@ -1,6 +1,8 @@
 using System.Collections.ObjectModel;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Shared.Authorization;
+[ExcludeFromCodeCoverage]
 
 public static class TMPermissions
 {
@@ -61,6 +63,7 @@ public static class TMPermissions
     public static IReadOnlyList<FshPermission> Admin { get; } = new ReadOnlyCollection<FshPermission>(AllPermissions.Where(p => !p.IsRoot).ToArray());
     public static IReadOnlyList<FshPermission> Basic { get; } = new ReadOnlyCollection<FshPermission>(AllPermissions.Where(p => p.IsBasic).ToArray());
 }
+[ExcludeFromCodeCoverage]
 
 public record FshPermission(string Description, string Action, string Resource, bool IsBasic = false, bool IsRoot = false)
 {

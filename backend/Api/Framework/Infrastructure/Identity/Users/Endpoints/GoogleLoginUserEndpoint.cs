@@ -7,8 +7,11 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using TalentMesh.Framework.Infrastructure.Identity.Tokens.Endpoints;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Framework.Infrastructure.Identity.Users.Endpoints;
+[ExcludeFromCodeCoverage]
+
 public static class GoogleLoginUserEndpoint
 {
     internal static RouteHandlerBuilder MapGoogleLoginUserEndpoint(this IEndpointRouteBuilder endpoints)

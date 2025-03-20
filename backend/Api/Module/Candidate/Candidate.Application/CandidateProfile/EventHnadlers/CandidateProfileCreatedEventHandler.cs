@@ -1,8 +1,11 @@
 ﻿using MediatR;
 using Microsoft.Extensions.Logging;
 using TalentMesh.Module.Candidate.Domain.Events;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Module.Candidate.Application.CandidateProfile.EventHnadlers;
+
+[ExcludeFromCodeCoverage]
 
 class CandidateProfileCreatedEventHandler(ILogger<CandidateProfileCreatedEventHandler> logger) : INotificationHandler<CandidateProfileCreated>
 {

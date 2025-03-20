@@ -1,8 +1,8 @@
 ﻿using System.Collections.ObjectModel;
+using System.Diagnostics.CodeAnalysis;
 using TalentMesh.Framework.Core.Domain.Events;
 
 namespace TalentMesh.Framework.Core.Domain.Contracts;
-
 public interface IEntity
 {
     Collection<DomainEvent> DomainEvents { get; }

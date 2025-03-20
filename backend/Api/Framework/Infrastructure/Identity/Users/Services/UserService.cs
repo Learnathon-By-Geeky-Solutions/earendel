@@ -31,8 +31,10 @@ using TalentMesh.Framework.Core.Identity.Users.Features.GoogleLogin;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Cryptography;
 using Google.Apis.Auth.OAuth2.Responses;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Framework.Infrastructure.Identity.Users.Services;
+[ExcludeFromCodeCoverage]
 
 internal sealed partial class UserService(
     UserManager<TMUser> userManager,

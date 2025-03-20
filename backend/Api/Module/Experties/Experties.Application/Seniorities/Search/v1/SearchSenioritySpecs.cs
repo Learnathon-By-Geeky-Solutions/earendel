@@ -3,8 +3,11 @@ using TalentMesh.Framework.Core.Paging;
 using TalentMesh.Framework.Core.Specifications;
 using TalentMesh.Module.Experties.Application.Seniorities.Get.v1;
 using TalentMesh.Module.Experties.Domain;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Module.Experties.Application.Seniorities.Search.v1;
+
+[ExcludeFromCodeCoverage]
 public class SearchSenioritySpecs : EntitiesByPaginationFilterSpec<Experties.Domain.Seniority, SeniorityResponse>
 {
     public SearchSenioritySpecs(SearchSenioritiesCommand command)

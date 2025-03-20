@@ -8,9 +8,11 @@ using Microsoft.Extensions.DependencyInjection;
 using TalentMesh.Module.Evaluator.Domain;
 using TalentMesh.Module.Evaluator.Infrastructure.Endpoints.v1;
 using TalentMesh.Module.Evaluator.Infrastructure.Persistence;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Module.Interviews.Infrastructure
 {
+    [ExcludeFromCodeCoverage]
     public static class EvaluatorModule
     {
         public class Endpoints : CarterModule

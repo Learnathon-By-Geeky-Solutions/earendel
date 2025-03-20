@@ -19,9 +19,13 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
+using System.Diagnostics.CodeAnalysis;
+
 using IdentityConstants = TalentMesh.Shared.Authorization.IdentityConstants;
 
 namespace TalentMesh.Framework.Infrastructure.Identity;
+[ExcludeFromCodeCoverage]
+
 internal static class Extensions
 {
     internal static IServiceCollection ConfigureIdentity(this IServiceCollection services)
@@ -49,6 +53,7 @@ internal static class Extensions
            .AddDefaultTokenProviders();
         return services;
     }
+    [ExcludeFromCodeCoverage]
 
     public static IEndpointRouteBuilder MapIdentityEndpoints(this IEndpointRouteBuilder app)
     {

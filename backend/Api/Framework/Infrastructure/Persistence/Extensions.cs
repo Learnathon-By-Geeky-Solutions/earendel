@@ -6,8 +6,11 @@ using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Serilog;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Framework.Infrastructure.Persistence;
+[ExcludeFromCodeCoverage]
+
 public static class Extensions
 {
     private static readonly ILogger Logger = Log.ForContext(typeof(Extensions));

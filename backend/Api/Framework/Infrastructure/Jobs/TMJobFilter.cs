@@ -5,8 +5,10 @@ using Hangfire.Client;
 using Hangfire.Logging;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Framework.Infrastructure.Jobs;
+[ExcludeFromCodeCoverage]
 
 public class TMJobFilter : IClientFilter
 {

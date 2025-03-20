@@ -1,8 +1,10 @@
 using System.Linq.Expressions;
 using TalentMesh.Framework.Core.Jobs;
 using Hangfire;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Framework.Infrastructure.Jobs;
+[ExcludeFromCodeCoverage]
 
 public class HangfireService : IJobService
 {

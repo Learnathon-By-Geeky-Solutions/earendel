@@ -17,7 +17,7 @@ namespace TalentMesh.Module.Evaluator.Application.Interviewer.Delete.v1
         {
             ArgumentNullException.ThrowIfNull(request);
             var availability = await repository.GetByIdAsync(request.Id, cancellationToken);
-            if (availability.IsDeletedOrNotFound())
+            if (availability == null)
                 throw new InterviewerAvailabilityNotFoundException(request.Id);
 
             await repository.DeleteAsync(availability, cancellationToken);

@@ -1,7 +1,9 @@
 ﻿using FluentValidation;
-
+using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Module.Experties.Application.Seniorities.Create.v1;
+
+[ExcludeFromCodeCoverage]
 public class CreateSeniorityCommandValidator : AbstractValidator<CreateSeniorityCommand>
 {
     public CreateSeniorityCommandValidator()

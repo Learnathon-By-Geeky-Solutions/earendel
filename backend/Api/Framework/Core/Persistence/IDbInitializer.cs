@@ -1,4 +1,6 @@
-﻿namespace TalentMesh.Framework.Core.Persistence;
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace TalentMesh.Framework.Core.Persistence;
 public interface IDbInitializer
 {
     Task MigrateAsync(CancellationToken cancellationToken);

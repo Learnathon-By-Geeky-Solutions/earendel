@@ -1,4 +1,7 @@
-﻿namespace TalentMesh.Framework.Core.Identity.Tokens.Models;
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace TalentMesh.Framework.Core.Identity.Tokens.Models;
+[ExcludeFromCodeCoverage]
 public class TokenResponse
 {
     public string UserId { get; set; }

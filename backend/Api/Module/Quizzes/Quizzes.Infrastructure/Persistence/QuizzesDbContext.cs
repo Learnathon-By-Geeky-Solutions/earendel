@@ -6,8 +6,10 @@ using TalentMesh.Module.Quizzes.Domain;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Module.Quizzes.Infrastructure.Persistence;
+[ExcludeFromCodeCoverage]
 
 public sealed class QuizzesDbContext : TMDbContext
 {

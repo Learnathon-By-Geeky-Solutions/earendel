@@ -4,10 +4,11 @@ using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using Evaluator.Application.Interviewer.Get.v1;
 using TalentMesh.Module.Evaluator.Domain;
-
+using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Module.Evaluator.Application.Interviewer.Search.v1
 {
+    [ExcludeFromCodeCoverage]
     public sealed class SearchInterviewerApplicationsHandler(
         [FromKeyedServices("interviews:interviewerapplicationReadOnly")] IReadRepository<InterviewerApplication> repository)
         : IRequestHandler<SearchInterviewerApplicationsCommand, PagedList<InterviewerApplicationResponse>>

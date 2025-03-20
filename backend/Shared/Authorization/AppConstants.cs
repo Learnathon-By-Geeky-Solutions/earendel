@@ -1,6 +1,9 @@
 ﻿using System.Collections.ObjectModel;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Shared.Authorization;
+[ExcludeFromCodeCoverage]
+
 public static class AppConstants
 {
     public static readonly Collection<string> SupportedImageFormats =

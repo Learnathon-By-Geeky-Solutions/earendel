@@ -1,9 +1,11 @@
 ﻿using MediatR;
 using Microsoft.Extensions.Logging;
 using TalentMesh.Module.Evaluator.Domain.Events;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Evaluator.Application.Interviewer.EventHandlers.v1
 {
+    [ExcludeFromCodeCoverage]
     public class InterviewerEntryFormCreatedEventHandler(ILogger<InterviewerEntryFormCreatedEventHandler> logger)
         : INotificationHandler<InterviewerEntryFormCreated>
     {

@@ -1,7 +1,10 @@
 ﻿using FluentValidation;
-
+using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Module.Experties.Application.SubSkills.Create.v1;
+
+[ExcludeFromCodeCoverage]
+
 public class CreateSubSkillCommandValidator : AbstractValidator<CreateSubSkillCommand>
 {
     public CreateSubSkillCommandValidator()

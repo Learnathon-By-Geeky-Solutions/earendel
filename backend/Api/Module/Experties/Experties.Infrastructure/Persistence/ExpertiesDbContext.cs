@@ -6,9 +6,10 @@ using TalentMesh.Module.Experties.Domain;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
-
+using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Module.Experties.Infrastructure.Persistence;
+[ExcludeFromCodeCoverage]
 
 public sealed class ExpertiesDbContext : TMDbContext
 {

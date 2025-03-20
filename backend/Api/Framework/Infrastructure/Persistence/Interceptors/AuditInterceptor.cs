@@ -8,20 +8,26 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Framework.Infrastructure.Persistence.Interceptors;
+[ExcludeFromCodeCoverage]
+
 public class AuditInterceptor(ICurrentUser currentUser, TimeProvider timeProvider, IPublisher publisher) : SaveChangesInterceptor
 {
+    [ExcludeFromCodeCoverage]
 
     public override ValueTask<int> SavedChangesAsync(SaveChangesCompletedEventData eventData, int result, CancellationToken cancellationToken = default)
     {
         return base.SavedChangesAsync(eventData, result, cancellationToken);
     }
+    [ExcludeFromCodeCoverage]
 
     public override Task SaveChangesFailedAsync(DbContextErrorEventData eventData, CancellationToken cancellationToken = default)
     {
         return base.SaveChangesFailedAsync(eventData, cancellationToken);
     }
+    [ExcludeFromCodeCoverage]
 
     public override async ValueTask<InterceptionResult<int>> SavingChangesAsync(DbContextEventData eventData, InterceptionResult<int> result, CancellationToken cancellationToken = default)
     {
@@ -29,6 +35,7 @@ public class AuditInterceptor(ICurrentUser currentUser, TimeProvider timeProvide
         await PublishAuditTrailsAsync(eventData);
         return await base.SavingChangesAsync(eventData, result, cancellationToken);
     }
+    [ExcludeFromCodeCoverage]
 
     private async Task PublishAuditTrailsAsync(DbContextEventData eventData)
     {
@@ -108,6 +115,7 @@ public class AuditInterceptor(ICurrentUser currentUser, TimeProvider timeProvide
         }
         await publisher.Publish(new AuditPublishedEvent(auditTrails));
     }
+    [ExcludeFromCodeCoverage]
 
     public void UpdateEntities(DbContext? context)
     {
@@ -134,6 +142,7 @@ public class AuditInterceptor(ICurrentUser currentUser, TimeProvider timeProvide
         }
     }
 }
+[ExcludeFromCodeCoverage]
 
 public static class Extensions
 {

@@ -2,9 +2,12 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using TalentMesh.Module.Evaluator.Domain;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Module.Evaluator.Infrastructure.Persistence.Configurations
 {
+    [ExcludeFromCodeCoverage]
+
     internal sealed class InterviewerEntryFormConfiguration : IEntityTypeConfiguration<InterviewerEntryForm>
     {
         public void Configure(EntityTypeBuilder<InterviewerEntryForm> builder)

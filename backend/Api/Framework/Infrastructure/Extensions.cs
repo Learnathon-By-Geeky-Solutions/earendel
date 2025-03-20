@@ -28,8 +28,11 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
 using TalentMesh.Framework.Infrastructure.Messaging;
 using TalentMesh.Framework.Infrastructure.SignalR;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Framework.Infrastructure;
+[ExcludeFromCodeCoverage]
+
 public static class Extensions
 {
     public static WebApplicationBuilder ConfigureTMFramework(this WebApplicationBuilder builder)

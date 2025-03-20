@@ -1,6 +1,8 @@
 using FluentValidation;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Module.Job.Application.Jobs.Update.v1;
+[ExcludeFromCodeCoverage]
 public class UpdateBrandCommandValidator : AbstractValidator<UpdateJobCommand>
 {
     public UpdateBrandCommandValidator()

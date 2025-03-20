@@ -5,10 +5,12 @@ on:
     branches:
       - main
       - development
+      - feature/code-coverage
   pull_request:
     branches:
       - main
       - development
+      - feature/code-coverage
 
 jobs:
   build:

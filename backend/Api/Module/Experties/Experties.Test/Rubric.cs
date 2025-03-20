@@ -6,180 +6,248 @@ using TalentMesh.Module.Experties.Application.Rubrics.Search.v1;
 using TalentMesh.Module.Experties.Application.Rubrics.Update.v1;
 using TalentMesh.Module.Experties.Domain.Exceptions;
 using TalentMesh.Framework.Core.Paging;
-using MediatR;
+using TalentMesh.Module.Experties.Domain;
+using TalentMesh.Framework.Core.Persistence;
+using Microsoft.Extensions.Logging;
+using TalentMesh.Framework.Core.Caching;
 
 namespace TalentMesh.Module.Experties.Tests
 {
     public class RubricHandlerTests
     {
-        private readonly Mock<ISender> _mediatorMock;
+        private readonly Mock<IRepository<Rubric>> _repositoryMock;
+        private readonly Mock<IReadRepository<Rubric>> _readRepositoryMock;
+        private readonly Mock<ICacheService> _cacheServiceMock;
+        private readonly Mock<ILogger<CreateRubricHandler>> _createLoggerMock;
+        private readonly Mock<ILogger<DeleteRubricHandler>> _deleteLoggerMock;
+        private readonly Mock<ILogger<GetRubricHandler>> _getLoggerMock;
+        private readonly Mock<ILogger<SearchRubricsHandler>> _searchLoggerMock;
+        private readonly Mock<ILogger<UpdateRubricHandler>> _updateLoggerMock;
+
+        private readonly CreateRubricHandler _createHandler;
+        private readonly DeleteRubricHandler _deleteHandler;
+        private readonly GetRubricHandler _getHandler;
+        private readonly SearchRubricsHandler _searchHandler;
+        private readonly UpdateRubricHandler _updateHandler;
 
         public RubricHandlerTests()
         {
-            _mediatorMock = new Mock<ISender>();
+            _repositoryMock = new Mock<IRepository<Rubric>>();
+            _readRepositoryMock = new Mock<IReadRepository<Rubric>>();
+            _cacheServiceMock = new Mock<ICacheService>();
+            _createLoggerMock = new Mock<ILogger<CreateRubricHandler>>();
+            _deleteLoggerMock = new Mock<ILogger<DeleteRubricHandler>>();
+            _getLoggerMock = new Mock<ILogger<GetRubricHandler>>();
+            _searchLoggerMock = new Mock<ILogger<SearchRubricsHandler>>();
+            _updateLoggerMock = new Mock<ILogger<UpdateRubricHandler>>();
+
+            _createHandler = new CreateRubricHandler(_createLoggerMock.Object, _repositoryMock.Object);
+            _deleteHandler = new DeleteRubricHandler(_deleteLoggerMock.Object, _repositoryMock.Object);
+            _getHandler = new GetRubricHandler(_readRepositoryMock.Object, _cacheServiceMock.Object);
+            _searchHandler = new SearchRubricsHandler(_readRepositoryMock.Object);
+            _updateHandler = new UpdateRubricHandler(_updateLoggerMock.Object, _repositoryMock.Object);
+
         }
 
         [Fact]
         public async Task CreateRubric_ReturnsRubricResponse()
         {
+            // Arrange
             var subSkillId = Guid.NewGuid();
             var seniorityLevelId = Guid.NewGuid();
             var request = new CreateRubricCommand(subSkillId, seniorityLevelId, "Effective C#", "C# advanced topics", 0.8m);
-            var expectedId = Guid.NewGuid();
-            var response = new CreateRubricResponse(expectedId);
+            var expectedRubric = Rubric.Create(request.Title!, request.RubricDescription!, subSkillId, seniorityLevelId, request.Weight);
 
-            _mediatorMock
-                .Setup(m => m.Send(request, It.IsAny<CancellationToken>()))
-                .ReturnsAsync(response);
+            _repositoryMock.Setup(repo => repo.AddAsync(It.IsAny<Rubric>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(expectedRubric);
 
-            var result = await _mediatorMock.Object.Send(request);
+            // Act
+            var result = await _createHandler.Handle(request, CancellationToken.None);
 
+            // Assert
             Assert.NotNull(result);
-            Assert.Equal(expectedId, result.Id);
-            Assert.IsType<CreateRubricResponse>(result);
-
-            _mediatorMock.Verify(m => m.Send(It.IsAny<CreateRubricCommand>(), It.IsAny<CancellationToken>()), Times.Once);
+            _repositoryMock.Verify(repo => repo.AddAsync(It.IsAny<Rubric>(), It.IsAny<CancellationToken>()), Times.Once);
         }
 
         [Fact]
         public async Task DeleteRubric_DeletesSuccessfully()
         {
-            var rubricId = Guid.NewGuid();
+            // Arrange
+            var existingRubric = Rubric.Create("Effective C#", "C# advanced topics", Guid.NewGuid(), Guid.NewGuid(), 0.8m);
+            var rubricId = existingRubric.Id;
 
-            _mediatorMock
-                .Setup(m => m.Send(It.IsAny<DeleteRubricCommand>(), It.IsAny<CancellationToken>()))
-                .Returns(Task.CompletedTask);
+            _repositoryMock.Setup(repo => repo.GetByIdAsync(rubricId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(existingRubric);
 
-            await _mediatorMock.Object.Send(new DeleteRubricCommand(rubricId));
+            // Act
+            await _deleteHandler.Handle(new DeleteRubricCommand(rubricId), CancellationToken.None);
 
-            _mediatorMock.Verify(m => m.Send(It.IsAny<DeleteRubricCommand>(), It.IsAny<CancellationToken>()), Times.Once);
+            // Assert
+            _repositoryMock.Verify(repo => repo.DeleteAsync(existingRubric, It.IsAny<CancellationToken>()), Times.Once);
+            _repositoryMock.Verify(repo => repo.GetByIdAsync(rubricId, It.IsAny<CancellationToken>()), Times.Once);
         }
 
         [Fact]
         public async Task DeleteRubric_ThrowsExceptionIfNotFound()
         {
+            // Arrange
             var rubricId = Guid.NewGuid();
 
-            _mediatorMock
-                .Setup(m => m.Send(It.IsAny<DeleteRubricCommand>(), It.IsAny<CancellationToken>()))
-                .ThrowsAsync(new RubricNotFoundException(rubricId));
+            _repositoryMock.Setup(repo => repo.GetByIdAsync(rubricId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync((Rubric)null);
 
-            var exception = await Assert.ThrowsAsync<RubricNotFoundException>(() => _mediatorMock.Object.Send(new DeleteRubricCommand(rubricId)));
+            // Act & Assert
+            await Assert.ThrowsAsync<RubricNotFoundException>(() =>
+                _deleteHandler.Handle(new DeleteRubricCommand(rubricId), CancellationToken.None));
 
-            Assert.NotNull(exception);
-            Assert.IsType<RubricNotFoundException>(exception);
-
-            _mediatorMock.Verify(m => m.Send(It.IsAny<DeleteRubricCommand>(), It.IsAny<CancellationToken>()), Times.Once);
+            _repositoryMock.Verify(repo => repo.GetByIdAsync(rubricId, It.IsAny<CancellationToken>()), Times.Once);
         }
 
         [Fact]
         public async Task GetRubric_ReturnsRubricResponse()
         {
-            var rubricId = Guid.NewGuid();
-            var subSkillId = Guid.NewGuid();
-            var seniorityLevelId = Guid.NewGuid();
-            var expectedTitle = "Effective C#";
-            var expectedDescription = "C# advanced topics";
-            var expectedWeight = 0.8m;
-            var rubricResponse = new RubricResponse(rubricId, expectedTitle, expectedDescription, subSkillId, seniorityLevelId, expectedWeight);
+            // Arrange
+            var expectedRubric = Rubric.Create("Effective C#", "C# advanced topics", Guid.NewGuid(), Guid.NewGuid(), 0.8m);
+            var rubricId = expectedRubric.Id;
 
-            _mediatorMock
-                .Setup(m => m.Send(It.IsAny<GetRubricRequest>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(rubricResponse);
+            _readRepositoryMock.Setup(repo => repo.GetByIdAsync(rubricId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(expectedRubric);
 
-            var result = await _mediatorMock.Object.Send(new GetRubricRequest(rubricId));
+            _cacheServiceMock.Setup(cache => cache.GetAsync<RubricResponse>(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync((RubricResponse)null);
 
+            // Act
+            var result = await _getHandler.Handle(new GetRubricRequest(rubricId), CancellationToken.None);
+
+            // Assert
             Assert.NotNull(result);
-            Assert.Equal(rubricId, result.Id);
-            Assert.Equal(expectedTitle, result.Title);
-            Assert.Equal(expectedDescription, result.RubricDescription);
-            Assert.Equal(subSkillId, result.SubSkillId);
-            Assert.Equal(seniorityLevelId, result.SeniorityLevelId);
-            Assert.Equal(expectedWeight, result.Weight);
-            Assert.IsType<RubricResponse>(result);
+            Assert.Equal(expectedRubric.Id, result.Id);
+            Assert.Equal(expectedRubric.Title, result.Title);
+            Assert.Equal(expectedRubric.RubricDescription, result.RubricDescription);
 
-            _mediatorMock.Verify(m => m.Send(It.IsAny<GetRubricRequest>(), It.IsAny<CancellationToken>()), Times.Once);
+            _readRepositoryMock.Verify(repo => repo.GetByIdAsync(rubricId, It.IsAny<CancellationToken>()), Times.Once);
+            _cacheServiceMock.Verify(cache => cache.SetAsync(It.IsAny<string>(), It.IsAny<RubricResponse>(), It.IsAny<TimeSpan?>(), It.IsAny<CancellationToken>()), Times.Once);
         }
 
         [Fact]
         public async Task GetRubric_ThrowsExceptionIfNotFound()
         {
+            // Arrange
             var rubricId = Guid.NewGuid();
 
-            _mediatorMock
-                .Setup(m => m.Send(It.IsAny<GetRubricRequest>(), It.IsAny<CancellationToken>()))
-                .ThrowsAsync(new RubricNotFoundException(rubricId));
+            _readRepositoryMock.Setup(repo => repo.GetByIdAsync(rubricId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync((Rubric)null);
 
-            var exception = await Assert.ThrowsAsync<RubricNotFoundException>(() => _mediatorMock.Object.Send(new GetRubricRequest(rubricId)));
+            // Act & Assert
+            await Assert.ThrowsAsync<RubricNotFoundException>(() =>
+                _getHandler.Handle(new GetRubricRequest(rubricId), CancellationToken.None));
 
-            Assert.NotNull(exception);
-            Assert.IsType<RubricNotFoundException>(exception);
-
-            _mediatorMock.Verify(m => m.Send(It.IsAny<GetRubricRequest>(), It.IsAny<CancellationToken>()), Times.Once);
+            _readRepositoryMock.Verify(repo => repo.GetByIdAsync(rubricId, It.IsAny<CancellationToken>()), Times.Once);
         }
 
         [Fact]
         public async Task SearchRubrics_ReturnsPagedRubricResponse()
         {
-            var request = new SearchRubricsCommand { Title = "Effective", PageNumber = 1, PageSize = 10 };
-            var rubric1 = new RubricResponse(Guid.NewGuid(), "Effective C#", "C# advanced topics", Guid.NewGuid(), Guid.NewGuid(), 0.8m);
-            var rubric2 = new RubricResponse(Guid.NewGuid(), "Effective Java", "Java advanced topics", Guid.NewGuid(), Guid.NewGuid(), 0.9m);
-            var pagedList = new PagedList<RubricResponse>(new[] { rubric1, rubric2 }, 1, 10, 2);
+            // Arrange
+            var request = new SearchRubricsCommand
+            {
+                Title = "Effective",
+                PageNumber = 1,
+                PageSize = 10
+            };
 
-            _mediatorMock
-                .Setup(m => m.Send(It.IsAny<SearchRubricsCommand>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(pagedList);
+            // Create domain entities (Rubric), not DTOs
+            var rubric1 = Rubric.Create("Effective C#", "C# advanced topics", Guid.NewGuid(), Guid.NewGuid(), 0.8m);
+            var rubric2 = Rubric.Create("Effective Java", "Java advanced topics", Guid.NewGuid(), Guid.NewGuid(), 0.9m);
+            var rubrics = new List<RubricResponse>
+            {
+                new RubricResponse(Guid.NewGuid(), "Effective C#", "C# advanced topics", Guid.NewGuid(), Guid.NewGuid(), 0.8m),
+                new RubricResponse(Guid.NewGuid(), "Effective Java", "Java advanced topics", Guid.NewGuid(), Guid.NewGuid(), 0.9m)
+            };
+            var totalCount = rubrics.Count;
 
-            var result = await _mediatorMock.Object.Send(request);
+            // Mock returns List<Rubric> (domain entities)
+            _readRepositoryMock
+                .Setup(repo => repo.ListAsync(It.IsAny<SearchRubricSpecs>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(rubrics);
 
+            _readRepositoryMock
+                .Setup(repo => repo.CountAsync(It.IsAny<SearchRubricSpecs>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(totalCount);
+
+            // Act
+            var result = await _searchHandler.Handle(request, CancellationToken.None);
+
+            // Assert: Verify mapped DTOs
             Assert.NotNull(result);
             Assert.Equal(2, result.Items.Count);
-            Assert.Equal("Effective C#", result.Items[0].Title);
-            Assert.Equal("Effective Java", result.Items[1].Title);
-            Assert.IsType<PagedList<RubricResponse>>(result);
 
-            _mediatorMock.Verify(m => m.Send(It.IsAny<SearchRubricsCommand>(), It.IsAny<CancellationToken>()), Times.Once);
+            Assert.Contains(result.Items, item =>
+                item.Title == "Effective C#" &&
+                item.RubricDescription == "C# advanced topics"
+            );
+
+            Assert.Contains(result.Items, item =>
+                item.Title == "Effective Java" &&
+                item.RubricDescription == "Java advanced topics"
+            );
+
+            // Verify repository calls
+            _readRepositoryMock.Verify(repo =>
+                repo.ListAsync(It.IsAny<SearchRubricSpecs>(), It.IsAny<CancellationToken>()),
+                Times.Once
+            );
+
+            _readRepositoryMock.Verify(repo =>
+                repo.CountAsync(It.IsAny<SearchRubricSpecs>(), It.IsAny<CancellationToken>()),
+                Times.Once
+            );
         }
-
         [Fact]
         public async Task UpdateRubric_ReturnsUpdatedRubricResponse()
         {
-            var rubricId = Guid.NewGuid();
-            var subSkillId = Guid.NewGuid();
-            var seniorityLevelId = Guid.NewGuid();
-            var request = new UpdateRubricCommand(rubricId, subSkillId, seniorityLevelId, 1.0m, "Updated Effective C#", "Updated description");
-            var response = new UpdateRubricResponse(rubricId);
+            // Arrange
+            var existingRubric = Rubric.Create("Old Title", "Old Desc", Guid.NewGuid(), Guid.NewGuid(), 0.5m);
+            var rubricId = existingRubric.Id;
+            var request = new UpdateRubricCommand(
+                rubricId,
+                Guid.NewGuid(),
+                Guid.NewGuid(),
+                1.0m,
+                "Updated Title",
+                "Updated Desc"
+            );
 
-            _mediatorMock
-                .Setup(m => m.Send(It.IsAny<UpdateRubricCommand>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(response);
+            _repositoryMock.Setup(repo => repo.GetByIdAsync(rubricId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(existingRubric);
 
-            var result = await _mediatorMock.Object.Send(request);
+            // Act
+            var result = await _updateHandler.Handle(request, CancellationToken.None);
 
+            // Assert
             Assert.NotNull(result);
             Assert.Equal(rubricId, result.Id);
-            Assert.IsType<UpdateRubricResponse>(result);
 
-            _mediatorMock.Verify(m => m.Send(It.IsAny<UpdateRubricCommand>(), It.IsAny<CancellationToken>()), Times.Once);
+            _repositoryMock.Verify(repo => repo.GetByIdAsync(rubricId, It.IsAny<CancellationToken>()), Times.Once);
+            _repositoryMock.Verify(repo => repo.UpdateAsync(It.IsAny<Rubric>(), It.IsAny<CancellationToken>()), Times.Once);
         }
 
         [Fact]
         public async Task UpdateRubric_ThrowsExceptionIfNotFound()
         {
+            // Arrange
             var rubricId = Guid.NewGuid();
-            var subSkillId = Guid.NewGuid();
-            var seniorityLevelId = Guid.NewGuid();
-            var request = new UpdateRubricCommand(rubricId, subSkillId, seniorityLevelId, 1.0m, "Updated Effective C#", "Updated description");
-            _mediatorMock
-                .Setup(m => m.Send(It.IsAny<UpdateRubricCommand>(), It.IsAny<CancellationToken>()))
-                .ThrowsAsync(new RubricNotFoundException(rubricId));
+            var request = new UpdateRubricCommand(rubricId, Guid.NewGuid(), Guid.NewGuid(), 1.0m, "Title", "Desc");
 
-            var exception = await Assert.ThrowsAsync<RubricNotFoundException>(() => _mediatorMock.Object.Send(request));
+            _repositoryMock.Setup(repo => repo.GetByIdAsync(rubricId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync((Rubric)null);
 
-            Assert.NotNull(exception);
-            Assert.IsType<RubricNotFoundException>(exception);
+            // Act & Assert
+            await Assert.ThrowsAsync<RubricNotFoundException>(() =>
+                _updateHandler.Handle(request, CancellationToken.None));
 
-            _mediatorMock.Verify(m => m.Send(It.IsAny<UpdateRubricCommand>(), It.IsAny<CancellationToken>()), Times.Once);
+            _repositoryMock.Verify(repo => repo.GetByIdAsync(rubricId, It.IsAny<CancellationToken>()), Times.Once);
         }
     }
+
 }

@@ -6,9 +6,11 @@ using TalentMesh.Module.Notifications.Domain;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using System.Diagnostics.CodeAnalysis;
 
 
 namespace TalentMesh.Module.Notifications.Infrastructure.Persistence;
+[ExcludeFromCodeCoverage]
 
 public sealed class NotificationsDbContext : TMDbContext
 {

@@ -4,9 +4,11 @@ using TalentMesh.Framework.Core.Specifications;
 using System;
 using Evaluator.Application.Interviewer.Get.v1;
 using TalentMesh.Module.Evaluator.Domain;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Module.Evaluator.Application.Interviewer.Search.v1
 {
+    [ExcludeFromCodeCoverage]
     public class SearchInterviewerApplicationSpecs : EntitiesByPaginationFilterSpec<InterviewerApplication, InterviewerApplicationResponse>
     {
         public SearchInterviewerApplicationSpecs(SearchInterviewerApplicationsCommand command)

@@ -1,5 +1,7 @@
-﻿namespace TalentMesh.Framework.Core.Paging;
+﻿using System.Diagnostics.CodeAnalysis;
 
+namespace TalentMesh.Framework.Core.Paging;
+[ExcludeFromCodeCoverage]
 public class PaginationFilter : BaseFilter
 {
     public int PageNumber { get; set; }
@@ -7,6 +9,7 @@ public class PaginationFilter : BaseFilter
     public int PageSize { get; set; } = int.MaxValue;
     public string[]? OrderBy { get; set; }
 }
+[ExcludeFromCodeCoverage]
 
 public static class PaginationFilterExtensions
 {

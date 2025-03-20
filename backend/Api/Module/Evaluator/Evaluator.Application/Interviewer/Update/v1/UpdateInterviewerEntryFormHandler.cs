@@ -16,7 +16,7 @@ namespace TalentMesh.Module.Evaluator.Application.Interviewer.Update.v1
         {
             ArgumentNullException.ThrowIfNull(request);
             var entity = await repository.GetByIdAsync(request.Id, cancellationToken);
-            if (entity == null || entity.DeletedBy != Guid.Empty)
+            if (entity == null)
             {
                 throw new InterviewerEntryFormNotFoundException(request.Id);
             }

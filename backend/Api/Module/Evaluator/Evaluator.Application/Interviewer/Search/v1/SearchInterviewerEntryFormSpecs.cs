@@ -3,9 +3,11 @@ using Evaluator.Application.Interviewer.Get.v1;
 using TalentMesh.Framework.Core.Paging;
 using TalentMesh.Framework.Core.Specifications;
 using TalentMesh.Module.Evaluator.Domain;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Module.Evaluator.Application.Interviewer.Search.v1
 {
+    [ExcludeFromCodeCoverage]
     public class SearchInterviewerEntryFormSpecs : EntitiesByPaginationFilterSpec<InterviewerEntryForm, InterviewerEntryFormResponse>
     {
         public SearchInterviewerEntryFormSpecs(SearchInterviewerEntryFormsCommand command)

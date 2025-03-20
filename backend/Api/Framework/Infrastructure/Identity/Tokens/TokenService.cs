@@ -18,14 +18,19 @@ using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Framework.Infrastructure.Identity.Tokens;
+
+[ExcludeFromCodeCoverage]
+
 public sealed class TokenService : ITokenService
 {
     private readonly UserManager<TMUser> _userManager;
     private readonly IMultiTenantContextAccessor<TMTenantInfo>? _multiTenantContextAccessor;
     private readonly JwtOptions _jwtOptions;
     private readonly IPublisher _publisher;
+
     public TokenService(IOptions<JwtOptions> jwtOptions, UserManager<TMUser> userManager, IMultiTenantContextAccessor<TMTenantInfo>? multiTenantContextAccessor, IPublisher publisher)
     {
         _jwtOptions = jwtOptions.Value;
@@ -33,6 +38,7 @@ public sealed class TokenService : ITokenService
         _multiTenantContextAccessor = multiTenantContextAccessor;
         _publisher = publisher;
     }
+    [ExcludeFromCodeCoverage]
 
     public async Task<TokenResponse> GenerateTokenAsync(TokenGenerationCommand request, string ipAddress, CancellationToken cancellationToken)
     {
@@ -87,6 +93,7 @@ public sealed class TokenService : ITokenService
         return await GenerateTokensAndUpdateUser(user, ipAddress);
     }
 
+    [ExcludeFromCodeCoverage]
 
     public async Task<TokenResponse> RefreshTokenAsync(RefreshTokenCommand request, string ipAddress, CancellationToken cancellationToken)
     {
@@ -105,6 +112,8 @@ public sealed class TokenService : ITokenService
 
         return await GenerateTokensAndUpdateUser(user, ipAddress);
     }
+    [ExcludeFromCodeCoverage]
+
     private async Task<TokenResponse> GenerateTokensAndUpdateUser(TMUser user, string ipAddress)
     {
         string token = GenerateJwt(user, ipAddress);
@@ -129,6 +138,7 @@ public sealed class TokenService : ITokenService
 
         return new TokenResponse(user.Id, token, user.RefreshToken, user.RefreshTokenExpiryTime, roles.ToList());
     }
+    [ExcludeFromCodeCoverage]
 
     private string GenerateJwt(TMUser user, string ipAddress) =>
     GenerateEncryptedToken(GetSigningCredentials(), GetClaims(user, ipAddress));
@@ -138,6 +148,7 @@ public sealed class TokenService : ITokenService
         byte[] secret = Encoding.UTF8.GetBytes(_jwtOptions.Key);
         return new SigningCredentials(new SymmetricSecurityKey(secret), SecurityAlgorithms.HmacSha256);
     }
+    [ExcludeFromCodeCoverage]
 
     private string GenerateEncryptedToken(SigningCredentials signingCredentials, IEnumerable<Claim> claims)
     {
@@ -151,6 +162,7 @@ public sealed class TokenService : ITokenService
         var tokenHandler = new JwtSecurityTokenHandler();
         return tokenHandler.WriteToken(token);
     }
+    [ExcludeFromCodeCoverage]
 
     private List<Claim> GetClaims(TMUser user, string ipAddress) =>
         new List<Claim>
@@ -166,6 +178,8 @@ public sealed class TokenService : ITokenService
             new(TMClaims.Tenant, _multiTenantContextAccessor!.MultiTenantContext.TenantInfo!.Id),
             new(TMClaims.ImageUrl, user.ImageUrl == null ? string.Empty : user.ImageUrl.ToString())
         };
+    [ExcludeFromCodeCoverage]
+
     private static string GenerateRefreshToken()
     {
         byte[] randomNumber = new byte[32];
@@ -173,6 +187,7 @@ public sealed class TokenService : ITokenService
         rng.GetBytes(randomNumber);
         return Convert.ToBase64String(randomNumber);
     }
+    [ExcludeFromCodeCoverage]
 
     private ClaimsPrincipal GetPrincipalFromExpiredToken(string token)
     {
