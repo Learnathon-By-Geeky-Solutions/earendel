@@ -62,22 +62,22 @@ jobs:
       
       # Optional: Upload to SonarCloud
       - name: SonarCloud Analysis
-        if: ${{ secrets.SONARCLOUD_TOKEN != '' }}
+        if: ${{ secrets.SONAR_TOKEN != '' }}
         run: |
           dotnet tool install --global dotnet-sonarscanner
           dotnet sonarscanner begin /k:"YourProjectKey" /o:"YourOrgName" \
-            /d:sonar.token="${{ secrets.SONARCLOUD_TOKEN }}" \
+            /d:sonar.token="${{ secrets.SONAR_TOKEN }}" \
             /d:sonar.cs.vscoveragexml.reportsPaths="coverage/coverage.cobertura.xml"
           dotnet build backend/Aspire/Aspire.sln
-          dotnet sonarscanner end /d:sonar.token="${{ secrets.SONARCLOUD_TOKEN }}"
+          dotnet sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
 
-      # Optional: Upload to Codecov
-      - name: Upload Coverage to Codecov
-        if: ${{ secrets.CODECOV_TOKEN != '' }}
-        run: |
-          bash <(curl -s https://codecov.io/bash) -f "coverage/coverage.cobertura.xml"
-        env:
-          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+      # # Optional: Upload to Codecov
+      # - name: Upload Coverage to Codecov
+      #   if: ${{ secrets.CODECOV_TOKEN != '' }}
+      #   run: |
+      #     bash <(curl -s https://codecov.io/bash) -f "coverage/coverage.cobertura.xml"
+      #   env:
+      #     CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
 
   publish:
     name: Publish Application
