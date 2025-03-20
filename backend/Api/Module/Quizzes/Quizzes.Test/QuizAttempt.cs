@@ -11,16 +11,44 @@ using TalentMesh.Framework.Core.Paging;
 using MediatR;
 using TalentMesh.Module.Quizzes.Domain;
 using TalentMesh.Module.Quizzes.Domain.Exceptions;
+using Microsoft.Extensions.Logging;
 
 namespace TalentMesh.Module.Quizzes.Tests
 {
     public class QuizAttemptHandlerTests
     {
-        private readonly Mock<ISender> _mediatorMock;
+        private readonly Mock<IRepository<QuizAttempt>> _repositoryMock;
+        private readonly Mock<IReadRepository<QuizAttempt>> _readRepositoryMock;
+        private readonly Mock<ICacheService> _cacheServiceMock;
+        private readonly Mock<ILogger<CreateQuizAttemptHandler>> _createLoggerMock;
+        private readonly Mock<ILogger<DeleteQuizAttemptHandler>> _deleteLoggerMock;
+        private readonly Mock<ILogger<GetQuizAttemptHandler>> _getLoggerMock;
+        private readonly Mock<ILogger<SearchQuizAttemptsHandler>> _searchLoggerMock;
+        private readonly Mock<ILogger<UpdateQuizAttemptHandler>> _updateLoggerMock;
+
+        private readonly CreateQuizAttemptHandler _createHandler;
+        private readonly DeleteQuizAttemptHandler _deleteHandler;
+        private readonly GetQuizAttemptHandler _getHandler;
+        private readonly SearchQuizAttemptsHandler _searchHandler;
+        private readonly UpdateQuizAttemptHandler _updateHandler;
 
         public QuizAttemptHandlerTests()
         {
-            _mediatorMock = new Mock<ISender>();
+            _repositoryMock = new Mock<IRepository<QuizAttempt>>();
+            _readRepositoryMock = new Mock<IReadRepository<QuizAttempt>>();
+            _cacheServiceMock = new Mock<ICacheService>();
+            _createLoggerMock = new Mock<ILogger<CreateQuizAttemptHandler>>();
+            _deleteLoggerMock = new Mock<ILogger<DeleteQuizAttemptHandler>>();
+            _getLoggerMock = new Mock<ILogger<GetQuizAttemptHandler>>();
+            _searchLoggerMock = new Mock<ILogger<SearchQuizAttemptsHandler>>();
+            _updateLoggerMock = new Mock<ILogger<UpdateQuizAttemptHandler>>();
+
+            _createHandler = new CreateQuizAttemptHandler(_createLoggerMock.Object, _repositoryMock.Object);
+            _deleteHandler = new DeleteQuizAttemptHandler(_deleteLoggerMock.Object, _repositoryMock.Object);
+            _getHandler = new GetQuizAttemptHandler(_readRepositoryMock.Object, _cacheServiceMock.Object);
+            _searchHandler = new SearchQuizAttemptsHandler(_readRepositoryMock.Object);
+            _updateHandler = new UpdateQuizAttemptHandler(_updateLoggerMock.Object, _repositoryMock.Object);
+
         }
 
         [Fact]
@@ -28,39 +56,37 @@ namespace TalentMesh.Module.Quizzes.Tests
         {
             // Arrange
             var userId = Guid.NewGuid();
-            var request = new CreateQuizAttemptCommand(userId, 10, 8.5m);
-            var expectedId = Guid.NewGuid();
-            var response = new CreateQuizAttemptResponse(expectedId);
+            var quizId = Guid.NewGuid();
+            var request = new CreateQuizAttemptCommand(userId, 2, 0.8m);
+            var expectedQuizAttempt = QuizAttempt.Create(request.UserId!, request.Score, request.TotalQuestions!);
 
-            _mediatorMock
-                .Setup(m => m.Send(request, It.IsAny<CancellationToken>()))
-                .ReturnsAsync(response);
+            _repositoryMock.Setup(repo => repo.AddAsync(It.IsAny<QuizAttempt>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(expectedQuizAttempt);
 
             // Act
-            var result = await _mediatorMock.Object.Send(request);
+            var result = await _createHandler.Handle(request, CancellationToken.None);
 
             // Assert
             Assert.NotNull(result);
-            Assert.Equal(expectedId, result.Id);
-            Assert.IsType<CreateQuizAttemptResponse>(result);
-            _mediatorMock.Verify(m => m.Send(It.IsAny<CreateQuizAttemptCommand>(), It.IsAny<CancellationToken>()), Times.Once);
+            _repositoryMock.Verify(repo => repo.AddAsync(It.IsAny<QuizAttempt>(), It.IsAny<CancellationToken>()), Times.Once);
         }
 
         [Fact]
         public async Task DeleteQuizAttempt_DeletesSuccessfully()
         {
             // Arrange
-            var quizAttemptId = Guid.NewGuid();
-            var request = new DeleteQuizAttemptCommand(quizAttemptId);
-            _mediatorMock
-                .Setup(m => m.Send(request, It.IsAny<CancellationToken>()))
-                .Returns(Task.CompletedTask);
+            var existingQuizAttempt = QuizAttempt.Create(Guid.NewGuid(), 0.8m, 2);
+            var quizAttemptId = existingQuizAttempt.Id;
+
+            _repositoryMock.Setup(repo => repo.GetByIdAsync(quizAttemptId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(existingQuizAttempt);
 
             // Act
-            await _mediatorMock.Object.Send(request);
+            await _deleteHandler.Handle(new DeleteQuizAttemptCommand(quizAttemptId), CancellationToken.None);
 
             // Assert
-            _mediatorMock.Verify(m => m.Send(It.IsAny<DeleteQuizAttemptCommand>(), It.IsAny<CancellationToken>()), Times.Once);
+            _repositoryMock.Verify(repo => repo.DeleteAsync(existingQuizAttempt, It.IsAny<CancellationToken>()), Times.Once);
+            _repositoryMock.Verify(repo => repo.GetByIdAsync(quizAttemptId, It.IsAny<CancellationToken>()), Times.Once);
         }
 
         [Fact]
@@ -68,43 +94,42 @@ namespace TalentMesh.Module.Quizzes.Tests
         {
             // Arrange
             var quizAttemptId = Guid.NewGuid();
-            var request = new DeleteQuizAttemptCommand(quizAttemptId);
-            _mediatorMock
-                .Setup(m => m.Send(request, It.IsAny<CancellationToken>()))
-                .ThrowsAsync(new QuizAttemptNotFoundException(quizAttemptId));
+
+            _repositoryMock.Setup(repo => repo.GetByIdAsync(quizAttemptId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync((QuizAttempt)null);
 
             // Act & Assert
-            var exception = await Assert.ThrowsAsync<QuizAttemptNotFoundException>(() => _mediatorMock.Object.Send(request));
-            Assert.NotNull(exception);
-            Assert.Contains($"QuizAttempt with id {quizAttemptId} not found", exception.Message);
-            _mediatorMock.Verify(m => m.Send(It.IsAny<DeleteQuizAttemptCommand>(), It.IsAny<CancellationToken>()), Times.Once);
+            await Assert.ThrowsAsync<QuizAttemptNotFoundException>(() =>
+                _deleteHandler.Handle(new DeleteQuizAttemptCommand(quizAttemptId), CancellationToken.None));
+
+            _repositoryMock.Verify(repo => repo.GetByIdAsync(quizAttemptId, It.IsAny<CancellationToken>()), Times.Once);
         }
 
         [Fact]
         public async Task GetQuizAttempt_ReturnsQuizAttemptResponse()
         {
             // Arrange
-            var quizAttemptId = Guid.NewGuid();
-            var userId = Guid.NewGuid();
-            int expectedTotalQuestions = 10;
-            decimal expectedScore = 8.5m;
-            var response = new QuizAttemptResponse(quizAttemptId, userId, expectedScore, expectedTotalQuestions);
+            var expectedQuizAttempt = QuizAttempt.Create(Guid.NewGuid(), 0.8m, 2);
+            var quizAttemptId = expectedQuizAttempt.Id;
 
-            _mediatorMock
-                .Setup(m => m.Send(It.IsAny<GetQuizAttemptRequest>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(response);
+            _readRepositoryMock.Setup(repo => repo.GetByIdAsync(quizAttemptId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(expectedQuizAttempt);
+
+            _cacheServiceMock.Setup(cache => cache.GetAsync<QuizAttemptResponse>(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync((QuizAttemptResponse)null);
 
             // Act
-            var result = await _mediatorMock.Object.Send(new GetQuizAttemptRequest(quizAttemptId));
+            var result = await _getHandler.Handle(new GetQuizAttemptRequest(quizAttemptId), CancellationToken.None);
 
             // Assert
             Assert.NotNull(result);
-            Assert.Equal(quizAttemptId, result.Id);
-            Assert.Equal(userId, result.UserId);
-            Assert.Equal(expectedTotalQuestions, result.TotalQuestions);
-            Assert.Equal(expectedScore, result.Score);
-            Assert.IsType<QuizAttemptResponse>(result);
-            _mediatorMock.Verify(m => m.Send(It.IsAny<GetQuizAttemptRequest>(), It.IsAny<CancellationToken>()), Times.Once);
+            Assert.Equal(expectedQuizAttempt.Id, result.Id);
+            Assert.Equal(expectedQuizAttempt.UserId, result.UserId);
+            Assert.Equal(expectedQuizAttempt.TotalQuestions, result.TotalQuestions);
+            Assert.Equal(expectedQuizAttempt.Score, result.Score);
+
+            _readRepositoryMock.Verify(repo => repo.GetByIdAsync(quizAttemptId, It.IsAny<CancellationToken>()), Times.Once);
+            _cacheServiceMock.Verify(cache => cache.SetAsync(It.IsAny<string>(), It.IsAny<QuizAttemptResponse>(), It.IsAny<TimeSpan?>(), It.IsAny<CancellationToken>()), Times.Once);
         }
 
         [Fact]
@@ -112,60 +137,93 @@ namespace TalentMesh.Module.Quizzes.Tests
         {
             // Arrange
             var quizAttemptId = Guid.NewGuid();
-            var request = new GetQuizAttemptRequest(quizAttemptId);
-            _mediatorMock
-                .Setup(m => m.Send(request, It.IsAny<CancellationToken>()))
-                .ThrowsAsync(new QuizAttemptNotFoundException(quizAttemptId));
+
+            _readRepositoryMock.Setup(repo => repo.GetByIdAsync(quizAttemptId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync((QuizAttempt)null);
 
             // Act & Assert
-            var exception = await Assert.ThrowsAsync<QuizAttemptNotFoundException>(() => _mediatorMock.Object.Send(request));
-            Assert.NotNull(exception);
-            Assert.Contains($"QuizAttempt with id {quizAttemptId} not found", exception.Message);
-            _mediatorMock.Verify(m => m.Send(It.IsAny<GetQuizAttemptRequest>(), It.IsAny<CancellationToken>()), Times.Once);
+            await Assert.ThrowsAsync<QuizAttemptNotFoundException>(() =>
+                _getHandler.Handle(new GetQuizAttemptRequest(quizAttemptId), CancellationToken.None));
+
+            _readRepositoryMock.Verify(repo => repo.GetByIdAsync(quizAttemptId, It.IsAny<CancellationToken>()), Times.Once);
         }
 
         [Fact]
         public async Task SearchQuizAttempts_ReturnsPagedQuizAttemptResponse()
         {
             // Arrange
-            var request = new SearchQuizAttemptsCommand { TotalQuestions = 1, Score = 10 };
-            var quizAttempt1 = new QuizAttemptResponse(Guid.NewGuid(), Guid.NewGuid(), 8.5m, 10);
-            var quizAttempt2 = new QuizAttemptResponse(Guid.NewGuid(), Guid.NewGuid(), 12.0m, 15);
-            var pagedList = new PagedList<QuizAttemptResponse>(new[] { quizAttempt1, quizAttempt2 }, 1, 10, 2);
+            var request = new SearchQuizAttemptsCommand
+            {
+                TotalQuestions = 2,
+                Score = 0.8m,
+                PageSize = 10
+            };
 
-            _mediatorMock.Setup(m => m.Send(It.IsAny<SearchQuizAttemptsCommand>(), It.IsAny<CancellationToken>()))
-                         .ReturnsAsync(pagedList);
+            var quizAttempts = new List<QuizAttemptResponse>
+            {
+                new QuizAttemptResponse(Guid.NewGuid(), Guid.NewGuid(), 0.8m, 2),
+                new QuizAttemptResponse(Guid.NewGuid(), Guid.NewGuid(), 0.9m, 3)
+            };
+            var totalCount = quizAttempts.Count;
+
+            // Mock returns List<QuizAttempt> (domain entities)
+            _readRepositoryMock
+                .Setup(repo => repo.ListAsync(It.IsAny<SearchQuizAttemptSpecs>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(quizAttempts);
+
+            _readRepositoryMock
+                .Setup(repo => repo.CountAsync(It.IsAny<SearchQuizAttemptSpecs>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(totalCount);
 
             // Act
-            var result = await _mediatorMock.Object.Send(request);
+            var result = await _searchHandler.Handle(request, CancellationToken.None);
 
-            // Assert
+            // Assert: Verify mapped DTOs
             Assert.NotNull(result);
             Assert.Equal(2, result.Items.Count);
-            Assert.IsType<PagedList<QuizAttemptResponse>>(result);
-            _mediatorMock.Verify(m => m.Send(It.IsAny<SearchQuizAttemptsCommand>(), It.IsAny<CancellationToken>()), Times.Once);
-        }
 
+            Assert.Contains(result.Items, item =>
+                item.TotalQuestions == 2 &&
+                item.Score == 0.8m
+            );
+
+            // Verify repository calls
+            _readRepositoryMock.Verify(repo =>
+                repo.ListAsync(It.IsAny<SearchQuizAttemptSpecs>(), It.IsAny<CancellationToken>()),
+                Times.Once
+            );
+
+            _readRepositoryMock.Verify(repo =>
+                repo.CountAsync(It.IsAny<SearchQuizAttemptSpecs>(), It.IsAny<CancellationToken>()),
+                Times.Once
+            );
+        }
         [Fact]
         public async Task UpdateQuizAttempt_ReturnsUpdatedQuizAttemptResponse()
         {
             // Arrange
-            var quizAttemptId = Guid.NewGuid();
             var userId = Guid.NewGuid();
-            var request = new UpdateQuizAttemptCommand(quizAttemptId, userId, 9.0m, 12);
-            var response = new UpdateQuizAttemptResponse(quizAttemptId);
+            var existingQuizAttempt = QuizAttempt.Create(userId, 0.5m, 2);
+            var quizAttemptId = existingQuizAttempt.Id;
+            var request = new UpdateQuizAttemptCommand(
+                quizAttemptId,
+                userId,
+                1.0m,
+                2
+            );
 
-            _mediatorMock.Setup(m => m.Send(It.IsAny<UpdateQuizAttemptCommand>(), It.IsAny<CancellationToken>()))
-                         .ReturnsAsync(response);
+            _repositoryMock.Setup(repo => repo.GetByIdAsync(quizAttemptId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(existingQuizAttempt);
 
             // Act
-            var result = await _mediatorMock.Object.Send(request);
+            var result = await _updateHandler.Handle(request, CancellationToken.None);
 
             // Assert
             Assert.NotNull(result);
             Assert.Equal(quizAttemptId, result.Id);
-            Assert.IsType<UpdateQuizAttemptResponse>(result);
-            _mediatorMock.Verify(m => m.Send(It.IsAny<UpdateQuizAttemptCommand>(), It.IsAny<CancellationToken>()), Times.Once);
+
+            _repositoryMock.Verify(repo => repo.GetByIdAsync(quizAttemptId, It.IsAny<CancellationToken>()), Times.Once);
+            _repositoryMock.Verify(repo => repo.UpdateAsync(It.IsAny<QuizAttempt>(), It.IsAny<CancellationToken>()), Times.Once);
         }
 
         [Fact]
@@ -174,15 +232,16 @@ namespace TalentMesh.Module.Quizzes.Tests
             // Arrange
             var quizAttemptId = Guid.NewGuid();
             var userId = Guid.NewGuid();
-            var request = new UpdateQuizAttemptCommand(quizAttemptId, userId, 9.0m, 12);
-            _mediatorMock.Setup(m => m.Send(It.IsAny<UpdateQuizAttemptCommand>(), It.IsAny<CancellationToken>()))
-                         .ThrowsAsync(new QuizAttemptNotFoundException(quizAttemptId));
+            var request = new UpdateQuizAttemptCommand(quizAttemptId, userId, 1.0m, 2);
+
+            _repositoryMock.Setup(repo => repo.GetByIdAsync(quizAttemptId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync((QuizAttempt)null);
 
             // Act & Assert
-            var exception = await Assert.ThrowsAsync<QuizAttemptNotFoundException>(() => _mediatorMock.Object.Send(request));
-            Assert.NotNull(exception);
-            Assert.Contains($"QuizAttempt with id {quizAttemptId} not found", exception.Message);
-            _mediatorMock.Verify(m => m.Send(It.IsAny<UpdateQuizAttemptCommand>(), It.IsAny<CancellationToken>()), Times.Once);
+            await Assert.ThrowsAsync<QuizAttemptNotFoundException>(() =>
+                _updateHandler.Handle(request, CancellationToken.None));
+
+            _repositoryMock.Verify(repo => repo.GetByIdAsync(quizAttemptId, It.IsAny<CancellationToken>()), Times.Once);
         }
     }
 }

@@ -7,7 +7,7 @@ using TalentMesh.Module.Candidate.Application.CandidateProfile.Get.v1;
 
 namespace TalentMesh.Module.Candidate.Application.CandidateProfile.Search.v1;
 
-class SearchCandidateProfileHandler(
+public sealed class SearchCandidateProfileHandler(
     [FromKeyedServices("candidate:candidateprofileReadOnly")] IReadRepository<Domain.CandidateProfile> repository)
     : IRequestHandler<SearchCandidateProfileCommand, PagedList<CandidateProfileResponse>>
 {

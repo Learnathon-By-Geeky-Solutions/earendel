@@ -20,7 +20,7 @@ namespace Evaluator.Application.Interviewer.Get.v1
                 async () =>
                 {
                     var entity = await repository.GetByIdAsync(request.Id, cancellationToken);
-                    if (entity == null || entity.DeletedBy != Guid.Empty)
+                    if (entity == null)
                         throw new InterviewerAvailabilityNotFoundException(request.Id);
 
                     return new InterviewerAvailabilityResponse(

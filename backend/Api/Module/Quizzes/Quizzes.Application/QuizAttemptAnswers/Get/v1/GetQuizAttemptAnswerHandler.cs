@@ -21,7 +21,7 @@ public sealed class GetQuizAttemptAnswerHandler(
             async () =>
             {
                 var quizAttemptAnswer = await repository.GetByIdAsync(request.Id, cancellationToken);
-                if (quizAttemptAnswer == null || quizAttemptAnswer.DeletedBy != Guid.Empty)
+                if (quizAttemptAnswer == null)
                     throw new QuizAttemptAnswerNotFoundException(request.Id);
 
                 return new QuizAttemptAnswerResponse(

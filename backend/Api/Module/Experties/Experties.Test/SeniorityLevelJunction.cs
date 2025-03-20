@@ -1,136 +1,246 @@
 using Moq;
-using Xunit;
+using TalentMesh.Module.Experties.Application.Rubrics.Create.v1;
+using TalentMesh.Module.Experties.Application.Rubrics.Delete.v1;
+using TalentMesh.Module.Experties.Application.Rubrics.Get.v1;
+using TalentMesh.Module.Experties.Application.Rubrics.Search.v1;
+using TalentMesh.Module.Experties.Application.Rubrics.Update.v1;
+using TalentMesh.Module.Experties.Domain.Exceptions;
+using TalentMesh.Framework.Core.Paging;
+using TalentMesh.Module.Experties.Domain;
+using TalentMesh.Framework.Core.Persistence;
+using Microsoft.Extensions.Logging;
+using TalentMesh.Framework.Core.Caching;
 using TalentMesh.Module.Experties.Application.SeniorityLevelJunctions.Create.v1;
 using TalentMesh.Module.Experties.Application.SeniorityLevelJunctions.Delete.v1;
 using TalentMesh.Module.Experties.Application.SeniorityLevelJunctions.Get.v1;
-using TalentMesh.Module.Experties.Application.SeniorityLevelJunctions.Search.v1;
 using TalentMesh.Module.Experties.Application.SeniorityLevelJunctions.Update.v1;
-using TalentMesh.Module.Experties.Domain.Exceptions;
-using TalentMesh.Framework.Core.Paging;
-using MediatR;
+using TalentMesh.Module.Experties.Application.SeniorityLevelJunctions.Search.v1;
 
 namespace TalentMesh.Module.Experties.Tests
 {
     public class SeniorityLevelJunctionHandlerTests
     {
-        private readonly Mock<ISender> _mediatorMock;
+        private readonly Mock<IRepository<SeniorityLevelJunction>> _repositoryMock;
+        private readonly Mock<IReadRepository<SeniorityLevelJunction>> _readRepositoryMock;
+        private readonly Mock<ICacheService> _cacheServiceMock;
+        private readonly Mock<ILogger<CreateSeniorityLevelJunctionHandler>> _createLoggerMock;
+        private readonly Mock<ILogger<DeleteSeniorityLevelJunctionHandler>> _deleteLoggerMock;
+        private readonly Mock<ILogger<GetSeniorityLevelJunctionHandler>> _getLoggerMock;
+        private readonly Mock<ILogger<SearchSeniorityLevelJunctionHandler>> _searchLoggerMock;
+        private readonly Mock<ILogger<UpdateSeniorityLevelJunctionHandler>> _updateLoggerMock;
+
+        private readonly CreateSeniorityLevelJunctionHandler _createHandler;
+        private readonly DeleteSeniorityLevelJunctionHandler _deleteHandler;
+        private readonly GetSeniorityLevelJunctionHandler _getHandler;
+        private readonly SearchSeniorityLevelJunctionHandler _searchHandler;
+        private readonly UpdateSeniorityLevelJunctionHandler _updateHandler;
 
         public SeniorityLevelJunctionHandlerTests()
         {
-            _mediatorMock = new Mock<ISender>();
+            _repositoryMock = new Mock<IRepository<SeniorityLevelJunction>>();
+            _readRepositoryMock = new Mock<IReadRepository<SeniorityLevelJunction>>();
+            _cacheServiceMock = new Mock<ICacheService>();
+            _createLoggerMock = new Mock<ILogger<CreateSeniorityLevelJunctionHandler>>();
+            _deleteLoggerMock = new Mock<ILogger<DeleteSeniorityLevelJunctionHandler>>();
+            _getLoggerMock = new Mock<ILogger<GetSeniorityLevelJunctionHandler>>();
+            _searchLoggerMock = new Mock<ILogger<SearchSeniorityLevelJunctionHandler>>();
+            _updateLoggerMock = new Mock<ILogger<UpdateSeniorityLevelJunctionHandler>>();
+
+            _createHandler = new CreateSeniorityLevelJunctionHandler(_createLoggerMock.Object, _repositoryMock.Object);
+            _deleteHandler = new DeleteSeniorityLevelJunctionHandler(_deleteLoggerMock.Object, _repositoryMock.Object);
+            _getHandler = new GetSeniorityLevelJunctionHandler(_readRepositoryMock.Object, _cacheServiceMock.Object);
+            _searchHandler = new SearchSeniorityLevelJunctionHandler(_readRepositoryMock.Object);
+            _updateHandler = new UpdateSeniorityLevelJunctionHandler(_updateLoggerMock.Object, _repositoryMock.Object);
+
         }
 
         [Fact]
-        public async Task CreateSeniorityLevelJunction_ReturnsSeniorityLevelJunctionResponse()
+        public async Task CreateSeniorityLevelJunction_ReturnsRubricResponse()
         {
-            var seniorityLevelId = Guid.NewGuid();
+            // Arrange
             var skillId = Guid.NewGuid();
-            var request = new CreateSeniorityLevelJunctionCommand(seniorityLevelId, skillId);
-            var expectedId = Guid.NewGuid();
-            var response = new CreateSeniorityLevelJunctionResponse(expectedId);
+            var seniorityLevelId = Guid.NewGuid();
+            var request = new CreateSeniorityLevelJunctionCommand(skillId, seniorityLevelId);
+            var expectedSeniority = SeniorityLevelJunction.Create(skillId, seniorityLevelId);
 
-            _mediatorMock
-                .Setup(m => m.Send(request, It.IsAny<CancellationToken>()))
-                .ReturnsAsync(response);
+            _repositoryMock.Setup(repo => repo.AddAsync(It.IsAny<SeniorityLevelJunction>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(expectedSeniority);
 
-            var result = await _mediatorMock.Object.Send(request);
+            // Act
+            var result = await _createHandler.Handle(request, CancellationToken.None);
 
+            // Assert
             Assert.NotNull(result);
-            Assert.Equal(expectedId, result.Id);
-            Assert.IsType<CreateSeniorityLevelJunctionResponse>(result);
-
-            _mediatorMock.Verify(m => m.Send(It.IsAny<CreateSeniorityLevelJunctionCommand>(), It.IsAny<CancellationToken>()), Times.Once);
+            _repositoryMock.Verify(repo => repo.AddAsync(It.IsAny<SeniorityLevelJunction>(), It.IsAny<CancellationToken>()), Times.Once);
         }
 
         [Fact]
         public async Task DeleteSeniorityLevelJunction_DeletesSuccessfully()
         {
-            var junctionId = Guid.NewGuid();
+            // Arrange
+            var existingSeniority = SeniorityLevelJunction.Create(Guid.NewGuid(), Guid.NewGuid());
+            var seniorityId = existingSeniority.Id;
 
-            _mediatorMock
-                .Setup(m => m.Send(It.IsAny<DeleteSeniorityLevelJunctionCommand>(), It.IsAny<CancellationToken>()))
-                .Returns(Task.CompletedTask);
+            _repositoryMock.Setup(repo => repo.GetByIdAsync(seniorityId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(existingSeniority);
 
-            await _mediatorMock.Object.Send(new DeleteSeniorityLevelJunctionCommand(junctionId));
+            // Act
+            await _deleteHandler.Handle(new DeleteSeniorityLevelJunctionCommand(seniorityId), CancellationToken.None);
 
-            _mediatorMock.Verify(m => m.Send(It.IsAny<DeleteSeniorityLevelJunctionCommand>(), It.IsAny<CancellationToken>()), Times.Once);
+            // Assert
+            _repositoryMock.Verify(repo => repo.DeleteAsync(existingSeniority, It.IsAny<CancellationToken>()), Times.Once);
+            _repositoryMock.Verify(repo => repo.GetByIdAsync(seniorityId, It.IsAny<CancellationToken>()), Times.Once);
+        }
+
+        [Fact]
+        public async Task DeleteSeniorityLevelJunction_ThrowsExceptionIfNotFound()
+        {
+            // Arrange
+            var seniorityId = Guid.NewGuid();
+
+            _repositoryMock.Setup(repo => repo.GetByIdAsync(seniorityId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync((SeniorityLevelJunction)null);
+
+            // Act & Assert
+            await Assert.ThrowsAsync<SeniorityLevelJunctionNotFoundException>(() =>
+                _deleteHandler.Handle(new DeleteSeniorityLevelJunctionCommand(seniorityId), CancellationToken.None));
+
+            _repositoryMock.Verify(repo => repo.GetByIdAsync(seniorityId, It.IsAny<CancellationToken>()), Times.Once);
         }
 
         [Fact]
         public async Task GetSeniorityLevelJunction_ReturnsSeniorityLevelJunctionResponse()
         {
-            var junctionId = Guid.NewGuid();
-            var seniorityLevelId = Guid.NewGuid();
-            var skillId = Guid.NewGuid();
-            var junctionResponse = new SeniorityLevelJunctionResponse(junctionId, seniorityLevelId, skillId);
+            // Arrange
+            var expectedSeniority = SeniorityLevelJunction.Create(Guid.NewGuid(), Guid.NewGuid());
+            var seniorityId = expectedSeniority.Id;
 
-            _mediatorMock
-                .Setup(m => m.Send(It.IsAny<GetSeniorityLevelJunctionRequest>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(junctionResponse);
+            _readRepositoryMock.Setup(repo => repo.GetByIdAsync(seniorityId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(expectedSeniority);
 
-            var result = await _mediatorMock.Object.Send(new GetSeniorityLevelJunctionRequest(junctionId));
+            _cacheServiceMock.Setup(cache => cache.GetAsync<SeniorityLevelJunctionResponse>(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync((SeniorityLevelJunctionResponse)null);
 
+            // Act
+            var result = await _getHandler.Handle(new GetSeniorityLevelJunctionRequest(seniorityId), CancellationToken.None);
+
+            // Assert
             Assert.NotNull(result);
-            Assert.Equal(junctionId, result.Id);
-            Assert.Equal(seniorityLevelId, result.SeniorityLevelId);
-            Assert.Equal(skillId, result.SkillId);
-            Assert.IsType<SeniorityLevelJunctionResponse>(result);
+            Assert.Equal(expectedSeniority.SkillId, result.SkillId);
+            Assert.Equal(expectedSeniority.SeniorityLevelId, result.SeniorityLevelId);
 
-            _mediatorMock.Verify(m => m.Send(It.IsAny<GetSeniorityLevelJunctionRequest>(), It.IsAny<CancellationToken>()), Times.Once);
+            _readRepositoryMock.Verify(repo => repo.GetByIdAsync(seniorityId, It.IsAny<CancellationToken>()), Times.Once);
+            _cacheServiceMock.Verify(cache => cache.SetAsync(It.IsAny<string>(), It.IsAny<SeniorityLevelJunctionResponse>(), It.IsAny<TimeSpan?>(), It.IsAny<CancellationToken>()), Times.Once);
+        }
+
+        [Fact]
+        public async Task GetSeniorityLevelJunction_ThrowsExceptionIfNotFound()
+        {
+            // Arrange
+            var seniorityId = Guid.NewGuid();
+
+            _readRepositoryMock.Setup(repo => repo.GetByIdAsync(seniorityId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync((SeniorityLevelJunction)null);
+
+            // Act & Assert
+            await Assert.ThrowsAsync<SeniorityLevelJunctionNotFoundException>(() =>
+                _getHandler.Handle(new GetSeniorityLevelJunctionRequest(seniorityId), CancellationToken.None));
+
+            _readRepositoryMock.Verify(repo => repo.GetByIdAsync(seniorityId, It.IsAny<CancellationToken>()), Times.Once);
         }
 
         [Fact]
         public async Task SearchSeniorityLevelJunctions_ReturnsPagedSeniorityLevelJunctionResponse()
         {
+            // Arrange
+            var seniorityLevelId = Guid.NewGuid();
+            var skillId = Guid.NewGuid();
+
             var request = new SearchSeniorityLevelJunctionCommand
             {
-                SeniorityLevelId = Guid.NewGuid(),
-                SkillId = Guid.NewGuid(),
+                SeniorityLevelId = seniorityLevelId,
+                SkillId = skillId,
                 PageNumber = 1,
                 PageSize = 10
             };
 
-            var pagedList = new PagedList<SeniorityLevelJunctionResponse>(
-                new[]
-                {
-                    new SeniorityLevelJunctionResponse(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid()),
-                    new SeniorityLevelJunctionResponse(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid())
-                },
-                1,
-                10,
-                2);
+            var seniorities = new List<SeniorityLevelJunctionResponse>
+    {
+        new SeniorityLevelJunctionResponse(Guid.NewGuid(), seniorityLevelId, skillId),
+        new SeniorityLevelJunctionResponse(Guid.NewGuid(), seniorityLevelId, skillId)
+    };
+            var totalCount = seniorities.Count;
 
-            _mediatorMock
-                .Setup(m => m.Send(It.IsAny<SearchSeniorityLevelJunctionCommand>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(pagedList);
+            // Mock repository to return filtered results
+            _readRepositoryMock
+    .Setup(repo => repo.ListAsync(
+        It.Is<SearchSeniorityLevelJunctionSpecs>(spec =>
+            spec.GetType() == typeof(SearchSeniorityLevelJunctionSpecs)
+        ),
+        It.IsAny<CancellationToken>()
+    ))
+    .ReturnsAsync(seniorities);
 
-            var result = await _mediatorMock.Object.Send(request);
+            _readRepositoryMock
+                .Setup(repo => repo.CountAsync(
+                    It.Is<SearchSeniorityLevelJunctionSpecs>(spec =>
+                        spec.GetType() == typeof(SearchSeniorityLevelJunctionSpecs)
+                    ),
+                    It.IsAny<CancellationToken>()
+                ))
+                .ReturnsAsync(totalCount);
 
+
+            // Act
+            var result = await _searchHandler.Handle(request, CancellationToken.None);
+
+            // Assert: Verify mapped DTOs
             Assert.NotNull(result);
             Assert.Equal(2, result.Items.Count);
-            Assert.IsType<PagedList<SeniorityLevelJunctionResponse>>(result);
+            Assert.All(result.Items, item => Assert.Equal(seniorityLevelId, item.SeniorityLevelId));
 
-            _mediatorMock.Verify(m => m.Send(It.IsAny<SearchSeniorityLevelJunctionCommand>(), It.IsAny<CancellationToken>()), Times.Once);
+        }
+        [Fact]
+        public async Task UpdateSeniorityLevelJunction_ReturnsUpdatedRubricResponse()
+        {
+            // Arrange
+            var existingSeniority = SeniorityLevelJunction.Create(Guid.NewGuid(), Guid.NewGuid());
+            var seniorityId = existingSeniority.Id;
+            var request = new UpdateSeniorityLevelJunctionCommand(
+                seniorityId,
+                Guid.NewGuid(),
+                Guid.NewGuid()
+            );
+
+            _repositoryMock.Setup(repo => repo.GetByIdAsync(seniorityId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(existingSeniority);
+
+            // Act
+            var result = await _updateHandler.Handle(request, CancellationToken.None);
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.Equal(seniorityId, result.Id);
+
+            _repositoryMock.Verify(repo => repo.GetByIdAsync(seniorityId, It.IsAny<CancellationToken>()), Times.Once);
+            _repositoryMock.Verify(repo => repo.UpdateAsync(It.IsAny<SeniorityLevelJunction>(), It.IsAny<CancellationToken>()), Times.Once);
         }
 
         [Fact]
-        public async Task UpdateSeniorityLevelJunction_ReturnsUpdatedSeniorityLevelJunctionResponse()
+        public async Task UpdateSeniorityLevelJunction_ThrowsExceptionIfNotFound()
         {
-            var junctionId = Guid.NewGuid();
-            var request = new UpdateSeniorityLevelJunctionCommand(junctionId, Guid.NewGuid(), Guid.NewGuid());
-            var response = new UpdateSeniorityLevelJunctionResponse(junctionId);
+            // Arrange
+            var seniorityId = Guid.NewGuid();
+            var request = new UpdateSeniorityLevelJunctionCommand(seniorityId, Guid.NewGuid(), Guid.NewGuid());
 
-            _mediatorMock
-                .Setup(m => m.Send(It.IsAny<UpdateSeniorityLevelJunctionCommand>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(response);
+            _repositoryMock.Setup(repo => repo.GetByIdAsync(seniorityId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync((SeniorityLevelJunction)null);
 
-            var result = await _mediatorMock.Object.Send(request);
+            // Act & Assert
+            await Assert.ThrowsAsync<SeniorityLevelJunctionNotFoundException>(() =>
+                _updateHandler.Handle(request, CancellationToken.None));
 
-            Assert.NotNull(result);
-            Assert.Equal(junctionId, result.Id);
-            Assert.IsType<UpdateSeniorityLevelJunctionResponse>(result);
-
-            _mediatorMock.Verify(m => m.Send(It.IsAny<UpdateSeniorityLevelJunctionCommand>(), It.IsAny<CancellationToken>()), Times.Once);
+            _repositoryMock.Verify(repo => repo.GetByIdAsync(seniorityId, It.IsAny<CancellationToken>()), Times.Once);
         }
     }
 }

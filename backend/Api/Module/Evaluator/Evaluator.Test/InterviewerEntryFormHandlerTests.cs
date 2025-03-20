@@ -13,180 +13,243 @@ using TalentMesh.Module.Evaluator.Application.Interviewer.Delete.v1;
 using TalentMesh.Module.Evaluator.Application.Interviewer.Search.v1;
 using TalentMesh.Module.Evaluator.Application.Interviewer.Update.v1;
 using TalentMesh.Module.Evaluator.Domain.Exceptions;
+using TalentMesh.Module.Evaluator.Domain;
+using TalentMesh.Framework.Core.Persistence;
+using TalentMesh.Framework.Core.Caching;
+using Microsoft.Extensions.Logging;
 
 namespace TalentMesh.Module.Evaluator.Tests
 {
     public class InterviewerEntryFormHandlerTests
     {
-        private readonly Mock<ISender> _mediatorMock;
+        private readonly Mock<IRepository<InterviewerEntryForm>> _repositoryMock;
+        private readonly Mock<IReadRepository<InterviewerEntryForm>> _readRepositoryMock;
+        private readonly Mock<ICacheService> _cacheServiceMock;
+        private readonly Mock<ILogger<CreateInterviewerEntryFormHandler>> _createLoggerMock;
+        private readonly Mock<ILogger<DeleteInterviewerEntryFormHandler>> _deleteLoggerMock;
+        private readonly Mock<ILogger<GetInterviewerEntryFormHandler>> _getLoggerMock;
+        private readonly Mock<ILogger<SearchInterviewerEntryFormsHandler>> _searchLoggerMock;
+        private readonly Mock<ILogger<UpdateInterviewerEntryFormHandler>> _updateLoggerMock;
+
+        private readonly CreateInterviewerEntryFormHandler _createHandler;
+        private readonly DeleteInterviewerEntryFormHandler _deleteHandler;
+        private readonly GetInterviewerEntryFormHandler _getHandler;
+        private readonly SearchInterviewerEntryFormsHandler _searchHandler;
+        private readonly UpdateInterviewerEntryFormHandler _updateHandler;
 
         public InterviewerEntryFormHandlerTests()
         {
-            _mediatorMock = new Mock<ISender>();
+            _repositoryMock = new Mock<IRepository<InterviewerEntryForm>>();
+            _readRepositoryMock = new Mock<IReadRepository<InterviewerEntryForm>>();
+            _cacheServiceMock = new Mock<ICacheService>();
+            _createLoggerMock = new Mock<ILogger<CreateInterviewerEntryFormHandler>>();
+            _deleteLoggerMock = new Mock<ILogger<DeleteInterviewerEntryFormHandler>>();
+            _getLoggerMock = new Mock<ILogger<GetInterviewerEntryFormHandler>>();
+            _searchLoggerMock = new Mock<ILogger<SearchInterviewerEntryFormsHandler>>();
+            _updateLoggerMock = new Mock<ILogger<UpdateInterviewerEntryFormHandler>>();
+
+            _createHandler = new CreateInterviewerEntryFormHandler(_createLoggerMock.Object, _repositoryMock.Object);
+            _deleteHandler = new DeleteInterviewerEntryFormHandler(_deleteLoggerMock.Object, _repositoryMock.Object);
+            _getHandler = new GetInterviewerEntryFormHandler(_readRepositoryMock.Object, _cacheServiceMock.Object);
+            _searchHandler = new SearchInterviewerEntryFormsHandler(_readRepositoryMock.Object);
+            _updateHandler = new UpdateInterviewerEntryFormHandler(_updateLoggerMock.Object, _repositoryMock.Object);
+
         }
 
         [Fact]
-        public async Task CreateInterviewerEntryForm_ReturnsResponse()
+        public async Task CreateInterviewerEntryForm_ReturnsInterviewerEntryFormResponse()
         {
-            var request = new CreateInterviewerEntryFormCommand(
-                UserId: Guid.NewGuid(),
-                AdditionalInfo: "Experienced in conducting interviews."
-            );
-            var expectedId = Guid.NewGuid();
-            var response = new CreateInterviewerEntryFormResponse(expectedId);
+            // Arrange
+            var userId = Guid.NewGuid();
+            var request = new CreateInterviewerEntryFormCommand(userId, "string");
+            var expectedInterviewerEntryForm = InterviewerEntryForm.Create(request.UserId!, request.AdditionalInfo!);
 
-            _mediatorMock
-                .Setup(m => m.Send(request, It.IsAny<CancellationToken>()))
-                .ReturnsAsync(response);
+            _repositoryMock.Setup(repo => repo.AddAsync(It.IsAny<InterviewerEntryForm>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(expectedInterviewerEntryForm);
 
-            var result = await _mediatorMock.Object.Send(request);
+            // Act
+            var result = await _createHandler.Handle(request, CancellationToken.None);
 
+            // Assert
             Assert.NotNull(result);
-            Assert.Equal(expectedId, result.Id);
-            _mediatorMock.Verify(m => m.Send(It.IsAny<CreateInterviewerEntryFormCommand>(), It.IsAny<CancellationToken>()), Times.Once);
+            _repositoryMock.Verify(repo => repo.AddAsync(It.IsAny<InterviewerEntryForm>(), It.IsAny<CancellationToken>()), Times.Once);
         }
 
         [Fact]
         public async Task DeleteInterviewerEntryForm_DeletesSuccessfully()
         {
-            var entryFormId = Guid.NewGuid();
+            // Arrange
+            var existingInterviewerEntryForm = InterviewerEntryForm.Create(Guid.NewGuid(), "string");
+            var InterviewerEntryFormId = existingInterviewerEntryForm.Id;
 
-            _mediatorMock
-                .Setup(m => m.Send(It.IsAny<DeleteInterviewerEntryFormCommand>(), It.IsAny<CancellationToken>()))
-                .Returns(Task.CompletedTask);
+            _repositoryMock.Setup(repo => repo.GetByIdAsync(InterviewerEntryFormId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(existingInterviewerEntryForm);
 
-            await _mediatorMock.Object.Send(new DeleteInterviewerEntryFormCommand(entryFormId));
+            // Act
+            await _deleteHandler.Handle(new DeleteInterviewerEntryFormCommand(InterviewerEntryFormId), CancellationToken.None);
 
-            _mediatorMock.Verify(m => m.Send(It.IsAny<DeleteInterviewerEntryFormCommand>(), It.IsAny<CancellationToken>()), Times.Once);
+            // Assert
+            _repositoryMock.Verify(repo => repo.DeleteAsync(existingInterviewerEntryForm, It.IsAny<CancellationToken>()), Times.Once);
+            _repositoryMock.Verify(repo => repo.GetByIdAsync(InterviewerEntryFormId, It.IsAny<CancellationToken>()), Times.Once);
         }
 
         [Fact]
         public async Task DeleteInterviewerEntryForm_ThrowsExceptionIfNotFound()
         {
-            var entryFormId = Guid.NewGuid();
+            // Arrange
+            var InterviewerEntryFormId = Guid.NewGuid();
 
-            _mediatorMock
-                .Setup(m => m.Send(It.IsAny<DeleteInterviewerEntryFormCommand>(), It.IsAny<CancellationToken>()))
-                .ThrowsAsync(new InterviewerEntryFormNotFoundException(entryFormId));
+            _repositoryMock.Setup(repo => repo.GetByIdAsync(InterviewerEntryFormId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync((InterviewerEntryForm)null);
 
-            var exception = await Assert.ThrowsAsync<InterviewerEntryFormNotFoundException>(() =>
-                _mediatorMock.Object.Send(new DeleteInterviewerEntryFormCommand(entryFormId))
-            );
+            // Act & Assert
+            await Assert.ThrowsAsync<InterviewerEntryFormNotFoundException>(() =>
+                _deleteHandler.Handle(new DeleteInterviewerEntryFormCommand(InterviewerEntryFormId), CancellationToken.None));
 
-            Assert.NotNull(exception);
-            _mediatorMock.Verify(m => m.Send(It.IsAny<DeleteInterviewerEntryFormCommand>(), It.IsAny<CancellationToken>()), Times.Once);
+            _repositoryMock.Verify(repo => repo.GetByIdAsync(InterviewerEntryFormId, It.IsAny<CancellationToken>()), Times.Once);
         }
 
         [Fact]
-        public async Task GetInterviewerEntryForm_ReturnsResponse()
+        public async Task GetInterviewerEntryForm_ReturnsInterviewerEntryFormResponse()
         {
-            var entryFormId = Guid.NewGuid();
-            var userId = Guid.NewGuid();
-            var additionalInfo = "Experienced in HR and technical interviews.";
-            var status = "pending";
-            var response = new InterviewerEntryFormResponse(entryFormId, userId, additionalInfo, status);
+            // Arrange
+            var expectedInterviewerEntryForm = InterviewerEntryForm.Create(Guid.NewGuid(), "string");
+            var InterviewerEntryFormId = expectedInterviewerEntryForm.Id;
 
-            _mediatorMock
-                .Setup(m => m.Send(It.IsAny<GetInterviewerEntryFormRequest>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(response);
+            _readRepositoryMock.Setup(repo => repo.GetByIdAsync(InterviewerEntryFormId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(expectedInterviewerEntryForm);
 
-            var result = await _mediatorMock.Object.Send(new GetInterviewerEntryFormRequest(entryFormId));
+            _cacheServiceMock.Setup(cache => cache.GetAsync<InterviewerEntryFormResponse>(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync((InterviewerEntryFormResponse)null);
 
+            // Act
+            var result = await _getHandler.Handle(new GetInterviewerEntryFormRequest(InterviewerEntryFormId), CancellationToken.None);
+
+            // Assert
             Assert.NotNull(result);
-            Assert.Equal(entryFormId, result.Id);
-            Assert.Equal(userId, result.UserId);
-            Assert.Equal(additionalInfo, result.AdditionalInfo);
-            Assert.Equal(status, result.Status);
-            _mediatorMock.Verify(m => m.Send(It.IsAny<GetInterviewerEntryFormRequest>(), It.IsAny<CancellationToken>()), Times.Once);
+            Assert.Equal(expectedInterviewerEntryForm.Id, result.Id);
+            Assert.Equal(expectedInterviewerEntryForm.UserId, result.UserId);
+            Assert.Equal(expectedInterviewerEntryForm.AdditionalInfo, result.AdditionalInfo);
+
+            _readRepositoryMock.Verify(repo => repo.GetByIdAsync(InterviewerEntryFormId, It.IsAny<CancellationToken>()), Times.Once);
+            _cacheServiceMock.Verify(cache => cache.SetAsync(It.IsAny<string>(), It.IsAny<InterviewerEntryFormResponse>(), It.IsAny<TimeSpan?>(), It.IsAny<CancellationToken>()), Times.Once);
         }
 
         [Fact]
         public async Task GetInterviewerEntryForm_ThrowsExceptionIfNotFound()
         {
-            var entryFormId = Guid.NewGuid();
+            // Arrange
+            var InterviewerEntryFormId = Guid.NewGuid();
 
-            _mediatorMock
-                .Setup(m => m.Send(It.IsAny<GetInterviewerEntryFormRequest>(), It.IsAny<CancellationToken>()))
-                .ThrowsAsync(new InterviewerEntryFormNotFoundException(entryFormId));
+            _readRepositoryMock.Setup(repo => repo.GetByIdAsync(InterviewerEntryFormId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync((InterviewerEntryForm)null);
 
-            var exception = await Assert.ThrowsAsync<InterviewerEntryFormNotFoundException>(() =>
-                _mediatorMock.Object.Send(new GetInterviewerEntryFormRequest(entryFormId))
-            );
+            // Act & Assert
+            await Assert.ThrowsAsync<InterviewerEntryFormNotFoundException>(() =>
+                _getHandler.Handle(new GetInterviewerEntryFormRequest(InterviewerEntryFormId), CancellationToken.None));
 
-            Assert.NotNull(exception);
-            _mediatorMock.Verify(m => m.Send(It.IsAny<GetInterviewerEntryFormRequest>(), It.IsAny<CancellationToken>()), Times.Once);
+            _readRepositoryMock.Verify(repo => repo.GetByIdAsync(InterviewerEntryFormId, It.IsAny<CancellationToken>()), Times.Once);
         }
 
         [Fact]
-        public async Task SearchInterviewerEntryForms_ReturnsPagedResponse()
+        public async Task SearchInterviewerEntryForms_ReturnsPagedInterviewerEntryFormResponse()
         {
+            // Arrange
             var request = new SearchInterviewerEntryFormsCommand
             {
-                AdditionalInfo = "Experienced",
+                AdditionalInfo = "string",
                 Status = "pending",
-                PageNumber = 1,
                 PageSize = 10
             };
 
-            var response1 = new InterviewerEntryFormResponse(Guid.NewGuid(), Guid.NewGuid(), "Experienced in interviews", "pending");
-            var response2 = new InterviewerEntryFormResponse(Guid.NewGuid(), Guid.NewGuid(), "Experienced in technical interviews", "pending");
-            var pagedList = new PagedList<InterviewerEntryFormResponse>(new[] { response1, response2 }, 1, 10, 2);
+            var InterviewerEntryForms = new List<InterviewerEntryFormResponse>
+            {
+                new InterviewerEntryFormResponse(Guid.NewGuid(), Guid.NewGuid(), "string", "pending" ),
+                new InterviewerEntryFormResponse(Guid.NewGuid(), Guid.NewGuid(), "string1", "approved" )
+            };
+            var totalCount = InterviewerEntryForms.Count;
 
-            _mediatorMock
-                .Setup(m => m.Send(It.IsAny<SearchInterviewerEntryFormsCommand>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(pagedList);
+            // Mock returns List<InterviewerEntryForm> (domain entities)
+            _readRepositoryMock
+                .Setup(repo => repo.ListAsync(It.IsAny<SearchInterviewerEntryFormSpecs>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(InterviewerEntryForms);
 
-            var result = await _mediatorMock.Object.Send(request);
+            _readRepositoryMock
+                .Setup(repo => repo.CountAsync(It.IsAny<SearchInterviewerEntryFormSpecs>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(totalCount);
 
+            // Act
+            var result = await _searchHandler.Handle(request, CancellationToken.None);
+
+            // Assert: Verify mapped DTOs
             Assert.NotNull(result);
             Assert.Equal(2, result.Items.Count);
-            _mediatorMock.Verify(m => m.Send(It.IsAny<SearchInterviewerEntryFormsCommand>(), It.IsAny<CancellationToken>()), Times.Once);
-        }
 
-        [Fact]
-        public async Task UpdateInterviewerEntryForm_ReturnsUpdatedResponse()
-        {
-            var entryFormId = Guid.NewGuid();
-            var request = new UpdateInterviewerEntryFormCommand(
-                entryFormId,
-                UserId: Guid.NewGuid(),
-                AdditionalInfo: "Updated info",
-                Status: "approved"
+            Assert.Contains(result.Items, item =>
+                item.AdditionalInfo == "string" &&
+                item.Status == "pending"
             );
-            var response = new UpdateInterviewerEntryFormResponse(entryFormId);
 
-            _mediatorMock
-                .Setup(m => m.Send(It.IsAny<UpdateInterviewerEntryFormCommand>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(response);
+            Assert.Contains(result.Items, item =>
+                item.AdditionalInfo == "string1" &&
+                item.Status == "approved"
+            );
 
-            var result = await _mediatorMock.Object.Send(request);
+            // Verify repository calls
+            _readRepositoryMock.Verify(repo =>
+                repo.ListAsync(It.IsAny<SearchInterviewerEntryFormSpecs>(), It.IsAny<CancellationToken>()),
+                Times.Once
+            );
 
+            _readRepositoryMock.Verify(repo =>
+                repo.CountAsync(It.IsAny<SearchInterviewerEntryFormSpecs>(), It.IsAny<CancellationToken>()),
+                Times.Once
+            );
+        }
+        [Fact]
+        public async Task UpdateInterviewerEntryForm_ReturnsUpdatedInterviewerEntryFormResponse()
+        {
+            // Arrange
+            var existingInterviewerEntryForm = InterviewerEntryForm.Create(Guid.NewGuid(), "string");
+            var InterviewerEntryFormId = existingInterviewerEntryForm.Id;
+            var request = new UpdateInterviewerEntryFormCommand(
+                InterviewerEntryFormId,
+                Guid.NewGuid(),
+                "string",
+                "approved"
+
+            );
+
+            _repositoryMock.Setup(repo => repo.GetByIdAsync(InterviewerEntryFormId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(existingInterviewerEntryForm);
+
+            // Act
+            var result = await _updateHandler.Handle(request, CancellationToken.None);
+
+            // Assert
             Assert.NotNull(result);
-            Assert.Equal(entryFormId, result.Id);
-            _mediatorMock.Verify(m => m.Send(It.IsAny<UpdateInterviewerEntryFormCommand>(), It.IsAny<CancellationToken>()), Times.Once);
+            Assert.Equal(InterviewerEntryFormId, result.Id);
+
+            _repositoryMock.Verify(repo => repo.GetByIdAsync(InterviewerEntryFormId, It.IsAny<CancellationToken>()), Times.Once);
+            _repositoryMock.Verify(repo => repo.UpdateAsync(It.IsAny<InterviewerEntryForm>(), It.IsAny<CancellationToken>()), Times.Once);
         }
 
         [Fact]
         public async Task UpdateInterviewerEntryForm_ThrowsExceptionIfNotFound()
         {
-            var entryFormId = Guid.NewGuid();
-            var request = new UpdateInterviewerEntryFormCommand(
-                entryFormId,
-                UserId: Guid.NewGuid(),
-                AdditionalInfo: "Updated info",
-                Status: "approved"
-            );
+            // Arrange
+            var InterviewerEntryFormId = Guid.NewGuid();
+            var request = new UpdateInterviewerEntryFormCommand(InterviewerEntryFormId, Guid.NewGuid(), "string", "rejected");
 
-            _mediatorMock
-                .Setup(m => m.Send(It.IsAny<UpdateInterviewerEntryFormCommand>(), It.IsAny<CancellationToken>()))
-                .ThrowsAsync(new InterviewerEntryFormNotFoundException(entryFormId));
+            _repositoryMock.Setup(repo => repo.GetByIdAsync(InterviewerEntryFormId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync((InterviewerEntryForm)null);
 
-            var exception = await Assert.ThrowsAsync<InterviewerEntryFormNotFoundException>(() =>
-                _mediatorMock.Object.Send(request)
-            );
+            // Act & Assert
+            await Assert.ThrowsAsync<InterviewerEntryFormNotFoundException>(() =>
+                _updateHandler.Handle(request, CancellationToken.None));
 
-            Assert.NotNull(exception);
-            _mediatorMock.Verify(m => m.Send(It.IsAny<UpdateInterviewerEntryFormCommand>(), It.IsAny<CancellationToken>()), Times.Once);
+            _repositoryMock.Verify(repo => repo.GetByIdAsync(InterviewerEntryFormId, It.IsAny<CancellationToken>()), Times.Once);
         }
     }
+
 }

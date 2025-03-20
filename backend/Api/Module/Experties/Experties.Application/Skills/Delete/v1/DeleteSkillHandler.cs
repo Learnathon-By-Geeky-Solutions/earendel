@@ -15,7 +15,7 @@ public sealed class DeleteSkillHandler(
     {
         ArgumentNullException.ThrowIfNull(request);
         var skill = await repository.GetByIdAsync(request.Id, cancellationToken);
-        if (skill == null || skill.DeletedBy != Guid.Empty) throw new SkillNotFoundException(request.Id);
+        if (skill == null) throw new SkillNotFoundException(request.Id);
         await repository.DeleteAsync(skill, cancellationToken);
         logger.LogInformation("Skill with id : {SkillId} deleted", skill.Id);
     }

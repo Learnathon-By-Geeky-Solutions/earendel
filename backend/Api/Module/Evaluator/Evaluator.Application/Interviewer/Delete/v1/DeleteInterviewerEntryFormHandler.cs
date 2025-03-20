@@ -18,7 +18,7 @@ namespace TalentMesh.Module.Evaluator.Application.Interviewer.Delete.v1
         {
             ArgumentNullException.ThrowIfNull(request);
             var entryForm = await repository.GetByIdAsync(request.Id, cancellationToken);
-            if (entryForm.IsDeletedOrNotFound())
+            if (entryForm == null)
                 throw new InterviewerEntryFormNotFoundException(request.Id);
 
             await repository.DeleteAsync(entryForm, cancellationToken);

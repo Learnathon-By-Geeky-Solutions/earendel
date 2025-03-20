@@ -8,129 +8,144 @@ using TalentMesh.Module.Candidate.Domain.Exceptions;
 using TalentMesh.Framework.Core.Paging;
 using MediatR;
 using Xunit;
+using TalentMesh.Framework.Core.Persistence;
+using TalentMesh.Module.Candidate.Domain;
+using TalentMesh.Framework.Core.Caching;
+using Microsoft.Extensions.Logging;
 
 namespace TalentMesh.Module.Candidate.Tests
 {
     public class CandidateProfileHandlerTests
     {
-        private readonly Mock<ISender> _mediatorMock;
+        private readonly Mock<IRepository<CandidateProfile>> _repositoryMock;
+        private readonly Mock<IReadRepository<CandidateProfile>> _readRepositoryMock;
+        private readonly Mock<ICacheService> _cacheServiceMock;
+        private readonly Mock<ILogger<CreateCandidateProfileHandler>> _createLoggerMock;
+        private readonly Mock<ILogger<DeleteCandidateProfileHandler>> _deleteLoggerMock;
+        private readonly Mock<ILogger<GetCandidateProfileHandler>> _getLoggerMock;
+        private readonly Mock<ILogger<SearchCandidateProfileHandler>> _searchLoggerMock;
+        private readonly Mock<ILogger<UpdateCandidateProfileHandler>> _updateLoggerMock;
+
+        private readonly CreateCandidateProfileHandler _createHandler;
+        private readonly DeleteCandidateProfileHandler _deleteHandler;
+        private readonly GetCandidateProfileHandler _getHandler;
+        private readonly SearchCandidateProfileHandler _searchHandler;
+        private readonly UpdateCandidateProfileHandler _updateHandler;
 
         public CandidateProfileHandlerTests()
         {
-            _mediatorMock = new Mock<ISender>();
+            _repositoryMock = new Mock<IRepository<CandidateProfile>>();
+            _readRepositoryMock = new Mock<IReadRepository<CandidateProfile>>();
+            _cacheServiceMock = new Mock<ICacheService>();
+            _createLoggerMock = new Mock<ILogger<CreateCandidateProfileHandler>>();
+            _deleteLoggerMock = new Mock<ILogger<DeleteCandidateProfileHandler>>();
+            _getLoggerMock = new Mock<ILogger<GetCandidateProfileHandler>>();
+            _searchLoggerMock = new Mock<ILogger<SearchCandidateProfileHandler>>();
+            _updateLoggerMock = new Mock<ILogger<UpdateCandidateProfileHandler>>();
+
+            _createHandler = new CreateCandidateProfileHandler(_createLoggerMock.Object, _repositoryMock.Object);
+            _deleteHandler = new DeleteCandidateProfileHandler(_deleteLoggerMock.Object, _repositoryMock.Object);
+            _getHandler = new GetCandidateProfileHandler(_readRepositoryMock.Object, _cacheServiceMock.Object);
+            _searchHandler = new SearchCandidateProfileHandler(_readRepositoryMock.Object);
+            _updateHandler = new UpdateCandidateProfileHandler(_updateLoggerMock.Object, _repositoryMock.Object);
+
         }
 
         [Fact]
         public async Task CreateCandidateProfile_ReturnsCandidateProfileResponse()
         {
             // Arrange
-            var request = new CreateCandidateProfileCommand(
-                UserId: Guid.NewGuid(),
-                Resume: "Sample resume",
-                Skills: "C#, ASP.NET Core",
-                Experience: "3 years experience",
-                Education: "Bachelor's in Computer Science"
-            );
-            var expectedId = Guid.NewGuid();
-            var response = new CreateCandidateProfileResponse(expectedId);
+            var subSkillId = Guid.NewGuid();
+            var seniorityLevelId = Guid.NewGuid();
+            var request = new CreateCandidateProfileCommand("resume", "skills", "experience", "education", Guid.NewGuid());
+            var expectedCandidateProfile = CandidateProfile.Create(request.UserId, request.Resume!, request.Skills!, request.Experience, request.Education);
 
-            _mediatorMock
-                .Setup(m => m.Send(request, It.IsAny<CancellationToken>()))
-                .ReturnsAsync(response);
+            _repositoryMock.Setup(repo => repo.AddAsync(It.IsAny<CandidateProfile>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(expectedCandidateProfile);
 
             // Act
-            var result = await _mediatorMock.Object.Send(request);
+            var result = await _createHandler.Handle(request, CancellationToken.None);
 
             // Assert
             Assert.NotNull(result);
-            Assert.Equal(expectedId, result.Id);
-            Assert.IsType<CreateCandidateProfileResponse>(result);
-            _mediatorMock.Verify(m => m.Send(It.IsAny<CreateCandidateProfileCommand>(), It.IsAny<CancellationToken>()), Times.Once);
+            _repositoryMock.Verify(repo => repo.AddAsync(It.IsAny<CandidateProfile>(), It.IsAny<CancellationToken>()), Times.Once);
         }
 
         [Fact]
         public async Task DeleteCandidateProfile_DeletesSuccessfully()
         {
             // Arrange
-            var candidateProfileId = Guid.NewGuid();
+            var existingCandidateProfile = CandidateProfile.Create(Guid.NewGuid(), "resume", "skills", "experience", "education");
+            var CandidateProfileId = existingCandidateProfile.Id;
 
-            _mediatorMock
-                .Setup(m => m.Send(It.IsAny<DeleteCandidateProfileCommand>(), It.IsAny<CancellationToken>()))
-                .Returns(Task.CompletedTask);
+            _repositoryMock.Setup(repo => repo.GetByIdAsync(CandidateProfileId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(existingCandidateProfile);
 
             // Act
-            await _mediatorMock.Object.Send(new DeleteCandidateProfileCommand(candidateProfileId));
+            await _deleteHandler.Handle(new DeleteCandidateProfileCommand(CandidateProfileId), CancellationToken.None);
 
             // Assert
-            _mediatorMock.Verify(m => m.Send(It.IsAny<DeleteCandidateProfileCommand>(), It.IsAny<CancellationToken>()), Times.Once);
+            _repositoryMock.Verify(repo => repo.DeleteAsync(existingCandidateProfile, It.IsAny<CancellationToken>()), Times.Once);
+            _repositoryMock.Verify(repo => repo.GetByIdAsync(CandidateProfileId, It.IsAny<CancellationToken>()), Times.Once);
         }
 
         [Fact]
         public async Task DeleteCandidateProfile_ThrowsExceptionIfNotFound()
         {
             // Arrange
-            var candidateProfileId = Guid.NewGuid();
+            var CandidateProfileId = Guid.NewGuid();
 
-            _mediatorMock
-                .Setup(m => m.Send(It.IsAny<DeleteCandidateProfileCommand>(), It.IsAny<CancellationToken>()))
-                .ThrowsAsync(new CandidateProfileNotFoundException(candidateProfileId));
+            _repositoryMock.Setup(repo => repo.GetByIdAsync(CandidateProfileId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync((CandidateProfile)null);
 
             // Act & Assert
-            var exception = await Assert.ThrowsAsync<CandidateProfileNotFoundException>(
-                () => _mediatorMock.Object.Send(new DeleteCandidateProfileCommand(candidateProfileId))
-            );
-            Assert.NotNull(exception);
-            Assert.IsType<CandidateProfileNotFoundException>(exception);
-            _mediatorMock.Verify(m => m.Send(It.IsAny<DeleteCandidateProfileCommand>(), It.IsAny<CancellationToken>()), Times.Once);
+            await Assert.ThrowsAsync<CandidateProfileNotFoundException>(() =>
+                _deleteHandler.Handle(new DeleteCandidateProfileCommand(CandidateProfileId), CancellationToken.None));
+
+            _repositoryMock.Verify(repo => repo.GetByIdAsync(CandidateProfileId, It.IsAny<CancellationToken>()), Times.Once);
         }
 
         [Fact]
         public async Task GetCandidateProfile_ReturnsCandidateProfileResponse()
         {
             // Arrange
-            var candidateProfileId = Guid.NewGuid();
-            var resume = "Sample resume";
-            var skills = "C#, SQL";
-            var experience = "5 years";
-            var education = "Master's in Software Engineering";
-            // The last parameter is the associated user Id.
-            var candidateProfileResponse = new CandidateProfileResponse(candidateProfileId, resume, skills, experience, education, Guid.NewGuid());
+            var expectedCandidateProfile = CandidateProfile.Create(Guid.NewGuid(), "resume", "skills", "experience", "education");
+            var CandidateProfileId = expectedCandidateProfile.Id;
 
-            _mediatorMock
-                .Setup(m => m.Send(It.IsAny<GetCandidateProfileRequest>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(candidateProfileResponse);
+            _readRepositoryMock.Setup(repo => repo.GetByIdAsync(CandidateProfileId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(expectedCandidateProfile);
+
+            _cacheServiceMock.Setup(cache => cache.GetAsync<CandidateProfileResponse>(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync((CandidateProfileResponse)null);
 
             // Act
-            var result = await _mediatorMock.Object.Send(new GetCandidateProfileRequest(candidateProfileId));
+            var result = await _getHandler.Handle(new GetCandidateProfileRequest(CandidateProfileId), CancellationToken.None);
 
             // Assert
             Assert.NotNull(result);
-            Assert.Equal(candidateProfileId, result.Id);
-            Assert.Equal(resume, result.Resume);
-            Assert.Equal(skills, result.Skills);
-            Assert.Equal(experience, result.Experience);
-            Assert.Equal(education, result.Education);
-            Assert.IsType<CandidateProfileResponse>(result);
-            _mediatorMock.Verify(m => m.Send(It.IsAny<GetCandidateProfileRequest>(), It.IsAny<CancellationToken>()), Times.Once);
+            Assert.Equal(expectedCandidateProfile.Id, result.Id);
+            Assert.Equal(expectedCandidateProfile.UserId, result.UserId);
+            Assert.Equal(expectedCandidateProfile.Resume, result.Resume);
+            Assert.Equal(expectedCandidateProfile.Skills, result.Skills);
+
+            _readRepositoryMock.Verify(repo => repo.GetByIdAsync(CandidateProfileId, It.IsAny<CancellationToken>()), Times.Once);
+            _cacheServiceMock.Verify(cache => cache.SetAsync(It.IsAny<string>(), It.IsAny<CandidateProfileResponse>(), It.IsAny<TimeSpan?>(), It.IsAny<CancellationToken>()), Times.Once);
         }
 
         [Fact]
         public async Task GetCandidateProfile_ThrowsExceptionIfNotFound()
         {
             // Arrange
-            var candidateProfileId = Guid.NewGuid();
+            var CandidateProfileId = Guid.NewGuid();
 
-            _mediatorMock
-                .Setup(m => m.Send(It.IsAny<GetCandidateProfileRequest>(), It.IsAny<CancellationToken>()))
-                .ThrowsAsync(new CandidateProfileNotFoundException(candidateProfileId));
+            _readRepositoryMock.Setup(repo => repo.GetByIdAsync(CandidateProfileId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync((CandidateProfile)null);
 
             // Act & Assert
-            var exception = await Assert.ThrowsAsync<CandidateProfileNotFoundException>(
-                () => _mediatorMock.Object.Send(new GetCandidateProfileRequest(candidateProfileId))
-            );
-            Assert.NotNull(exception);
-            Assert.IsType<CandidateProfileNotFoundException>(exception);
-            _mediatorMock.Verify(m => m.Send(It.IsAny<GetCandidateProfileRequest>(), It.IsAny<CancellationToken>()), Times.Once);
+            await Assert.ThrowsAsync<CandidateProfileNotFoundException>(() =>
+                _getHandler.Handle(new GetCandidateProfileRequest(CandidateProfileId), CancellationToken.None));
+
+            _readRepositoryMock.Verify(repo => repo.GetByIdAsync(CandidateProfileId, It.IsAny<CancellationToken>()), Times.Once);
         }
 
         [Fact]
@@ -139,70 +154,92 @@ namespace TalentMesh.Module.Candidate.Tests
             // Arrange
             var request = new SearchCandidateProfileCommand
             {
-                Resume = "Sample",
-                PageNumber = 1,
+                UserId = Guid.NewGuid(),
+                Skills = "skills",
                 PageSize = 10
             };
-            var candidate1 = new CandidateProfileResponse(Guid.NewGuid(), "Sample resume", "C#, ASP.NET Core", "3 years", "Bachelor's", Guid.NewGuid());
-            var candidate2 = new CandidateProfileResponse(Guid.NewGuid(), "Sample resume", "SQL, NoSQL", "5 years", "Master's", Guid.NewGuid());
-            var pagedList = new PagedList<CandidateProfileResponse>(new[] { candidate1, candidate2 }, 1, 10, 2);
 
-            _mediatorMock
-                .Setup(m => m.Send(It.IsAny<SearchCandidateProfileCommand>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(pagedList);
+            var CandidateProfiles = new List<CandidateProfileResponse>
+            {
+                new CandidateProfileResponse(Guid.NewGuid(), "resume", "skills", "experience", "education", Guid.NewGuid()),
+            };
+            var totalCount = CandidateProfiles.Count;
+
+            // Mock returns List<CandidateProfile> (domain entities)
+            _readRepositoryMock
+                .Setup(repo => repo.ListAsync(It.IsAny<SearchCandidateProfileSpecs>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(CandidateProfiles);
+
+            _readRepositoryMock
+                .Setup(repo => repo.CountAsync(It.IsAny<SearchCandidateProfileSpecs>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(totalCount);
 
             // Act
-            var result = await _mediatorMock.Object.Send(request);
+            var result = await _searchHandler.Handle(request, CancellationToken.None);
 
-            // Assert
+            // Assert: Verify mapped DTOs
             Assert.NotNull(result);
-            Assert.Equal(2, result.Items.Count);
-            Assert.Equal("Sample resume", result.Items[0].Resume);
-            Assert.Equal("Sample resume", result.Items[1].Resume);
-            Assert.IsType<PagedList<CandidateProfileResponse>>(result);
-            _mediatorMock.Verify(m => m.Send(It.IsAny<SearchCandidateProfileCommand>(), It.IsAny<CancellationToken>()), Times.Once);
-        }
+            Assert.Equal(1, result.Items.Count);
 
+            Assert.Contains(result.Items, item =>
+                item.Resume == "resume" &&
+                item.Skills == "skills"
+            );
+
+            // Verify repository calls
+            _readRepositoryMock.Verify(repo =>
+                repo.ListAsync(It.IsAny<SearchCandidateProfileSpecs>(), It.IsAny<CancellationToken>()),
+                Times.Once
+            );
+
+            _readRepositoryMock.Verify(repo =>
+                repo.CountAsync(It.IsAny<SearchCandidateProfileSpecs>(), It.IsAny<CancellationToken>()),
+                Times.Once
+            );
+        }
         [Fact]
         public async Task UpdateCandidateProfile_ReturnsUpdatedCandidateProfileResponse()
         {
             // Arrange
-            var candidateProfileId = Guid.NewGuid();
-            var request = new UpdateCandidateProfileCommand(candidateProfileId, "Updated resume", "Updated skills", "Updated experience", "Updated education");
-            var response = new UpdateCandidateProfileResponse(candidateProfileId);
+            var existingCandidateProfile = CandidateProfile.Create(Guid.NewGuid(), "resume", "skills", "experience", "education");
+            var CandidateProfileId = existingCandidateProfile.Id;
+            var request = new UpdateCandidateProfileCommand(
+                CandidateProfileId,
+                "resume",
+                "skills",
+                "experience",
+                "education"
+            );
 
-            _mediatorMock
-                .Setup(m => m.Send(It.IsAny<UpdateCandidateProfileCommand>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(response);
+            _repositoryMock.Setup(repo => repo.GetByIdAsync(CandidateProfileId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(existingCandidateProfile);
 
             // Act
-            var result = await _mediatorMock.Object.Send(request);
+            var result = await _updateHandler.Handle(request, CancellationToken.None);
 
             // Assert
             Assert.NotNull(result);
-            Assert.Equal(candidateProfileId, result.Id);
-            Assert.IsType<UpdateCandidateProfileResponse>(result);
-            _mediatorMock.Verify(m => m.Send(It.IsAny<UpdateCandidateProfileCommand>(), It.IsAny<CancellationToken>()), Times.Once);
+            Assert.Equal(CandidateProfileId, result.Id);
+
+            _repositoryMock.Verify(repo => repo.GetByIdAsync(CandidateProfileId, It.IsAny<CancellationToken>()), Times.Once);
+            _repositoryMock.Verify(repo => repo.UpdateAsync(It.IsAny<CandidateProfile>(), It.IsAny<CancellationToken>()), Times.Once);
         }
 
         [Fact]
         public async Task UpdateCandidateProfile_ThrowsExceptionIfNotFound()
         {
             // Arrange
-            var candidateProfileId = Guid.NewGuid();
-            var request = new UpdateCandidateProfileCommand(candidateProfileId, "Updated resume", "Updated skills", "Updated experience", "Updated education");
+            var CandidateProfileId = Guid.NewGuid();
+            var request = new UpdateCandidateProfileCommand(CandidateProfileId, "resume", "skills", "experience", "education");
 
-            _mediatorMock
-                .Setup(m => m.Send(It.IsAny<UpdateCandidateProfileCommand>(), It.IsAny<CancellationToken>()))
-                .ThrowsAsync(new CandidateProfileNotFoundException(candidateProfileId));
+            _repositoryMock.Setup(repo => repo.GetByIdAsync(CandidateProfileId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync((CandidateProfile)null);
 
             // Act & Assert
-            var exception = await Assert.ThrowsAsync<CandidateProfileNotFoundException>(
-                () => _mediatorMock.Object.Send(request)
-            );
-            Assert.NotNull(exception);
-            Assert.IsType<CandidateProfileNotFoundException>(exception);
-            _mediatorMock.Verify(m => m.Send(It.IsAny<UpdateCandidateProfileCommand>(), It.IsAny<CancellationToken>()), Times.Once);
+            await Assert.ThrowsAsync<CandidateProfileNotFoundException>(() =>
+                _updateHandler.Handle(request, CancellationToken.None));
+
+            _repositoryMock.Verify(repo => repo.GetByIdAsync(CandidateProfileId, It.IsAny<CancellationToken>()), Times.Once);
         }
     }
 }

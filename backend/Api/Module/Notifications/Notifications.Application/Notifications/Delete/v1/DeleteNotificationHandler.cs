@@ -17,7 +17,7 @@ public sealed class DeleteNotificationHandler(
         ArgumentNullException.ThrowIfNull(request);
 
         var notification = await repository.GetByIdAsync(request.Id, cancellationToken);
-        if (notification == null || notification.DeletedBy != Guid.Empty)
+        if (notification == null)
             throw new NotificationNotFoundException(request.Id);
 
         await repository.DeleteAsync(notification, cancellationToken);

@@ -16,12 +16,12 @@ namespace TalentMesh.Module.Evaluator.Application.Interviewer.Update.v1
         {
             ArgumentNullException.ThrowIfNull(request);
             var entity = await repository.GetByIdAsync(request.Id, cancellationToken);
-            if (entity == null || entity.DeletedBy != Guid.Empty)
+            if (entity == null)
             {
                 throw new InterviewerApplicationNotFoundException(request.Id);
             }
             // Assume InterviewerApplication.Update updates JobId, InterviewerId, Status and Comments.
-            var updatedEntity = entity.Update( request.Status, request.Comments);
+            var updatedEntity = entity.Update(request.Status, request.Comments);
             await repository.UpdateAsync(updatedEntity, cancellationToken);
             logger.LogInformation("InterviewerApplication with id {Id} updated.", entity.Id);
             return new UpdateInterviewerApplicationResponse(entity.Id);

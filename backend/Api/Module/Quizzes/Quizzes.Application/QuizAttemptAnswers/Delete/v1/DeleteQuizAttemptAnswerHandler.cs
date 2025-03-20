@@ -15,7 +15,7 @@ public sealed class DeleteQuizAttemptAnswerHandler(
     {
         ArgumentNullException.ThrowIfNull(request);
         var QuizAttemptAnswer = await repository.GetByIdAsync(request.Id, cancellationToken);
-        if (QuizAttemptAnswer == null || QuizAttemptAnswer.DeletedBy != Guid.Empty) throw new QuizAttemptAnswerNotFoundException(request.Id);
+        if (QuizAttemptAnswer == null) throw new QuizAttemptAnswerNotFoundException(request.Id);
         await repository.DeleteAsync(QuizAttemptAnswer, cancellationToken);
         logger.LogInformation("QuizAttemptAnswer with id : {QuizAttemptAnswerId} deleted", QuizAttemptAnswer.Id);
     }

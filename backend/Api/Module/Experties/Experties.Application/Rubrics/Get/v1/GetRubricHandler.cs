@@ -19,7 +19,7 @@ public sealed class GetRubricHandler(
             async () =>
             {
                 var rubricItem = await repository.GetByIdAsync(request.Id, cancellationToken);
-                if (rubricItem == null || rubricItem.DeletedBy != Guid.Empty) throw new RubricNotFoundException(request.Id);
+                if (rubricItem == null) throw new RubricNotFoundException(request.Id);
                 return new RubricResponse(rubricItem.Id, rubricItem.Title, rubricItem.RubricDescription, rubricItem.SubSkillId, rubricItem.SeniorityLevelId, rubricItem.Weight);
             },
             cancellationToken: cancellationToken);

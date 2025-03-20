@@ -16,7 +16,7 @@ public sealed class UpdateSeniorityLevelJunctionHandler(
         ArgumentNullException.ThrowIfNull(request);
 
         var junction = await repository.GetByIdAsync(request.Id, cancellationToken);
-        if (junction is null || junction.DeletedBy != Guid.Empty)
+        if (junction is null)
         {
             throw new SeniorityLevelJunctionNotFoundException(request.Id);
         }

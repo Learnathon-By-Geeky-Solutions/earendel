@@ -6,199 +6,249 @@ using TalentMesh.Module.Interviews.Application.InterviewFeedbacks.Get.v1;
 using TalentMesh.Module.Interviews.Application.InterviewFeedbacks.Search.v1;
 using TalentMesh.Module.Interviews.Application.InterviewFeedbacks.Update.v1;
 using TalentMesh.Module.Interviews.Domain.Exceptions;
-using TalentMesh.Framework.Core.Paging;
 using MediatR;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using TalentMesh.Framework.Core.Persistence;
+using TalentMesh.Module.Interviews.Domain;
+using TalentMesh.Framework.Core.Caching;
+using Microsoft.Extensions.Logging;
 
 namespace TalentMesh.Module.Interviews.Tests
 {
     public class InterviewFeedbackHandlerTests
     {
-        private readonly Mock<ISender> _mediatorMock;
+        private readonly Mock<IRepository<InterviewFeedback>> _repositoryMock;
+        private readonly Mock<IReadRepository<InterviewFeedback>> _readRepositoryMock;
+        private readonly Mock<ICacheService> _cacheServiceMock;
+        private readonly Mock<ILogger<CreateInterviewFeedbackHandler>> _createLoggerMock;
+        private readonly Mock<ILogger<DeleteInterviewFeedbackHandler>> _deleteLoggerMock;
+        private readonly Mock<ILogger<GetInterviewFeedbackHandler>> _getLoggerMock;
+        private readonly Mock<ILogger<SearchInterviewFeedbacksHandler>> _searchLoggerMock;
+        private readonly Mock<ILogger<UpdateInterviewFeedbackHandler>> _updateLoggerMock;
+
+        private readonly CreateInterviewFeedbackHandler _createHandler;
+        private readonly DeleteInterviewFeedbackHandler _deleteHandler;
+        private readonly GetInterviewFeedbackHandler _getHandler;
+        private readonly SearchInterviewFeedbacksHandler _searchHandler;
+        private readonly UpdateInterviewFeedbackHandler _updateHandler;
 
         public InterviewFeedbackHandlerTests()
         {
-            _mediatorMock = new Mock<ISender>();
+            _repositoryMock = new Mock<IRepository<InterviewFeedback>>();
+            _readRepositoryMock = new Mock<IReadRepository<InterviewFeedback>>();
+            _cacheServiceMock = new Mock<ICacheService>();
+            _createLoggerMock = new Mock<ILogger<CreateInterviewFeedbackHandler>>();
+            _deleteLoggerMock = new Mock<ILogger<DeleteInterviewFeedbackHandler>>();
+            _getLoggerMock = new Mock<ILogger<GetInterviewFeedbackHandler>>();
+            _searchLoggerMock = new Mock<ILogger<SearchInterviewFeedbacksHandler>>();
+            _updateLoggerMock = new Mock<ILogger<UpdateInterviewFeedbackHandler>>();
+
+            _createHandler = new CreateInterviewFeedbackHandler(_createLoggerMock.Object, _repositoryMock.Object);
+            _deleteHandler = new DeleteInterviewFeedbackHandler(_deleteLoggerMock.Object, _repositoryMock.Object);
+            _getHandler = new GetInterviewFeedbackHandler(_readRepositoryMock.Object, _cacheServiceMock.Object);
+            _searchHandler = new SearchInterviewFeedbacksHandler(_readRepositoryMock.Object);
+            _updateHandler = new UpdateInterviewFeedbackHandler(_updateLoggerMock.Object, _repositoryMock.Object);
+
         }
 
         [Fact]
         public async Task CreateInterviewFeedback_ReturnsInterviewFeedbackResponse()
         {
-            var request = new CreateInterviewFeedbackCommand(Guid.NewGuid(), Guid.NewGuid(), "Sample Response", 85.5m);
-            var expectedId = Guid.NewGuid();
-            var response = new CreateInterviewFeedbackResponse(expectedId);
+            // Arrange
+            var interviewId = Guid.NewGuid();
+            var interviewQuestionId = Guid.NewGuid();
+            var response = "Good";
+            var score = 8.0m;
+            var request = new CreateInterviewFeedbackCommand(interviewId, interviewQuestionId, response, score);
+            var expectedInterviewFeedback = InterviewFeedback.Create(request.InterviewId!, request.InterviewQuestionId!, request.Response, request.Score);
 
-            _mediatorMock
-                .Setup(m => m.Send(request, It.IsAny<CancellationToken>()))
-                .ReturnsAsync(response);
+            _repositoryMock.Setup(repo => repo.AddAsync(It.IsAny<InterviewFeedback>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(expectedInterviewFeedback);
 
-            var result = await _mediatorMock.Object.Send(request);
+            // Act
+            var result = await _createHandler.Handle(request, CancellationToken.None);
 
+            // Assert
             Assert.NotNull(result);
-            Assert.Equal(expectedId, result.Id);
-            Assert.IsType<CreateInterviewFeedbackResponse>(result);
-
-            _mediatorMock.Verify(m => m.Send(It.IsAny<CreateInterviewFeedbackCommand>(), It.IsAny<CancellationToken>()), Times.Once);
+            _repositoryMock.Verify(repo => repo.AddAsync(It.IsAny<InterviewFeedback>(), It.IsAny<CancellationToken>()), Times.Once);
         }
 
         [Fact]
         public async Task DeleteInterviewFeedback_DeletesSuccessfully()
         {
-            var InterviewFeedbackId = Guid.NewGuid();
+            // Arrange
+            var existingInterviewFeedback = InterviewFeedback.Create(Guid.NewGuid(), Guid.NewGuid(), "Good", 0.8m);
+            var InterviewFeedbackId = existingInterviewFeedback.Id;
 
-            _mediatorMock
-                .Setup(m => m.Send(It.IsAny<DeleteInterviewFeedbackCommand>(), It.IsAny<CancellationToken>()))
-                .Returns(Task.CompletedTask);
+            _repositoryMock.Setup(repo => repo.GetByIdAsync(InterviewFeedbackId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(existingInterviewFeedback);
 
-            await _mediatorMock.Object.Send(new DeleteInterviewFeedbackCommand(InterviewFeedbackId));
+            // Act
+            await _deleteHandler.Handle(new DeleteInterviewFeedbackCommand(InterviewFeedbackId), CancellationToken.None);
 
-            _mediatorMock.Verify(m => m.Send(It.IsAny<DeleteInterviewFeedbackCommand>(), It.IsAny<CancellationToken>()), Times.Once);
+            // Assert
+            _repositoryMock.Verify(repo => repo.DeleteAsync(existingInterviewFeedback, It.IsAny<CancellationToken>()), Times.Once);
+            _repositoryMock.Verify(repo => repo.GetByIdAsync(InterviewFeedbackId, It.IsAny<CancellationToken>()), Times.Once);
         }
 
         [Fact]
         public async Task DeleteInterviewFeedback_ThrowsExceptionIfNotFound()
         {
+            // Arrange
             var InterviewFeedbackId = Guid.NewGuid();
 
-            _mediatorMock
-                .Setup(m => m.Send(It.IsAny<DeleteInterviewFeedbackCommand>(), It.IsAny<CancellationToken>()))
-                .ThrowsAsync(new InterviewFeedbackNotFoundException(InterviewFeedbackId));
+            _repositoryMock.Setup(repo => repo.GetByIdAsync(InterviewFeedbackId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync((InterviewFeedback)null);
 
-            var exception = await Assert.ThrowsAsync<InterviewFeedbackNotFoundException>(() => _mediatorMock.Object.Send(new DeleteInterviewFeedbackCommand(InterviewFeedbackId)));
+            // Act & Assert
+            await Assert.ThrowsAsync<InterviewFeedbackNotFoundException>(() =>
+                _deleteHandler.Handle(new DeleteInterviewFeedbackCommand(InterviewFeedbackId), CancellationToken.None));
 
-            Assert.NotNull(exception);
-            Assert.IsType<InterviewFeedbackNotFoundException>(exception);
-
-            _mediatorMock.Verify(m => m.Send(It.IsAny<DeleteInterviewFeedbackCommand>(), It.IsAny<CancellationToken>()), Times.Once);
+            _repositoryMock.Verify(repo => repo.GetByIdAsync(InterviewFeedbackId, It.IsAny<CancellationToken>()), Times.Once);
         }
 
         [Fact]
         public async Task GetInterviewFeedback_ReturnsInterviewFeedbackResponse()
         {
-            var InterviewFeedbackId = Guid.NewGuid();
-            var InterviewQuestionId = Guid.NewGuid();
-            var InterviewId = Guid.NewGuid();
-            var response = "Sample Response";
-            var score = 90.5m;
+            // Arrange
+            var expectedInterviewFeedback = InterviewFeedback.Create(Guid.NewGuid(), Guid.NewGuid(), "Good", 0.8m);
+            var InterviewFeedbackId = expectedInterviewFeedback.Id;
 
-            var InterviewFeedbackResponse = new InterviewFeedbackResponse(InterviewFeedbackId, InterviewId, InterviewQuestionId, response, score);
+            _readRepositoryMock.Setup(repo => repo.GetByIdAsync(InterviewFeedbackId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(expectedInterviewFeedback);
 
-            _mediatorMock
-                .Setup(m => m.Send(It.IsAny<GetInterviewFeedbackRequest>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(InterviewFeedbackResponse);
+            _cacheServiceMock.Setup(cache => cache.GetAsync<InterviewFeedbackResponse>(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync((InterviewFeedbackResponse)null);
 
-            var result = await _mediatorMock.Object.Send(new GetInterviewFeedbackRequest(InterviewFeedbackId));
+            // Act
+            var result = await _getHandler.Handle(new GetInterviewFeedbackRequest(InterviewFeedbackId), CancellationToken.None);
 
+            // Assert
             Assert.NotNull(result);
-            Assert.Equal(InterviewId, result.InterviewId);
-            Assert.Equal(InterviewQuestionId, result.InterviewQuestionId);
-            Assert.Equal(response, result.Response);
-            Assert.Equal(score, result.Score);
-            Assert.IsType<InterviewFeedbackResponse>(result);
+            Assert.Equal(expectedInterviewFeedback.Id, result.Id);
+            Assert.Equal(expectedInterviewFeedback.InterviewId, result.InterviewId);
+            Assert.Equal(expectedInterviewFeedback.InterviewQuestionId, result.InterviewQuestionId);
 
-            _mediatorMock.Verify(m => m.Send(It.IsAny<GetInterviewFeedbackRequest>(), It.IsAny<CancellationToken>()), Times.Once);
+            _readRepositoryMock.Verify(repo => repo.GetByIdAsync(InterviewFeedbackId, It.IsAny<CancellationToken>()), Times.Once);
+            _cacheServiceMock.Verify(cache => cache.SetAsync(It.IsAny<string>(), It.IsAny<InterviewFeedbackResponse>(), It.IsAny<TimeSpan?>(), It.IsAny<CancellationToken>()), Times.Once);
         }
 
         [Fact]
         public async Task GetInterviewFeedback_ThrowsExceptionIfNotFound()
         {
+            // Arrange
             var InterviewFeedbackId = Guid.NewGuid();
 
-            _mediatorMock
-                .Setup(m => m.Send(It.IsAny<GetInterviewFeedbackRequest>(), It.IsAny<CancellationToken>()))
-                .ThrowsAsync(new InterviewFeedbackNotFoundException(InterviewFeedbackId));
+            _readRepositoryMock.Setup(repo => repo.GetByIdAsync(InterviewFeedbackId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync((InterviewFeedback)null);
 
-            var exception = await Assert.ThrowsAsync<InterviewFeedbackNotFoundException>(() => _mediatorMock.Object.Send(new GetInterviewFeedbackRequest(InterviewFeedbackId)));
+            // Act & Assert
+            await Assert.ThrowsAsync<InterviewFeedbackNotFoundException>(() =>
+                _getHandler.Handle(new GetInterviewFeedbackRequest(InterviewFeedbackId), CancellationToken.None));
 
-            Assert.NotNull(exception);
-            Assert.IsType<InterviewFeedbackNotFoundException>(exception);
-
-            _mediatorMock.Verify(m => m.Send(It.IsAny<GetInterviewFeedbackRequest>(), It.IsAny<CancellationToken>()), Times.Once);
+            _readRepositoryMock.Verify(repo => repo.GetByIdAsync(InterviewFeedbackId, It.IsAny<CancellationToken>()), Times.Once);
         }
 
         [Fact]
         public async Task SearchInterviewFeedbacks_ReturnsPagedInterviewFeedbackResponse()
         {
+            // Arrange
             var request = new SearchInterviewFeedbacksCommand
             {
                 InterviewId = Guid.NewGuid(),
-                InterviewQuestionId = Guid.NewGuid(),
-                Response = "Sample Response",
-                Score = 85.5m,
                 PageNumber = 1,
                 PageSize = 10
             };
 
-            var pagedList = new PagedList<InterviewFeedbackResponse>(
-                new[]
-                {
-                    new InterviewFeedbackResponse(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), "Sample Response", 85.5m),
-                    new InterviewFeedbackResponse(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), "Final Response", 90.0m)
-                },
-                1,
-                10,
-                2);
+            var InterviewFeedbacks = new List<InterviewFeedbackResponse>
+            {
+                new InterviewFeedbackResponse(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), "Good", 0.8m),
+                new InterviewFeedbackResponse(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), "Good", 0.9m),
+            };
+            var totalCount = InterviewFeedbacks.Count;
 
-            _mediatorMock
-                .Setup(m => m.Send(It.IsAny<SearchInterviewFeedbacksCommand>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(pagedList);
+            // Mock returns List<InterviewFeedback> (domain entities)
+            _readRepositoryMock
+                .Setup(repo => repo.ListAsync(It.IsAny<SearchInterviewFeedbackSpecs>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(InterviewFeedbacks);
 
-            var result = await _mediatorMock.Object.Send(request);
+            _readRepositoryMock
+                .Setup(repo => repo.CountAsync(It.IsAny<SearchInterviewFeedbackSpecs>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(totalCount);
 
+            // Act
+            var result = await _searchHandler.Handle(request, CancellationToken.None);
+
+            // Assert: Verify mapped DTOs
             Assert.NotNull(result);
             Assert.Equal(2, result.Items.Count);
-            Assert.All(result.Items, item => Assert.NotNull(item.Response));
-            Assert.IsType<PagedList<InterviewFeedbackResponse>>(result);
 
-            _mediatorMock.Verify(m => m.Send(It.IsAny<SearchInterviewFeedbacksCommand>(), It.IsAny<CancellationToken>()), Times.Once);
+            Assert.Contains(result.Items, item =>
+                item.Response == "Good" &&
+                item.Score == 0.8m
+            );
+
+            Assert.Contains(result.Items, item =>
+                item.Response == "Good" &&
+                item.Score == 0.9m
+            );
+
+            // Verify repository calls
+            _readRepositoryMock.Verify(repo =>
+                repo.ListAsync(It.IsAny<SearchInterviewFeedbackSpecs>(), It.IsAny<CancellationToken>()),
+                Times.Once
+            );
+
+            _readRepositoryMock.Verify(repo =>
+                repo.CountAsync(It.IsAny<SearchInterviewFeedbackSpecs>(), It.IsAny<CancellationToken>()),
+                Times.Once
+            );
         }
-
         [Fact]
         public async Task UpdateInterviewFeedback_ReturnsUpdatedInterviewFeedbackResponse()
         {
-            var InterviewFeedbackId = Guid.NewGuid();
-            var InterviewQuestionId = Guid.NewGuid();
-            var InterviewId = Guid.NewGuid();
-            var response = "Updated Response";
-            var score = 95.5m;
+            // Arrange
+            var existingInterviewFeedback = InterviewFeedback.Create(Guid.NewGuid(), Guid.NewGuid(), "Good", 0.5m);
+            var InterviewFeedbackId = existingInterviewFeedback.Id;
+            var request = new UpdateInterviewFeedbackCommand(
+                InterviewFeedbackId,
+                Guid.NewGuid(),
+                Guid.NewGuid(),
+                "Bad",
+                1.0m
+            );
 
-            var request = new UpdateInterviewFeedbackCommand(InterviewId, InterviewFeedbackId, InterviewQuestionId, response, score);
-            var responseUpdate = new UpdateInterviewFeedbackResponse(InterviewFeedbackId);
+            _repositoryMock.Setup(repo => repo.GetByIdAsync(InterviewFeedbackId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(existingInterviewFeedback);
 
-            _mediatorMock
-                .Setup(m => m.Send(It.IsAny<UpdateInterviewFeedbackCommand>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(responseUpdate);
+            // Act
+            var result = await _updateHandler.Handle(request, CancellationToken.None);
 
-            var result = await _mediatorMock.Object.Send(request);
-
+            // Assert
             Assert.NotNull(result);
             Assert.Equal(InterviewFeedbackId, result.Id);
-            Assert.IsType<UpdateInterviewFeedbackResponse>(result);
 
-            _mediatorMock.Verify(m => m.Send(It.IsAny<UpdateInterviewFeedbackCommand>(), It.IsAny<CancellationToken>()), Times.Once);
+            _repositoryMock.Verify(repo => repo.GetByIdAsync(InterviewFeedbackId, It.IsAny<CancellationToken>()), Times.Once);
+            _repositoryMock.Verify(repo => repo.UpdateAsync(It.IsAny<InterviewFeedback>(), It.IsAny<CancellationToken>()), Times.Once);
         }
 
         [Fact]
         public async Task UpdateInterviewFeedback_ThrowsExceptionIfNotFound()
         {
+            // Arrange
             var InterviewFeedbackId = Guid.NewGuid();
-            var InterviewQuestionId = Guid.NewGuid();
-            var InterviewId = Guid.NewGuid();
+            var request = new UpdateInterviewFeedbackCommand(InterviewFeedbackId, Guid.NewGuid(), Guid.NewGuid(), "Good", 1.0m);
 
-            var request = new UpdateInterviewFeedbackCommand(InterviewFeedbackId, InterviewId, InterviewQuestionId, "Updated Response", 88.0m);
+            _repositoryMock.Setup(repo => repo.GetByIdAsync(InterviewFeedbackId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync((InterviewFeedback)null);
 
-            _mediatorMock
-                .Setup(m => m.Send(It.IsAny<UpdateInterviewFeedbackCommand>(), It.IsAny<CancellationToken>()))
-                .ThrowsAsync(new InterviewFeedbackNotFoundException(InterviewFeedbackId));
+            // Act & Assert
+            await Assert.ThrowsAsync<InterviewFeedbackNotFoundException>(() =>
+                _updateHandler.Handle(request, CancellationToken.None));
 
-            var exception = await Assert.ThrowsAsync<InterviewFeedbackNotFoundException>(() => _mediatorMock.Object.Send(request));
-
-            Assert.NotNull(exception);
-            Assert.IsType<InterviewFeedbackNotFoundException>(exception);
-
-            _mediatorMock.Verify(m => m.Send(It.IsAny<UpdateInterviewFeedbackCommand>(), It.IsAny<CancellationToken>()), Times.Once);
+            _repositoryMock.Verify(repo => repo.GetByIdAsync(InterviewFeedbackId, It.IsAny<CancellationToken>()), Times.Once);
         }
     }
 }
