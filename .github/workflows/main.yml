@@ -14,7 +14,7 @@ on:
 
 jobs:
   build:
-    name: Build, Test, and Code Coverage
+    name: Build and Test Application
     runs-on: ubuntu-latest
 
     steps:
@@ -23,6 +23,9 @@ jobs:
 
       - name: Restore TenantConstants.cs
         run: echo "${{ secrets._TENANT_CONSTANTS_CS }}" | base64 --decode > backend/Shared/Authorization/TenantConstants.cs
+
+      - name: Debug Directory Structure
+        run: ls -R backend
 
       - name: Setup .NET SDK
         uses: actions/setup-dotnet@v3
@@ -35,49 +38,21 @@ jobs:
       - name: Build Application
         run: dotnet build backend/Aspire/Aspire.sln --no-restore --configuration Release
 
-      - name: Run Tests with Coverage
+      - name: Run Tests for All Modules in Parallel and Summarize
         run: |
-          mkdir -p test-results coverage
+          mkdir -p test-results
           find backend/Api/Module -type f -name "*.Test.csproj" | \
-            xargs -I {} sh -c 'echo "Running tests for project: {}"; dotnet test "{}" --no-build --configuration Release \
-            --collect:"XPlat Code Coverage" --logger trx --results-directory test-results || true'
-
-      - name: Convert Coverage to Cobertura Format
-        run: |
-          dotnet tool install --global dotnet-reportgenerator-globaltool
-          reportgenerator -reports:test-results/*/coverage.cobertura.xml \
-            -targetdir:coverage -reporttypes:Cobertura
-
-      - name: Upload Test Results & Coverage Report
-        uses: actions/upload-artifact@v4
-        with:
-          name: test-results
-          path: test-results/
-      
-      - name: Upload Coverage Report
-        uses: actions/upload-artifact@v4
-        with:
-          name: coverage-report
-          path: coverage/
-      
-      # Optional: Upload to SonarCloud
-      - name: SonarCloud Analysis
-        if: ${{ secrets.SONAR_TOKEN != '' }}
-        run: |
-          dotnet tool install --global dotnet-sonarscanner
-          dotnet sonarscanner begin /k:"YourProjectKey" /o:"YourOrgName" \
-            /d:sonar.token="${{ secrets.SONAR_TOKEN }}" \
-            /d:sonar.cs.vscoveragexml.reportsPaths="coverage/coverage.cobertura.xml"
-          dotnet build backend/Aspire/Aspire.sln
-          dotnet sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
-
-      # # Optional: Upload to Codecov
-      # - name: Upload Coverage to Codecov
-      #   if: ${{ secrets.CODECOV_TOKEN != '' }}
-      #   run: |
-      #     bash <(curl -s https://codecov.io/bash) -f "coverage/coverage.cobertura.xml"
-      #   env:
-      #     CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+            xargs -I {} sh -c 'echo "Running tests for project: {}"; dotnet test "{}" | tee "test-results/$(basename {}).log" || true'
+          echo "### Listing All Test Log Files ###"
+          ls -l test-results
+          echo "### Individual Test Summaries ###"
+          for file in test-results/*.log; do
+            echo "Summary for $(basename "$file"):"
+            grep -E "(Passed!|Total:)" "$file" || echo "No summary found in $file"
+            echo "------"
+          done
+          echo "### Final Aggregated Test Summary ###"
+          grep -H -E "(Passed!|Total:)" test-results/*.log || echo "No test summary lines found."
 
   publish:
     name: Publish Application
