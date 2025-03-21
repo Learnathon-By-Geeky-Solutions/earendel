@@ -40,10 +40,8 @@ namespace TalentMesh.Framework.Infrastructure.Persistence.Interceptors
             eventData.Context.ChangeTracker.DetectChanges();
             var trails = new List<TrailDto>();
             var utcNow = timeProvider.GetUtcNow();
-            // Get the userId once to avoid repeated calls in the loop.
             var userId = currentUser.GetUserId();
 
-            // Process only added, modified, or deleted auditable entries.
             var auditableEntries = eventData.Context.ChangeTracker.Entries<IAuditable>()
                 .Where(x => x.State is EntityState.Added or EntityState.Deleted or EntityState.Modified)
                 .ToList();
@@ -79,7 +77,7 @@ namespace TalentMesh.Framework.Infrastructure.Persistence.Interceptors
         /// <summary>
         /// Processes an individual property of the auditable entry and updates the trail accordingly.
         /// </summary>
-        private void ProcessProperty(EntityEntry<IAuditable> entry, PropertyEntry property, TrailDto trail)
+        private static void ProcessProperty(EntityEntry<IAuditable> entry, PropertyEntry property, TrailDto trail)
         {
             if (property.IsTemporary)
             {
