@@ -27,7 +27,7 @@ spec:
               value: TalentMesh
             - name: POSTGRES_USER
               value: postgres
-            - name: POSTGRES_PASSWORD
+            - name: POSTGRES
               value: postgres
           livenessProbe:
             exec:
