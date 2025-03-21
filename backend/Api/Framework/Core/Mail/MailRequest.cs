@@ -1,29 +1,87 @@
 ﻿using System.Collections.ObjectModel;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 
-namespace TalentMesh.Framework.Core.Mail;
-[ExcludeFromCodeCoverage]
-public class MailRequest(Collection<string> to, string subject, string? body = null, string? from = null, string? displayName = null, string? replyTo = null, string? replyToName = null, Collection<string>? bcc = null, Collection<string>? cc = null, IDictionary<string, byte[]>? attachmentData = null, IDictionary<string, string>? headers = null)
+namespace TalentMesh.Framework.Core.Mail
 {
-    public Collection<string> To { get; } = to;
+    [ExcludeFromCodeCoverage]
+    public class MailRequest
+    {
+        // Required properties set via the constructor.
+        public Collection<string> To { get; }
+        public string Subject { get; }
 
-    public string Subject { get; } = subject;
+        // Optional properties that can be set via fluent methods or property setters.
+        public string? Body { get; private set; }
+        public string? From { get; private set; }
+        public string? DisplayName { get; private set; }
+        public string? ReplyTo { get; private set; }
+        public string? ReplyToName { get; private set; }
+        public Collection<string> Bcc { get; } = new Collection<string>();
+        public Collection<string> Cc { get; } = new Collection<string>();
+        public IDictionary<string, byte[]> AttachmentData { get; } = new Dictionary<string, byte[]>();
+        public IDictionary<string, string> Headers { get; } = new Dictionary<string, string>();
 
-    public string? Body { get; } = body;
+        // Only required properties are required in the constructor.
+        public MailRequest(Collection<string> to, string subject)
+        {
+            To = to;
+            Subject = subject;
+        }
 
-    public string? From { get; } = from;
+        // Fluent methods to set optional properties.
+        public MailRequest WithBody(string body)
+        {
+            Body = body;
+            return this;
+        }
 
-    public string? DisplayName { get; } = displayName;
+        public MailRequest WithFrom(string from)
+        {
+            From = from;
+            return this;
+        }
 
-    public string? ReplyTo { get; } = replyTo;
+        public MailRequest WithDisplayName(string displayName)
+        {
+            DisplayName = displayName;
+            return this;
+        }
 
-    public string? ReplyToName { get; } = replyToName;
+        public MailRequest WithReplyTo(string replyTo)
+        {
+            ReplyTo = replyTo;
+            return this;
+        }
 
-    public Collection<string> Bcc { get; } = bcc ?? new Collection<string>();
+        public MailRequest WithReplyToName(string replyToName)
+        {
+            ReplyToName = replyToName;
+            return this;
+        }
 
-    public Collection<string> Cc { get; } = cc ?? new Collection<string>();
+        public MailRequest AddBcc(string bccAddress)
+        {
+            Bcc.Add(bccAddress);
+            return this;
+        }
 
-    public IDictionary<string, byte[]> AttachmentData { get; } = attachmentData ?? new Dictionary<string, byte[]>();
+        public MailRequest AddCc(string ccAddress)
+        {
+            Cc.Add(ccAddress);
+            return this;
+        }
 
-    public IDictionary<string, string> Headers { get; } = headers ?? new Dictionary<string, string>();
+        public MailRequest AddAttachment(string fileName, byte[] fileData)
+        {
+            AttachmentData[fileName] = fileData;
+            return this;
+        }
+
+        public MailRequest AddHeader(string key, string value)
+        {
+            Headers[key] = value;
+            return this;
+        }
+    }
 }

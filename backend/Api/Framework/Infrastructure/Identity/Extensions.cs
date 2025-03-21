@@ -22,50 +22,94 @@ using Microsoft.Extensions.DependencyInjection;
 using System.Diagnostics.CodeAnalysis;
 
 using IdentityConstants = TalentMesh.Shared.Authorization.IdentityConstants;
+using TalentMesh.Framework.Core.Caching;
+using TalentMesh.Framework.Core.Jobs;
+using TalentMesh.Framework.Core.Mail;
+using Finbuckle.MultiTenant.Abstractions;
+using TalentMesh.Framework.Infrastructure.Tenant;
+using TalentMesh.Framework.Core.Storage;
 
-namespace TalentMesh.Framework.Infrastructure.Identity;
-[ExcludeFromCodeCoverage]
-
-internal static class Extensions
+namespace TalentMesh.Framework.Infrastructure.Identity
 {
-    internal static IServiceCollection ConfigureIdentity(this IServiceCollection services)
-    {
-        ArgumentNullException.ThrowIfNull(services);
-        services.AddScoped<CurrentUserMiddleware>();
-        services.AddScoped<ICurrentUser, CurrentUser>();
-        services.AddScoped<ITokenService, TokenService>();
-        services.AddScoped(sp => (ICurrentUserInitializer)sp.GetRequiredService<ICurrentUser>());
-        services.AddTransient<IUserService, UserService>();
-        services.AddTransient<IRoleService, RoleService>();
-        services.AddTransient<IAuditService, AuditService>();
-        services.BindDbContext<IdentityDbContext>();
-        services.AddScoped<IDbInitializer, IdentityDbInitializer>();
-        services.AddIdentity<TMUser, TMRole>(options =>
-           {
-               options.Password.RequiredLength = IdentityConstants.PasswordLength;
-               options.Password.RequireDigit = false;
-               options.Password.RequireLowercase = false;
-               options.Password.RequireNonAlphanumeric = false;
-               options.Password.RequireUppercase = false;
-               options.User.RequireUniqueEmail = true;
-           })
-           .AddEntityFrameworkStores<IdentityDbContext>()
-           .AddDefaultTokenProviders();
-        return services;
-    }
     [ExcludeFromCodeCoverage]
-
-    public static IEndpointRouteBuilder MapIdentityEndpoints(this IEndpointRouteBuilder app)
+    internal static class Extensions
     {
-        var users = app.MapGroup("api/users").WithTags("users");
-        users.MapUserEndpoints();
+        internal static IServiceCollection ConfigureIdentity(this IServiceCollection services)
+        {
+            ArgumentNullException.ThrowIfNull(services);
 
-        var tokens = app.MapGroup("api/token").WithTags("token");
-        tokens.MapTokenEndpoints();
+            // Register core middleware and services
+            services.AddScoped<CurrentUserMiddleware>();
+            services.AddScoped<ICurrentUser, CurrentUser>();
+            services.AddScoped(sp => (ICurrentUserInitializer)sp.GetRequiredService<ICurrentUser>());
+            services.AddScoped<IDbInitializer, IdentityDbInitializer>();
 
-        var roles = app.MapGroup("api/roles").WithTags("roles");
-        roles.MapRoleEndpoints();
+            // Register TokenService (and other services assumed to be registered elsewhere)
+            services.AddScoped<ITokenService, TokenService>();
 
-        return app;
+            // Bind Identity DbContext
+            services.BindDbContext<IdentityDbContext>();
+
+            // Register Identity and configure options
+            services.AddIdentity<TMUser, TMRole>(options =>
+            {
+                options.Password.RequiredLength = IdentityConstants.PasswordLength;
+                options.Password.RequireDigit = false;
+                options.Password.RequireLowercase = false;
+                options.Password.RequireNonAlphanumeric = false;
+                options.Password.RequireUppercase = false;
+                options.User.RequireUniqueEmail = true;
+            })
+            .AddEntityFrameworkStores<IdentityDbContext>()
+            .AddDefaultTokenProviders();
+
+            // Register custom parameter objects for UserService
+
+            // IdentityServices groups identity-related dependencies.
+            services.AddTransient<IdentityServices>(sp =>
+            {
+                return new IdentityServices(
+                    sp.GetRequiredService<UserManager<TMUser>>(),
+                    sp.GetRequiredService<SignInManager<TMUser>>(),
+                    sp.GetRequiredService<RoleManager<TMRole>>(),
+                    sp.GetRequiredService<IdentityDbContext>()
+                );
+            });
+
+            // InfrastructureServices groups other dependencies.
+            services.AddTransient<InfrastructureServices>(sp =>
+            {
+                return new InfrastructureServices(
+                    sp.GetRequiredService<ICacheService>(),
+                    sp.GetRequiredService<IJobService>(),
+                    sp.GetRequiredService<IMailService>(),
+                    sp.GetRequiredService<IMultiTenantContextAccessor<TMTenantInfo>>(),
+                    sp.GetRequiredService<IStorageService>(),
+                    sp.GetRequiredService<ITokenService>()
+                );
+            });
+
+            // Register UserService with its dependencies.
+            services.AddTransient<IUserService, UserService>();
+            services.AddTransient<IRoleService, RoleService>();
+            services.AddTransient<IAuditService, AuditService>();
+
+            return services;
+        }
+
+        [ExcludeFromCodeCoverage]
+        public static IEndpointRouteBuilder MapIdentityEndpoints(this IEndpointRouteBuilder app)
+        {
+            var users = app.MapGroup("api/users").WithTags("users");
+            users.MapUserEndpoints();
+
+            var tokens = app.MapGroup("api/token").WithTags("token");
+            tokens.MapTokenEndpoints();
+
+            var roles = app.MapGroup("api/roles").WithTags("roles");
+            roles.MapRoleEndpoints();
+
+            return app;
+        }
     }
 }
