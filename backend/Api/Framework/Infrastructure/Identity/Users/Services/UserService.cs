@@ -213,10 +213,9 @@ internal sealed partial class UserService(
         if (!string.IsNullOrEmpty(user.Email))
         {
             string emailVerificationUri = await GetEmailVerificationUriAsync(user, origin);
-            var mailRequest = new MailRequest(
-                new Collection<string> { user.Email },
-                "Confirm Registration",
-                emailVerificationUri);
+            var mailRequest = new MailRequest(new Collection<string> { user.Email }, "Confirm Registration")
+                      .WithBody(emailVerificationUri);
+
             jobService.Enqueue("email", () => mailService.SendAsync(mailRequest, CancellationToken.None));
         }
 

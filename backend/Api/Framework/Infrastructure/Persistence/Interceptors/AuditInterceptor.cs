@@ -10,145 +10,162 @@ using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 
-namespace TalentMesh.Framework.Infrastructure.Persistence.Interceptors;
-[ExcludeFromCodeCoverage]
-
-public class AuditInterceptor(ICurrentUser currentUser, TimeProvider timeProvider, IPublisher publisher) : SaveChangesInterceptor
+namespace TalentMesh.Framework.Infrastructure.Persistence.Interceptors
 {
     [ExcludeFromCodeCoverage]
-
-    public override ValueTask<int> SavedChangesAsync(SaveChangesCompletedEventData eventData, int result, CancellationToken cancellationToken = default)
+    public class AuditInterceptor(ICurrentUser currentUser, TimeProvider timeProvider, IPublisher publisher) : SaveChangesInterceptor
     {
-        return base.SavedChangesAsync(eventData, result, cancellationToken);
-    }
-    [ExcludeFromCodeCoverage]
-
-    public override Task SaveChangesFailedAsync(DbContextErrorEventData eventData, CancellationToken cancellationToken = default)
-    {
-        return base.SaveChangesFailedAsync(eventData, cancellationToken);
-    }
-    [ExcludeFromCodeCoverage]
-
-    public override async ValueTask<InterceptionResult<int>> SavingChangesAsync(DbContextEventData eventData, InterceptionResult<int> result, CancellationToken cancellationToken = default)
-    {
-        UpdateEntities(eventData.Context);
-        await PublishAuditTrailsAsync(eventData);
-        return await base.SavingChangesAsync(eventData, result, cancellationToken);
-    }
-    [ExcludeFromCodeCoverage]
-
-    private async Task PublishAuditTrailsAsync(DbContextEventData eventData)
-    {
-        if (eventData.Context == null) return;
-        eventData.Context.ChangeTracker.DetectChanges();
-        var trails = new List<TrailDto>();
-        var utcNow = timeProvider.GetUtcNow();
-        foreach (var entry in eventData.Context.ChangeTracker.Entries<IAuditable>().Where(x => x.State is EntityState.Added or EntityState.Deleted or EntityState.Modified).ToList())
+        public override ValueTask<int> SavedChangesAsync(SaveChangesCompletedEventData eventData, int result, CancellationToken cancellationToken = default)
         {
-            var userId = currentUser.GetUserId();
-            var trail = new TrailDto()
-            {
-                Id = Guid.NewGuid(),
-                TableName = entry.Entity.GetType().Name,
-                UserId = userId,
-                DateTime = utcNow
-            };
-
-            foreach (var property in entry.Properties)
-            {
-                if (property.IsTemporary)
-                {
-                    continue;
-                }
-                string propertyName = property.Metadata.Name;
-                if (property.Metadata.IsPrimaryKey())
-                {
-                    trail.KeyValues[propertyName] = property.CurrentValue;
-                    continue;
-                }
-
-                switch (entry.State)
-                {
-                    case EntityState.Added:
-                        trail.Type = TrailType.Create;
-                        trail.NewValues[propertyName] = property.CurrentValue;
-                        break;
-
-                    case EntityState.Deleted:
-                        trail.Type = TrailType.Delete;
-                        trail.OldValues[propertyName] = property.OriginalValue;
-                        break;
-
-                    case EntityState.Modified:
-                        if (property.IsModified)
-                        {
-                            if (entry.Entity is ISoftDeletable && property.OriginalValue == null && property.CurrentValue != null)
-                            {
-                                trail.ModifiedProperties.Add(propertyName);
-                                trail.Type = TrailType.Delete;
-                                trail.OldValues[propertyName] = property.OriginalValue;
-                                trail.NewValues[propertyName] = property.CurrentValue;
-                            }
-                            else if (property.OriginalValue?.Equals(property.CurrentValue) == false)
-                            {
-                                trail.ModifiedProperties.Add(propertyName);
-                                trail.Type = TrailType.Update;
-                                trail.OldValues[propertyName] = property.OriginalValue;
-                                trail.NewValues[propertyName] = property.CurrentValue;
-                            }
-                            else
-                            {
-                                property.IsModified = false;
-                            }
-                        }
-                        break;
-                }
-            }
-
-            trails.Add(trail);
+            return base.SavedChangesAsync(eventData, result, cancellationToken);
         }
-        if (trails.Count == 0) return;
-        var auditTrails = new Collection<AuditTrail>();
-        foreach (var trail in trails)
-        {
-            auditTrails.Add(trail.ToAuditTrail());
-        }
-        await publisher.Publish(new AuditPublishedEvent(auditTrails));
-    }
-    [ExcludeFromCodeCoverage]
 
-    public void UpdateEntities(DbContext? context)
-    {
-        if (context == null) return;
-        foreach (var entry in context.ChangeTracker.Entries<AuditableEntity>())
+        public override Task SaveChangesFailedAsync(DbContextErrorEventData eventData, CancellationToken cancellationToken = default)
         {
+            return base.SaveChangesFailedAsync(eventData, cancellationToken);
+        }
+
+        public override async ValueTask<InterceptionResult<int>> SavingChangesAsync(DbContextEventData eventData, InterceptionResult<int> result, CancellationToken cancellationToken = default)
+        {
+            UpdateEntities(eventData.Context);
+            await PublishAuditTrailsAsync(eventData);
+            return await base.SavingChangesAsync(eventData, result, cancellationToken);
+        }
+
+        private async Task PublishAuditTrailsAsync(DbContextEventData eventData)
+        {
+            if (eventData.Context == null)
+                return;
+
+            eventData.Context.ChangeTracker.DetectChanges();
+            var trails = new List<TrailDto>();
             var utcNow = timeProvider.GetUtcNow();
-            if (entry.State is EntityState.Added or EntityState.Modified || entry.HasChangedOwnedEntities())
+            // Get the userId once to avoid repeated calls in the loop.
+            var userId = currentUser.GetUserId();
+
+            // Process only added, modified, or deleted auditable entries.
+            var auditableEntries = eventData.Context.ChangeTracker.Entries<IAuditable>()
+                .Where(x => x.State is EntityState.Added or EntityState.Deleted or EntityState.Modified)
+                .ToList();
+
+            foreach (var entry in auditableEntries)
             {
-                if (entry.State == EntityState.Added)
+                var trail = new TrailDto
                 {
-                    entry.Entity.CreatedBy = currentUser.GetUserId();
-                    entry.Entity.Created = utcNow;
+                    Id = Guid.NewGuid(),
+                    TableName = entry.Entity.GetType().Name,
+                    UserId = userId,
+                    DateTime = utcNow
+                };
+
+                foreach (var property in entry.Properties)
+                {
+                    ProcessProperty(entry, property, trail);
                 }
-                entry.Entity.LastModifiedBy = currentUser.GetUserId();
-                entry.Entity.LastModified = utcNow;
+                trails.Add(trail);
             }
-            if (entry.State is EntityState.Deleted && entry.Entity is ISoftDeletable softDelete)
+
+            if (trails.Count == 0)
+                return;
+
+            var auditTrails = new Collection<AuditTrail>();
+            foreach (var trail in trails)
             {
-                softDelete.DeletedBy = currentUser.GetUserId();
-                softDelete.Deleted = utcNow;
-                entry.State = EntityState.Modified;
+                auditTrails.Add(trail.ToAuditTrail());
+            }
+            await publisher.Publish(new AuditPublishedEvent(auditTrails));
+        }
+
+        /// <summary>
+        /// Processes an individual property of the auditable entry and updates the trail accordingly.
+        /// </summary>
+        private void ProcessProperty(EntityEntry<IAuditable> entry, PropertyEntry property, TrailDto trail)
+        {
+            if (property.IsTemporary)
+            {
+                return;
+            }
+
+            string propertyName = property.Metadata.Name;
+            if (property.Metadata.IsPrimaryKey())
+            {
+                trail.KeyValues[propertyName] = property.CurrentValue;
+                return;
+            }
+
+            switch (entry.State)
+            {
+                case EntityState.Added:
+                    trail.Type = TrailType.Create;
+                    trail.NewValues[propertyName] = property.CurrentValue;
+                    break;
+
+                case EntityState.Deleted:
+                    trail.Type = TrailType.Delete;
+                    trail.OldValues[propertyName] = property.OriginalValue;
+                    break;
+
+                case EntityState.Modified:
+                    if (property.IsModified)
+                    {
+                        if (entry.Entity is ISoftDeletable && property.OriginalValue == null && property.CurrentValue != null)
+                        {
+                            trail.ModifiedProperties.Add(propertyName);
+                            trail.Type = TrailType.Delete;
+                            trail.OldValues[propertyName] = property.OriginalValue;
+                            trail.NewValues[propertyName] = property.CurrentValue;
+                        }
+                        else if (property.OriginalValue?.Equals(property.CurrentValue) == false)
+                        {
+                            trail.ModifiedProperties.Add(propertyName);
+                            trail.Type = TrailType.Update;
+                            trail.OldValues[propertyName] = property.OriginalValue;
+                            trail.NewValues[propertyName] = property.CurrentValue;
+                        }
+                        else
+                        {
+                            property.IsModified = false;
+                        }
+                    }
+                    break;
+            }
+        }
+
+        public void UpdateEntities(DbContext? context)
+        {
+            if (context == null)
+                return;
+
+            foreach (var entry in context.ChangeTracker.Entries<AuditableEntity>())
+            {
+                var utcNow = timeProvider.GetUtcNow();
+                if (entry.State is EntityState.Added or EntityState.Modified || entry.HasChangedOwnedEntities())
+                {
+                    if (entry.State == EntityState.Added)
+                    {
+                        entry.Entity.CreatedBy = currentUser.GetUserId();
+                        entry.Entity.Created = utcNow;
+                    }
+                    entry.Entity.LastModifiedBy = currentUser.GetUserId();
+                    entry.Entity.LastModified = utcNow;
+                }
+                if (entry.State is EntityState.Deleted && entry.Entity is ISoftDeletable softDelete)
+                {
+                    softDelete.DeletedBy = currentUser.GetUserId();
+                    softDelete.Deleted = utcNow;
+                    entry.State = EntityState.Modified;
+                }
             }
         }
     }
-}
-[ExcludeFromCodeCoverage]
 
-public static class Extensions
-{
-    public static bool HasChangedOwnedEntities(this EntityEntry entry) =>
-        entry.References.Any(r =>
-            r.TargetEntry != null &&
-            r.TargetEntry.Metadata.IsOwned() &&
-            (r.TargetEntry.State == EntityState.Added || r.TargetEntry.State == EntityState.Modified));
+    [ExcludeFromCodeCoverage]
+    public static class Extensions
+    {
+        public static bool HasChangedOwnedEntities(this EntityEntry entry) =>
+            entry.References.Any(r =>
+                r.TargetEntry != null &&
+                r.TargetEntry.Metadata.IsOwned() &&
+                (r.TargetEntry.State == EntityState.Added || r.TargetEntry.State == EntityState.Modified));
+    }
 }
