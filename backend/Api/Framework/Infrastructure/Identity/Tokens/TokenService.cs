@@ -56,6 +56,12 @@ public sealed class TokenService : ITokenService
             throw new UnauthorizedException();
         }
 
+        // If the user is not logging in via Google, check the password for non-Google users
+        if (!await _userManager.CheckPasswordAsync(user, request.Password))
+        {
+            throw new UnauthorizedException();
+        }
+
         // Retrieve external logins for the user
         var externalLogins = await _userManager.GetLoginsAsync(user);
         bool hasGoogleLogin = externalLogins.Any(x => x.LoginProvider == "Google");
@@ -64,12 +70,6 @@ public sealed class TokenService : ITokenService
         {
             // User logged in via Google, skip password check
             return await GenerateTokensAndUpdateUser(user, ipAddress);
-        }
-
-        // If the user is not logging in via Google, check the password for non-Google users
-        if (!await _userManager.CheckPasswordAsync(user, request.Password))
-        {
-            throw new UnauthorizedException();
         }
 
         if (!user.IsActive)

@@ -34,21 +34,77 @@ using Google.Apis.Auth.OAuth2.Responses;
 using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Framework.Infrastructure.Identity.Users.Services;
+
+[ExcludeFromCodeCoverage]
+public class IdentityServices
+{
+    public UserManager<TMUser> UserManager { get; }
+    public SignInManager<TMUser> SignInManager { get; }
+    public RoleManager<TMRole> RoleManager { get; }
+    public IdentityDbContext Db { get; }
+
+    public IdentityServices(
+        UserManager<TMUser> userManager,
+        SignInManager<TMUser> signInManager,
+        RoleManager<TMRole> roleManager,
+        IdentityDbContext db)
+    {
+        UserManager = userManager;
+        SignInManager = signInManager;
+        RoleManager = roleManager;
+        Db = db;
+    }
+}
+
+// Grouping other infrastructure-related dependencies
+[ExcludeFromCodeCoverage]
+public class InfrastructureServices
+{
+    public ICacheService CacheService { get; }
+    public IJobService JobService { get; }
+    public IMailService MailService { get; }
+    public IMultiTenantContextAccessor<TMTenantInfo> MultiTenantContextAccessor { get; }
+    public IStorageService StorageService { get; }
+    public ITokenService TokenService { get; }
+
+    public InfrastructureServices(
+        ICacheService cacheService,
+        IJobService jobService,
+        IMailService mailService,
+        IMultiTenantContextAccessor<TMTenantInfo> multiTenantContextAccessor,
+        IStorageService storageService,
+        ITokenService tokenService)
+    {
+        CacheService = cacheService;
+        JobService = jobService;
+        MailService = mailService;
+        MultiTenantContextAccessor = multiTenantContextAccessor;
+        StorageService = storageService;
+        TokenService = tokenService;
+    }
+}
+
 [ExcludeFromCodeCoverage]
 
 internal sealed partial class UserService(
-    UserManager<TMUser> userManager,
-    SignInManager<TMUser> signInManager,
-    RoleManager<TMRole> roleManager,
-    IdentityDbContext db,
-    ICacheService cache,
-    IJobService jobService,
-    IMailService mailService,
-    IMultiTenantContextAccessor<TMTenantInfo> multiTenantContextAccessor,
-    IStorageService storageService,
-    ITokenService tokenService
+      IdentityServices identityServices,
+        InfrastructureServices infrastructureServices
     ) : IUserService
 {
+    // Expose dependencies through private fields for clarity
+    private readonly UserManager<TMUser> userManager = identityServices.UserManager;
+    private readonly SignInManager<TMUser> signInManager = identityServices.SignInManager;
+    private readonly RoleManager<TMRole> roleManager = identityServices.RoleManager;
+    private readonly IdentityDbContext db = identityServices.Db;
+
+    private readonly ICacheService cache = infrastructureServices.CacheService;
+    private readonly IJobService jobService = infrastructureServices.JobService;
+    private readonly IMailService mailService = infrastructureServices.MailService;
+    private readonly IMultiTenantContextAccessor<TMTenantInfo> multiTenantContextAccessor = infrastructureServices.MultiTenantContextAccessor;
+    private readonly IStorageService storageService = infrastructureServices.StorageService;
+    private readonly ITokenService tokenService = infrastructureServices.TokenService;
+
+
     private const string UserNotFoundMessage = "user not found";
 
     private void EnsureValidTenant()
@@ -184,7 +240,6 @@ internal sealed partial class UserService(
                 var logins = await userManager.GetLoginsAsync(existingUser);
                 if (logins.Any(l => l.LoginProvider == "Google"))
                 {
-                    Console.WriteLine("inside loginsss");
                     var tokenGenerationCommandForExistingUser = new TokenGenerationCommand(email, null); // Pass email and password
 
                     // Generate JWT token for existing user
