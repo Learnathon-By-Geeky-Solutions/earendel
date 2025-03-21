@@ -1,5 +1,6 @@
 ﻿using Ardalis.Specification;
 using TalentMesh.Framework.Core.Domain.Contracts;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Framework.Core.Persistence;
 public interface IRepository<T> : IRepositoryBase<T>

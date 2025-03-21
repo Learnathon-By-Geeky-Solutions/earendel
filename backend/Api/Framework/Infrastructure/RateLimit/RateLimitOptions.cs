@@ -1,4 +1,7 @@
-﻿namespace TalentMesh.Framework.Infrastructure.RateLimit;
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace TalentMesh.Framework.Infrastructure.RateLimit;
+[ExcludeFromCodeCoverage]
 
 public class RateLimitOptions
 {

@@ -21,7 +21,7 @@ public sealed class GetCandidateProfileHandler(
             async () =>
             {
                 var candidateProfile = await repository.GetByIdAsync(request.Id, cancellationToken);
-                if (candidateProfile == null || candidateProfile.DeletedBy != Guid.Empty)
+                if (candidateProfile == null)
                     throw new CandidateProfileNotFoundException(request.Id);
                 return new CandidateProfileResponse(
                     candidateProfile.Id,

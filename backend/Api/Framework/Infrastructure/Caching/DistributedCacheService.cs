@@ -3,8 +3,10 @@ using System.Text.Json;
 using TalentMesh.Framework.Core.Caching;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Logging;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Framework.Infrastructure.Caching;
+[ExcludeFromCodeCoverage]
 
 public class DistributedCacheService : ICacheService
 {

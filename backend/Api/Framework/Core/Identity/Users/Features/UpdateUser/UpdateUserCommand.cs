@@ -1,7 +1,9 @@
 ﻿using TalentMesh.Framework.Core.Storage.File.Features;
 using MediatR;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Framework.Core.Identity.Users.Features.UpdateUser;
+[ExcludeFromCodeCoverage]
 public class UpdateUserCommand : IRequest
 {
     public string Id { get; set; } = default!;

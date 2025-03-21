@@ -31,22 +31,80 @@ using TalentMesh.Framework.Core.Identity.Users.Features.GoogleLogin;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Cryptography;
 using Google.Apis.Auth.OAuth2.Responses;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Framework.Infrastructure.Identity.Users.Services;
 
+[ExcludeFromCodeCoverage]
+public class IdentityServices
+{
+    public UserManager<TMUser> UserManager { get; }
+    public SignInManager<TMUser> SignInManager { get; }
+    public RoleManager<TMRole> RoleManager { get; }
+    public IdentityDbContext Db { get; }
+
+    public IdentityServices(
+        UserManager<TMUser> userManager,
+        SignInManager<TMUser> signInManager,
+        RoleManager<TMRole> roleManager,
+        IdentityDbContext db)
+    {
+        UserManager = userManager;
+        SignInManager = signInManager;
+        RoleManager = roleManager;
+        Db = db;
+    }
+}
+
+// Grouping other infrastructure-related dependencies
+[ExcludeFromCodeCoverage]
+public class InfrastructureServices
+{
+    public ICacheService CacheService { get; }
+    public IJobService JobService { get; }
+    public IMailService MailService { get; }
+    public IMultiTenantContextAccessor<TMTenantInfo> MultiTenantContextAccessor { get; }
+    public IStorageService StorageService { get; }
+    public ITokenService TokenService { get; }
+
+    public InfrastructureServices(
+        ICacheService cacheService,
+        IJobService jobService,
+        IMailService mailService,
+        IMultiTenantContextAccessor<TMTenantInfo> multiTenantContextAccessor,
+        IStorageService storageService,
+        ITokenService tokenService)
+    {
+        CacheService = cacheService;
+        JobService = jobService;
+        MailService = mailService;
+        MultiTenantContextAccessor = multiTenantContextAccessor;
+        StorageService = storageService;
+        TokenService = tokenService;
+    }
+}
+
+[ExcludeFromCodeCoverage]
+
 internal sealed partial class UserService(
-    UserManager<TMUser> userManager,
-    SignInManager<TMUser> signInManager,
-    RoleManager<TMRole> roleManager,
-    IdentityDbContext db,
-    ICacheService cache,
-    IJobService jobService,
-    IMailService mailService,
-    IMultiTenantContextAccessor<TMTenantInfo> multiTenantContextAccessor,
-    IStorageService storageService,
-    ITokenService tokenService
+      IdentityServices identityServices,
+        InfrastructureServices infrastructureServices
     ) : IUserService
 {
+    // Expose dependencies through private fields for clarity
+    private readonly UserManager<TMUser> userManager = identityServices.UserManager;
+    private readonly SignInManager<TMUser> signInManager = identityServices.SignInManager;
+    private readonly RoleManager<TMRole> roleManager = identityServices.RoleManager;
+    private readonly IdentityDbContext db = identityServices.Db;
+
+    private readonly ICacheService cache = infrastructureServices.CacheService;
+    private readonly IJobService jobService = infrastructureServices.JobService;
+    private readonly IMailService mailService = infrastructureServices.MailService;
+    private readonly IMultiTenantContextAccessor<TMTenantInfo> multiTenantContextAccessor = infrastructureServices.MultiTenantContextAccessor;
+    private readonly IStorageService storageService = infrastructureServices.StorageService;
+    private readonly ITokenService tokenService = infrastructureServices.TokenService;
+
+
     private const string UserNotFoundMessage = "user not found";
 
     private void EnsureValidTenant()
@@ -87,14 +145,30 @@ internal sealed partial class UserService(
 
     public async Task<UserDetail> GetAsync(string userId, CancellationToken cancellationToken)
     {
-        var user = await userManager.Users
-            .AsNoTracking()
-            .Where(u => u.Id == userId)
-            .FirstOrDefaultAsync(cancellationToken);
+        var userDetail = await (from user in userManager.Users
+                                where user.Id == userId
+                                select new UserDetail
+                                {
+                                    Id = Guid.Parse(user.Id),
+                                    UserName = user.UserName,
+                                    Email = user.Email,
+                                    IsActive = user.IsActive,
+                                    EmailConfirmed = user.EmailConfirmed,
+                                    ImageUrl = user.ImageUrl,
+                                    Roles = (from ur in db.UserRoles
+                                             join r in db.Roles on ur.RoleId equals r.Id
+                                             where ur.UserId == userId
+                                             select r.Name).ToList()
+                                })
+                                .AsNoTracking()
+                                .FirstOrDefaultAsync(cancellationToken);
 
-        _ = user ?? throw new NotFoundException(UserNotFoundMessage);
+        if (userDetail is null)
+        {
+            throw new NotFoundException(UserNotFoundMessage);
+        }
 
-        return user.Adapt<UserDetail>();
+        return userDetail;
     }
 
     public Task<int> GetCountAsync(CancellationToken cancellationToken) =>
@@ -139,10 +213,9 @@ internal sealed partial class UserService(
         if (!string.IsNullOrEmpty(user.Email))
         {
             string emailVerificationUri = await GetEmailVerificationUriAsync(user, origin);
-            var mailRequest = new MailRequest(
-                new Collection<string> { user.Email },
-                "Confirm Registration",
-                emailVerificationUri);
+            var mailRequest = new MailRequest(new Collection<string> { user.Email }, "Confirm Registration")
+                      .WithBody(emailVerificationUri);
+
             jobService.Enqueue("email", () => mailService.SendAsync(mailRequest, CancellationToken.None));
         }
 
@@ -166,7 +239,6 @@ internal sealed partial class UserService(
                 var logins = await userManager.GetLoginsAsync(existingUser);
                 if (logins.Any(l => l.LoginProvider == "Google"))
                 {
-                    Console.WriteLine("inside loginsss");
                     var tokenGenerationCommandForExistingUser = new TokenGenerationCommand(email, null); // Pass email and password
 
                     // Generate JWT token for existing user
@@ -176,11 +248,11 @@ internal sealed partial class UserService(
                         cancellationToken
                     );
 
-                    return new GoogleLoginUserResponse(existingUser.Id, tokenResponseForExistingUser.Token, tokenResponseForExistingUser.RefreshToken);
+                    return new GoogleLoginUserResponse(existingUser.Id, tokenResponseForExistingUser.Token, tokenResponseForExistingUser.RefreshToken, tokenResponseForExistingUser.Roles);
                 }
                 else
                 {
-                    return new GoogleLoginUserResponse("Email is already registered with a different method.", "", "");
+                    return new GoogleLoginUserResponse("Email is already registered with a different method.", "", "", []);
                 }
             }
 
@@ -197,7 +269,7 @@ internal sealed partial class UserService(
             var createUserResult = await userManager.CreateAsync(newUser);
             if (!createUserResult.Succeeded)
             {
-                return new GoogleLoginUserResponse("User creation failed", "", "");
+                return new GoogleLoginUserResponse("User creation failed", "", "", []);
             }
 
             // Link Google account to this user
@@ -205,7 +277,7 @@ internal sealed partial class UserService(
             var addLoginResult = await userManager.AddLoginAsync(newUser, loginInfo);
             if (!addLoginResult.Succeeded)
             {
-                return new GoogleLoginUserResponse("Failed to add external login", "", "");
+                return new GoogleLoginUserResponse("Failed to add external login", "", "", []);
             }
 
             // Assign default role
@@ -221,11 +293,11 @@ internal sealed partial class UserService(
              cancellationToken
          );
 
-            return new GoogleLoginUserResponse(newUser.Id, tokenResponse.Token, tokenResponse.RefreshToken);
+            return new GoogleLoginUserResponse(newUser.Id, tokenResponse.Token, tokenResponse.RefreshToken, tokenResponse.Roles);
         }
         catch (Exception ex)
         {
-            return new GoogleLoginUserResponse($"Error: {ex.Message}", "", "");
+            return new GoogleLoginUserResponse($"Error: {ex.Message}", "", "", []);
         }
     }
 

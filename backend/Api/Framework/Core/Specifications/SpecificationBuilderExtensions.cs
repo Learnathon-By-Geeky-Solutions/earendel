@@ -4,8 +4,10 @@ using System.Text.Json;
 using Ardalis.Specification;
 using TalentMesh.Framework.Core.Exceptions;
 using TalentMesh.Framework.Core.Paging;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Framework.Core.Specifications;
+[ExcludeFromCodeCoverage]
 
 // See https://github.com/ardalis/Specification/issues/53
 public static class SpecificationBuilderExtensions

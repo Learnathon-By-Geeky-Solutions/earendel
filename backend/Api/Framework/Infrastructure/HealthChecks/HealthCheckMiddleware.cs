@@ -1,8 +1,10 @@
 ﻿using System.Text.Json;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Framework.Infrastructure.HealthChecks;
+[ExcludeFromCodeCoverage]
 
 public class HealthCheckMiddleware
 {

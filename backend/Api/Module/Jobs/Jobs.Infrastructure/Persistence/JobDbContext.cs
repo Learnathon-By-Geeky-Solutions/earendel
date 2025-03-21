@@ -6,9 +6,11 @@ using TalentMesh.Module.Job.Domain;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using System.Diagnostics.CodeAnalysis;
 
 
 namespace TalentMesh.Module.Job.Infrastructure.Persistence;
+[ExcludeFromCodeCoverage]
 
 public sealed class JobDbContext : TMDbContext
 {
@@ -18,7 +20,9 @@ public sealed class JobDbContext : TMDbContext
     }
 
     public DbSet<Jobs> Jobs { get; set; } = null!;
-    public DbSet<JobApplication> JobApplications { get; set; } = null!;
+    public DbSet<JobApplication> JobApplications { get; set; } = null!; 
+    public DbSet<JobRequiredSkill> JobRequiredSkill { get; set; } = null!;
+    public DbSet<JobRequiredSubskill> JobRequiredSubskill { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

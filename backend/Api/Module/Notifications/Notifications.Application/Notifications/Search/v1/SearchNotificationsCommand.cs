@@ -1,9 +1,11 @@
 using TalentMesh.Framework.Core.Paging;
 using TalentMesh.Module.Notifications.Application.Notifications.Get.v1;
 using MediatR;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Module.Notifications.Application.Notifications.Search.v1;
 
+[ExcludeFromCodeCoverage]
 public class SearchNotificationsCommand : PaginationFilter, IRequest<PagedList<NotificationResponse>>
 {
     public Guid? UserId { get; set; }

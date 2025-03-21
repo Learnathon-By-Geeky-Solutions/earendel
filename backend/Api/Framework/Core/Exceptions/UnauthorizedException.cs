@@ -1,7 +1,9 @@
 ﻿using System.Collections.ObjectModel;
 using System.Net;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Framework.Core.Exceptions;
+[ExcludeFromCodeCoverage]
 public class UnauthorizedException : TalentMeshException
 {
     public UnauthorizedException()

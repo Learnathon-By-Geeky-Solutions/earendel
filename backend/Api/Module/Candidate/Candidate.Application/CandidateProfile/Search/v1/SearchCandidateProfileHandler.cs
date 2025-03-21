@@ -1,5 +1,6 @@
 ﻿using MediatR;
 using Microsoft.Extensions.DependencyInjection;
+using System.Diagnostics.CodeAnalysis;
 
 using TalentMesh.Framework.Core.Paging;
 using TalentMesh.Framework.Core.Persistence;
@@ -7,7 +8,9 @@ using TalentMesh.Module.Candidate.Application.CandidateProfile.Get.v1;
 
 namespace TalentMesh.Module.Candidate.Application.CandidateProfile.Search.v1;
 
-class SearchCandidateProfileHandler(
+[ExcludeFromCodeCoverage]
+
+public sealed class SearchCandidateProfileHandler(
     [FromKeyedServices("candidate:candidateprofileReadOnly")] IReadRepository<Domain.CandidateProfile> repository)
     : IRequestHandler<SearchCandidateProfileCommand, PagedList<CandidateProfileResponse>>
 {

@@ -3,8 +3,11 @@ using TalentMesh.Framework.Core.Persistence;
 using TalentMesh.Module.Experties.Application.SeniorityLevelJunctions.Get.v1;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Module.Experties.Application.SeniorityLevelJunctions.Search.v1;
+[ExcludeFromCodeCoverage]
+
 public sealed class SearchSeniorityLevelJunctionHandler(
     [FromKeyedServices("seniorityleveljunctions:seniorityleveljunctionReadOnly")] IReadRepository<Experties.Domain.SeniorityLevelJunction> repository)
     : IRequestHandler<SearchSeniorityLevelJunctionCommand, PagedList<SeniorityLevelJunctionResponse>>

@@ -1,7 +1,8 @@
 ﻿using System.Net;
-
+using System.Diagnostics.CodeAnalysis;
 namespace TalentMesh.Framework.Core.Exceptions;
 
+[ExcludeFromCodeCoverage]
 public class CustomException : Exception
 {
     public List<string>? ErrorMessages { get; }

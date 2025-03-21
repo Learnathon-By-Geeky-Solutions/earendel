@@ -1,7 +1,9 @@
 ﻿using FluentValidation;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Module.Notifications.Application.Notifications.Create.v1;
 
+[ExcludeFromCodeCoverage]
 public class CreateNotificationCommandValidator : AbstractValidator<CreateNotificationCommand>
 {
     public CreateNotificationCommandValidator()

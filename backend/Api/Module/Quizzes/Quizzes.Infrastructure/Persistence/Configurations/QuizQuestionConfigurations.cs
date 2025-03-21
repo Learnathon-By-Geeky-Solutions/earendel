@@ -1,8 +1,10 @@
 ﻿using TalentMesh.Module.Quizzes.Domain;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Module.Quizzes.Infrastructure.Persistence.Configurations;
+[ExcludeFromCodeCoverage]
 
 internal sealed class QuizQuestionConfiguration : IEntityTypeConfiguration<QuizQuestion>
 {

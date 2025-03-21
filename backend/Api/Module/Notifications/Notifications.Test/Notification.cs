@@ -11,188 +11,249 @@ using MediatR;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using TalentMesh.Framework.Core.Persistence;
+using TalentMesh.Module.Notifications.Domain;
+using TalentMesh.Framework.Core.Caching;
+using Microsoft.Extensions.Logging;
 
 namespace TalentMesh.Module.Notifications.Tests
 {
     public class NotificationHandlerTests
     {
-        private readonly Mock<ISender> _mediatorMock;
+        private readonly Mock<IRepository<Notification>> _repositoryMock;
+        private readonly Mock<IReadRepository<Notification>> _readRepositoryMock;
+        private readonly Mock<ICacheService> _cacheServiceMock;
+        private readonly Mock<ILogger<CreateNotificationHandler>> _createLoggerMock;
+        private readonly Mock<ILogger<DeleteNotificationHandler>> _deleteLoggerMock;
+        private readonly Mock<ILogger<GetNotificationHandler>> _getLoggerMock;
+        private readonly Mock<ILogger<SearchNotificationsHandler>> _searchLoggerMock;
+        private readonly Mock<ILogger<UpdateNotificationHandler>> _updateLoggerMock;
+
+        private readonly CreateNotificationHandler _createHandler;
+        private readonly DeleteNotificationHandler _deleteHandler;
+        private readonly GetNotificationHandler _getHandler;
+        private readonly SearchNotificationsHandler _searchHandler;
+        private readonly UpdateNotificationHandler _updateHandler;
 
         public NotificationHandlerTests()
         {
-            _mediatorMock = new Mock<ISender>();
+            _repositoryMock = new Mock<IRepository<Notification>>();
+            _readRepositoryMock = new Mock<IReadRepository<Notification>>();
+            _cacheServiceMock = new Mock<ICacheService>();
+            _createLoggerMock = new Mock<ILogger<CreateNotificationHandler>>();
+            _deleteLoggerMock = new Mock<ILogger<DeleteNotificationHandler>>();
+            _getLoggerMock = new Mock<ILogger<GetNotificationHandler>>();
+            _searchLoggerMock = new Mock<ILogger<SearchNotificationsHandler>>();
+            _updateLoggerMock = new Mock<ILogger<UpdateNotificationHandler>>();
+
+            _createHandler = new CreateNotificationHandler(_createLoggerMock.Object, _repositoryMock.Object);
+            _deleteHandler = new DeleteNotificationHandler(_deleteLoggerMock.Object, _repositoryMock.Object);
+            _getHandler = new GetNotificationHandler(_readRepositoryMock.Object, _cacheServiceMock.Object);
+            _searchHandler = new SearchNotificationsHandler(_readRepositoryMock.Object);
+            _updateHandler = new UpdateNotificationHandler(_updateLoggerMock.Object, _repositoryMock.Object);
+
         }
 
         [Fact]
         public async Task CreateNotification_ReturnsNotificationResponse()
         {
-            var request = new CreateNotificationCommand(Guid.NewGuid(), "jobs", "job", "create");
-            var expectedId = Guid.NewGuid();
-            var response = new CreateNotificationResponse(expectedId);
+            // Arrange
+            var userId = Guid.NewGuid();
+            var entity = "interview";
+            var entityType = "interview";
+            var message = "interview notification";
+            var request = new CreateNotificationCommand(userId, entity, entityType, message);
+            var expectedNotification = Notification.Create(request.UserId!, request.Entity!, request.EntityType, request.Message);
 
-            _mediatorMock
-                .Setup(m => m.Send(request, It.IsAny<CancellationToken>()))
-                .ReturnsAsync(response);
+            _repositoryMock.Setup(repo => repo.AddAsync(It.IsAny<Notification>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(expectedNotification);
 
-            var result = await _mediatorMock.Object.Send(request);
+            // Act
+            var result = await _createHandler.Handle(request, CancellationToken.None);
 
+            // Assert
             Assert.NotNull(result);
-            Assert.Equal(expectedId, result.Id);
-            Assert.IsType<CreateNotificationResponse>(result);
-
-            _mediatorMock.Verify(m => m.Send(It.IsAny<CreateNotificationCommand>(), It.IsAny<CancellationToken>()), Times.Once);
+            _repositoryMock.Verify(repo => repo.AddAsync(It.IsAny<Notification>(), It.IsAny<CancellationToken>()), Times.Once);
         }
 
         [Fact]
         public async Task DeleteNotification_DeletesSuccessfully()
         {
-            var notificationId = Guid.NewGuid();
+            // Arrange
+            var existingNotification = Notification.Create(Guid.NewGuid(), "interview", "interview", "interview notification");
+            var NotificationId = existingNotification.Id;
 
-            _mediatorMock
-                .Setup(m => m.Send(It.IsAny<DeleteNotificationCommand>(), It.IsAny<CancellationToken>()))
-                .Returns(Task.CompletedTask);
+            _repositoryMock.Setup(repo => repo.GetByIdAsync(NotificationId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(existingNotification);
 
-            await _mediatorMock.Object.Send(new DeleteNotificationCommand(notificationId));
+            // Act
+            await _deleteHandler.Handle(new DeleteNotificationCommand(NotificationId), CancellationToken.None);
 
-            _mediatorMock.Verify(m => m.Send(It.IsAny<DeleteNotificationCommand>(), It.IsAny<CancellationToken>()), Times.Once);
+            // Assert
+            _repositoryMock.Verify(repo => repo.DeleteAsync(existingNotification, It.IsAny<CancellationToken>()), Times.Once);
+            _repositoryMock.Verify(repo => repo.GetByIdAsync(NotificationId, It.IsAny<CancellationToken>()), Times.Once);
         }
 
         [Fact]
         public async Task DeleteNotification_ThrowsExceptionIfNotFound()
         {
-            var notificationId = Guid.NewGuid();
+            // Arrange
+            var NotificationId = Guid.NewGuid();
 
-            _mediatorMock
-                .Setup(m => m.Send(It.IsAny<DeleteNotificationCommand>(), It.IsAny<CancellationToken>()))
-                .ThrowsAsync(new NotificationNotFoundException(notificationId));
+            _repositoryMock.Setup(repo => repo.GetByIdAsync(NotificationId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync((Notification)null);
 
-            var exception = await Assert.ThrowsAsync<NotificationNotFoundException>(() => _mediatorMock.Object.Send(new DeleteNotificationCommand(notificationId)));
+            // Act & Assert
+            await Assert.ThrowsAsync<NotificationNotFoundException>(() =>
+                _deleteHandler.Handle(new DeleteNotificationCommand(NotificationId), CancellationToken.None));
 
-            Assert.NotNull(exception);
-            Assert.IsType<NotificationNotFoundException>(exception);
-
-            _mediatorMock.Verify(m => m.Send(It.IsAny<DeleteNotificationCommand>(), It.IsAny<CancellationToken>()), Times.Once);
+            _repositoryMock.Verify(repo => repo.GetByIdAsync(NotificationId, It.IsAny<CancellationToken>()), Times.Once);
         }
 
         [Fact]
         public async Task GetNotification_ReturnsNotificationResponse()
         {
-            var notificationId = Guid.NewGuid();
-            var userId = Guid.NewGuid();
-            var expectedEntity = "jobs";
-            var expectedEntityType = "job";
-            var expectedMessage = "create";
-            var notificationResponse = new NotificationResponse(notificationId, userId, expectedEntity, expectedEntityType, expectedMessage);
+            // Arrange
+            var expectedNotification = Notification.Create(Guid.NewGuid(), "interview", "interview", "interview notification");
+            var NotificationId = expectedNotification.Id;
 
-            _mediatorMock
-                .Setup(m => m.Send(It.IsAny<GetNotificationRequest>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(notificationResponse);
+            _readRepositoryMock.Setup(repo => repo.GetByIdAsync(NotificationId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(expectedNotification);
 
-            var result = await _mediatorMock.Object.Send(new GetNotificationRequest(notificationId));
+            _cacheServiceMock.Setup(cache => cache.GetAsync<NotificationResponse>(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync((NotificationResponse)null);
 
+            // Act
+            var result = await _getHandler.Handle(new GetNotificationRequest(NotificationId), CancellationToken.None);
+
+            // Assert
             Assert.NotNull(result);
-            Assert.Equal(notificationId, result.Id);
-            Assert.Equal(userId, result.UserId);
-            Assert.Equal(expectedEntity, result.Entity);
-            Assert.Equal(expectedEntityType, result.EntityType);
-            Assert.Equal(expectedMessage, result.Message);
-            Assert.IsType<NotificationResponse>(result);
+            Assert.Equal(expectedNotification.Id, result.Id);
+            Assert.Equal(expectedNotification.Entity, result.Entity);
+            Assert.Equal(expectedNotification.EntityType, result.EntityType);
+            Assert.Equal(expectedNotification.Message, result.Message);
 
-            _mediatorMock.Verify(m => m.Send(It.IsAny<GetNotificationRequest>(), It.IsAny<CancellationToken>()), Times.Once);
+            _readRepositoryMock.Verify(repo => repo.GetByIdAsync(NotificationId, It.IsAny<CancellationToken>()), Times.Once);
+            _cacheServiceMock.Verify(cache => cache.SetAsync(It.IsAny<string>(), It.IsAny<NotificationResponse>(), It.IsAny<TimeSpan?>(), It.IsAny<CancellationToken>()), Times.Once);
         }
 
         [Fact]
         public async Task GetNotification_ThrowsExceptionIfNotFound()
         {
-            var notificationId = Guid.NewGuid();
+            // Arrange
+            var NotificationId = Guid.NewGuid();
 
-            _mediatorMock
-                .Setup(m => m.Send(It.IsAny<GetNotificationRequest>(), It.IsAny<CancellationToken>()))
-                .ThrowsAsync(new NotificationNotFoundException(notificationId));
+            _readRepositoryMock.Setup(repo => repo.GetByIdAsync(NotificationId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync((Notification)null);
 
-            var exception = await Assert.ThrowsAsync<NotificationNotFoundException>(() => _mediatorMock.Object.Send(new GetNotificationRequest(notificationId)));
+            // Act & Assert
+            await Assert.ThrowsAsync<NotificationNotFoundException>(() =>
+                _getHandler.Handle(new GetNotificationRequest(NotificationId), CancellationToken.None));
 
-            Assert.NotNull(exception);
-            Assert.IsType<NotificationNotFoundException>(exception);
-
-            _mediatorMock.Verify(m => m.Send(It.IsAny<GetNotificationRequest>(), It.IsAny<CancellationToken>()), Times.Once);
+            _readRepositoryMock.Verify(repo => repo.GetByIdAsync(NotificationId, It.IsAny<CancellationToken>()), Times.Once);
         }
 
         [Fact]
         public async Task SearchNotifications_ReturnsPagedNotificationResponse()
         {
+            // Arrange
             var request = new SearchNotificationsCommand
             {
                 UserId = Guid.NewGuid(),
-                Entity = "jobs",
-                EntityType = "job",
-                Message = "create",
+                Entity = "interview",
+                EntityType = "interview",
                 PageNumber = 1,
                 PageSize = 10
             };
 
-            var pagedList = new PagedList<NotificationResponse>(
-                new[]
-                {
-                    new NotificationResponse(Guid.NewGuid(), Guid.NewGuid(), "jobs", "job", "create"),
-                    new NotificationResponse(Guid.NewGuid(), Guid.NewGuid(), "projects", "project", "update")
-                },
-                1,
-                10,
-                2);
+            var Notifications = new List<NotificationResponse>
+            {
+                new NotificationResponse(Guid.NewGuid(), Guid.NewGuid(), "interview", "interview", "interview notification"),
+                new NotificationResponse(Guid.NewGuid(), Guid.NewGuid(), "profile", "profile", "profile notification")
+            };
+            var totalCount = Notifications.Count;
 
-            _mediatorMock
-                .Setup(m => m.Send(It.IsAny<SearchNotificationsCommand>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(pagedList);
+            // Mock returns List<Notification> (domain entities)
+            _readRepositoryMock
+                .Setup(repo => repo.ListAsync(It.IsAny<SearchNotificationSpecs>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(Notifications);
 
-            var result = await _mediatorMock.Object.Send(request);
+            _readRepositoryMock
+                .Setup(repo => repo.CountAsync(It.IsAny<SearchNotificationSpecs>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(totalCount);
 
+            // Act
+            var result = await _searchHandler.Handle(request, CancellationToken.None);
+
+            // Assert: Verify mapped DTOs
             Assert.NotNull(result);
             Assert.Equal(2, result.Items.Count);
-            Assert.All(result.Items, item => Assert.NotNull(item.Entity));
-            Assert.IsType<PagedList<NotificationResponse>>(result);
 
-            _mediatorMock.Verify(m => m.Send(It.IsAny<SearchNotificationsCommand>(), It.IsAny<CancellationToken>()), Times.Once);
+            Assert.Contains(result.Items, item =>
+                item.Entity == "interview" &&
+                item.EntityType == "interview"
+            );
+
+            Assert.Contains(result.Items, item =>
+                item.Entity == "profile" &&
+                item.EntityType == "profile"
+            );
+
+            // Verify repository calls
+            _readRepositoryMock.Verify(repo =>
+                repo.ListAsync(It.IsAny<SearchNotificationSpecs>(), It.IsAny<CancellationToken>()),
+                Times.Once
+            );
+
+            _readRepositoryMock.Verify(repo =>
+                repo.CountAsync(It.IsAny<SearchNotificationSpecs>(), It.IsAny<CancellationToken>()),
+                Times.Once
+            );
         }
-
         [Fact]
         public async Task UpdateNotification_ReturnsUpdatedNotificationResponse()
         {
-            var notificationId = Guid.NewGuid();
-            var userId = Guid.NewGuid();
-            var request = new UpdateNotificationCommand(notificationId, userId, "updated message", "updated entity", "updated entityType");
-            var response = new UpdateNotificationResponse(notificationId);
+            // Arrange
+            var existingNotification = Notification.Create(Guid.NewGuid(), "interview", "interview", "interview notification");
+            var NotificationId = existingNotification.Id;
+            var request = new UpdateNotificationCommand(
+                NotificationId,
+                Guid.NewGuid(),
+                "interview",
+                "interview",
+                "interview notification"
+            );
 
-            _mediatorMock
-                .Setup(m => m.Send(It.IsAny<UpdateNotificationCommand>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(response);
+            _repositoryMock.Setup(repo => repo.GetByIdAsync(NotificationId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(existingNotification);
 
-            var result = await _mediatorMock.Object.Send(request);
+            // Act
+            var result = await _updateHandler.Handle(request, CancellationToken.None);
 
+            // Assert
             Assert.NotNull(result);
-            Assert.Equal(notificationId, result.Id);
-            Assert.IsType<UpdateNotificationResponse>(result);
+            Assert.Equal(NotificationId, result.Id);
 
-            _mediatorMock.Verify(m => m.Send(It.IsAny<UpdateNotificationCommand>(), It.IsAny<CancellationToken>()), Times.Once);
+            _repositoryMock.Verify(repo => repo.GetByIdAsync(NotificationId, It.IsAny<CancellationToken>()), Times.Once);
+            _repositoryMock.Verify(repo => repo.UpdateAsync(It.IsAny<Notification>(), It.IsAny<CancellationToken>()), Times.Once);
         }
 
         [Fact]
         public async Task UpdateNotification_ThrowsExceptionIfNotFound()
         {
-            var notificationId = Guid.NewGuid();
-            var userId = Guid.NewGuid();
-            var request = new UpdateNotificationCommand(notificationId, userId, "updated message", "updated entity", "updated entityType");
+            // Arrange
+            var NotificationId = Guid.NewGuid();
+            var request = new UpdateNotificationCommand(NotificationId, Guid.NewGuid(), "interview", "interview", "interview notification");
 
-            _mediatorMock
-                .Setup(m => m.Send(It.IsAny<UpdateNotificationCommand>(), It.IsAny<CancellationToken>()))
-                .ThrowsAsync(new NotificationNotFoundException(notificationId));
+            _repositoryMock.Setup(repo => repo.GetByIdAsync(NotificationId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync((Notification)null);
 
-            var exception = await Assert.ThrowsAsync<NotificationNotFoundException>(() => _mediatorMock.Object.Send(request));
+            // Act & Assert
+            await Assert.ThrowsAsync<NotificationNotFoundException>(() =>
+                _updateHandler.Handle(request, CancellationToken.None));
 
-            Assert.NotNull(exception);
-            Assert.IsType<NotificationNotFoundException>(exception);
-
-            _mediatorMock.Verify(m => m.Send(It.IsAny<UpdateNotificationCommand>(), It.IsAny<CancellationToken>()), Times.Once);
+            _repositoryMock.Verify(repo => repo.GetByIdAsync(NotificationId, It.IsAny<CancellationToken>()), Times.Once);
         }
     }
+
 }

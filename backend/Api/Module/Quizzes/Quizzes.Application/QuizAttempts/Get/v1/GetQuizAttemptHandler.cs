@@ -19,7 +19,7 @@ public sealed class GetQuizAttemptHandler(
             async () =>
             {
                 var quizItem = await repository.GetByIdAsync(request.Id, cancellationToken);
-                if (quizItem == null || quizItem.DeletedBy != Guid.Empty) throw new QuizAttemptNotFoundException(request.Id);
+                if (quizItem == null) throw new QuizAttemptNotFoundException(request.Id);
                 return new QuizAttemptResponse(quizItem.Id, quizItem.UserId, quizItem.Score, quizItem.TotalQuestions);
             },
             cancellationToken: cancellationToken);

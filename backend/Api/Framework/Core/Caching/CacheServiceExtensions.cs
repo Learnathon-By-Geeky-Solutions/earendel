@@ -1,5 +1,6 @@
+using System.Diagnostics.CodeAnalysis;
 namespace TalentMesh.Framework.Core.Caching;
-
+[ExcludeFromCodeCoverage]
 public static class CacheServiceExtensions
 {
     public static T? GetOrSet<T>(this ICacheService cache, string key, Func<T?> getItemCallback, TimeSpan? slidingExpiration = null)

@@ -3,9 +3,10 @@ using TalentMesh.Framework.Core.Paging;
 using TalentMesh.Framework.Core.Specifications;
 using TalentMesh.Module.Interviews.Domain;
 using TalentMesh.Module.Interviews.Application.InterviewFeedbacks.Get.v1;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Module.Interviews.Application.InterviewFeedbacks.Search.v1;
-
+[ExcludeFromCodeCoverage]
 public class SearchInterviewFeedbackSpecs : EntitiesByPaginationFilterSpec<InterviewFeedback, InterviewFeedbackResponse>
 {
     public SearchInterviewFeedbackSpecs(SearchInterviewFeedbacksCommand command)

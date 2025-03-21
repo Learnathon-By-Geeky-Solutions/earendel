@@ -4,9 +4,11 @@ using TalentMesh.Module.Interviews.Application.Interviews.Get.v1;
 using TalentMesh.Module.Interviews.Domain;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Module.Interviews.Application.Interviews.Search.v1;
 
+[ExcludeFromCodeCoverage]
 public sealed class SearchInterviewsHandler(
     [FromKeyedServices("interviews:interviewReadOnly")] IReadRepository<Interview> repository)
     : IRequestHandler<SearchInterviewsCommand, PagedList<InterviewResponse>>

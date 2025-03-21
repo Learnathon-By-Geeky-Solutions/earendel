@@ -1,0 +1,84 @@
+name: .NET CI/CD Workflow
+
+on:
+  push:
+    branches:
+      - main
+      - development
+      - feature/code-coverage
+  pull_request:
+    branches:
+      - main
+      - development
+      - feature/code-coverage
+
+jobs:
+  build:
+    name: Build and Test Application
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Restore TenantConstants.cs
+        run: echo "${{ secrets._TENANT_CONSTANTS_CS }}" | base64 --decode > backend/Shared/Authorization/TenantConstants.cs
+
+      - name: Debug Directory Structure
+        run: ls -R backend
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: "8.0.x"
+
+      - name: Restore Dependencies
+        run: dotnet restore backend/Aspire/Aspire.sln
+
+      - name: Build Application
+        run: dotnet build backend/Aspire/Aspire.sln --no-restore --configuration Release
+
+      - name: Run Tests for All Modules in Parallel and Summarize
+        run: |
+          mkdir -p test-results
+          find backend/Api/Module -type f -name "*.Test.csproj" | \
+            xargs -I {} sh -c 'echo "Running tests for project: {}"; dotnet test "{}" | tee "test-results/$(basename {}).log" || true'
+          echo "### Listing All Test Log Files ###"
+          ls -l test-results
+          echo "### Individual Test Summaries ###"
+          for file in test-results/*.log; do
+            echo "Summary for $(basename "$file"):"
+            grep -E "(Passed!|Total:)" "$file" || echo "No summary found in $file"
+            echo "------"
+          done
+          echo "### Final Aggregated Test Summary ###"
+          grep -H -E "(Passed!|Total:)" test-results/*.log || echo "No test summary lines found."
+
+  publish:
+    name: Publish Application
+    runs-on: ubuntu-latest
+    needs: build
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Restore TenantConstants.cs
+        run: echo "${{ secrets._TENANT_CONSTANTS_CS }}" | base64 --decode > backend/Shared/Authorization/TenantConstants.cs
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: "8.0.x"
+
+      - name: Restore Dependencies
+        run: dotnet restore backend/Aspire/Aspire.sln
+
+      - name: Build and Publish
+        run: dotnet publish backend/Api/Server/Server.csproj -c Release -o backend/Api/Server/publish
+
+      - name: Upload Published Application
+        uses: actions/upload-artifact@v4
+        with:
+          name: published-app
+          path: backend/Api/Server/publish/

@@ -10,8 +10,10 @@ using TalentMesh.Framework.Infrastructure.Tenant;
 using TalentMesh.Shared.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Framework.Infrastructure.Identity.Roles;
+[ExcludeFromCodeCoverage]
 
 public class RoleService(RoleManager<TMRole> roleManager,
     IdentityDbContext context,

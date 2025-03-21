@@ -1,4 +1,7 @@
-﻿namespace TalentMesh.Framework.Infrastructure.Jobs;
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace TalentMesh.Framework.Infrastructure.Jobs;
+[ExcludeFromCodeCoverage]
 public class HangfireOptions
 {
     public string UserName { get; set; } = "admin";

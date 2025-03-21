@@ -1,5 +1,5 @@
+using System.Diagnostics.CodeAnalysis;
 namespace TalentMesh.Framework.Core.Caching;
-
 public interface ICacheService
 {
     T? Get<T>(string key);

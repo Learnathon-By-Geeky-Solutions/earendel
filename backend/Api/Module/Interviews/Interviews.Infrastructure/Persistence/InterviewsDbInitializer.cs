@@ -3,9 +3,12 @@ using TalentMesh.Module.Interviews.Domain;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using TalentMesh.Module.Interviews.Infrastructure.Persistence;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Module.Interviews.Infrastructure.Persistence
 {
+    [ExcludeFromCodeCoverage]
+
     internal sealed class InterviewsDbInitializer(
         ILogger<InterviewsDbInitializer> logger,
         InterviewsDbContext context) : IDbInitializer

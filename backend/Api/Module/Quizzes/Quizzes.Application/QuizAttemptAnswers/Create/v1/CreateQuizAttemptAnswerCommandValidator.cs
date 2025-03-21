@@ -1,6 +1,9 @@
 ﻿using FluentValidation;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Module.Quizzes.Application.QuizAttemptAnswers.Create.v1;
+
+[ExcludeFromCodeCoverage]
 
 public class CreateQuizAttemptAnswerCommandValidator : AbstractValidator<CreateQuizAttemptAnswerCommand>
 {

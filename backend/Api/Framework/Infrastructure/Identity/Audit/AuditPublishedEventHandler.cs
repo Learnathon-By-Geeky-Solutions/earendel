@@ -2,8 +2,11 @@
 using TalentMesh.Framework.Infrastructure.Identity.Persistence;
 using MediatR;
 using Microsoft.Extensions.Logging;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Framework.Infrastructure.Identity.Audit;
+[ExcludeFromCodeCoverage]
+
 public class AuditPublishedEventHandler(ILogger<AuditPublishedEventHandler> logger, IdentityDbContext context) : INotificationHandler<AuditPublishedEvent>
 {
     public async Task Handle(AuditPublishedEvent notification, CancellationToken cancellationToken)

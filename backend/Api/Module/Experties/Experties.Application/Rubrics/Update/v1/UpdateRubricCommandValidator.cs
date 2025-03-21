@@ -1,6 +1,8 @@
 using FluentValidation;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Module.Experties.Application.Rubrics.Update.v1;
+[ExcludeFromCodeCoverage]
 public class UpdateRubricCommandValidator : AbstractValidator<UpdateRubricCommand>
 {
     public UpdateRubricCommandValidator()

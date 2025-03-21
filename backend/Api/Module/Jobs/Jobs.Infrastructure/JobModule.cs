@@ -8,52 +8,82 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
+using System.Diagnostics.CodeAnalysis;
 
-namespace TalentMesh.Module.Job.Infrastructure;
-public static class JobModule
+namespace TalentMesh.Module.Job.Infrastructure
 {
-    public class Endpoints : CarterModule
+    [ExcludeFromCodeCoverage]
+
+    public static class JobModule
     {
-        public Endpoints() : base("job") { }
-        public override void AddRoutes(IEndpointRouteBuilder app)
+        public class Endpoints : CarterModule
         {
-            var productGroup = app.MapGroup("jobs").WithTags("jobs");
-            productGroup.MapJobCreationEndpoint();
-            productGroup.MapGetJobEndpoint();
-            productGroup.MapGetJobListEndpoint();
-            productGroup.MapJobUpdateEndpoint();
-            productGroup.MapJobDeleteEndpoint();
+            public Endpoints() : base("job") { }
 
+            public override void AddRoutes(IEndpointRouteBuilder app)
+            {
+                // Endpoints for Jobs
+                var jobGroup = app.MapGroup("jobs").WithTags("jobs");
+                jobGroup.MapJobCreationEndpoint();
+                jobGroup.MapGetJobEndpoint();
+                jobGroup.MapGetJobListEndpoint();
+                jobGroup.MapJobUpdateEndpoint();
+                jobGroup.MapJobDeleteEndpoint();
 
-            // Group endpoints for job applications
-            var jobApplicationGroup = app.MapGroup("jobapplications").WithTags("jobapplications");
-            jobApplicationGroup.MapJobApplicationCreationEndpoint();
-            jobApplicationGroup.MapGetJobApplicationEndpoint();
-            jobApplicationGroup.MapGetJobApplicationListEndpoint();
-            jobApplicationGroup.MapJobApplicationUpdateEndpoint();
-            jobApplicationGroup.MapJobApplicationDeleteEndpoint();
+                // Endpoints for Job Applications
+                var jobApplicationGroup = app.MapGroup("jobapplications").WithTags("jobapplications");
+                jobApplicationGroup.MapJobApplicationCreationEndpoint();
+                jobApplicationGroup.MapGetJobApplicationEndpoint();
+                jobApplicationGroup.MapGetJobApplicationListEndpoint();
+                jobApplicationGroup.MapJobApplicationUpdateEndpoint();
+                jobApplicationGroup.MapJobApplicationDeleteEndpoint();
 
+                // Endpoints for Job Required Skills
+                var jobRequiredSkillGroup = app.MapGroup("jobrequiredskills").WithTags("jobrequiredskills");
+                jobRequiredSkillGroup.MapJobRequiredSkillCreationEndpoint();
+                jobRequiredSkillGroup.MapGetJobRequiredSkillEndpoint();
+                jobRequiredSkillGroup.MapGetJobRequiredSkillListEndpoint();
+                jobRequiredSkillGroup.MapJobRequiredSkillUpdateEndpoint();
+                jobRequiredSkillGroup.MapJobRequiredSkillDeleteEndpoint();
+
+                // Endpoints for Job Required Subskills
+                var jobRequiredSubskillGroup = app.MapGroup("jobrequiredsubskills").WithTags("jobrequiredsubskills");
+                jobRequiredSubskillGroup.MapJobRequiredSubskillCreationEndpoint();
+                jobRequiredSubskillGroup.MapGetJobRequiredSubskillEndpoint();
+                jobRequiredSubskillGroup.MapGetJobRequiredSubskillListEndpoint();
+                jobRequiredSubskillGroup.MapJobRequiredSubskillUpdateEndpoint();
+                jobRequiredSubskillGroup.MapJobRequiredSubskillDeleteEndpoint();
+            }
         }
-    }
-    public static WebApplicationBuilder RegisterJobServices(this WebApplicationBuilder builder)
-    {
-        ArgumentNullException.ThrowIfNull(builder);
-        builder.Services.BindDbContext<JobDbContext>();
-        builder.Services.AddScoped<IDbInitializer, JobDbInitializer>();
 
-        //Job
-        builder.Services.AddKeyedScoped<IRepository<Jobs>, JobRepository<Jobs>>("jobs:job");
-        builder.Services.AddKeyedScoped<IReadRepository<Jobs>, JobRepository<Jobs>>("jobs:jobReadOnly");
+        public static WebApplicationBuilder RegisterJobServices(this WebApplicationBuilder builder)
+        {
+            ArgumentNullException.ThrowIfNull(builder);
+            builder.Services.BindDbContext<JobDbContext>();
+            builder.Services.AddScoped<IDbInitializer, JobDbInitializer>();
 
-        //JobApplication
-        builder.Services.AddKeyedScoped<IRepository<JobApplication>, JobRepository<JobApplication>>("jobs:jobapplication");
-        builder.Services.AddKeyedScoped<IReadRepository<JobApplication>, JobRepository<JobApplication>>("jobs:jobApplicationReadOnly"); 
+            // Register repositories for Jobs
+            builder.Services.AddKeyedScoped<IRepository<Jobs>, JobRepository<Jobs>>("jobs:job");
+            builder.Services.AddKeyedScoped<IReadRepository<Jobs>, JobRepository<Jobs>>("jobs:jobReadOnly");
 
+            // Register repositories for JobApplications
+            builder.Services.AddKeyedScoped<IRepository<JobApplication>, JobRepository<JobApplication>>("jobs:jobapplication");
+            builder.Services.AddKeyedScoped<IReadRepository<JobApplication>, JobRepository<JobApplication>>("jobs:jobApplicationReadOnly");
 
-        return builder;
-    }
-    public static WebApplication UseJobModule(this WebApplication app)
-    {
-        return app;
+            // Register repositories for JobRequiredSkill
+            builder.Services.AddKeyedScoped<IRepository<JobRequiredSkill>, JobRepository<JobRequiredSkill>>("jobs:jobrequiredskill");
+            builder.Services.AddKeyedScoped<IReadRepository<JobRequiredSkill>, JobRepository<JobRequiredSkill>>("jobs:jobrequiredskillReadOnly");
+
+            // Register repositories for JobRequiredSubskill
+            builder.Services.AddKeyedScoped<IRepository<JobRequiredSubskill>, JobRepository<JobRequiredSubskill>>("jobs:jobrequiredsubskill");
+            builder.Services.AddKeyedScoped<IReadRepository<JobRequiredSubskill>, JobRepository<JobRequiredSubskill>>("jobs:jobrequiredsubskillReadOnly");
+
+            return builder;
+        }
+
+        public static WebApplication UseJobModule(this WebApplication app)
+        {
+            return app;
+        }
     }
 }

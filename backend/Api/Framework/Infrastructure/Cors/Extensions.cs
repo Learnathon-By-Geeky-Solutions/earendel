@@ -1,8 +1,10 @@
 ﻿using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Framework.Infrastructure.Cors;
+[ExcludeFromCodeCoverage]
 public static class Extensions
 {
     private const string CorsPolicy = nameof(CorsPolicy);

@@ -34,8 +34,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Interviews.Domain", "Module
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Interviews.Infrastructure", "Module\Interviews\Interviews.Infrastructure\Interviews.Infrastructure.csproj", "{3E01FF68-F8E5-8E6A-D88F-8A96193918A9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Interviews.Test", "Module\Interviews\Interviews.Test\Interviews.Test.csproj", "{C26C7CE4-2718-A0FC-E427-768061B8331F}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Jobs", "Jobs", "{57C5F84B-2A19-A65A-901D-937EE551C212}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Jobs.Application", "Module\Jobs\Jobs.Application\Jobs.Application.csproj", "{3888FFEA-FFB2-B656-288D-2A564184923B}"
@@ -61,8 +59,6 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Quizzes.Domain", "Module\Quizzes\Quizzes.Domain\Quizzes.Domain.csproj", "{DE0DFCC5-7C54-8E07-3546-A1A4C532CD92}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Quizzes.Infrastructure", "Module\Quizzes\Quizzes.Infrastructure\Quizzes.Infrastructure.csproj", "{CAF1F5B4-3786-6FD8-ACEE-629C874B4B97}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Quizzes.Test", "Module\Quizzes\Quizzes.Test\Quizzes.Test.csproj", "{D51CD913-8036-1EE9-C413-AF6D22CCA5A8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

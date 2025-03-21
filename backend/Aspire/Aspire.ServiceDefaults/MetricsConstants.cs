@@ -1,4 +1,8 @@
-﻿namespace TalentMesh.Aspire.ServiceDefaults;
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace TalentMesh.Aspire.ServiceDefaults;
+
+[ExcludeFromCodeCoverage]
 public static class MetricsConstants
 {
     public const string AppName = "talentMesh";

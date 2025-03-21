@@ -2,8 +2,11 @@
 using TalentMesh.Module.Experties.Domain;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Module.Experties.Infrastructure.Persistence;
+[ExcludeFromCodeCoverage]
+
 internal sealed class ExpertiesDbInitializer(
     ILogger<ExpertiesDbInitializer> logger,
     ExpertiesDbContext context) : IDbInitializer

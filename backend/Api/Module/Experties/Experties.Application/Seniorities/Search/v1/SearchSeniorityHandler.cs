@@ -3,8 +3,10 @@ using TalentMesh.Framework.Core.Persistence;
 using TalentMesh.Module.Experties.Application.Seniorities.Get.v1;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Module.Experties.Application.Seniorities.Search.v1;
+[ExcludeFromCodeCoverage]
 public sealed class SearchSenioritiesHandler(
     [FromKeyedServices("seniorities:seniorityReadOnly")] IReadRepository<Experties.Domain.Seniority> repository)
     : IRequestHandler<SearchSenioritiesCommand, PagedList<SeniorityResponse>>

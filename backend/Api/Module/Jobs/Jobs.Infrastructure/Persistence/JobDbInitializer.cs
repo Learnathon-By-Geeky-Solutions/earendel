@@ -2,8 +2,11 @@
 using TalentMesh.Module.Job.Domain;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Module.Job.Infrastructure.Persistence;
+[ExcludeFromCodeCoverage]
+
 internal sealed class JobDbInitializer(
     ILogger<JobDbInitializer> logger,
     JobDbContext context) : IDbInitializer

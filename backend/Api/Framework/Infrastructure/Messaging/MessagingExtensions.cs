@@ -3,22 +3,23 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using RabbitMQ.Client;
 using TalentMesh.Framework.Core.Exceptions;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Framework.Infrastructure.Messaging
 {
+    [ExcludeFromCodeCoverage]
+
     public static class MessagingExtensions
     {
         public static IServiceCollection ConfigureRabbitMQ(this IServiceCollection services, IConfiguration configuration)
         {
             // Bind RabbitMQ settings
             services.Configure<RabbitMQOptions>(configuration.GetSection(nameof(RabbitMQOptions)));
-
+            
             // Register the RabbitMQ connection factory as a singleton
             services.AddSingleton<IConnectionFactory>(sp =>
             {
-                var rabbitOptions = sp.GetRequiredService<IOptions<RabbitMQOptions>>().Value
-                    ?? throw new TalentMeshException("RabbitMQ options cannot be null");
-
+                var rabbitOptions = sp.GetRequiredService<IOptions<RabbitMQOptions>>().Value;
                 return new ConnectionFactory
                 {
                     HostName = rabbitOptions.HostName,

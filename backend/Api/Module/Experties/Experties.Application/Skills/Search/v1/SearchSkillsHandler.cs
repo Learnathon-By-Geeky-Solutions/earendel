@@ -3,8 +3,10 @@ using TalentMesh.Framework.Core.Persistence;
 using TalentMesh.Module.Experties.Application.Skills.Get.v1;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Module.Experties.Application.Skills.Search.v1;
+[ExcludeFromCodeCoverage]
 public sealed class SearchSkillsHandler(
     [FromKeyedServices("skills:skillReadOnly")] IReadRepository<Experties.Domain.Skill> repository)
     : IRequestHandler<SearchSkillsCommand, PagedList<SkillResponse>>

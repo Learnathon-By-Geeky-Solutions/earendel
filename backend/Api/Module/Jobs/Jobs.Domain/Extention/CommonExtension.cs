@@ -13,6 +13,15 @@ namespace TalentMesh.Module.Job.Domain.Extentsion
         {
             return entity == null || entity.DeletedBy != Guid.Empty;
         }
+        public static bool IsDeletedOrNotFound(this JobRequiredSkill? entity)
+        {
+            return entity == null || entity.DeletedBy != Guid.Empty;
+        }
+
+        public static bool IsDeletedOrNotFound(this JobRequiredSubskill? entity)
+        {
+            return entity == null || entity.DeletedBy != Guid.Empty;
+        }
 
     }
 }

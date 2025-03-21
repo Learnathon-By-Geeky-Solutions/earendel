@@ -9,8 +9,10 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using TalentMesh.Module.Experties.Infrastructure.Messaging;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Module.Experties.Infrastructure;
+[ExcludeFromCodeCoverage]
 public static class ExpertiesModule
 {
     public class Endpoints : CarterModule

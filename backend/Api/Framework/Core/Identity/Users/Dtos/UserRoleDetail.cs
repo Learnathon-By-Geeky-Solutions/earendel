@@ -1,4 +1,7 @@
-﻿namespace TalentMesh.Framework.Core.Identity.Users.Dtos;
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace TalentMesh.Framework.Core.Identity.Users.Dtos;
+[ExcludeFromCodeCoverage]
 public class UserRoleDetail
 {
     public string? RoleId { get; set; }

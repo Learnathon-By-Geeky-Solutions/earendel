@@ -1,8 +1,10 @@
 ﻿using FluentValidation;
 using TalentMesh.Framework.Core.Persistence;
 using TalentMesh.Framework.Core.Tenant.Abstractions;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Framework.Core.Tenant.Features.CreateTenant;
+[ExcludeFromCodeCoverage]
 public class CreateTenantValidator : AbstractValidator<CreateTenantCommand>
 {
     public CreateTenantValidator(

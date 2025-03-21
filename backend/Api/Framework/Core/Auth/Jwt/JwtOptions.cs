@@ -1,6 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Framework.Core.Auth.Jwt;
+[ExcludeFromCodeCoverage]
 public class JwtOptions : IValidatableObject
 {
     public string Key { get; set; } = string.Empty;

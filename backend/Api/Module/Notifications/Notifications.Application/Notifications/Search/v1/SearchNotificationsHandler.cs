@@ -4,9 +4,11 @@ using TalentMesh.Module.Notifications.Application.Notifications.Get.v1;
 using TalentMesh.Module.Notifications.Domain;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Module.Notifications.Application.Notifications.Search.v1;
 
+[ExcludeFromCodeCoverage]
 public sealed class SearchNotificationsHandler(
     [FromKeyedServices("notifications:notificationReadOnly")] IReadRepository<Notification> repository)
     : IRequestHandler<SearchNotificationsCommand, PagedList<NotificationResponse>>

@@ -17,7 +17,7 @@ public sealed class DeleteCandidateProfileHandler(
     {
         ArgumentNullException.ThrowIfNull(request);
         var candidateProfile = await repository.GetByIdAsync(request.Id, cancellationToken);
-        if (candidateProfile.IsDeletedOrNotFound()) throw new CandidateProfileNotFoundException(request.Id);
+        if (candidateProfile == null) throw new CandidateProfileNotFoundException(request.Id);
         await repository.DeleteAsync(candidateProfile, cancellationToken);
         logger.LogInformation("CandidateProfile with id : {Id} deleted", candidateProfile.Id);
     }

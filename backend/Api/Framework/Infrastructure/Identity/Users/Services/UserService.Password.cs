@@ -6,8 +6,10 @@ using TalentMesh.Framework.Core.Identity.Users.Features.ForgotPassword;
 using TalentMesh.Framework.Core.Identity.Users.Features.ResetPassword;
 using TalentMesh.Framework.Core.Mail;
 using Microsoft.AspNetCore.WebUtilities;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Framework.Infrastructure.Identity.Users.Services;
+
 internal sealed partial class UserService
 {
     public async Task ForgotPasswordAsync(ForgotPasswordCommand request, string origin, CancellationToken cancellationToken)
@@ -29,10 +31,8 @@ internal sealed partial class UserService
         token = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(token));
 
         var resetPasswordUri = $"{origin}/reset-password?token={token}&email={request.Email}";
-        var mailRequest = new MailRequest(
-            new Collection<string> { user.Email },
-            "Reset Password",
-            $"Please reset your password using the following link: {resetPasswordUri}");
+        var mailRequest = new MailRequest(new Collection<string> { user.Email }, "Reset Password")
+                      .WithBody($"Please reset your password using the following link: {resetPasswordUri}");
 
         jobService.Enqueue(() => mailService.SendAsync(mailRequest, CancellationToken.None));
     }

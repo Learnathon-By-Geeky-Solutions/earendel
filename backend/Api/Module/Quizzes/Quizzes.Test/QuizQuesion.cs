@@ -14,139 +14,140 @@ using TalentMesh.Module.Quizzes.Domain.Exceptions;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 
 namespace TalentMesh.Module.Quizzes.Tests
 {
     public class QuizQuestionHandlerTests
     {
-        private readonly Mock<ISender> _mediatorMock;
+        private readonly Mock<IRepository<QuizQuestion>> _repositoryMock;
+        private readonly Mock<IReadRepository<QuizQuestion>> _readRepositoryMock;
+        private readonly Mock<ICacheService> _cacheServiceMock;
+        private readonly Mock<ILogger<CreateQuizQuestionHandler>> _createLoggerMock;
+        private readonly Mock<ILogger<DeleteQuizQuestionHandler>> _deleteLoggerMock;
+        private readonly Mock<ILogger<GetQuizQuestionHandler>> _getLoggerMock;
+        private readonly Mock<ILogger<SearchQuizQuestionsHandler>> _searchLoggerMock;
+        private readonly Mock<ILogger<UpdateQuizQuestionHandler>> _updateLoggerMock;
+
+        private readonly CreateQuizQuestionHandler _createHandler;
+        private readonly DeleteQuizQuestionHandler _deleteHandler;
+        private readonly GetQuizQuestionHandler _getHandler;
+        private readonly SearchQuizQuestionsHandler _searchHandler;
+        private readonly UpdateQuizQuestionHandler _updateHandler;
 
         public QuizQuestionHandlerTests()
         {
-            _mediatorMock = new Mock<ISender>();
+            _repositoryMock = new Mock<IRepository<QuizQuestion>>();
+            _readRepositoryMock = new Mock<IReadRepository<QuizQuestion>>();
+            _cacheServiceMock = new Mock<ICacheService>();
+            _createLoggerMock = new Mock<ILogger<CreateQuizQuestionHandler>>();
+            _deleteLoggerMock = new Mock<ILogger<DeleteQuizQuestionHandler>>();
+            _getLoggerMock = new Mock<ILogger<GetQuizQuestionHandler>>();
+            _searchLoggerMock = new Mock<ILogger<SearchQuizQuestionsHandler>>();
+            _updateLoggerMock = new Mock<ILogger<UpdateQuizQuestionHandler>>();
+
+            _createHandler = new CreateQuizQuestionHandler(_createLoggerMock.Object, _repositoryMock.Object);
+            _deleteHandler = new DeleteQuizQuestionHandler(_deleteLoggerMock.Object, _repositoryMock.Object);
+            _getHandler = new GetQuizQuestionHandler(_readRepositoryMock.Object, _cacheServiceMock.Object);
+            _searchHandler = new SearchQuizQuestionsHandler(_readRepositoryMock.Object);
+            _updateHandler = new UpdateQuizQuestionHandler(_updateLoggerMock.Object, _repositoryMock.Object);
+
         }
 
         [Fact]
         public async Task CreateQuizQuestion_ReturnsQuizQuestionResponse()
         {
             // Arrange
-            var userId = Guid.NewGuid();
-            // Updated fields: CorrectOption, QuestionText, Option1, Option2, Option3, Option4.
-            var request = new CreateQuizQuestionCommand(
-                2,
-                "What is .NET?",
-                "Framework",
-                "Library",
-                "Tool",
-                "Language");
-            var expectedId = Guid.NewGuid();
-            var response = new CreateQuizQuestionResponse(expectedId);
+            var subSkillId = Guid.NewGuid();
+            var seniorityLevelId = Guid.NewGuid();
+            var request = new CreateQuizQuestionCommand(2, "Effective C#", "C# advanced topics", "string1", "string2", "string3");
+            var expectedQuizQuestion = QuizQuestion.Create(request.QuestionText!, request.Option1, request.Option2, request.Option3, request.Option4, 2);
 
-            _mediatorMock
-                .Setup(m => m.Send(request, It.IsAny<CancellationToken>()))
-                .ReturnsAsync(response);
+            _repositoryMock.Setup(repo => repo.AddAsync(It.IsAny<QuizQuestion>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(expectedQuizQuestion);
 
             // Act
-            var result = await _mediatorMock.Object.Send(request);
+            var result = await _createHandler.Handle(request, CancellationToken.None);
 
             // Assert
             Assert.NotNull(result);
-            Assert.Equal(expectedId, result.Id);
-            Assert.IsType<CreateQuizQuestionResponse>(result);
-            _mediatorMock.Verify(m => m.Send(It.IsAny<CreateQuizQuestionCommand>(), It.IsAny<CancellationToken>()), Times.Once);
+            _repositoryMock.Verify(repo => repo.AddAsync(It.IsAny<QuizQuestion>(), It.IsAny<CancellationToken>()), Times.Once);
         }
 
         [Fact]
         public async Task DeleteQuizQuestion_DeletesSuccessfully()
         {
             // Arrange
-            var quizQuestionId = Guid.NewGuid();
-            var request = new DeleteQuizQuestionCommand(quizQuestionId);
-            _mediatorMock
-                .Setup(m => m.Send(request, It.IsAny<CancellationToken>()))
-                .Returns(Task.CompletedTask);
+            var existingQuizQuestion = QuizQuestion.Create("Effective C#", "C# advanced topics", "string1", "string2", "string3", 2);
+            var QuizQuestionId = existingQuizQuestion.Id;
+
+            _repositoryMock.Setup(repo => repo.GetByIdAsync(QuizQuestionId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(existingQuizQuestion);
 
             // Act
-            await _mediatorMock.Object.Send(request);
+            await _deleteHandler.Handle(new DeleteQuizQuestionCommand(QuizQuestionId), CancellationToken.None);
 
             // Assert
-            _mediatorMock.Verify(m => m.Send(It.IsAny<DeleteQuizQuestionCommand>(), It.IsAny<CancellationToken>()), Times.Once);
+            _repositoryMock.Verify(repo => repo.DeleteAsync(existingQuizQuestion, It.IsAny<CancellationToken>()), Times.Once);
+            _repositoryMock.Verify(repo => repo.GetByIdAsync(QuizQuestionId, It.IsAny<CancellationToken>()), Times.Once);
         }
 
         [Fact]
         public async Task DeleteQuizQuestion_ThrowsExceptionIfNotFound()
         {
             // Arrange
-            var quizQuestionId = Guid.NewGuid();
-            var request = new DeleteQuizQuestionCommand(quizQuestionId);
-            _mediatorMock
-                .Setup(m => m.Send(request, It.IsAny<CancellationToken>()))
-                .ThrowsAsync(new QuizQuestionNotFoundException(quizQuestionId));
+            var QuizQuestionId = Guid.NewGuid();
+
+            _repositoryMock.Setup(repo => repo.GetByIdAsync(QuizQuestionId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync((QuizQuestion)null);
 
             // Act & Assert
-            var exception = await Assert.ThrowsAsync<QuizQuestionNotFoundException>(() => _mediatorMock.Object.Send(request));
-            Assert.NotNull(exception);
-            Assert.Contains($"QuizQuestion with id {quizQuestionId} not found", exception.Message);
-            _mediatorMock.Verify(m => m.Send(It.IsAny<DeleteQuizQuestionCommand>(), It.IsAny<CancellationToken>()), Times.Once);
+            await Assert.ThrowsAsync<QuizQuestionNotFoundException>(() =>
+                _deleteHandler.Handle(new DeleteQuizQuestionCommand(QuizQuestionId), CancellationToken.None));
+
+            _repositoryMock.Verify(repo => repo.GetByIdAsync(QuizQuestionId, It.IsAny<CancellationToken>()), Times.Once);
         }
 
         [Fact]
         public async Task GetQuizQuestion_ReturnsQuizQuestionResponse()
         {
             // Arrange
-            var quizQuestionId = Guid.NewGuid();
-            int expectedCorrectOption = 2;
-            string expectedQuestionText = "What is .NET?";
-            string expectedOption1 = "Framework";
-            string expectedOption2 = "Library";
-            string expectedOption3 = "Tool";
-            string expectedOption4 = "Language";
+            var expectedQuizQuestion = QuizQuestion.Create("Effective C#", "C# advanced topics", "string1", "string2", "string3", 2);
+            var QuizQuestionId = expectedQuizQuestion.Id;
 
-            var response = new QuizQuestionResponse(
-                quizQuestionId,
-                expectedQuestionText,
-                expectedOption1,
-                expectedOption2,
-                expectedOption3,
-                expectedOption4,
-                expectedCorrectOption
-                );
+            _readRepositoryMock.Setup(repo => repo.GetByIdAsync(QuizQuestionId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(expectedQuizQuestion);
 
-            _mediatorMock
-                .Setup(m => m.Send(It.IsAny<GetQuizQuestionRequest>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(response);
+            _cacheServiceMock.Setup(cache => cache.GetAsync<QuizQuestionResponse>(It.IsAny<string>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync((QuizQuestionResponse)null);
 
             // Act
-            var result = await _mediatorMock.Object.Send(new GetQuizQuestionRequest(quizQuestionId));
+            var result = await _getHandler.Handle(new GetQuizQuestionRequest(QuizQuestionId), CancellationToken.None);
 
             // Assert
             Assert.NotNull(result);
-            Assert.Equal(quizQuestionId, result.Id);
-            Assert.Equal(expectedCorrectOption, result.CorrectOption);
-            Assert.Equal(expectedQuestionText, result.QuestionText);
-            Assert.Equal(expectedOption1, result.Option1);
-            Assert.Equal(expectedOption2, result.Option2);
-            Assert.Equal(expectedOption3, result.Option3);
-            Assert.Equal(expectedOption4, result.Option4);
-            Assert.IsType<QuizQuestionResponse>(result);
-            _mediatorMock.Verify(m => m.Send(It.IsAny<GetQuizQuestionRequest>(), It.IsAny<CancellationToken>()), Times.Once);
+            Assert.Equal(expectedQuizQuestion.Id, result.Id);
+            Assert.Equal(expectedQuizQuestion.QuestionText, result.QuestionText);
+            Assert.Equal(expectedQuizQuestion.CorrectOption, result.CorrectOption);
+
+            _readRepositoryMock.Verify(repo => repo.GetByIdAsync(QuizQuestionId, It.IsAny<CancellationToken>()), Times.Once);
+            _cacheServiceMock.Verify(cache => cache.SetAsync(It.IsAny<string>(), It.IsAny<QuizQuestionResponse>(), It.IsAny<TimeSpan?>(), It.IsAny<CancellationToken>()), Times.Once);
         }
 
         [Fact]
         public async Task GetQuizQuestion_ThrowsExceptionIfNotFound()
         {
             // Arrange
-            var quizQuestionId = Guid.NewGuid();
-            var request = new GetQuizQuestionRequest(quizQuestionId);
-            _mediatorMock
-                .Setup(m => m.Send(request, It.IsAny<CancellationToken>()))
-                .ThrowsAsync(new QuizQuestionNotFoundException(quizQuestionId));
+            var QuizQuestionId = Guid.NewGuid();
+
+            _readRepositoryMock.Setup(repo => repo.GetByIdAsync(QuizQuestionId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync((QuizQuestion)null);
 
             // Act & Assert
-            var exception = await Assert.ThrowsAsync<QuizQuestionNotFoundException>(() => _mediatorMock.Object.Send(request));
-            Assert.NotNull(exception);
-            Assert.Contains($"QuizQuestion with id {quizQuestionId} not found", exception.Message);
-            _mediatorMock.Verify(m => m.Send(It.IsAny<GetQuizQuestionRequest>(), It.IsAny<CancellationToken>()), Times.Once);
+            await Assert.ThrowsAsync<QuizQuestionNotFoundException>(() =>
+                _getHandler.Handle(new GetQuizQuestionRequest(QuizQuestionId), CancellationToken.None));
+
+            _readRepositoryMock.Verify(repo => repo.GetByIdAsync(QuizQuestionId, It.IsAny<CancellationToken>()), Times.Once);
         }
 
         [Fact]
@@ -155,70 +156,97 @@ namespace TalentMesh.Module.Quizzes.Tests
             // Arrange
             var request = new SearchQuizQuestionsCommand
             {
-                QuestionText = "What is",
+                QuestionText = "Effective",
                 PageNumber = 1,
                 PageSize = 10
             };
-            var quizQuestion1 = new QuizQuestionResponse(Guid.NewGuid(), "What is .NET?", "Framework", "Library", "Tool", "Language", 2);
-            var quizQuestion2 = new QuizQuestionResponse(Guid.NewGuid(), "What is C#?", "Language", "Framework", "Tool", "Library", 2);
-            var pagedList = new PagedList<QuizQuestionResponse>(new[] { quizQuestion1, quizQuestion2 }, 1, 10, 2);
 
-            _mediatorMock.Setup(m => m.Send(It.IsAny<SearchQuizQuestionsCommand>(), It.IsAny<CancellationToken>()))
-                         .ReturnsAsync(pagedList);
+            var QuizQuestions = new List<QuizQuestionResponse>
+            {
+                new QuizQuestionResponse(Guid.NewGuid(), "Effective C#", "C# advanced topics", "string1", "string2", "string3", 2),
+                new QuizQuestionResponse(Guid.NewGuid(), "Effective Java", "Effective C#", "string1", "string2", "string3", 3)
+            };
+            var totalCount = QuizQuestions.Count;
+
+            // Mock returns List<QuizQuestion> (domain entities)
+            _readRepositoryMock
+                .Setup(repo => repo.ListAsync(It.IsAny<SearchQuizQuestionSpecs>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(QuizQuestions);
+
+            _readRepositoryMock
+                .Setup(repo => repo.CountAsync(It.IsAny<SearchQuizQuestionSpecs>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(totalCount);
 
             // Act
-            var result = await _mediatorMock.Object.Send(request);
+            var result = await _searchHandler.Handle(request, CancellationToken.None);
 
-            // Assert
+            // Assert: Verify mapped DTOs
             Assert.NotNull(result);
             Assert.Equal(2, result.Items.Count);
-            Assert.Equal("What is .NET?", result.Items[0].QuestionText);
-            Assert.Equal(2, result.Items[0].CorrectOption);
-            Assert.IsType<PagedList<QuizQuestionResponse>>(result);
-            _mediatorMock.Verify(m => m.Send(It.IsAny<SearchQuizQuestionsCommand>(), It.IsAny<CancellationToken>()), Times.Once);
-        }
 
+            Assert.Contains(result.Items, item =>
+                item.QuestionText == "Effective C#" &&
+                item.CorrectOption == 2
+            );
+
+            Assert.Contains(result.Items, item =>
+                item.QuestionText == "Effective Java" &&
+                item.CorrectOption == 3
+            );
+
+            // Verify repository calls
+            _readRepositoryMock.Verify(repo =>
+                repo.ListAsync(It.IsAny<SearchQuizQuestionSpecs>(), It.IsAny<CancellationToken>()),
+                Times.Once
+            );
+
+            _readRepositoryMock.Verify(repo =>
+                repo.CountAsync(It.IsAny<SearchQuizQuestionSpecs>(), It.IsAny<CancellationToken>()),
+                Times.Once
+            );
+        }
         [Fact]
         public async Task UpdateQuizQuestion_ReturnsUpdatedQuizQuestionResponse()
         {
             // Arrange
-            var quizQuestionId = Guid.NewGuid();
+            var existingQuizQuestion = QuizQuestion.Create("Effective C#", "C# advanced topics", "string1", "string2", "string3", 2);
+            var QuizQuestionId = existingQuizQuestion.Id;
             var request = new UpdateQuizQuestionCommand(
-                quizQuestionId,
-                "Updated Question",
-                3);
-            var response = new UpdateQuizQuestionResponse(quizQuestionId);
+                QuizQuestionId,
+                "Updated Title",
+                2
+            );
 
-            _mediatorMock.Setup(m => m.Send(It.IsAny<UpdateQuizQuestionCommand>(), It.IsAny<CancellationToken>()))
-                         .ReturnsAsync(response);
+            _repositoryMock.Setup(repo => repo.GetByIdAsync(QuizQuestionId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(existingQuizQuestion);
 
             // Act
-            var result = await _mediatorMock.Object.Send(request);
+            var result = await _updateHandler.Handle(request, CancellationToken.None);
 
             // Assert
             Assert.NotNull(result);
-            Assert.Equal(quizQuestionId, result.Id);
-            Assert.IsType<UpdateQuizQuestionResponse>(result);
-            _mediatorMock.Verify(m => m.Send(It.IsAny<UpdateQuizQuestionCommand>(), It.IsAny<CancellationToken>()), Times.Once);
+            Assert.Equal(QuizQuestionId, result.Id);
+
+            _repositoryMock.Verify(repo => repo.GetByIdAsync(QuizQuestionId, It.IsAny<CancellationToken>()), Times.Once);
+            _repositoryMock.Verify(repo => repo.UpdateAsync(It.IsAny<QuizQuestion>(), It.IsAny<CancellationToken>()), Times.Once);
         }
 
         [Fact]
         public async Task UpdateQuizQuestion_ThrowsExceptionIfNotFound()
         {
             // Arrange
-            var quizQuestionId = Guid.NewGuid();
-            var request = new UpdateQuizQuestionCommand(
-                quizQuestionId,
-                "Updated Question",
-                3);
-            _mediatorMock.Setup(m => m.Send(It.IsAny<UpdateQuizQuestionCommand>(), It.IsAny<CancellationToken>()))
-                         .ThrowsAsync(new QuizQuestionNotFoundException(quizQuestionId));
+            var QuizQuestionId = Guid.NewGuid();
+            var request = new UpdateQuizQuestionCommand(QuizQuestionId, "Title", 3);
+
+            _repositoryMock.Setup(repo => repo.GetByIdAsync(QuizQuestionId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync((QuizQuestion)null);
 
             // Act & Assert
-            var exception = await Assert.ThrowsAsync<QuizQuestionNotFoundException>(() => _mediatorMock.Object.Send(request));
-            Assert.NotNull(exception);
-            Assert.Contains($"QuizQuestion with id {quizQuestionId} not found", exception.Message);
-            _mediatorMock.Verify(m => m.Send(It.IsAny<UpdateQuizQuestionCommand>(), It.IsAny<CancellationToken>()), Times.Once);
+            await Assert.ThrowsAsync<QuizQuestionNotFoundException>(() =>
+                _updateHandler.Handle(request, CancellationToken.None));
+
+            _repositoryMock.Verify(repo => repo.GetByIdAsync(QuizQuestionId, It.IsAny<CancellationToken>()), Times.Once);
         }
     }
+
 }

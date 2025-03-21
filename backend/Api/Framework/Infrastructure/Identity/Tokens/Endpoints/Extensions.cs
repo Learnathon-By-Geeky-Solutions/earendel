@@ -1,15 +1,19 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
+using System.Diagnostics.CodeAnalysis;
+
 
 namespace TalentMesh.Framework.Infrastructure.Identity.Tokens.Endpoints;
 internal static class Extensions
 {
+    [ExcludeFromCodeCoverage]
     public static IEndpointRouteBuilder MapTokenEndpoints(this IEndpointRouteBuilder app)
     {
         app.MapRefreshTokenEndpoint();
         app.MapTokenGenerationEndpoint();
         return app;
     }
+    [ExcludeFromCodeCoverage]
 
     public static string GetIpAddress(this HttpContext context)
     {

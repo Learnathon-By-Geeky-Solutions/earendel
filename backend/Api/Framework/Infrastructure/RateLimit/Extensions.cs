@@ -5,9 +5,10 @@ using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Framework.Infrastructure.RateLimit;
-
+[ExcludeFromCodeCoverage]
 public static class Extensions
 {
     internal static IServiceCollection ConfigureRateLimit(this IServiceCollection services, IConfiguration config)

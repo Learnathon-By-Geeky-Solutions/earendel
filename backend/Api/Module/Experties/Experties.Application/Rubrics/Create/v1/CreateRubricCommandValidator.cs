@@ -1,7 +1,8 @@
 ﻿using FluentValidation;
-
+using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Module.Experties.Application.Rubrics.Create.v1;
+[ExcludeFromCodeCoverage]
 public class CreateRubricCommandValidator : AbstractValidator<CreateRubricCommand>
 {
     public CreateRubricCommandValidator()

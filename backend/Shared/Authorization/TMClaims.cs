@@ -1,4 +1,7 @@
 ﻿namespace TalentMesh.Shared.Authorization;
+using System.Diagnostics.CodeAnalysis;
+
+[ExcludeFromCodeCoverage]
 
 public static class TMClaims
 {

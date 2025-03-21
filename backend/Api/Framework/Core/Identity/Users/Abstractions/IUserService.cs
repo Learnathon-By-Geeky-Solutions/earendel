@@ -8,6 +8,7 @@ using TalentMesh.Framework.Core.Identity.Users.Features.RegisterUser;
 using TalentMesh.Framework.Core.Identity.Users.Features.ResetPassword;
 using TalentMesh.Framework.Core.Identity.Users.Features.ToggleUserStatus;
 using TalentMesh.Framework.Core.Identity.Users.Features.UpdateUser;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Framework.Core.Identity.Users.Abstractions;
 public interface IUserService

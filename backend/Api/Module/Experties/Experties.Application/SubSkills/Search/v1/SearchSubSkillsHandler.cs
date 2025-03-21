@@ -3,8 +3,11 @@ using TalentMesh.Framework.Core.Persistence;
 using TalentMesh.Module.Experties.Application.SubSkills.Get.v1;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Module.Experties.Application.SubSkills.Search.v1;
+[ExcludeFromCodeCoverage]
+
 public sealed class SearchSubSkillsHandler(
     [FromKeyedServices("subskills:subskillReadOnly")] IReadRepository<Experties.Domain.SubSkill> repository)
     : IRequestHandler<SearchSubSkillsCommand, PagedList<SubSkillResponse>>

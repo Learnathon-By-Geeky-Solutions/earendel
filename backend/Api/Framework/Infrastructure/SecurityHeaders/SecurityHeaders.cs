@@ -1,4 +1,7 @@
-﻿namespace TalentMesh.Framework.Infrastructure.SecurityHeaders;
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace TalentMesh.Framework.Infrastructure.SecurityHeaders;
+[ExcludeFromCodeCoverage]
 
 public class SecurityHeaders
 {

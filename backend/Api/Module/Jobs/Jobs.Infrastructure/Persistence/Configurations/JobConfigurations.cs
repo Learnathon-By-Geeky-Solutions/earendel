@@ -1,8 +1,11 @@
 ﻿using TalentMesh.Module.Job.Domain;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Module.Job.Infrastructure.Persistence.Configurations;
+[ExcludeFromCodeCoverage]
+
 internal sealed class JobConfiguration : IEntityTypeConfiguration<Job.Domain.Jobs>
 {
     public void Configure(EntityTypeBuilder<Job.Domain.Jobs> builder)

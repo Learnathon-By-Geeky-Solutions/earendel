@@ -14,8 +14,12 @@ using TalentMesh.Module.Candidate.Application;
 using TalentMesh.Module.Quizzes.Infrastructure;
 using TalentMesh.Module.Notifications.Infrastructure;
 using TalentMesh.Module.Interviews.Infrastructure;
+using TalentMesh.Module.Evaluator.Application;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.WebApi.Host;
+
+[ExcludeFromCodeCoverage]
 
 public static class Extensions
 {
@@ -32,6 +36,7 @@ public static class Extensions
             typeof(QuizzesMetadata).Assembly,
             typeof(NotificationsMetadata).Assembly,
             typeof(InterviewsMetadata).Assembly,
+            typeof(EvaluatorMetadata).Assembly,
         };
 
         //register validators
@@ -50,6 +55,7 @@ public static class Extensions
         builder.RegisterQuizzesServices();
         builder.RegisterNotificationsServices();
         builder.RegisterInterviewsServices();
+        builder.RegisterEvaluatorServices();
 
         //add carter endpoint modules
         builder.Services.AddCarter(configurator: config =>
@@ -60,6 +66,7 @@ public static class Extensions
             config.WithModule<QuizzesModule.Endpoints>();
             config.WithModule<NotificationsModule.Endpoints>();
             config.WithModule<InterviewsModule.Endpoints>();
+            config.WithModule<EvaluatorModule.Endpoints>();
 
         });
 
@@ -76,6 +83,7 @@ public static class Extensions
         app.UseQuizzesModule();
         app.UseNotificationsModule();
         app.UseInterviewsModule();
+        app.UseEvaluatorModule();
 
         //register api versions
         var versions = app.NewApiVersionSet()

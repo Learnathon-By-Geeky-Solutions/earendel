@@ -21,7 +21,7 @@ public sealed class UpdateNotificationHandler(
         var notification = await repository.GetByIdAsync(request.Id, cancellationToken);
 
         // Check if the notification exists and is not deleted
-        if (notification is null || notification.DeletedBy != Guid.Empty)
+        if (notification is null)
         {
             throw new NotificationNotFoundException(request.Id);
         }

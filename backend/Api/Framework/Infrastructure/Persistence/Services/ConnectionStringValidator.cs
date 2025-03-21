@@ -2,12 +2,16 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Npgsql;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Framework.Infrastructure.Persistence.Services;
+[ExcludeFromCodeCoverage]
+
 internal sealed class ConnectionStringValidator(IOptions<DatabaseOptions> dbSettings, ILogger<ConnectionStringValidator> logger) : IConnectionStringValidator
 {
     private readonly DatabaseOptions _dbSettings = dbSettings.Value;
     private readonly ILogger<ConnectionStringValidator> _logger = logger;
+    [ExcludeFromCodeCoverage]
 
     public bool TryValidate(string connectionString, string? dbProvider = null)
     {

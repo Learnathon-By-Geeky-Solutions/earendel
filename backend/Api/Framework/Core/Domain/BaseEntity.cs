@@ -2,9 +2,9 @@
 using System.ComponentModel.DataAnnotations.Schema;
 using TalentMesh.Framework.Core.Domain.Contracts;
 using TalentMesh.Framework.Core.Domain.Events;
-
+using System.Diagnostics.CodeAnalysis;
 namespace TalentMesh.Framework.Core.Domain;
-
+[ExcludeFromCodeCoverage]
 public abstract class BaseEntity<TId> : IEntity<TId>
 {
     public TId Id { get; protected init; } = default!;
@@ -17,6 +17,7 @@ public abstract class BaseEntity<TId> : IEntity<TId>
     }
 }
 
+[ExcludeFromCodeCoverage]
 public abstract class BaseEntity : BaseEntity<Guid>
 {
     protected BaseEntity() => Id = Guid.NewGuid();

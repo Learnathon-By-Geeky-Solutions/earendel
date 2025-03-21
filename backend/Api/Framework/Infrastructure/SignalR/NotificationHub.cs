@@ -6,9 +6,12 @@ using System.Security.Claims;
 using System.Text.Json;
 using System.Threading.Tasks;
 using TalentMesh.Framework.Infrastructure.Identity.Users;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Framework.Infrastructure.SignalR
 {
+    [ExcludeFromCodeCoverage]
+
     [Authorize]
     public class NotificationHub : Hub
     {
