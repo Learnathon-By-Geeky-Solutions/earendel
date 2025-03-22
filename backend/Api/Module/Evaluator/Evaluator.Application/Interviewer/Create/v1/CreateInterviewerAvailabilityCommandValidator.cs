@@ -36,6 +36,14 @@ namespace TalentMesh.Module.Evaluator.Application.Interviewer.Create.v1
             });
         }
 
+        private bool NoOverlappingSlots(List<AvailabilitySlot> slots)
+        {
+            return !slots.Any(slot1 => slots.Any(slot2 =>
+                slot1 != slot2 &&
+                slot1.StartTime < slot2.EndTime &&
+                slot2.StartTime < slot1.EndTime));
+        }
+
         private bool BeAtLeastCurrentBangladeshTime(DateTime startTime)
         {
             var bangladeshTime = DateTime.UtcNow.AddHours(6); // Convert UTC to BST
