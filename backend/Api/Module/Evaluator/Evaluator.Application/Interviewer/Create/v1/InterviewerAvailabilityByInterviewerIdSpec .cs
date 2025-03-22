@@ -8,7 +8,7 @@ namespace TalentMesh.Module.Evaluator.Application.Interviewer.Create.v1
     {
         public InterviewerAvailabilityByInterviewerIdSpec(Guid interviewerId)
         {
-            Query.Where(availability => availability.InterviewerId == interviewerId);
+            Query.Where(availability => availability.InterviewerId == interviewerId && availability.IsAvailable);
         }
     }
 }
