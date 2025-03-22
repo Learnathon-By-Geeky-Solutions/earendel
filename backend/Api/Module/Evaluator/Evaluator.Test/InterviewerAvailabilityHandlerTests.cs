@@ -1,5 +1,4 @@
-﻿
-using Moq;
+﻿using Moq;
 using TalentMesh.Module.Interviews.Domain.Exceptions;
 using TalentMesh.Framework.Core.Paging;
 using MediatR;
@@ -60,18 +59,33 @@ namespace TalentMesh.Module.Evaluator.Tests
             var interviewerId = Guid.NewGuid();
             var startTime = DateTime.UtcNow;
             var endTime = startTime.AddHours(1);
-            var request = new CreateInterviewerAvailabilityCommand(interviewerId, startTime, endTime, true);
-            var expectedInterviewerAvailability = InterviewerAvailability.Create(request.InterviewerId!, request.StartTime!, request.EndTime, request.IsAvailable);
 
-            _repositoryMock.Setup(repo => repo.AddAsync(It.IsAny<InterviewerAvailability>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(expectedInterviewerAvailability);
+            var availabilitySlots = new List<AvailabilitySlot>
+            {
+                new AvailabilitySlot(startTime, endTime),
+                new AvailabilitySlot(endTime.AddHours(1), endTime.AddHours(2))
+            };
+
+
+            var request = new CreateInterviewerAvailabilityCommand(interviewerId, availabilitySlots);
+
+
+            _repositoryMock.Setup(repo => repo.ListAsync(It.IsAny<InterviewerAvailabilityByInterviewerIdSpec>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(new List<InterviewerAvailability>()); // No existing availabilities
+
+            _repositoryMock.Setup(repo => repo.AddRangeAsync(It.IsAny<List<InterviewerAvailability>>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(new List<InterviewerAvailability>());
+
 
             // Act
             var result = await _createHandler.Handle(request, CancellationToken.None);
 
             // Assert
             Assert.NotNull(result);
-            _repositoryMock.Verify(repo => repo.AddAsync(It.IsAny<InterviewerAvailability>(), It.IsAny<CancellationToken>()), Times.Once);
+            Assert.Equal(2, result.AvailabilityIds.Count); // Ensure both slots are created
+
+            _repositoryMock.Verify(repo => repo.ListAsync(It.IsAny<InterviewerAvailabilityByInterviewerIdSpec>(), It.IsAny<CancellationToken>()), Times.Once);
+            _repositoryMock.Verify(repo => repo.AddRangeAsync(It.IsAny<List<InterviewerAvailability>>(), It.IsAny<CancellationToken>()), Times.Once);
         }
 
         [Fact]
@@ -188,7 +202,7 @@ namespace TalentMesh.Module.Evaluator.Tests
             Assert.Equal(2, result.Items.Count);
 
             Assert.Contains(result.Items, item =>
-                item.IsAvailable == true
+                item.IsAvailable
             );
 
             // Verify repository calls
