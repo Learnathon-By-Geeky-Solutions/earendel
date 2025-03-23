@@ -46,6 +46,7 @@ namespace TalentMesh.Framework.Infrastructure.Identity
 
             // Register TokenService (and other services assumed to be registered elsewhere)
             services.AddScoped<ITokenService, TokenService>();
+            services.AddHostedService<UsersConsumer>();
 
             // Bind Identity DbContext
             services.BindDbContext<IdentityDbContext>();

@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
+using TalentMesh.Module.Job.Infrastructure.Messaging;
 using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Module.Job.Infrastructure
@@ -61,6 +62,8 @@ namespace TalentMesh.Module.Job.Infrastructure
             ArgumentNullException.ThrowIfNull(builder);
             builder.Services.BindDbContext<JobDbContext>();
             builder.Services.AddScoped<IDbInitializer, JobDbInitializer>();
+
+            builder.Services.AddHostedService<InterviewApplicationConsumer>();
 
             // Register repositories for Jobs
             builder.Services.AddKeyedScoped<IRepository<Jobs>, JobRepository<Jobs>>("jobs:job");

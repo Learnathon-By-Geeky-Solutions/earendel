@@ -23,6 +23,7 @@ public static class InterviewsModule
             var interviewGroup = app.MapGroup("interviews").WithTags("interviews");
             interviewGroup.MapInterviewCreationEndpoint();
             interviewGroup.MapGetInterviewEndpoint();
+            interviewGroup.MapGetInterviewByInterviewerEndpoint();
             interviewGroup.MapGetInterviewListEndpoint();
             interviewGroup.MapInterviewUpdateEndpoint();
             interviewGroup.MapInterviewDeleteEndpoint();
