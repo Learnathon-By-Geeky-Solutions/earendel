@@ -32,6 +32,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Cryptography;
 using Google.Apis.Auth.OAuth2.Responses;
 using System.Diagnostics.CodeAnalysis;
+using TalentMesh.Framework.Infrastructure.Messaging;
 
 namespace TalentMesh.Framework.Infrastructure.Identity.Users.Services;
 
@@ -40,6 +41,7 @@ public class IdentityServices
 {
     public UserManager<TMUser> UserManager { get; }
     public SignInManager<TMUser> SignInManager { get; }
+    public IHttpContextAccessor HttpContextAccessor { get; }
     public RoleManager<TMRole> RoleManager { get; }
     public IdentityDbContext Db { get; }
 
@@ -47,11 +49,13 @@ public class IdentityServices
         UserManager<TMUser> userManager,
         SignInManager<TMUser> signInManager,
         RoleManager<TMRole> roleManager,
+        IHttpContextAccessor httpContextAccessor,
         IdentityDbContext db)
     {
         UserManager = userManager;
         SignInManager = signInManager;
         RoleManager = roleManager;
+        HttpContextAccessor = httpContextAccessor;
         Db = db;
     }
 }
@@ -65,6 +69,7 @@ public class InfrastructureServices
     public IMailService MailService { get; }
     public IMultiTenantContextAccessor<TMTenantInfo> MultiTenantContextAccessor { get; }
     public IStorageService StorageService { get; }
+    public IMessageBus MessageBus { get; }
     public ITokenService TokenService { get; }
 
     public InfrastructureServices(
@@ -73,6 +78,7 @@ public class InfrastructureServices
         IMailService mailService,
         IMultiTenantContextAccessor<TMTenantInfo> multiTenantContextAccessor,
         IStorageService storageService,
+        IMessageBus messageBus,
         ITokenService tokenService)
     {
         CacheService = cacheService;
@@ -80,6 +86,7 @@ public class InfrastructureServices
         MailService = mailService;
         MultiTenantContextAccessor = multiTenantContextAccessor;
         StorageService = storageService;
+        MessageBus = messageBus;
         TokenService = tokenService;
     }
 }
@@ -96,12 +103,15 @@ internal sealed partial class UserService(
     private readonly SignInManager<TMUser> signInManager = identityServices.SignInManager;
     private readonly RoleManager<TMRole> roleManager = identityServices.RoleManager;
     private readonly IdentityDbContext db = identityServices.Db;
+    private readonly IHttpContextAccessor httpContextAccessor = identityServices.HttpContextAccessor;
+
 
     private readonly ICacheService cache = infrastructureServices.CacheService;
     private readonly IJobService jobService = infrastructureServices.JobService;
     private readonly IMailService mailService = infrastructureServices.MailService;
     private readonly IMultiTenantContextAccessor<TMTenantInfo> multiTenantContextAccessor = infrastructureServices.MultiTenantContextAccessor;
     private readonly IStorageService storageService = infrastructureServices.StorageService;
+    private readonly IMessageBus messageBus = infrastructureServices.MessageBus;
     private readonly ITokenService tokenService = infrastructureServices.TokenService;
 
 
@@ -169,6 +179,202 @@ internal sealed partial class UserService(
         }
 
         return userDetail;
+    }
+
+    // public async Task<bool> GetHrsAsync(string? search, string? sortBy, string? sortDirection, int pageNumber, int pageSize, CancellationToken cancellationToken)
+    // {
+    //     // Build the base query for HR users
+    //     var query = from u in db.Users
+    //                 join ur in db.UserRoles on u.Id equals ur.UserId
+    //                 join r in db.Roles on ur.RoleId equals r.Id
+    //                 where r.Name == "HR"
+    //                 select new UserDetail
+    //                 {
+    //                     Id = Guid.Parse(u.Id),
+    //                     UserName = u.UserName,
+    //                     Email = u.Email,
+    //                     IsActive = u.IsActive,
+    //                     EmailConfirmed = u.EmailConfirmed,
+    //                     ImageUrl = u.ImageUrl,
+    //                     Roles = new List<string> { "HR" },
+    //                 };
+
+    //     // Apply search filter if provided
+    //     if (!string.IsNullOrWhiteSpace(search))
+    //     {
+    //         var searchLower = search.ToLower();
+    //         query = query.Where(hr => hr.UserName.ToLower().Contains(searchLower)
+    //                                || hr.Email.ToLower().Contains(searchLower));
+    //     }
+
+    //     // Determine sort order; note that only Name and Email are effective since JobCount is 0 here
+    //     bool isAscending = string.Equals(sortDirection, "asc", StringComparison.OrdinalIgnoreCase);
+    //     query = sortBy?.ToLower() switch
+    //     {
+    //         "name" => isAscending ? query.OrderBy(hr => hr.UserName) : query.OrderByDescending(hr => hr.UserName),
+    //         "email" => isAscending ? query.OrderBy(hr => hr.Email) : query.OrderByDescending(hr => hr.Email),
+    //         // If sorting by jobcount is requested, fallback to Name sorting because JobCount is not computed here.
+    //         _ => query.OrderBy(hr => hr.UserName)
+    //     };
+
+    //     int totalRecords = await query.CountAsync(cancellationToken);
+    //     var hrs = await query.Skip((pageNumber - 1) * pageSize)
+    //                              .Take(pageSize)
+    //                              .AsNoTracking()
+    //                              .ToListAsync(cancellationToken);
+
+    //     if (!hrs.Any())
+    //     {
+    //         throw new NotFoundException("No HRs found.");
+    //     }
+
+    //     var user = httpContextAccessor.HttpContext?.User;
+    //     var userId = user?.GetUserId(); // using extension method from TalentMesh.Shared.Authorization
+
+    //     var hrEventPayload = new
+    //     {
+    //         EventType = "hr.list.fetched",
+    //         Timestamp = DateTime.UtcNow,
+    //         RequestedBy = userId,
+    //         SortBy = sortBy,
+    //         SortDirection = sortDirection,
+    //         TotalRecords = totalRecords,
+    //         Hrs = hrs.Select(hr => new
+    //         {
+    //             hr.Id,
+    //             hr.UserName,
+    //             hr.Email,
+    //             hr.IsActive,
+    //             hr.EmailConfirmed,
+    //             hr.ImageUrl,
+    //             hr.Roles,
+    //         })
+    //     };
+
+    //     await messageBus.PublishAsync(hrEventPayload, "hr.job.list.events", "hr.job.list.fetched", cancellationToken);
+
+    //     return true;
+    // }
+
+
+    public async Task<bool> GetHrsAsync(
+        string? search,
+        string? sortBy,
+        string? sortDirection,
+        int pageNumber,
+        int pageSize,
+        CancellationToken cancellationToken)
+    {
+        var baseQuery = BuildHrBaseQuery();
+        var filteredQuery = ApplySearchFilter(baseQuery, search);
+        var sortedQuery = ApplySorting(filteredQuery, sortBy, sortDirection);
+
+        var (totalRecords, hrs) = await ExecutePaginatedQuery(sortedQuery, pageNumber, pageSize, cancellationToken);
+
+        await PublishHrFetchedEvent(totalRecords, hrs, sortBy, sortDirection);
+        return true;
+    }
+
+    private IQueryable<UserDetail> BuildHrBaseQuery()
+    {
+        return from u in db.Users
+               join ur in db.UserRoles on u.Id equals ur.UserId
+               join r in db.Roles on ur.RoleId equals r.Id
+               where r.Name == "HR"
+               select new UserDetail
+               {
+                   Id = Guid.Parse(u.Id),
+                   UserName = u.UserName,
+                   Email = u.Email,
+                   IsActive = u.IsActive,
+                   EmailConfirmed = u.EmailConfirmed,
+                   ImageUrl = u.ImageUrl,
+                   Roles = new List<string> { "HR" }
+               };
+    }
+
+    private IQueryable<UserDetail> ApplySearchFilter(IQueryable<UserDetail> query, string? search)
+    {
+        if (string.IsNullOrWhiteSpace(search)) return query;
+
+        var searchLower = search.ToLower();
+        return query.Where(hr =>
+            hr.UserName.ToLower().Contains(searchLower) ||
+            hr.Email.ToLower().Contains(searchLower)
+        );
+    }
+
+    private IQueryable<UserDetail> ApplySorting(
+    IQueryable<UserDetail> query,
+    string? sortBy,
+    string? sortDirection)
+    {
+        var isAscending = string.Equals(sortDirection, "asc", StringComparison.OrdinalIgnoreCase);
+
+        return (sortBy?.ToLower()) switch
+        {
+            "name" => isAscending ?
+                query.OrderBy(hr => hr.UserName) :
+                query.OrderByDescending(hr => hr.UserName),
+            "email" => isAscending ?
+                query.OrderBy(hr => hr.Email) :
+                query.OrderByDescending(hr => hr.Email),
+            _ => query.OrderBy(hr => hr.UserName)
+        };
+    }
+
+    private async Task<(int TotalRecords, List<UserDetail> Hrs)> ExecutePaginatedQuery(
+    IQueryable<UserDetail> query,
+    int pageNumber,
+    int pageSize,
+    CancellationToken cancellationToken)
+    {
+        var totalRecords = await query.CountAsync(cancellationToken);
+
+        var results = await query
+            .Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize)
+            .AsNoTracking()
+            .ToListAsync(cancellationToken);
+
+        return (totalRecords, results);
+    }
+
+    private async Task PublishHrFetchedEvent(
+    int totalRecords,
+    List<UserDetail> hrs,
+    string? sortBy,
+    string? sortDirection)
+    {
+        var user = httpContextAccessor.HttpContext?.User;
+        var userId = user?.GetUserId();
+
+        var payload = new
+        {
+            EventType = "hr.list.fetched",
+            Timestamp = DateTime.UtcNow,
+            RequestedBy = userId,
+            SortBy = sortBy,
+            SortDirection = sortDirection,
+            TotalRecords = totalRecords,
+            Hrs = hrs.Select(hr => new
+            {
+                hr.Id,
+                hr.UserName,
+                hr.Email,
+                hr.IsActive,
+                hr.EmailConfirmed,
+                hr.ImageUrl,
+                hr.Roles
+            }).ToList()
+        };
+
+        await messageBus.PublishAsync(
+            payload,
+            "hr.job.list.events",
+            "hr.job.list.fetched",
+            CancellationToken.None
+        );
     }
 
     public Task<int> GetCountAsync(CancellationToken cancellationToken) =>

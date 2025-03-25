@@ -13,6 +13,7 @@ using TalentMesh.Framework.Infrastructure.Identity.Tokens.Endpoints;
 using TalentMesh.Framework.Infrastructure.Identity.Users;
 using TalentMesh.Framework.Infrastructure.Identity.Users.Endpoints;
 using TalentMesh.Framework.Infrastructure.Identity.Users.Services;
+using TalentMesh.Framework.Infrastructure.Messaging;
 using TalentMesh.Framework.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -73,6 +74,7 @@ namespace TalentMesh.Framework.Infrastructure.Identity
                     sp.GetRequiredService<UserManager<TMUser>>(),
                     sp.GetRequiredService<SignInManager<TMUser>>(),
                     sp.GetRequiredService<RoleManager<TMRole>>(),
+                    sp.GetRequiredService<IHttpContextAccessor>(),
                     sp.GetRequiredService<IdentityDbContext>()
                 );
             });
@@ -86,6 +88,7 @@ namespace TalentMesh.Framework.Infrastructure.Identity
                     sp.GetRequiredService<IMailService>(),
                     sp.GetRequiredService<IMultiTenantContextAccessor<TMTenantInfo>>(),
                     sp.GetRequiredService<IStorageService>(),
+                    sp.GetRequiredService<IMessageBus>(),
                     sp.GetRequiredService<ITokenService>()
                 );
             });

@@ -64,6 +64,7 @@ namespace TalentMesh.Module.Job.Infrastructure
             builder.Services.AddScoped<IDbInitializer, JobDbInitializer>();
 
             builder.Services.AddHostedService<InterviewApplicationConsumer>();
+            builder.Services.AddHostedService<HrJobListConsumer>();
 
             // Register repositories for Jobs
             builder.Services.AddKeyedScoped<IRepository<Jobs>, JobRepository<Jobs>>("jobs:job");
