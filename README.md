@@ -2,16 +2,13 @@
 
 # 🚀 TalentMesh
 
+<img src="public/images/talentmesh-banner.png" alt="TalentMesh Banner" width="100%">
 <h3>Next-Generation Interview as a Service Platform</h3>
 
 [![.NET 8](https://img.shields.io/badge/.NET-8.0-512BD4?style=for-the-badge&logo=.net&logoColor=white)](https://dotnet.microsoft.com/download)
 [![ASP.NET Core](https://img.shields.io/badge/ASP.NET-Core-purple?style=for-the-badge&logo=.net&logoColor=white)](https://dotnet.microsoft.com/apps/aspnet)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-316192?style=for-the-badge&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
 [![Angular](https://img.shields.io/badge/Angular-17-DD0031?style=for-the-badge&logo=angular&logoColor=white)](https://angular.io)
-
-<br>
-
-  <img src="public/images/talentmesh-banner.png" alt="TalentMesh Banner" width="100%">
 
 <br>
 
