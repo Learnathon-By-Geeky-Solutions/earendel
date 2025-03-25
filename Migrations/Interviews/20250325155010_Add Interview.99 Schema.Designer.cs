@@ -2,41 +2,38 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
-using TalentMesh.Module.Job.Infrastructure.Persistence;
+using TalentMesh.Module.Interviews.Infrastructure.Persistence;
 
 #nullable disable
 
-namespace TalentMesh.Migrations.PGSql.Job
+namespace TalentMesh.Migrations.PGSql.Interviews
 {
-    [DbContext(typeof(JobDbContext))]
-    partial class JobDbContextModelSnapshot : ModelSnapshot
+    [DbContext(typeof(InterviewsDbContext))]
+    [Migration("20250325155010_Add Interview.99 Schema")]
+    partial class AddInterview99Schema
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasDefaultSchema("job")
+                .HasDefaultSchema("interviews")
                 .HasAnnotation("ProductVersion", "9.0.2")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("TalentMesh.Module.Job.Domain.JobApplication", b =>
+            modelBuilder.Entity("TalentMesh.Module.Interviews.Domain.Interview", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<DateTime>("ApplicationDate")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<Guid>("CandidateId")
+                    b.Property<Guid>("ApplicationId")
                         .HasColumnType("uuid");
-
-                    b.Property<string>("CoverLetter")
-                        .HasColumnType("text");
 
                     b.Property<DateTimeOffset>("Created")
                         .HasColumnType("timestamp with time zone");
@@ -50,7 +47,10 @@ namespace TalentMesh.Migrations.PGSql.Job
                     b.Property<Guid?>("DeletedBy")
                         .HasColumnType("uuid");
 
-                    b.Property<Guid>("JobId")
+                    b.Property<DateTime>("InterviewDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("InterviewerId")
                         .HasColumnType("uuid");
 
                     b.Property<DateTimeOffset>("LastModified")
@@ -58,19 +58,74 @@ namespace TalentMesh.Migrations.PGSql.Job
 
                     b.Property<Guid?>("LastModifiedBy")
                         .HasColumnType("uuid");
+
+                    b.Property<string>("MeetingId")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
 
                     b.Property<string>("Status")
                         .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Interviews", "interviews");
+                });
+
+            modelBuilder.Entity("TalentMesh.Module.Interviews.Domain.InterviewFeedback", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("Created")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("CreatedBy")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset?>("Deleted")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("DeletedBy")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("InterviewId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("InterviewQuestionId")
+                        .HasColumnType("uuid");
+
+                    b.Property<DateTimeOffset>("LastModified")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid?>("LastModifiedBy")
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Response")
+                        .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<decimal>("Score")
+                        .HasMaxLength(50)
+                        .HasColumnType("numeric");
+
                     b.HasKey("Id");
 
-                    b.HasIndex("JobId");
+                    b.HasIndex("InterviewId");
 
-                    b.ToTable("JobApplications", "job");
+                    b.HasIndex("InterviewQuestionId");
+
+                    b.ToTable("InterviewFeedbacks", "interviews");
                 });
 
-            modelBuilder.Entity("TalentMesh.Module.Job.Domain.JobRequiredSkill", b =>
+            modelBuilder.Entity("TalentMesh.Module.Interviews.Domain.InterviewQuestion", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -88,7 +143,7 @@ namespace TalentMesh.Migrations.PGSql.Job
                     b.Property<Guid?>("DeletedBy")
                         .HasColumnType("uuid");
 
-                    b.Property<Guid>("JobId")
+                    b.Property<Guid>("InterviewId")
                         .HasColumnType("uuid");
 
                     b.Property<DateTimeOffset>("LastModified")
@@ -97,116 +152,49 @@ namespace TalentMesh.Migrations.PGSql.Job
                     b.Property<Guid?>("LastModifiedBy")
                         .HasColumnType("uuid");
 
-                    b.Property<Guid>("SkillId")
+                    b.Property<string>("QuestionText")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
+
+                    b.Property<Guid>("RubricId")
                         .HasColumnType("uuid");
 
                     b.HasKey("Id");
 
-                    b.ToTable("JobRequiredSkill", "job");
+                    b.HasIndex("InterviewId");
+
+                    b.ToTable("InterviewQuestions", "interviews");
                 });
 
-            modelBuilder.Entity("TalentMesh.Module.Job.Domain.JobRequiredSubskill", b =>
+            modelBuilder.Entity("TalentMesh.Module.Interviews.Domain.InterviewFeedback", b =>
                 {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTimeOffset>("Created")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<Guid>("CreatedBy")
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTimeOffset?>("Deleted")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<Guid?>("DeletedBy")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("JobId")
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTimeOffset>("LastModified")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<Guid?>("LastModifiedBy")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("SubskillId")
-                        .HasColumnType("uuid");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("JobRequiredSubskill", "job");
-                });
-
-            modelBuilder.Entity("TalentMesh.Module.Job.Domain.Jobs", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTimeOffset>("Created")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<Guid>("CreatedBy")
-                        .HasColumnType("uuid");
-
-                    b.Property<DateTimeOffset?>("Deleted")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<Guid?>("DeletedBy")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("Description")
-                        .HasMaxLength(1000)
-                        .HasColumnType("character varying(1000)");
-
-                    b.Property<string>("ExperienceLevel")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
-
-                    b.Property<string>("JobType")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
-
-                    b.Property<DateTimeOffset>("LastModified")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<Guid?>("LastModifiedBy")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("Location")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
-
-                    b.Property<string>("Requirments")
-                        .IsRequired()
-                        .HasMaxLength(1000)
-                        .HasColumnType("character varying(1000)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Jobs", "job");
-                });
-
-            modelBuilder.Entity("TalentMesh.Module.Job.Domain.JobApplication", b =>
-                {
-                    b.HasOne("TalentMesh.Module.Job.Domain.Jobs", "Job")
+                    b.HasOne("TalentMesh.Module.Interviews.Domain.Interview", "Interview")
                         .WithMany()
-                        .HasForeignKey("JobId")
+                        .HasForeignKey("InterviewId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Job");
+                    b.HasOne("TalentMesh.Module.Interviews.Domain.InterviewQuestion", "InterviewQuestion")
+                        .WithMany()
+                        .HasForeignKey("InterviewQuestionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Interview");
+
+                    b.Navigation("InterviewQuestion");
+                });
+
+            modelBuilder.Entity("TalentMesh.Module.Interviews.Domain.InterviewQuestion", b =>
+                {
+                    b.HasOne("TalentMesh.Module.Interviews.Domain.Interview", "Interview")
+                        .WithMany()
+                        .HasForeignKey("InterviewId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Interview");
                 });
 #pragma warning restore 612, 618
         }
