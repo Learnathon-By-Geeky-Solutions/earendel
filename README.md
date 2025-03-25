@@ -11,6 +11,10 @@
 
 <br>
 
+  <img src="public/images/talentmesh-banner.png" alt="TalentMesh Banner" width="100%">
+
+<br>
+
 <p align="center"> <a href="https://sonarcloud.io/summary/new_code?id=Learnathon-By-Geeky-Solutions_earendel"> <img src="https://img.shields.io/badge/SonarCloud-Analysis-4E9BCD?style=for-the-badge&logo=sonarcloud&logoColor=white" alt="SonarCloud Analysis" width="250"> </a> </p>
 
 <!-- SonarCloud Badges - Organized in a borderless table -->
