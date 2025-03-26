@@ -22,22 +22,30 @@ namespace TalentMesh.Module.Interviews.Infrastructure.Services
         private readonly ILogger<ZoomService> _logger;
         private readonly string _sdkKey;
         private readonly string _sdkSecret;
+        private readonly string _grantType;
+        private readonly string _accountId;
+        private readonly string _zoomUserName;
+        private readonly string _zoomPassword;
         // API URL with parameters included in the query string.
-        private const string TokenUrl = "https://zoom.us/oauth/token?grant_type=account_credentials&account_id=OQaFCOsQQ2WlJhzzMVaTdw";
-
         public ZoomService(HttpClient httpClient, ILogger<ZoomService> logger, IConfiguration configuration)
         {
             _sdkKey = configuration["ZoomSettings:SDKKey"];
             _sdkSecret = configuration["ZoomSettings:SDKSecret"];
+            _grantType = configuration["ZoomSettings:GrantType"];
+            _accountId = configuration["ZoomSettings:AccountId"];
+            _zoomUserName = configuration["ZoomSettings:ZoomUserName"];
+            _zoomPassword = configuration["ZoomSettings:ZoomPassword"];
             _httpClient = httpClient;
             _logger = logger;
 
         }
 
-        public async Task<string> GetAccessTokenAsync(string username, string password)
+        public async Task<string> GetAccessTokenAsync()
         {
-            var request = new HttpRequestMessage(HttpMethod.Post, TokenUrl);
-            var authInfo = $"{username}:{password}";
+            string tokenUrl = $"https://zoom.us/oauth/token?grant_type={_grantType}&account_id={_accountId}";
+
+            var request = new HttpRequestMessage(HttpMethod.Post, tokenUrl);
+            var authInfo = $"{_zoomUserName}:{_zoomPassword}";
             var authHeaderValue = Convert.ToBase64String(Encoding.UTF8.GetBytes(authInfo));
             request.Headers.Authorization = new AuthenticationHeaderValue("Basic", authHeaderValue);
 

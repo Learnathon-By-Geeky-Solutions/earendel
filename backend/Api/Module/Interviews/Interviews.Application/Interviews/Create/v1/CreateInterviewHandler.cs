@@ -21,7 +21,7 @@ public sealed class CreateInterviewHandler(
         string zoomUsername = "eg7c6VGlQ4iTsym5ZnZpjA";
         string zoomPassword = "b6NKjhvyhbVR9QcFAB2cOpwhqCUghYCv";
 
-        var accessToken = await zoomService.GetAccessTokenAsync(zoomUsername, zoomPassword);
+        var accessToken = await zoomService.GetAccessTokenAsync();
 
         string meetingId = await zoomService.CreateZoomMeetingAsync(accessToken, request.InterviewDate);
         logger.LogInformation("Created Zoom meeting with ID: {MeetingId}", meetingId);
@@ -33,7 +33,7 @@ public sealed class CreateInterviewHandler(
             request.InterviewDate,
             request.Status,
             request.Notes,
-            request.MeetingId // Include MeetingId
+            meetingId // Include MeetingId
         );
 
         await repository.AddAsync(interview, cancellationToken);
