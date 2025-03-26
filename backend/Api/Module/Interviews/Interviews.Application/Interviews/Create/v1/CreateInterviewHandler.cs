@@ -3,17 +3,28 @@ using TalentMesh.Module.Interviews.Domain;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using TalentMesh.Module.Interviews.Application.Services;
 
 namespace TalentMesh.Module.Interviews.Application.Interviews.Create.v1;
 
 public sealed class CreateInterviewHandler(
     ILogger<CreateInterviewHandler> logger,
-    [FromKeyedServices("interviews:interview")] IRepository<Interview> repository)
+    [FromKeyedServices("interviews:interview")] IRepository<Interview> repository, IZoomService zoomService)
     : IRequestHandler<CreateInterviewCommand, CreateInterviewResponse>
 {
     public async Task<CreateInterviewResponse> Handle(CreateInterviewCommand request, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(request);
+
+        string grantType = "account_credentials"; // Example grant type
+        string accountId = "OQaFCOsQQ2WlJhzzMVaTdw";
+        string zoomUsername = "eg7c6VGlQ4iTsym5ZnZpjA";
+        string zoomPassword = "b6NKjhvyhbVR9QcFAB2cOpwhqCUghYCv";
+
+        var accessToken = await zoomService.GetAccessTokenAsync(zoomUsername, zoomPassword);
+
+        string meetingId = await zoomService.CreateZoomMeetingAsync(accessToken, request.InterviewDate);
+        logger.LogInformation("Created Zoom meeting with ID: {MeetingId}", meetingId);
 
         // Pass MeetingId to the Create method
         var interview = Interview.Create(
