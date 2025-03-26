@@ -12,6 +12,7 @@ namespace TalentMesh.Module.Interviews.Application.Services
         /// <returns>The access token as a string.</returns>
         Task<string> GetAccessTokenAsync(string username, string password);
         Task<string> CreateZoomMeetingAsync(string accessToken, DateTime startTime);
+        Task<string> GenerateSignatureAsync(string meetingNumber, int role);
 
     }
 }

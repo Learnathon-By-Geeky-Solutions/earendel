@@ -162,5 +162,40 @@ namespace TalentMesh.Module.Interviews.Infrastructure.Services
             throw new Exception("Zoom API response did not contain 'id'");
         }
 
+        public async Task<string> GenerateSignatureAsync(string meetingNumber, int role)
+        {
+            if (string.IsNullOrEmpty(meetingNumber) || (role != 0 && role != 1))
+                throw new ArgumentException("Invalid meeting number or role.");
+
+            var iat = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+            var exp = iat + 7200; // Token expires in 2 hours
+
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_sdkSecret));
+            var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+            var claims = new[]
+            {
+            new Claim("appKey", _sdkKey),
+            new Claim("sdkKey", _sdkKey),
+            new Claim("mn", meetingNumber),
+            new Claim("role", role.ToString()),
+            new Claim("iat", iat.ToString()),
+            new Claim("exp", exp.ToString()),
+            new Claim("tokenExp", exp.ToString())
+        };
+
+            var tokenDescriptor = new SecurityTokenDescriptor
+            {
+                Subject = new ClaimsIdentity(claims),
+                Expires = DateTimeOffset.FromUnixTimeSeconds(exp).UtcDateTime,
+                SigningCredentials = credentials
+            };
+
+            var token = tokenHandler.CreateToken(tokenDescriptor);
+            var jwtToken = tokenHandler.WriteToken(token);
+
+            return await Task.FromResult(jwtToken);
+        }
     }
 }
