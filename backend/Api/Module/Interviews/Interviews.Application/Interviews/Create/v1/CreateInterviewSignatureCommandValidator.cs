@@ -13,7 +13,6 @@ public class CreateInterviewSignatureCommandValidator : AbstractValidator<Create
             .Matches(@"^\d+$").WithMessage("MeetingNumber must be a numeric string.");
 
         RuleFor(b => b.Role)
-            .NotEmpty().WithMessage("Role is required.")
             .InclusiveBetween(0, 1).WithMessage("Role must be either 0 (attendee) or 1 (host).");
     }
 }
