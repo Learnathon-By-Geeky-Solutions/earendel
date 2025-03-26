@@ -72,6 +72,95 @@ namespace TalentMesh.Module.Interviews.Infrastructure.Services
 
             return accessToken;
         }
-   
+        public async Task<string> CreateZoomMeetingAsync(string accessToken, DateTime startTime)
+        {
+            var requestUrl = "https://api.zoom.us/v2/users/me/meetings";
+
+            var requestBody = new
+            {
+                agenda = "Zoom Meeting for YT Demo",
+                default_password = false,
+                duration = 60,
+                password = "12345",
+                start_time = startTime.ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ssZ"), // Convert to UTC format
+                timezone = "Asia/Dhaka",
+                topic = "Zoom Meeting for YT Demo",
+                type = 2,
+                settings = new
+                {
+                    allow_multiple_devices = true,
+                    alternative_hosts_email_notification = true,
+                    breakout_room = new
+                    {
+                        enable = true,
+                        rooms = new[]
+                        {
+                        new
+                        {
+                            name = "room1",
+                            participants = new[]
+                            {
+                                "mdnafiulhasanhamim126@gmail.com"
+                            }
+                        }
+                    }
+                    },
+                    calendar_type = 1,
+                    contact_email = "mdnafiulhasanhamim12345@gmail.com",
+                    contact_name = "Ajay Sharma",
+                    email_notification = true,
+                    encryption_type = "enhanced_encryption",
+                    focus_mode = true,
+                    host_video = true,
+                    join_before_host = false,
+                    meeting_authentication = true,
+                    meeting_invitees = new[]
+                    {
+                    new { email = "u1904126@student.cuet.ac.bd" },
+                    new { email = "mdnafiulhasanhamim12345@gmail.com" }
+                },
+                    authentication_exception = new[]
+                    {
+                    new { email = "u1904126@student.cuet.ac.bd", name = "User 1" },
+                    new { email = "mdnafiulhasanhamim12345@gmail.com", name = "User 2" }
+                },
+                    mute_upon_entry = true,
+                    participant_video = true,
+                    private_meeting = true,
+                    waiting_room = false,
+                    watermark = false,
+                    continuous_meeting_chat = new { enable = true }
+                }
+            };
+
+            var jsonContent = new StringContent(JsonSerializer.Serialize(requestBody), Encoding.UTF8, "application/json");
+
+            // Set the Authorization header
+            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+
+            _logger.LogInformation("Sending request to Zoom API: {Url}", requestUrl);
+
+            var response = await _httpClient.PostAsync(requestUrl, jsonContent);
+            var responseContent = await response.Content.ReadAsStringAsync();
+
+            _logger.LogInformation("Zoom API Response: {Response}", responseContent);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                _logger.LogError("Failed to create Zoom meeting. Status: {StatusCode}, Response: {Response}", response.StatusCode, responseContent);
+                throw new Exception($"Zoom API error: {response.StatusCode}");
+            }
+
+            // Parse the JSON response to extract the meeting ID
+            using var doc = JsonDocument.Parse(responseContent);
+            if (doc.RootElement.TryGetProperty("id", out var meetingIdElement))
+            {
+                return meetingIdElement.GetRawText(); // Return meeting ID as a string
+            }
+
+            _logger.LogError("Zoom API response did not contain 'id'");
+            throw new Exception("Zoom API response did not contain 'id'");
+        }
+
     }
 }
