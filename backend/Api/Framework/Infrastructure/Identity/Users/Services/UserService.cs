@@ -293,7 +293,7 @@ internal sealed partial class UserService(
                };
     }
 
-    private IQueryable<UserDetail> ApplySearchFilter(IQueryable<UserDetail> query, string? search)
+    private static IQueryable<UserDetail> ApplySearchFilter(IQueryable<UserDetail> query, string? search)
     {
         if (string.IsNullOrWhiteSpace(search)) return query;
 
@@ -304,7 +304,7 @@ internal sealed partial class UserService(
         );
     }
 
-    private IQueryable<UserDetail> ApplySorting(
+    private static IQueryable<UserDetail> ApplySorting(
     IQueryable<UserDetail> query,
     string? sortBy,
     string? sortDirection)
@@ -323,7 +323,7 @@ internal sealed partial class UserService(
         };
     }
 
-    private async Task<(int TotalRecords, List<UserDetail> Hrs)> ExecutePaginatedQuery(
+    private static async Task<(int TotalRecords, List<UserDetail> Hrs)> ExecutePaginatedQuery(
     IQueryable<UserDetail> query,
     int pageNumber,
     int pageSize,
