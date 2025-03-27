@@ -1,4 +1,9 @@
+using System;
 using System.Text;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Collections.Generic;
 using System.Text.Json;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
@@ -6,13 +11,10 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using RabbitMQ.Client.Events;
 using RabbitMQ.Client;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Linq;
-using System.Collections.Generic;
 using TalentMesh.Module.Job.Infrastructure.Persistence;
 using TalentMesh.Framework.Infrastructure.SignalR;
 using TalentMesh.Framework.Infrastructure.Messaging;
+using TalentMesh.Framework.Infrastructure.Common;
 
 namespace TalentMesh.Module.Job.Infrastructure.Messaging
 {
@@ -20,7 +22,6 @@ namespace TalentMesh.Module.Job.Infrastructure.Messaging
     {
         private readonly IHubContext<NotificationHub> _hubContext;
         private readonly IServiceScopeFactory _scopeFactory;
-        private readonly IConnectionFactory _connectionFactory;
 
         public HrJobListConsumer(
             ILogger<HrJobListConsumer> logger,
@@ -40,7 +41,6 @@ namespace TalentMesh.Module.Job.Infrastructure.Messaging
 
             var consumer = new AsyncEventingBasicConsumer(_channel);
             consumer.Received += async (sender, ea) => await ProcessMessageAsync(ea, stoppingToken);
-
             _channel.BasicConsume(queue: _queueName, autoAck: false, consumer: consumer);
             return Task.CompletedTask;
         }
@@ -52,7 +52,7 @@ namespace TalentMesh.Module.Job.Infrastructure.Messaging
                 _logger.LogInformation("Received HR job list event message.");
 
                 var messageJson = Encoding.UTF8.GetString(ea.Body.ToArray());
-                var hrMessage = DeserializeMessage(messageJson);
+                var hrMessage = JsonHelper.Deserialize<HrMessage>(messageJson);
                 if (hrMessage == null)
                 {
                     _logger.LogWarning("Failed to deserialize HR job list message.");
@@ -86,11 +86,10 @@ namespace TalentMesh.Module.Job.Infrastructure.Messaging
                     hr.JobCount = hr.Jobs.Count;
                 }
 
-                // Optional: sort HR list if requested by job count
                 if (!string.IsNullOrEmpty(hrMessage.SortBy) &&
-                    hrMessage.SortBy.Equals("jobcount", System.StringComparison.OrdinalIgnoreCase))
+                    hrMessage.SortBy.Equals("jobcount", StringComparison.OrdinalIgnoreCase))
                 {
-                    bool isAscending = string.Equals(hrMessage.SortDirection, "asc", System.StringComparison.OrdinalIgnoreCase);
+                    bool isAscending = string.Equals(hrMessage.SortDirection, "asc", StringComparison.OrdinalIgnoreCase);
                     hrMessage.HRs = isAscending
                         ? hrMessage.HRs.OrderBy(hr => hr.JobCount).ToList()
                         : hrMessage.HRs.OrderByDescending(hr => hr.JobCount).ToList();
@@ -99,36 +98,23 @@ namespace TalentMesh.Module.Job.Infrastructure.Messaging
                 var finalResponse = new
                 {
                     EventType = "hr.job.list.updated",
-                    Timestamp = System.DateTime.UtcNow,
+                    Timestamp = DateTime.UtcNow,
                     TotalHrCount = hrMessage.TotalRecords,
                     TotalJobCount = allJobs.Count,
                     TotalRecords = hrMessage.TotalRecords,
                     HRs = hrMessage.HRs
                 };
 
-                var finalJson = JsonSerializer.Serialize(finalResponse);
+                var finalJson = JsonHelper.Serialize(finalResponse);
                 _logger.LogInformation("Final HR Job List Response: {Response}", finalJson);
                 await _hubContext.Clients.Group($"user:{hrMessage.RequestedBy}").SendAsync("ReceiveMessage", finalJson);
 
                 _channel.BasicAck(ea.DeliveryTag, false);
             }
-            catch (System.Exception ex)
+            catch (Exception ex)
             {
                 _logger.LogError("Error processing HR job list message: {Error}", ex.Message);
                 _channel.BasicNack(ea.DeliveryTag, false, true);
-            }
-        }
-
-        private HrMessage? DeserializeMessage(string messageJson)
-        {
-            try
-            {
-                return JsonSerializer.Deserialize<HrMessage>(messageJson, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-            }
-            catch (System.Exception ex)
-            {
-                _logger.LogError("Error deserializing HR job list message: {Error}", ex.Message);
-                return null;
             }
         }
     }

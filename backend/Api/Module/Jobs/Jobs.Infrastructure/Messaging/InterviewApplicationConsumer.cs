@@ -1,17 +1,18 @@
 using System;
 using System.Text;
 using System.Text.Json;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.AspNetCore.SignalR;
 using RabbitMQ.Client.Events;
 using RabbitMQ.Client;
-using System.Threading;
-using System.Threading.Tasks;
 using TalentMesh.Module.Job.Infrastructure.Persistence;
 using TalentMesh.Framework.Infrastructure.Messaging;
 using TalentMesh.Framework.Infrastructure.SignalR;
-using Microsoft.AspNetCore.SignalR;
 
 namespace TalentMesh.Module.Job.Infrastructure.Messaging
 {
@@ -19,7 +20,6 @@ namespace TalentMesh.Module.Job.Infrastructure.Messaging
     {
         private readonly IMessageBus _messageBus;
         private readonly IServiceScopeFactory _scopeFactory;
-        private readonly IConnectionFactory _connectionFactory;
         private readonly IHubContext<NotificationHub> _hubContext;
 
         public InterviewApplicationConsumer(
@@ -30,7 +30,6 @@ namespace TalentMesh.Module.Job.Infrastructure.Messaging
             IHubContext<NotificationHub> hubContext)
             : base(logger, connectionFactory, "interview.application.events", "interview.application.getCandidate", "interview.application.getCandidate")
         {
-            _connectionFactory = connectionFactory;
             _scopeFactory = scopeFactory;
             _messageBus = messageBus;
             _hubContext = hubContext;
@@ -39,10 +38,8 @@ namespace TalentMesh.Module.Job.Infrastructure.Messaging
         protected override Task ExecuteAsync(CancellationToken stoppingToken)
         {
             SetUpRabbitMQConnection();
-
             var consumer = new AsyncEventingBasicConsumer(_channel);
             consumer.Received += async (sender, ea) => await ProcessMessageAsync(ea, stoppingToken);
-
             _channel.BasicConsume(queue: _queueName, autoAck: false, consumer: consumer);
             return Task.CompletedTask;
         }
@@ -50,7 +47,6 @@ namespace TalentMesh.Module.Job.Infrastructure.Messaging
         private async Task ProcessMessageAsync(BasicDeliverEventArgs ea, CancellationToken stoppingToken)
         {
             _logger.LogInformation("Received Interview Application message");
-
             var messageJson = Encoding.UTF8.GetString(ea.Body.ToArray());
             var interviewMessage = DeserializeMessage(messageJson);
             if (interviewMessage == null)
@@ -60,11 +56,8 @@ namespace TalentMesh.Module.Job.Infrastructure.Messaging
             }
 
             await ProcessInterviewsAsync(interviewMessage, stoppingToken);
-
-            // Publish the updated message via the message bus.
             await PublishMessageAsync(interviewMessage);
 
-            // Also send the final message to connected SignalR clients.
             var finalJson = SerializeMessage(interviewMessage);
             await _hubContext.Clients.Group($"user:{interviewMessage.UserId}").SendAsync("ReceiveMessage", finalJson);
 

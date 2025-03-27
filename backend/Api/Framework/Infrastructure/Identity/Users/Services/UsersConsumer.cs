@@ -1,6 +1,5 @@
 using System;
 using System.Text;
-using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Collections.Generic;
@@ -13,6 +12,7 @@ using RabbitMQ.Client;
 using TalentMesh.Framework.Infrastructure.Messaging;
 using TalentMesh.Framework.Infrastructure.SignalR;
 using TalentMesh.Shared.Authorization;
+using TalentMesh.Framework.Infrastructure.Common;
 
 namespace TalentMesh.Framework.Infrastructure.Identity.Users.Services
 {
@@ -40,10 +40,8 @@ namespace TalentMesh.Framework.Infrastructure.Identity.Users.Services
         protected override Task ExecuteAsync(CancellationToken stoppingToken)
         {
             SetUpRabbitMQConnection();
-
             var consumer = new AsyncEventingBasicConsumer(_channel);
             consumer.Received += async (sender, ea) => await ProcessMessageAsync(ea, stoppingToken);
-
             _channel.BasicConsume(queue: QueueName, autoAck: false, consumer: consumer);
             return Task.CompletedTask;
         }
@@ -106,26 +104,6 @@ namespace TalentMesh.Framework.Infrastructure.Identity.Users.Services
                     interview.CandidateName = candidate.UserName;
                     interview.CandidateEmail = candidate.Email;
                 }
-            }
-        }
-    }
-
-    public static class JsonHelper
-    {
-        private static readonly JsonSerializerOptions Options = new() { PropertyNameCaseInsensitive = true };
-
-        public static string Serialize<T>(T obj) => JsonSerializer.Serialize(obj, Options);
-
-        public static T? Deserialize<T>(string json)
-        {
-            try
-            {
-                return JsonSerializer.Deserialize<T>(json, Options);
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error deserializing message: {ex.Message}");
-                return default;
             }
         }
     }
