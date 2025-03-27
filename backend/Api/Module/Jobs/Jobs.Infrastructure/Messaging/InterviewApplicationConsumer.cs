@@ -72,8 +72,7 @@ namespace TalentMesh.Module.Job.Infrastructure.Messaging
             }
             catch (Exception ex)
             {
-                _logger.LogError($"Error deserializing message: {ex.Message}");
-                return null;
+                _logger.LogError(ex, "Error deserializing message");
             }
         }
 
@@ -111,7 +110,7 @@ namespace TalentMesh.Module.Job.Infrastructure.Messaging
             _logger.LogInformation("Finished processing interviews.");
         }
 
-        private string SerializeMessage(InterviewMessage interviewMessage)
+        private static string SerializeMessage(InterviewMessage interviewMessage)
         {
             return JsonSerializer.Serialize(interviewMessage);
         }
@@ -124,9 +123,10 @@ namespace TalentMesh.Module.Job.Infrastructure.Messaging
             }
             catch (Exception ex)
             {
-                _logger.LogError($"Error publishing message: {ex.Message}");
+                _logger.LogError(ex, "Error publishing message");
             }
         }
+
     }
 
     public class InterviewMessage

@@ -50,9 +50,9 @@ namespace TalentMesh.Module.Job.Infrastructure.Messaging
             try
             {
                 _logger.LogInformation("Received HR job list event message.");
-
                 var messageJson = Encoding.UTF8.GetString(ea.Body.ToArray());
                 var hrMessage = JsonHelper.Deserialize<HrMessage>(messageJson);
+
                 if (hrMessage == null)
                 {
                     _logger.LogWarning("Failed to deserialize HR job list message.");
@@ -64,7 +64,6 @@ namespace TalentMesh.Module.Job.Infrastructure.Messaging
                 var dbContext = scope.ServiceProvider.GetRequiredService<JobDbContext>();
 
                 var hrIds = hrMessage.HRs.Select(hr => hr.Id).ToList();
-                _logger.LogInformation("HR IDs: {HrIds}", string.Join(", ", hrIds));
 
                 var allJobs = await dbContext.Jobs
                     .Where(j => hrIds.Contains(j.CreatedBy))
@@ -107,16 +106,19 @@ namespace TalentMesh.Module.Job.Infrastructure.Messaging
 
                 var finalJson = JsonHelper.Serialize(finalResponse);
                 _logger.LogInformation("Final HR Job List Response: {Response}", finalJson);
-                await _hubContext.Clients.Group($"user:{hrMessage.RequestedBy}").SendAsync("ReceiveMessage", finalJson);
+
+                await _hubContext.Clients.Group($"user:{hrMessage.RequestedBy}")
+                    .SendAsync("ReceiveMessage", finalJson);
 
                 _channel.BasicAck(ea.DeliveryTag, false);
             }
             catch (Exception ex)
             {
-                _logger.LogError("Error processing HR job list message: {Error}", ex.Message);
+                _logger.LogError(ex, "Error processing HR job list message");
                 _channel.BasicNack(ea.DeliveryTag, false, true);
             }
         }
+
     }
 
     public class HrMessage

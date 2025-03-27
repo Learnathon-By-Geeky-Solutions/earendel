@@ -41,12 +41,12 @@ namespace TalentMesh.Framework.Infrastructure.Identity.Users.Services
         {
             SetUpRabbitMQConnection();
             var consumer = new AsyncEventingBasicConsumer(_channel);
-            consumer.Received += async (sender, ea) => await ProcessMessageAsync(ea, stoppingToken);
+            consumer.Received += async (sender, ea) => await ProcessMessageAsync(ea);
             _channel.BasicConsume(queue: QueueName, autoAck: false, consumer: consumer);
             return Task.CompletedTask;
         }
 
-        private async Task ProcessMessageAsync(BasicDeliverEventArgs ea, CancellationToken stoppingToken)
+        private async Task ProcessMessageAsync(BasicDeliverEventArgs ea)
         {
             LoggerHelper.LogReceivedMessage(_logger, "interview message (user)");
 
@@ -69,56 +69,48 @@ namespace TalentMesh.Framework.Infrastructure.Identity.Users.Services
             var finalJson = JsonHelper.Serialize(interviewMessage);
             LoggerHelper.LogInformation(_logger, "Updated Interview Message", finalJson);
 
-            await _hubContext.Clients.Group($"user:{interviewMessage.UserId}").SendAsync("ReceiveMessage", finalJson);
-
             _channel.BasicAck(ea.DeliveryTag, multiple: false);
         }
 
         private async Task PopulateCandidateDetails(List<InterviewItem> interviews, UserManager<TMUser> userManager)
         {
-            var candidateIds = new HashSet<string>();
+            var candidateIds = interviews
+                .Where(interview => interview.CandidateId.HasValue)
+                .Select(interview => interview.CandidateId.Value.ToString())
+                .Distinct()
+                .ToList();
+
+            var candidates = (await Task.WhenAll(candidateIds.Select(async id =>
+                new { Id = id, User = await userManager.FindByIdAsync(id) })))
+                .Where(x => x.User != null)
+                .ToDictionary(x => x.Id, x => x.User);
 
             foreach (var interview in interviews)
             {
-                if (interview.CandidateId.HasValue)
+                if (interview.CandidateId.HasValue && candidates.TryGetValue(interview.CandidateId.Value.ToString(), out var candidate))
                 {
-                    candidateIds.Add(interview.CandidateId.Value.ToString());
-                }
-            }
-
-            var candidates = new Dictionary<string, TMUser>();
-            foreach (var id in candidateIds)
-            {
-                var candidate = await userManager.FindByIdAsync(id);
-                if (candidate != null)
-                {
-                    candidates[id] = candidate;
-                }
-            }
-
-            foreach (var interview in interviews)
-            {
-                if (interview.CandidateId.HasValue && candidates.ContainsKey(interview.CandidateId.Value.ToString()))
-                {
-                    var candidate = candidates[interview.CandidateId.Value.ToString()];
                     interview.CandidateName = candidate.UserName;
                     interview.CandidateEmail = candidate.Email;
                 }
             }
         }
+
+
+
     }
 
     public static class LoggerHelper
     {
         public static void LogReceivedMessage(ILogger logger, string message)
         {
-            logger.LogInformation($"Received {message}.");
+            logger.LogInformation("Received {Message}.", message);
         }
 
         public static void LogInformation(ILogger logger, string message, string data)
         {
-            logger.LogInformation($"{message}: {data}");
+            logger.LogInformation("{Message}: {Data}", message, data);
         }
+
 
         public static void LogWarning(ILogger logger, string message)
         {
