@@ -1,33 +1,39 @@
+using System;
 using System.Text;
 using System.Text.Json;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using RabbitMQ.Client;
-using RabbitMQ.Client.Events;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using TalentMesh.Framework.Infrastructure.Messaging;
+using Microsoft.Extensions.Logging;
+using RabbitMQ.Client.Events;
+using RabbitMQ.Client;
+using System.Threading;
+using System.Threading.Tasks;
 using TalentMesh.Module.Job.Infrastructure.Persistence;
+using TalentMesh.Framework.Infrastructure.Messaging;
+using TalentMesh.Framework.Infrastructure.SignalR;
+using Microsoft.AspNetCore.SignalR;
 
 namespace TalentMesh.Module.Job.Infrastructure.Messaging
 {
-    public class InterviewApplicationConsumer : BackgroundService
+    public class InterviewApplicationConsumer : RabbitMqConsumerBase
     {
-        private readonly ILogger<InterviewApplicationConsumer> _logger;
-        private readonly IConnectionFactory _connectionFactory;
-        private readonly IServiceScopeFactory _scopeFactory; // Use scope factory
         private readonly IMessageBus _messageBus;
-        private IConnection? _connection;
-        private IModel? _channel;
-        private const string ExchangeName = "interview.application.events";
-        private const string QueueName = "interview.application.getCandidate";
+        private readonly IServiceScopeFactory _scopeFactory;
+        private readonly IConnectionFactory _connectionFactory;
+        private readonly IHubContext<NotificationHub> _hubContext;
 
-        public InterviewApplicationConsumer(ILogger<InterviewApplicationConsumer> logger, IConnectionFactory connectionFactory, IServiceScopeFactory scopeFactory, IMessageBus messageBus)
+        public InterviewApplicationConsumer(
+            ILogger<InterviewApplicationConsumer> logger,
+            IConnectionFactory connectionFactory,
+            IServiceScopeFactory scopeFactory,
+            IMessageBus messageBus,
+            IHubContext<NotificationHub> hubContext)
+            : base(logger, connectionFactory, "interview.application.events", "interview.application.getCandidate", "interview.application.getCandidate")
         {
-            _logger = logger;
             _connectionFactory = connectionFactory;
             _scopeFactory = scopeFactory;
             _messageBus = messageBus;
+            _hubContext = hubContext;
         }
 
         protected override Task ExecuteAsync(CancellationToken stoppingToken)
@@ -37,29 +43,16 @@ namespace TalentMesh.Module.Job.Infrastructure.Messaging
             var consumer = new AsyncEventingBasicConsumer(_channel);
             consumer.Received += async (sender, ea) => await ProcessMessageAsync(ea, stoppingToken);
 
-            _channel.BasicConsume(queue: QueueName, autoAck: false, consumer: consumer);
-
+            _channel.BasicConsume(queue: _queueName, autoAck: false, consumer: consumer);
             return Task.CompletedTask;
-        }
-
-        private void SetUpRabbitMQConnection()
-        {
-            _connection = _connectionFactory.CreateConnection();
-            _channel = _connection.CreateModel();
-
-            // Declare the exchange and queue, and bind them together
-            _channel.ExchangeDeclare(ExchangeName, ExchangeType.Direct, durable: true);
-            _channel.QueueDeclare(QueueName, durable: true, exclusive: false, autoDelete: false, arguments: null);
-            _channel.QueueBind(QueueName, ExchangeName, "interview.application.getCandidate");
         }
 
         private async Task ProcessMessageAsync(BasicDeliverEventArgs ea, CancellationToken stoppingToken)
         {
-            _logger.LogInformation("Received JobApplication message");
+            _logger.LogInformation("Received Interview Application message");
 
             var messageJson = Encoding.UTF8.GetString(ea.Body.ToArray());
             var interviewMessage = DeserializeMessage(messageJson);
-
             if (interviewMessage == null)
             {
                 _logger.LogWarning("Message deserialization resulted in null.");
@@ -68,10 +61,13 @@ namespace TalentMesh.Module.Job.Infrastructure.Messaging
 
             await ProcessInterviewsAsync(interviewMessage, stoppingToken);
 
-            var updatedMessageJson = SerializeMessage(interviewMessage);
+            // Publish the updated message via the message bus.
             await PublishMessageAsync(interviewMessage);
 
-            // Acknowledge message processing
+            // Also send the final message to connected SignalR clients.
+            var finalJson = SerializeMessage(interviewMessage);
+            await _hubContext.Clients.Group($"user:{interviewMessage.UserId}").SendAsync("ReceiveMessage", finalJson);
+
             _channel.BasicAck(ea.DeliveryTag, multiple: false);
         }
 
@@ -91,17 +87,17 @@ namespace TalentMesh.Module.Job.Infrastructure.Messaging
         private async Task ProcessInterviewsAsync(InterviewMessage interviewMessage, CancellationToken stoppingToken)
         {
             using var scope = _scopeFactory.CreateScope();
-            var _dbContext = scope.ServiceProvider.GetRequiredService<JobDbContext>();
+            var dbContext = scope.ServiceProvider.GetRequiredService<JobDbContext>();
 
-            if (_dbContext == null)
+            if (dbContext == null)
             {
-                _logger.LogWarning("Database context (_dbContext) is null!");
+                _logger.LogWarning("Database context is null!");
                 return;
             }
 
             foreach (var interview in interviewMessage.Interviews)
             {
-                var jobApplication = await _dbContext.JobApplications
+                var jobApplication = await dbContext.JobApplications
                     .FirstOrDefaultAsync(j => j.Id == interview.ApplicationId, stoppingToken);
 
                 if (jobApplication != null)
@@ -109,10 +105,8 @@ namespace TalentMesh.Module.Job.Infrastructure.Messaging
                     interview.CandidateId = jobApplication.CandidateId;
                     interview.JobId = jobApplication.JobId;
 
-                    // Fetch job details (JobTitle and Description) using JobId
-                    var job = await _dbContext.Jobs
+                    var job = await dbContext.Jobs
                         .FirstOrDefaultAsync(j => j.Id == interview.JobId, stoppingToken);
-
                     if (job != null)
                     {
                         interview.JobTitle = job.Name;
@@ -124,29 +118,21 @@ namespace TalentMesh.Module.Job.Infrastructure.Messaging
             _logger.LogInformation("Finished processing interviews.");
         }
 
-
         private string SerializeMessage(InterviewMessage interviewMessage)
         {
             return JsonSerializer.Serialize(interviewMessage);
         }
 
-        private async Task PublishMessageAsync(dynamic updatedMessageJson)
+        private async Task PublishMessageAsync(InterviewMessage interviewMessage)
         {
             try
             {
-                await _messageBus.PublishAsync(updatedMessageJson, "interview.events.user", "interview.getCandidate");
+                await _messageBus.PublishAsync(interviewMessage, "interview.events.user", "interview.getCandidate");
             }
             catch (Exception ex)
             {
                 _logger.LogError($"Error publishing message: {ex.Message}");
             }
-        }
-
-        public override void Dispose()
-        {
-            _channel?.Close();
-            _connection?.Close();
-            base.Dispose();
         }
     }
 
@@ -167,7 +153,6 @@ namespace TalentMesh.Module.Job.Infrastructure.Messaging
         public string MeetingId { get; set; } = string.Empty;
         public Guid? CandidateId { get; set; }
         public Guid? JobId { get; set; }
-
         public string JobTitle { get; set; } = string.Empty;
         public string JobDescription { get; set; } = string.Empty;
     }

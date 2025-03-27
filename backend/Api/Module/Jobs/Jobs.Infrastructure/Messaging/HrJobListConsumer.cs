@@ -1,43 +1,37 @@
 using System.Text;
 using System.Text.Json;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using RabbitMQ.Client;
-using RabbitMQ.Client.Events;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using TalentMesh.Module.Job.Infrastructure.Persistence;
+using Microsoft.Extensions.Logging;
+using RabbitMQ.Client.Events;
+using RabbitMQ.Client;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Linq;
 using System.Collections.Generic;
+using TalentMesh.Module.Job.Infrastructure.Persistence;
 using TalentMesh.Framework.Infrastructure.SignalR;
+using TalentMesh.Framework.Infrastructure.Messaging;
 
 namespace TalentMesh.Module.Job.Infrastructure.Messaging
 {
-    public class HrJobListConsumer : BackgroundService
+    public class HrJobListConsumer : RabbitMqConsumerBase
     {
-        private readonly ILogger<HrJobListConsumer> _logger;
-        private readonly IConnectionFactory _connectionFactory;
-        private readonly IServiceScopeFactory _scopeFactory;
         private readonly IHubContext<NotificationHub> _hubContext;
-
-        private IConnection? _connection;
-        private IModel? _channel;
-        private const string ExchangeName = "hr.job.list.events";
-        private const string QueueName = "hr.job.list.fetched";
+        private readonly IServiceScopeFactory _scopeFactory;
+        private readonly IConnectionFactory _connectionFactory;
 
         public HrJobListConsumer(
             ILogger<HrJobListConsumer> logger,
             IConnectionFactory connectionFactory,
-            IHubContext<NotificationHub> hubContext,
-            IServiceScopeFactory scopeFactory)
+            IMessageBus messageBus,
+            IServiceScopeFactory scopeFactory,
+            IHubContext<NotificationHub> hubContext)
+            : base(logger, connectionFactory, "hr.job.list.events", "hr.job.list.fetched", "hr.job.list.fetched")
         {
-            _logger = logger;
-            _connectionFactory = connectionFactory;
-            _scopeFactory = scopeFactory;
             _hubContext = hubContext;
+            _scopeFactory = scopeFactory;
         }
 
         protected override Task ExecuteAsync(CancellationToken stoppingToken)
@@ -47,21 +41,8 @@ namespace TalentMesh.Module.Job.Infrastructure.Messaging
             var consumer = new AsyncEventingBasicConsumer(_channel);
             consumer.Received += async (sender, ea) => await ProcessMessageAsync(ea, stoppingToken);
 
-            _channel.BasicConsume(queue: QueueName, autoAck: false, consumer: consumer);
+            _channel.BasicConsume(queue: _queueName, autoAck: false, consumer: consumer);
             return Task.CompletedTask;
-        }
-
-        private void SetUpRabbitMQConnection()
-        {
-            _connection = _connectionFactory.CreateConnection();
-            _channel = _connection.CreateModel();
-
-            _channel.ExchangeDeclare(ExchangeName, ExchangeType.Direct, durable: true);
-            _channel.QueueDeclare(QueueName, durable: true, exclusive: false, autoDelete: false, arguments: null);
-            _channel.QueueBind(QueueName, ExchangeName, "hr.job.list.fetched");
-
-            // Prefetch messages to avoid overloading a single consumer
-            _channel.BasicQos(0, 10, false);
         }
 
         private async Task ProcessMessageAsync(BasicDeliverEventArgs ea, CancellationToken stoppingToken)
@@ -72,11 +53,10 @@ namespace TalentMesh.Module.Job.Infrastructure.Messaging
 
                 var messageJson = Encoding.UTF8.GetString(ea.Body.ToArray());
                 var hrMessage = DeserializeMessage(messageJson);
-
                 if (hrMessage == null)
                 {
                     _logger.LogWarning("Failed to deserialize HR job list message.");
-                    _channel.BasicNack(ea.DeliveryTag, false, true); // Requeue message
+                    _channel.BasicNack(ea.DeliveryTag, false, true);
                     return;
                 }
 
@@ -84,6 +64,7 @@ namespace TalentMesh.Module.Job.Infrastructure.Messaging
                 var dbContext = scope.ServiceProvider.GetRequiredService<JobDbContext>();
 
                 var hrIds = hrMessage.HRs.Select(hr => hr.Id).ToList();
+                _logger.LogInformation("HR IDs: {HrIds}", string.Join(", ", hrIds));
 
                 var allJobs = await dbContext.Jobs
                     .Where(j => hrIds.Contains(j.CreatedBy))
@@ -105,11 +86,11 @@ namespace TalentMesh.Module.Job.Infrastructure.Messaging
                     hr.JobCount = hr.Jobs.Count;
                 }
 
-                // If the original sort was by job count, sort the HR list accordingly
+                // Optional: sort HR list if requested by job count
                 if (!string.IsNullOrEmpty(hrMessage.SortBy) &&
-                    hrMessage.SortBy.Equals("jobcount", StringComparison.OrdinalIgnoreCase))
+                    hrMessage.SortBy.Equals("jobcount", System.StringComparison.OrdinalIgnoreCase))
                 {
-                    bool isAscending = string.Equals(hrMessage.SortDirection, "asc", StringComparison.OrdinalIgnoreCase);
+                    bool isAscending = string.Equals(hrMessage.SortDirection, "asc", System.StringComparison.OrdinalIgnoreCase);
                     hrMessage.HRs = isAscending
                         ? hrMessage.HRs.OrderBy(hr => hr.JobCount).ToList()
                         : hrMessage.HRs.OrderByDescending(hr => hr.JobCount).ToList();
@@ -118,7 +99,7 @@ namespace TalentMesh.Module.Job.Infrastructure.Messaging
                 var finalResponse = new
                 {
                     EventType = "hr.job.list.updated",
-                    Timestamp = DateTime.UtcNow,
+                    Timestamp = System.DateTime.UtcNow,
                     TotalHrCount = hrMessage.TotalRecords,
                     TotalJobCount = allJobs.Count,
                     TotalRecords = hrMessage.TotalRecords,
@@ -131,10 +112,10 @@ namespace TalentMesh.Module.Job.Infrastructure.Messaging
 
                 _channel.BasicAck(ea.DeliveryTag, false);
             }
-            catch (Exception ex)
+            catch (System.Exception ex)
             {
                 _logger.LogError("Error processing HR job list message: {Error}", ex.Message);
-                _channel.BasicNack(ea.DeliveryTag, false, true); // Requeue message
+                _channel.BasicNack(ea.DeliveryTag, false, true);
             }
         }
 
@@ -144,18 +125,11 @@ namespace TalentMesh.Module.Job.Infrastructure.Messaging
             {
                 return JsonSerializer.Deserialize<HrMessage>(messageJson, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
             }
-            catch (Exception ex)
+            catch (System.Exception ex)
             {
                 _logger.LogError("Error deserializing HR job list message: {Error}", ex.Message);
                 return null;
             }
-        }
-
-        public override void Dispose()
-        {
-            _channel?.Close();
-            _connection?.Close();
-            base.Dispose();
         }
     }
 
@@ -163,8 +137,8 @@ namespace TalentMesh.Module.Job.Infrastructure.Messaging
     {
         public List<HrItem> HRs { get; set; } = new List<HrItem>();
         public Guid RequestedBy { get; set; }
-        public string? SortBy { get; set; }  // Passed from GetHrsAsync event payload
-        public string? SortDirection { get; set; }  // Passed from GetHrsAsync event payload
+        public string? SortBy { get; set; }
+        public string? SortDirection { get; set; }
         public int TotalRecords { get; set; }
     }
 
