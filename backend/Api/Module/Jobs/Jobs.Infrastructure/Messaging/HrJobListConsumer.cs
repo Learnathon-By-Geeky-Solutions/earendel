@@ -165,7 +165,7 @@ namespace TalentMesh.Module.Job.Infrastructure.Messaging
         public Guid RequestedBy { get; set; }
         public string? SortBy { get; set; }  // Passed from GetHrsAsync event payload
         public string? SortDirection { get; set; }  // Passed from GetHrsAsync event payload
-        public int TotalRecords { get; set; } 
+        public int TotalRecords { get; set; }
     }
 
     public class HrItem
