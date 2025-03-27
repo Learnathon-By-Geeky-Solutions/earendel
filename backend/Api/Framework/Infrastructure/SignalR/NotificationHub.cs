@@ -26,7 +26,7 @@ namespace TalentMesh.Framework.Infrastructure.SignalR
         {
             var user = Context.User;
             var userId = Context.UserIdentifier;
-
+            
             if (user != null && user!.Claims.Any(c => c.Value == "Admin"))
             {
                 _logger.LogInformation("Admin is connected");

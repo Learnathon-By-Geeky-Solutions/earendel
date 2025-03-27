@@ -35,8 +35,6 @@ public static class Extensions
             .PostConfigure(config =>
             {
                 Logger.Information("current db provider: {DatabaseProvider}", config.Provider);
-                Logger.Information("for documentations and guides, visit https://www.fullstackhero.net");
-                Logger.Information("to sponsor this project, visit https://opencollective.com/fullstackhero");
             });
         builder.Services.AddScoped<ISaveChangesInterceptor, AuditInterceptor>();
         return builder;
