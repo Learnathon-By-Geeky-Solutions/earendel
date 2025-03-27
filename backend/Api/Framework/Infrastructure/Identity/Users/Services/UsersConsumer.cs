@@ -10,7 +10,6 @@ using Microsoft.Extensions.Logging;
 using RabbitMQ.Client.Events;
 using RabbitMQ.Client;
 using TalentMesh.Framework.Infrastructure.Messaging;
-using TalentMesh.Framework.Infrastructure.SignalR;
 using TalentMesh.Shared.Authorization;
 using TalentMesh.Framework.Infrastructure.Common;
 
@@ -18,7 +17,6 @@ namespace TalentMesh.Framework.Infrastructure.Identity.Users.Services
 {
     public class UsersConsumer : RabbitMqConsumerBase
     {
-        private readonly IHubContext<NotificationHub> _hubContext;
         private readonly IServiceScopeFactory _scopeFactory;
 
         // Extracted queue names to constants
@@ -29,11 +27,9 @@ namespace TalentMesh.Framework.Infrastructure.Identity.Users.Services
         public UsersConsumer(
             ILogger<UsersConsumer> logger,
             IConnectionFactory connectionFactory,
-            IHubContext<NotificationHub> hubContext,
             IServiceScopeFactory scopeFactory)
             : base(logger, connectionFactory, ExchangeName, QueueName, RoutingKey)
         {
-            _hubContext = hubContext;
             _scopeFactory = scopeFactory;
         }
 

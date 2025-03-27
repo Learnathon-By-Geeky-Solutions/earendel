@@ -73,6 +73,7 @@ namespace TalentMesh.Module.Job.Infrastructure.Messaging
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error deserializing message");
+                return null;
             }
         }
 
