@@ -3,9 +3,9 @@ using System.Text;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.SignalR;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using RabbitMQ.Client.Events;
@@ -21,12 +21,17 @@ namespace TalentMesh.Framework.Infrastructure.Identity.Users.Services
         private readonly IHubContext<NotificationHub> _hubContext;
         private readonly IServiceScopeFactory _scopeFactory;
 
+        // Extracted queue names to constants
+        private const string ExchangeName = "interview.events.user";
+        private const string QueueName = "interview.getCandidate";
+        private const string RoutingKey = "interview.getCandidate";
+
         public UsersConsumer(
             ILogger<UsersConsumer> logger,
             IConnectionFactory connectionFactory,
             IHubContext<NotificationHub> hubContext,
             IServiceScopeFactory scopeFactory)
-            : base(logger, connectionFactory, "interview.events.user", "interview.getCandidate", "interview.getCandidate")
+            : base(logger, connectionFactory, ExchangeName, QueueName, RoutingKey)
         {
             _hubContext = hubContext;
             _scopeFactory = scopeFactory;
@@ -39,67 +44,107 @@ namespace TalentMesh.Framework.Infrastructure.Identity.Users.Services
             var consumer = new AsyncEventingBasicConsumer(_channel);
             consumer.Received += async (sender, ea) => await ProcessMessageAsync(ea, stoppingToken);
 
-            _channel.BasicConsume(queue: _queueName, autoAck: false, consumer: consumer);
+            _channel.BasicConsume(queue: QueueName, autoAck: false, consumer: consumer);
             return Task.CompletedTask;
         }
 
         private async Task ProcessMessageAsync(BasicDeliverEventArgs ea, CancellationToken stoppingToken)
         {
-            _logger.LogInformation("Received interview message (user).");
+            LoggerHelper.LogReceivedMessage(_logger, "interview message (user)");
 
-            var body = ea.Body.ToArray();
-            var messageJson = Encoding.UTF8.GetString(body);
+            var messageJson = Encoding.UTF8.GetString(ea.Body.ToArray());
+            var interviewMessage = JsonHelper.Deserialize<InterviewMessage>(messageJson);
 
-            var interviewMessage = DeserializeMessage(messageJson);
             if (interviewMessage == null)
             {
-                _logger.LogWarning("Message deserialization failed.");
+                LoggerHelper.LogWarning(_logger, "Message deserialization failed.");
                 return;
             }
 
             using var scope = _scopeFactory.CreateScope();
             var userManager = scope.ServiceProvider.GetRequiredService<UserManager<TMUser>>();
 
-            // Retrieve candidate details for each interview item
-            foreach (var interview in interviewMessage.Interviews)
-            {
-                if (interview.CandidateId.HasValue)
-                {
-                    var candidate = await userManager.FindByIdAsync(interview.CandidateId.Value.ToString());
-                    if (candidate != null)
-                    {
-                        interview.CandidateName = candidate.UserName;  // Assume UserName holds candidate's full name
-                        interview.CandidateEmail = candidate.Email;
-                    }
-                }
-            }
+            // Batch-fetch candidate details to avoid repeated DB calls
+            await PopulateCandidateDetails(interviewMessage.Interviews, userManager);
 
-            // Log and send the updated message to the appropriate SignalR group.
-            var finalJson = SerializeMessage(interviewMessage);
-            _logger.LogInformation("Updated Interview Message: {Message}", finalJson);
+            // Log and send the updated message
+            var finalJson = JsonHelper.Serialize(interviewMessage);
+            LoggerHelper.LogInformation(_logger, "Updated Interview Message", finalJson);
 
-            // Using the UserId from the message to target a specific SignalR group.
             await _hubContext.Clients.Group($"user:{interviewMessage.UserId}").SendAsync("ReceiveMessage", finalJson);
 
             _channel.BasicAck(ea.DeliveryTag, multiple: false);
         }
 
-        private InterviewMessage? DeserializeMessage(string messageJson)
+        private async Task PopulateCandidateDetails(List<InterviewItem> interviews, UserManager<TMUser> userManager)
+        {
+            var candidateIds = new HashSet<string>();
+
+            foreach (var interview in interviews)
+            {
+                if (interview.CandidateId.HasValue)
+                {
+                    candidateIds.Add(interview.CandidateId.Value.ToString());
+                }
+            }
+
+            var candidates = new Dictionary<string, TMUser>();
+            foreach (var id in candidateIds)
+            {
+                var candidate = await userManager.FindByIdAsync(id);
+                if (candidate != null)
+                {
+                    candidates[id] = candidate;
+                }
+            }
+
+            foreach (var interview in interviews)
+            {
+                if (interview.CandidateId.HasValue && candidates.ContainsKey(interview.CandidateId.Value.ToString()))
+                {
+                    var candidate = candidates[interview.CandidateId.Value.ToString()];
+                    interview.CandidateName = candidate.UserName;
+                    interview.CandidateEmail = candidate.Email;
+                }
+            }
+        }
+    }
+
+    public static class JsonHelper
+    {
+        private static readonly JsonSerializerOptions Options = new() { PropertyNameCaseInsensitive = true };
+
+        public static string Serialize<T>(T obj) => JsonSerializer.Serialize(obj, Options);
+
+        public static T? Deserialize<T>(string json)
         {
             try
             {
-                return JsonSerializer.Deserialize<InterviewMessage>(messageJson, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                return JsonSerializer.Deserialize<T>(json, Options);
             }
             catch (Exception ex)
             {
-                _logger.LogError($"Error deserializing message: {ex.Message}");
-                return null;
+                Console.WriteLine($"Error deserializing message: {ex.Message}");
+                return default;
             }
         }
+    }
 
-        private string SerializeMessage(InterviewMessage interviewMessage)
+    public static class LoggerHelper
+    {
+        public static void LogReceivedMessage(ILogger logger, string message)
         {
-            return JsonSerializer.Serialize(interviewMessage);
+            logger.LogInformation($"Received {message}.");
+        }
+
+        public static void LogInformation(ILogger logger, string message, string data)
+        {
+            logger.LogInformation($"{message}: {data}");
+        }
+
+        public static void LogWarning(ILogger logger, string message)
+        {
+            logger.LogWarning(message);
         }
     }
 
@@ -107,7 +152,7 @@ namespace TalentMesh.Framework.Infrastructure.Identity.Users.Services
     {
         public Guid InterviewerId { get; set; }
         public Guid UserId { get; set; }
-        public List<InterviewItem> Interviews { get; set; } = new List<InterviewItem>();
+        public List<InterviewItem> Interviews { get; set; } = new();
     }
 
     public class InterviewItem
