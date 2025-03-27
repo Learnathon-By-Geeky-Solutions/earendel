@@ -15,6 +15,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using TalentMesh.Framework.Core.Caching;
+using TalentMesh.Framework.Infrastructure.Messaging;
 
 namespace TalentMesh.Module.Experties.Tests
 {
@@ -28,7 +29,7 @@ namespace TalentMesh.Module.Experties.Tests
         private readonly Mock<ILogger<GetSkillHandler>> _getLoggerMock;
         private readonly Mock<ILogger<SearchSkillsHandler>> _searchLoggerMock;
         private readonly Mock<ILogger<UpdateSkillHandler>> _updateLoggerMock;
-
+        private readonly Mock<IMessageBus> _messageBusMock;
         private readonly CreateSkillHandler _createHandler;
         private readonly DeleteSkillHandler _deleteHandler;
         private readonly GetSkillHandler _getHandler;
@@ -46,7 +47,8 @@ namespace TalentMesh.Module.Experties.Tests
             _updateLoggerMock = new Mock<ILogger<UpdateSkillHandler>>();
             _readRepositoryMock = new Mock<IReadRepository<Skill>>(); // Initialize Read Repository Mock
 
-            _createHandler = new CreateSkillHandler(_createLoggerMock.Object, _repositoryMock.Object);
+            _messageBusMock = new Mock<IMessageBus>();
+            _createHandler = new CreateSkillHandler(_createLoggerMock.Object, _repositoryMock.Object, _messageBusMock.Object);
             _deleteHandler = new DeleteSkillHandler(_deleteLoggerMock.Object, _repositoryMock.Object);
             _getHandler = new GetSkillHandler(_readRepositoryMock.Object, _cacheServiceMock.Object); // Correct parameters
             _searchHandler = new SearchSkillsHandler(_readRepositoryMock.Object);
