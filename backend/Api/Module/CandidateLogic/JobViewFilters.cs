@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,11 +10,10 @@ using TalentMesh.Module.Job.Application.Jobs.Get.v1;
 
 namespace TalentMesh.Module.CandidateLogic;
 
-public sealed class JobViewFilters :PaginationFilter, IRequest<PagedList<JobResponse>>
-{
-    public string? Name { get; set; }
-    public string? Location { get; set; }
-    public string? JobType { get; set; }
-    public string? ExperienceLevel { get; set; }
-}
-
+public record JobViewFilters(
+        string? Name,
+        string? Description,
+        string? Requirements,
+        string? Location,
+        string? JobType,
+        string? ExperienceLevel) : IRequest<IResult>;

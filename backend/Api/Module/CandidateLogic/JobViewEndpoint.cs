@@ -1,27 +1,41 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
-using TalentMesh.Framework.Infrastructure.Auth.Policy;
-using TalentMesh.Module.Candidate.Application.CandidateProfile.Get.v1;
+using Microsoft.EntityFrameworkCore;
+using TalentMesh.Module.Job.Domain;
+using TalentMesh.Module.Job.Infrastructure.Persistence;
 
 namespace TalentMesh.Module.CandidateLogic;
 
 public static class JobViewEndpoint
 {
-    internal static RouteHandlerBuilder MapJobViewEndpoint(this IEndpointRouteBuilder endpoints)
+    public static RouteHandlerBuilder MapJobViewEndpoints(this IEndpointRouteBuilder app)
     {
-        return endpoints
-            .MapGet("/api/jobs", async (IMediator mediator, [AsParameters] JobViewFilters query) =>
-            {
-                var jobs = await mediator.Send(query);
-                return Results.Ok(jobs);
-            })
-            .WithName(nameof(JobViewEndpoint))
-            .WithSummary("Get Jobs With Filters")
-            .WithDescription("Get Job With Multiple Filters availavle")
-            //.Produces<CandidateProfileResponse>()
-            .RequirePermission("Permissions.Job.View")
-            .MapToApiVersion(1);
+        return app.MapGet("/jobview", 
+            async (
+                IMediator mediator,
+                [FromQuery] string? name,
+                [FromQuery] string? description,
+                [FromQuery] string? requirements,
+                [FromQuery] string? location,
+                [FromQuery] string? jobType,
+                [FromQuery] string? experienceLevel) =>
+        {
+            var query = new JobViewFilters(
+                name,
+                description,
+                requirements,
+                location,
+                jobType,
+                experienceLevel);
+
+            return await mediator.Send(query);
+        })
+            .WithTags("Jobs")
+            .WithName("GetAllJobs For Candidates")
+            .Produces<List<Jobs>>(StatusCodes.Status200OK)
+            .Produces(StatusCodes.Status500InternalServerError);
     }
 }
