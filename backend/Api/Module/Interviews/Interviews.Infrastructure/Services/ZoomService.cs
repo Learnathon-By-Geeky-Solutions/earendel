@@ -11,7 +11,6 @@ using System.Text.RegularExpressions;
 using Microsoft.Extensions.Configuration;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using System.Threading.Tasks;
 using Microsoft.IdentityModel.Tokens;
 
 namespace TalentMesh.Module.Interviews.Infrastructure.Services
@@ -26,7 +25,7 @@ namespace TalentMesh.Module.Interviews.Infrastructure.Services
         private readonly string _accountId;
         private readonly string _zoomUserName;
         private readonly string _zoomPassword;
-        // API URL with parameters included in the query string.
+
         public ZoomService(HttpClient httpClient, ILogger<ZoomService> logger, IConfiguration configuration)
         {
             _sdkKey = configuration["ZoomSettings:SDKKey"];
@@ -37,7 +36,6 @@ namespace TalentMesh.Module.Interviews.Infrastructure.Services
             _zoomPassword = configuration["ZoomSettings:ZoomPassword"];
             _httpClient = httpClient;
             _logger = logger;
-
         }
 
         public async Task<string> GetAccessTokenAsync()
@@ -67,19 +65,33 @@ namespace TalentMesh.Module.Interviews.Infrastructure.Services
 
             _logger.LogDebug("Cleaned Zoom token response: {CleanJson}", rawJson);
 
-            // Extract access_token using Regex
-            var match = Regex.Match(rawJson, @"""access_token"":\s*""([^""]+)""");
-            if (!match.Success)
+            try
             {
-                _logger.LogError("Failed to extract access_token from Zoom response.");
-                throw new Exception("Invalid Zoom token response: Missing access token.");
+                // Extract access_token using Regex with a 5-second timeout
+                var match = Regex.Match(
+                    rawJson,
+                    @"""access_token"":\s*""([^""]+)""",
+                    RegexOptions.None,
+                    TimeSpan.FromSeconds(10));
+
+                if (!match.Success)
+                {
+                    _logger.LogError("Failed to extract access_token from Zoom response.");
+                    throw new Exception("Invalid Zoom token response: Missing access token.");
+                }
+
+                string accessToken = match.Groups[1].Value;
+                _logger.LogInformation("Successfully extracted Zoom access token. Expires in 3600 seconds.");
+
+                return accessToken;
             }
-
-            string accessToken = match.Groups[1].Value;
-            _logger.LogInformation("Successfully extracted Zoom access token. Expires in 3600 seconds.");
-
-            return accessToken;
+            catch (RegexMatchTimeoutException ex)
+            {
+                _logger.LogError(ex, "Regex matching timed out while extracting the access token.");
+                throw new Exception("Regex matching timed out while extracting the access token.", ex);
+            }
         }
+
         public async Task<string> CreateZoomMeetingAsync(string accessToken, DateTime startTime)
         {
             var requestUrl = "https://api.zoom.us/v2/users/me/meetings";
@@ -103,15 +115,15 @@ namespace TalentMesh.Module.Interviews.Infrastructure.Services
                         enable = true,
                         rooms = new[]
                         {
-                        new
-                        {
-                            name = "room1",
-                            participants = new[]
+                            new
                             {
-                                "mdnafiulhasanhamim126@gmail.com"
+                                name = "room1",
+                                participants = new[]
+                                {
+                                    "mdnafiulhasanhamim126@gmail.com"
+                                }
                             }
                         }
-                    }
                     },
                     calendar_type = 1,
                     contact_email = "mdnafiulhasanhamim12345@gmail.com",
@@ -124,14 +136,14 @@ namespace TalentMesh.Module.Interviews.Infrastructure.Services
                     meeting_authentication = true,
                     meeting_invitees = new[]
                     {
-                    new { email = "u1904126@student.cuet.ac.bd" },
-                    new { email = "mdnafiulhasanhamim12345@gmail.com" }
-                },
+                        new { email = "u1904126@student.cuet.ac.bd" },
+                        new { email = "mdnafiulhasanhamim12345@gmail.com" }
+                    },
                     authentication_exception = new[]
                     {
-                    new { email = "u1904126@student.cuet.ac.bd", name = "User 1" },
-                    new { email = "mdnafiulhasanhamim12345@gmail.com", name = "User 2" }
-                },
+                        new { email = "u1904126@student.cuet.ac.bd", name = "User 1" },
+                        new { email = "mdnafiulhasanhamim12345@gmail.com", name = "User 2" }
+                    },
                     mute_upon_entry = true,
                     participant_video = true,
                     private_meeting = true,
@@ -184,14 +196,14 @@ namespace TalentMesh.Module.Interviews.Infrastructure.Services
 
             var claims = new[]
             {
-            new Claim("appKey", _sdkKey),
-            new Claim("sdkKey", _sdkKey),
-            new Claim("mn", meetingNumber),
-            new Claim("role", role.ToString()),
-            new Claim("iat", iat.ToString()),
-            new Claim("exp", exp.ToString()),
-            new Claim("tokenExp", exp.ToString())
-        };
+                new Claim("appKey", _sdkKey),
+                new Claim("sdkKey", _sdkKey),
+                new Claim("mn", meetingNumber),
+                new Claim("role", role.ToString()),
+                new Claim("iat", iat.ToString()),
+                new Claim("exp", exp.ToString()),
+                new Claim("tokenExp", exp.ToString())
+            };
 
             var tokenDescriptor = new SecurityTokenDescriptor
             {

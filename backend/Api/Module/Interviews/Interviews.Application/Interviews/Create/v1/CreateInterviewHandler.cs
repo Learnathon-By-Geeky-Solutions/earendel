@@ -16,11 +16,6 @@ public sealed class CreateInterviewHandler(
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        string grantType = "account_credentials"; // Example grant type
-        string accountId = "OQaFCOsQQ2WlJhzzMVaTdw";
-        string zoomUsername = "eg7c6VGlQ4iTsym5ZnZpjA";
-        string zoomPassword = "b6NKjhvyhbVR9QcFAB2cOpwhqCUghYCv";
-
         var accessToken = await zoomService.GetAccessTokenAsync();
 
         string meetingId = await zoomService.CreateZoomMeetingAsync(accessToken, request.InterviewDate);
