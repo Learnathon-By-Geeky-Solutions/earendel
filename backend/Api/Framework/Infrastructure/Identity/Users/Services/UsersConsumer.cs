@@ -1,63 +1,51 @@
+using System;
 using System.Text;
 using System.Text.Json;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using RabbitMQ.Client;
-using RabbitMQ.Client.Events;
+using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.AspNetCore.Http;
-using System.Security.Claims;
-using TalentMesh.Shared.Authorization;
-using TalentMesh.Framework.Infrastructure.SignalR;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using RabbitMQ.Client.Events;
+using RabbitMQ.Client;
+using TalentMesh.Framework.Infrastructure.Messaging;
+using TalentMesh.Framework.Infrastructure.SignalR;
+using TalentMesh.Shared.Authorization;
 
 namespace TalentMesh.Framework.Infrastructure.Identity.Users.Services
 {
-    public class UsersConsumer : BackgroundService
+    public class UsersConsumer : RabbitMqConsumerBase
     {
-        private readonly ILogger<UsersConsumer> _logger;
-        private readonly IConnectionFactory _connectionFactory;
         private readonly IHubContext<NotificationHub> _hubContext;
-        private readonly IServiceScopeFactory _scopeFactory; // Scope factory to get UserManager
-        private IConnection? _connection;
-        private IModel? _channel;
-        private const string ExchangeName = "interview.events.user";
-        private const string QueueName = "interview.getCandidate";
+        private readonly IServiceScopeFactory _scopeFactory;
 
         public UsersConsumer(
             ILogger<UsersConsumer> logger,
             IConnectionFactory connectionFactory,
             IHubContext<NotificationHub> hubContext,
-            IServiceScopeFactory scopeFactory) // Inject scope factory
+            IServiceScopeFactory scopeFactory)
+            : base(logger, connectionFactory, "interview.events.user", "interview.getCandidate", "interview.getCandidate")
         {
-            _logger = logger;
-            _connectionFactory = connectionFactory;
-            _scopeFactory = scopeFactory;
             _hubContext = hubContext;
+            _scopeFactory = scopeFactory;
         }
 
         protected override Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            _connection = _connectionFactory.CreateConnection();
-            _channel = _connection.CreateModel();
-
-            // Declare the exchange and queue, and bind them together
-            _channel.ExchangeDeclare(ExchangeName, ExchangeType.Direct, durable: true);
-            _channel.QueueDeclare(QueueName, durable: true, exclusive: false, autoDelete: false, arguments: null);
-            _channel.QueueBind(QueueName, ExchangeName, "interview.getCandidate");
+            SetUpRabbitMQConnection();
 
             var consumer = new AsyncEventingBasicConsumer(_channel);
             consumer.Received += async (sender, ea) => await ProcessMessageAsync(ea, stoppingToken);
 
-            _channel.BasicConsume(queue: QueueName, autoAck: false, consumer: consumer);
-
+            _channel.BasicConsume(queue: _queueName, autoAck: false, consumer: consumer);
             return Task.CompletedTask;
         }
 
         private async Task ProcessMessageAsync(BasicDeliverEventArgs ea, CancellationToken stoppingToken)
         {
-            _logger.LogInformation("Received interview message(user)");
+            _logger.LogInformation("Received interview message (user).");
 
             var body = ea.Body.ToArray();
             var messageJson = Encoding.UTF8.GetString(body);
@@ -72,6 +60,7 @@ namespace TalentMesh.Framework.Infrastructure.Identity.Users.Services
             using var scope = _scopeFactory.CreateScope();
             var userManager = scope.ServiceProvider.GetRequiredService<UserManager<TMUser>>();
 
+            // Retrieve candidate details for each interview item
             foreach (var interview in interviewMessage.Interviews)
             {
                 if (interview.CandidateId.HasValue)
@@ -79,17 +68,19 @@ namespace TalentMesh.Framework.Infrastructure.Identity.Users.Services
                     var candidate = await userManager.FindByIdAsync(interview.CandidateId.Value.ToString());
                     if (candidate != null)
                     {
-                        interview.CandidateName = candidate.UserName; // Assuming UserName stores the candidate's full name
+                        interview.CandidateName = candidate.UserName;  // Assume UserName holds candidate's full name
                         interview.CandidateEmail = candidate.Email;
                     }
                 }
             }
 
-            // Log updated message
-            _logger.LogInformation("Updated Interview Message: {Message}", JsonSerializer.Serialize(interviewMessage));
-            await _hubContext.Clients.Group($"user:{interviewMessage.UserId}").SendAsync("ReceiveMessage", interviewMessage);
+            // Log and send the updated message to the appropriate SignalR group.
+            var finalJson = SerializeMessage(interviewMessage);
+            _logger.LogInformation("Updated Interview Message: {Message}", finalJson);
 
-            // Acknowledge message processing
+            // Using the UserId from the message to target a specific SignalR group.
+            await _hubContext.Clients.Group($"user:{interviewMessage.UserId}").SendAsync("ReceiveMessage", finalJson);
+
             _channel.BasicAck(ea.DeliveryTag, multiple: false);
         }
 
@@ -106,11 +97,9 @@ namespace TalentMesh.Framework.Infrastructure.Identity.Users.Services
             }
         }
 
-        public override void Dispose()
+        private string SerializeMessage(InterviewMessage interviewMessage)
         {
-            _channel?.Close();
-            _connection?.Close();
-            base.Dispose();
+            return JsonSerializer.Serialize(interviewMessage);
         }
     }
 
@@ -130,8 +119,8 @@ namespace TalentMesh.Framework.Infrastructure.Identity.Users.Services
         public string Notes { get; set; } = string.Empty;
         public string MeetingId { get; set; } = string.Empty;
         public Guid? CandidateId { get; set; }
-        public string? CandidateName { get; set; } // New field
-        public string? CandidateEmail { get; set; } // New field
+        public string? CandidateName { get; set; }
+        public string? CandidateEmail { get; set; }
         public Guid? JobId { get; set; }
     }
 }
