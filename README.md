@@ -105,14 +105,14 @@ TalentMesh **solves these problems** by offering an **on-demand interview outsou
 ## 🏗 System Architecture
 
 ### 📌 ER Diagram  
-![ER Diagram]
-<img src="public/images/talentmesh-banner.png" alt="TalentMesh Banner" width="100%">
+
+<img src="public/images/ER-Diagram.png" alt="ER Diagram" width="100%">
 
 
 ### 📊 Dashboards  
 We use various monitoring and visualization tools to track system health and metrics:  
 
-- **Grafana** – Real-time application monitoring  
+<h4> **Grafana** – Real-time application monitoring </h4> 
 - **RabbitMQ** – Queue management and message broker  
 - **Aspire** – API and service management  
 
