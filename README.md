@@ -112,18 +112,21 @@ TalentMesh **solves these problems** by offering an **on-demand interview outsou
 ### 📊 Dashboards  
 We use various monitoring and visualization tools to track system health and metrics:  
 
-<h4> **Grafana** – Real-time application monitoring </h4> 
-- **RabbitMQ** – Queue management and message broker  
-- **Aspire** – API and service management  
+<h4> <b>Grafana</b> – Real-time application monitoring </h4> 
+<img src="public/images/grafana-dashboard.png" alt="Grafana Dashboard" width="100%">
 
-![Dashboard](path/to/dashboard-image.png)
+<h4> <b>Aspire</b> –  API and service management </h4> 
+<img src="public/images/aspire-logging-system.png" alt="Aspire Dashboard" width="100%">
+
+<h4> <b>RabbitMQ</b> – Queue management and message broker </h4>
+<img src="public/images/rabbitmq.png" alt="RabbitMQ" width="100%">
 
 ---
 
 ## 🔀 Git Workflow Strategy  
 We follow **GitFlow** branching strategy to maintain code quality and streamline development.  
 
-![GitFlow Diagram](path/to/gitflow-diagram.png)
+<img src="public/images/GitFlow-Branching-Strategy.svg" alt="Gitflow Diagram" width="100%">
 
 ---
 
@@ -135,12 +138,6 @@ We provide a fully interactive **Swagger UI** for API testing and documentation.
 🔗 [View API Documentation](#)  
 
 ---
-
-
-
-
-
-
 
 
 <div align="center">
