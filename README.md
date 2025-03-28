@@ -126,7 +126,7 @@ We use various monitoring and visualization tools to track system health and met
 ## 🔀 Git Workflow Strategy  
 We follow **GitFlow** branching strategy to maintain code quality and streamline development.  
 
-<img src="public/images/GitFlow-Branching-Strategy.png" alt="Gitflow Diagram" width="100%">
+<img src="public/images/GitFlow-Branching-Strategy.svg" alt="Gitflow Diagram" width="100%">
 
 ---
 
