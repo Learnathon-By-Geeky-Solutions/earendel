@@ -181,6 +181,34 @@ internal sealed partial class UserService(
         return userDetail;
     }
 
+    public async Task<bool> GetInterviewerDetailAsync(string userId, CancellationToken cancellationToken)
+    {
+        var userDetail = await (from user in userManager.Users
+                                where user.Id == userId
+                                select new UserDetail
+                                {
+                                    Id = Guid.Parse(user.Id),
+                                    UserName = user.UserName,
+                                    Email = user.Email,
+                                    IsActive = user.IsActive,
+                                    EmailConfirmed = user.EmailConfirmed,
+                                    ImageUrl = user.ImageUrl,
+                                    Roles = (from ur in db.UserRoles
+                                             join r in db.Roles on ur.RoleId equals r.Id
+                                             where ur.UserId == userId
+                                             select r.Name).ToList()
+                                })
+                                .AsNoTracking()
+                                .FirstOrDefaultAsync(cancellationToken);
+
+        if (userDetail is null)
+        {
+            throw new NotFoundException(UserNotFoundMessage);
+        }
+        await PublishInterviewerDetailEvent(userDetail);
+        return true;
+    }
+
     public async Task<bool> GetHrsAsync(
         string? search,
         string? sortBy,
@@ -317,6 +345,9 @@ internal sealed partial class UserService(
             CancellationToken.None
         );
     }
+
+    
+
     private async Task PublishInterviewerFormFetchedEvent(
     int totalRecords,
     List<UserDetail> interviewers,
