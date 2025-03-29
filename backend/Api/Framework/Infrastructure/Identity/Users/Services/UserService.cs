@@ -189,7 +189,7 @@ internal sealed partial class UserService(
         int pageSize,
         CancellationToken cancellationToken)
     {
-        var baseQuery = BuildHrBaseQuery();
+        var baseQuery = BuildBaseQuery("HR");
         var filteredQuery = ApplySearchFilter(baseQuery, search);
         var sortedQuery = ApplySorting(filteredQuery, sortBy, sortDirection);
 
@@ -198,13 +198,30 @@ internal sealed partial class UserService(
         await PublishHrFetchedEvent(totalRecords, hrs, sortBy, sortDirection);
         return true;
     }
+    public async Task<bool> GetInterviewersAsync(
+        string? search,
+        string? sortBy,
+        string? sortDirection,
+        int pageNumber,
+        int pageSize,
+        CancellationToken cancellationToken)
+    {
+        var baseQuery = BuildBaseQuery("Interviewer");
+        var filteredQuery = ApplySearchFilter(baseQuery, search);
+        var sortedQuery = ApplySorting(filteredQuery, sortBy, sortDirection);
 
-    private IQueryable<UserDetail> BuildHrBaseQuery()
+        var (totalRecords, interviewers) = await ExecutePaginatedQuery(sortedQuery, pageNumber, pageSize, cancellationToken);
+
+        await PublishInterviewerFormFetchedEvent(totalRecords, interviewers, sortBy, sortDirection);
+        return true;
+    }
+
+    private IQueryable<UserDetail> BuildBaseQuery(string role)
     {
         return from u in db.Users
                join ur in db.UserRoles on u.Id equals ur.UserId
                join r in db.Roles on ur.RoleId equals r.Id
-               where r.Name == "HR"
+               where r.Name == role
                select new UserDetail
                {
                    Id = Guid.Parse(u.Id),
@@ -213,7 +230,7 @@ internal sealed partial class UserService(
                    IsActive = u.IsActive,
                    EmailConfirmed = u.EmailConfirmed,
                    ImageUrl = u.ImageUrl,
-                   Roles = new List<string> { "HR" }
+                   Roles = new List<string> { role }
                };
     }
 
@@ -222,9 +239,9 @@ internal sealed partial class UserService(
         if (string.IsNullOrWhiteSpace(search)) return query;
 
         var searchLower = search.ToLower();
-        return query.Where(hr =>
-            hr.UserName.ToLower().Contains(searchLower) ||
-            hr.Email.ToLower().Contains(searchLower)
+        return query.Where(user =>
+            user.UserName.ToLower().Contains(searchLower) ||
+            user.Email.ToLower().Contains(searchLower)
         );
     }
 
@@ -238,16 +255,16 @@ internal sealed partial class UserService(
         return (sortBy?.ToLower()) switch
         {
             "name" => isAscending ?
-                query.OrderBy(hr => hr.UserName) :
-                query.OrderByDescending(hr => hr.UserName),
+                query.OrderBy(user => user.UserName) :
+                query.OrderByDescending(user => user.UserName),
             "email" => isAscending ?
-                query.OrderBy(hr => hr.Email) :
-                query.OrderByDescending(hr => hr.Email),
-            _ => query.OrderBy(hr => hr.UserName)
+                query.OrderBy(user => user.Email) :
+                query.OrderByDescending(user => user.Email),
+            _ => query.OrderBy(user => user.UserName)
         };
     }
 
-    private static async Task<(int TotalRecords, List<UserDetail> Hrs)> ExecutePaginatedQuery(
+    private static async Task<(int TotalRecords, List<UserDetail> Users)> ExecutePaginatedQuery(
     IQueryable<UserDetail> query,
     int pageNumber,
     int pageSize,
@@ -297,6 +314,42 @@ internal sealed partial class UserService(
             payload,
             "hr.job.list.events",
             "hr.job.list.fetched",
+            CancellationToken.None
+        );
+    }
+    private async Task PublishInterviewerFormFetchedEvent(
+    int totalRecords,
+    List<UserDetail> interviewers,
+    string? sortBy,
+    string? sortDirection)
+    {
+        var user = httpContextAccessor.HttpContext?.User;
+        var userId = user?.GetUserId();
+
+        var payload = new
+        {
+            EventType = "interviewer.list.fetched",
+            Timestamp = DateTime.UtcNow,
+            RequestedBy = userId,
+            SortBy = sortBy,
+            SortDirection = sortDirection,
+            TotalRecords = totalRecords,
+            Interviewers = interviewers.Select(interviewer => new
+            {
+                interviewer.Id,
+                interviewer.UserName,
+                interviewer.Email,
+                interviewer.IsActive,
+                interviewer.EmailConfirmed,
+                interviewer.ImageUrl,
+                interviewer.Roles
+            }).ToList()
+        };
+
+        await messageBus.PublishAsync(
+            payload,
+            "interviewer.form.list.events",
+            "interviewer.form.list.fetched",
             CancellationToken.None
         );
     }
