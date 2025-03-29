@@ -25,6 +25,7 @@ namespace TalentMesh.Module.Interviews.Infrastructure.Services
         private readonly string _accountId;
         private readonly string _zoomUserName;
         private readonly string _zoomPassword;
+        private readonly string _requestUrl;
 
         public ZoomService(HttpClient httpClient, ILogger<ZoomService> logger, IConfiguration configuration)
         {
@@ -34,6 +35,7 @@ namespace TalentMesh.Module.Interviews.Infrastructure.Services
             _accountId = configuration["ZoomSettings:AccountId"];
             _zoomUserName = configuration["ZoomSettings:ZoomUserName"];
             _zoomPassword = configuration["ZoomSettings:ZoomPassword"];
+            _requestUrl = configuration["ZoomSettings:RequestUrl"];
             _httpClient = httpClient;
             _logger = logger;
         }
@@ -51,7 +53,7 @@ namespace TalentMesh.Module.Interviews.Infrastructure.Services
             if (!response.IsSuccessStatusCode)
             {
                 _logger.LogError("Failed to get Zoom access token. Status Code: {StatusCode}", response.StatusCode);
-                throw new Exception($"Zoom token request failed with status code {response.StatusCode}");
+                throw new HttpRequestException($"Zoom token request failed with status code {response.StatusCode}");
             }
 
             var rawJson = await response.Content.ReadAsStringAsync();
@@ -77,7 +79,7 @@ namespace TalentMesh.Module.Interviews.Infrastructure.Services
                 if (!match.Success)
                 {
                     _logger.LogError("Failed to extract access_token from Zoom response.");
-                    throw new Exception("Invalid Zoom token response: Missing access token.");
+                    throw new InvalidOperationException("Invalid Zoom token response: Missing access token.");
                 }
 
                 string accessToken = match.Groups[1].Value;
@@ -88,13 +90,13 @@ namespace TalentMesh.Module.Interviews.Infrastructure.Services
             catch (RegexMatchTimeoutException ex)
             {
                 _logger.LogError(ex, "Regex matching timed out while extracting the access token.");
-                throw new Exception("Regex matching timed out while extracting the access token.", ex);
+                throw new TimeoutException("Regex matching timed out while extracting the access token.", ex);
             }
         }
 
         public async Task<string> CreateZoomMeetingAsync(string accessToken, DateTime startTime)
         {
-            var requestUrl = "https://api.zoom.us/v2/users/me/meetings";
+            var requestUrl = $"{_requestUrl}/users/me/meetings";
 
             var requestBody = new
             {
@@ -168,7 +170,7 @@ namespace TalentMesh.Module.Interviews.Infrastructure.Services
             if (!response.IsSuccessStatusCode)
             {
                 _logger.LogError("Failed to create Zoom meeting. Status: {StatusCode}, Response: {Response}", response.StatusCode, responseContent);
-                throw new Exception($"Zoom API error: {response.StatusCode}");
+                throw new HttpRequestException($"Zoom API error: {response.StatusCode}");
             }
 
             // Parse the JSON response to extract the meeting ID
@@ -179,7 +181,7 @@ namespace TalentMesh.Module.Interviews.Infrastructure.Services
             }
 
             _logger.LogError("Zoom API response did not contain 'id'");
-            throw new Exception("Zoom API response did not contain 'id'");
+            throw new InvalidOperationException("Zoom API response did not contain 'id'");
         }
 
         public async Task<string> GenerateSignatureAsync(string meetingNumber, int role)
