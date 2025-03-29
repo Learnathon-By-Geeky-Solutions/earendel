@@ -2,6 +2,7 @@
 
 # 🚀 TalentMesh
 
+<img src="public/images/talentmesh-banner.png" alt="TalentMesh Banner" width="100%">
 <h3>Next-Generation Interview as a Service Platform</h3>
 
 [![.NET 8](https://img.shields.io/badge/.NET-8.0-512BD4?style=for-the-badge&logo=.net&logoColor=white)](https://dotnet.microsoft.com/download)
@@ -50,6 +51,97 @@
 </div>
 
 ---
+
+
+# 🤖 About TalentMesh
+
+<table>
+<tr>
+<td>
+ 
+Welcome to the <b>TalentMesh</b> GitHub Repo!  
+
+TalentMesh is a next-generation **Interview as a Service (IaaS)** platform designed to streamline technical hiring. Our platform helps companies conduct **standardized, scalable, and efficient** interviews by providing a seamless experience for both interviewers and candidates.  
+
+## 🔥 Why TalentMesh?
+
+Traditional hiring processes come with several challenges:  
+✅ **Fragmented evaluations** – Assessments often lack standardization, leading to inconsistent results.  
+✅ **Scheduling delays** – Coordinating interviews can be time-consuming and inefficient.  
+✅ **Interviewer burnout** – Companies struggle with interviewer availability and bandwidth.  
+✅ **Candidate drop-offs** – Lengthy hiring cycles increase the risk of losing top talent.  
+
+TalentMesh **solves these problems** by offering an **on-demand interview outsourcing platform**, ensuring:  
+🔹 Faster interview scheduling  
+🔹 High-quality and standardized evaluations  
+🔹 A pay-per-interview pricing model  
+🔹 Real-time assessments with a collaborative coding environment  
+
+## 🚀 How TalentMesh Works
+
+1️⃣ **HR/Recruiters** submit job roles and interview requirements.  
+2️⃣ **TalentMesh** matches them with experienced interviewers from a global talent pool.  
+3️⃣ **Interviews** are conducted in real-time, with structured evaluation criteria.  
+4️⃣ **Reports** and detailed feedback are generated instantly.  
+5️⃣ **Companies** make informed hiring decisions based on standardized assessments.  
+
+## 🌍 Market Opportunity
+
+- **The global recruitment outsourcing market** was valued at **$7.33 billion** in 2022 and is projected to grow at **16.1% CAGR** from 2023 to 2030.  
+- Companies are shifting towards **outsourced interview solutions** to cut costs and improve hiring efficiency.  
+
+## 💡 Key Benefits
+
+- **Reduced time-to-hire** – Faster scheduling and instant reports eliminate hiring delays.  
+- **Cost-effective** – Pay-per-interview model ensures budget control for businesses.  
+- **Access to top interviewers** – A network of industry experts conducts interviews.  
+- **Comprehensive reporting** - Companies receive detailed insights to evaluate candidates effectively.
+
+
+</td> 
+</tr>
+</table>
+
+## 🏗 System Architecture
+
+### 📌 ER Diagram  
+
+<img src="public/images/ER-Diagram.png" alt="ER Diagram" width="100%">
+
+
+### 📊 Dashboards  
+We use various monitoring and visualization tools to track system health and metrics:  
+
+<h4> <b>Grafana</b> – Real-time application monitoring </h4> 
+<img src="public/images/grafana-dashboard.png" alt="Grafana Dashboard" width="100%">
+
+<h4> <b>Aspire</b> –  API and service management </h4> 
+<img src="public/images/aspire-logging-system.png" alt="Aspire Dashboard" width="100%">
+
+<h4> <b>RabbitMQ</b> – Queue management and message broker </h4>
+<img src="public/images/rabbitmq.png" alt="RabbitMQ" width="100%">
+
+<h4> <b>Hangfire</b> – Background Job Processing </h4>
+<img src="public/images/hangfire-dashboard.png" alt="Hangfire" width="100%">
+
+---
+
+## 🔀 Git Workflow Strategy  
+We follow **GitFlow** branching strategy to maintain code quality and streamline development.  
+
+<img src="public/images/GitFlow-Branching-Strategy.png" alt="Gitflow Diagram" width="100%">
+
+---
+
+## 📜 API Documentation  
+We provide a fully interactive **Swagger UI** for API testing and documentation.  
+
+![Swagger](path/to/swagger-ui.png)  
+
+🔗 [View API Documentation](#)  
+
+---
+
 
 <div align="center">
 
