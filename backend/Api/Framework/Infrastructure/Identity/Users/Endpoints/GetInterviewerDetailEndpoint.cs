@@ -12,7 +12,7 @@ public static class GetInterviewerDetailEndpoint
 {
     internal static RouteHandlerBuilder MapGetInterviewerDetailEndpoint(this IEndpointRouteBuilder endpoints)
     {
-        return endpoints.MapGet("/{id:guid}", (string id, IUserService service) =>
+        return endpoints.MapGet("/interviewer/{id:guid}", (string id, IUserService service) =>
         {
             return service.GetInterviewerDetailAsync(id, CancellationToken.None);
         })

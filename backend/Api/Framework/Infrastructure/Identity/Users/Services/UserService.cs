@@ -155,23 +155,7 @@ internal sealed partial class UserService(
 
     public async Task<UserDetail> GetAsync(string userId, CancellationToken cancellationToken)
     {
-        var userDetail = await (from user in userManager.Users
-                                where user.Id == userId
-                                select new UserDetail
-                                {
-                                    Id = Guid.Parse(user.Id),
-                                    UserName = user.UserName,
-                                    Email = user.Email,
-                                    IsActive = user.IsActive,
-                                    EmailConfirmed = user.EmailConfirmed,
-                                    ImageUrl = user.ImageUrl,
-                                    Roles = (from ur in db.UserRoles
-                                             join r in db.Roles on ur.RoleId equals r.Id
-                                             where ur.UserId == userId
-                                             select r.Name).ToList()
-                                })
-                                .AsNoTracking()
-                                .FirstOrDefaultAsync(cancellationToken);
+        var userDetail = await GetUserDetailAsync(userId, cancellationToken);
 
         if (userDetail is null)
         {
@@ -183,31 +167,50 @@ internal sealed partial class UserService(
 
     public async Task<bool> GetInterviewerDetailAsync(string userId, CancellationToken cancellationToken)
     {
-        var userDetail = await (from user in userManager.Users
-                                where user.Id == userId
-                                select new UserDetail
-                                {
-                                    Id = Guid.Parse(user.Id),
-                                    UserName = user.UserName,
-                                    Email = user.Email,
-                                    IsActive = user.IsActive,
-                                    EmailConfirmed = user.EmailConfirmed,
-                                    ImageUrl = user.ImageUrl,
-                                    Roles = (from ur in db.UserRoles
-                                             join r in db.Roles on ur.RoleId equals r.Id
-                                             where ur.UserId == userId
-                                             select r.Name).ToList()
-                                })
-                                .AsNoTracking()
-                                .FirstOrDefaultAsync(cancellationToken);
+        var userDetail = await GetUserDetailAsync(userId, cancellationToken);
 
         if (userDetail is null)
         {
             throw new NotFoundException(UserNotFoundMessage);
         }
+
         await PublishInterviewerDetailEvent(userDetail);
         return true;
     }
+
+    private async Task<UserDetail?> GetUserDetailAsync(string userId, CancellationToken cancellationToken)
+    {
+        var userDetail = await (from user in userManager.Users
+                                where user.Id == userId
+                                join ur in db.UserRoles on user.Id equals ur.UserId into userRoles
+                                from ur in userRoles.DefaultIfEmpty()
+                                join r in db.Roles on ur.RoleId equals r.Id into roles
+                                from role in roles.DefaultIfEmpty()
+                                group role by new
+                                {
+                                    user.Id,
+                                    user.UserName,
+                                    user.Email,
+                                    user.IsActive,
+                                    user.EmailConfirmed,
+                                    user.ImageUrl
+                                } into g
+                                select new UserDetail
+                                {
+                                    Id = Guid.Parse(g.Key.Id),
+                                    UserName = g.Key.UserName,
+                                    Email = g.Key.Email,
+                                    IsActive = g.Key.IsActive,
+                                    EmailConfirmed = g.Key.EmailConfirmed,
+                                    ImageUrl = g.Key.ImageUrl,
+                                    Roles = g.Select(r => r.Name).Where(r => r != null).Distinct().ToList()
+                                })
+                                .AsNoTracking()
+                                .FirstOrDefaultAsync(cancellationToken);
+
+        return userDetail;
+    }
+
 
     public async Task<bool> GetHrsAsync(
         string? search,
@@ -362,12 +365,11 @@ internal sealed partial class UserService(
                 interviewer.Id,
                 interviewer.UserName,
                 interviewer.Email,
-                interviewer.IsActive,
-                interviewer.EmailConfirmed,
                 interviewer.ImageUrl,
-                interviewer.Roles
-            }).ToList()
+            }
         };
+
+        Console.WriteLine(payload);
 
         await messageBus.PublishAsync(
             payload,
