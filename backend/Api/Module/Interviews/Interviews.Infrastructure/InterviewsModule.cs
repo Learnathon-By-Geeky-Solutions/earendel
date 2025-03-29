@@ -9,6 +9,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using System.Diagnostics.CodeAnalysis;
+using TalentMesh.Module.Interviews.Infrastructure.Services;
+using TalentMesh.Module.Interviews.Application.Services;
 
 namespace TalentMesh.Module.Interviews.Infrastructure;
 [ExcludeFromCodeCoverage]
@@ -22,6 +24,7 @@ public static class InterviewsModule
         {
             var interviewGroup = app.MapGroup("interviews").WithTags("interviews");
             interviewGroup.MapInterviewCreationEndpoint();
+            interviewGroup.MapInterviewSignatureCreationEndpoint();
             interviewGroup.MapGetInterviewEndpoint();
             interviewGroup.MapGetInterviewByInterviewerEndpoint();
             interviewGroup.MapGetInterviewListEndpoint();
@@ -50,6 +53,8 @@ public static class InterviewsModule
         ArgumentNullException.ThrowIfNull(builder);
         builder.Services.BindDbContext<InterviewsDbContext>();
         builder.Services.AddScoped<IDbInitializer, InterviewsDbInitializer>();
+
+        builder.Services.AddHttpClient<IZoomService, ZoomService>();
 
         builder.Services.AddKeyedScoped<IRepository<Interview>, InterviewsRepository<Interview>>("interviews:interview");
         builder.Services.AddKeyedScoped<IReadRepository<Interview>, InterviewsRepository<Interview>>("interviews:interviewReadOnly");
