@@ -346,7 +346,36 @@ internal sealed partial class UserService(
         );
     }
 
-    
+    private async Task PublishInterviewerDetailEvent(
+    UserDetail interviewer)
+    {
+        var user = httpContextAccessor.HttpContext?.User;
+        var userId = user?.GetUserId();
+
+        var payload = new
+        {
+            EventType = "interviewer.detail.fetched",
+            Timestamp = DateTime.UtcNow,
+            RequestedBy = userId,
+            Interviewer = new
+            {
+                interviewer.Id,
+                interviewer.UserName,
+                interviewer.Email,
+                interviewer.IsActive,
+                interviewer.EmailConfirmed,
+                interviewer.ImageUrl,
+                interviewer.Roles
+            }).ToList()
+        };
+
+        await messageBus.PublishAsync(
+            payload,
+            "interviewer.detail.events",
+            "interviewer.detail.fetched",
+            CancellationToken.None
+        );
+    }
 
     private async Task PublishInterviewerFormFetchedEvent(
     int totalRecords,
