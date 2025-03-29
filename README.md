@@ -121,6 +121,9 @@ We use various monitoring and visualization tools to track system health and met
 <h4> <b>RabbitMQ</b> – Queue management and message broker </h4>
 <img src="public/images/rabbitmq.png" alt="RabbitMQ" width="100%">
 
+<h4> <b>Hangfire</b> – Background Job Processing </h4>
+<img src="public/images/hangfire-dashboard.png" alt="Hangfire" width="100%">
+
 ---
 
 ## 🔀 Git Workflow Strategy  
