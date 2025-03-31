@@ -229,6 +229,12 @@ internal sealed partial class UserService(
         await PublishHrFetchedEvent(totalRecords, hrs, sortBy, sortDirection);
         return true;
     }
+    public async Task<List<UserDetail>> GetAdminsAsync(CancellationToken cancellationToken)
+    {
+        var baseQuery = BuildBaseQuery("Admin");
+        return await baseQuery.ToListAsync(cancellationToken);
+    }
+
     public async Task<bool> GetInterviewersAsync(
         string? search,
         string? sortBy,
