@@ -1,14 +1,20 @@
 using FluentValidation;
 using System.Diagnostics.CodeAnalysis;
 
-namespace TalentMesh.Module.Experties.Application.SeniorityLevelJunctions.Update.v1;
-[ExcludeFromCodeCoverage]
-public class UpdateSeniorityLevelJunctionCommandValidator : AbstractValidator<UpdateSeniorityLevelJunctionCommand>
+namespace TalentMesh.Module.Experties.Application.SeniorityLevelJunctions.Update.v1
 {
-    public UpdateSeniorityLevelJunctionCommandValidator()
+    [ExcludeFromCodeCoverage]
+    public class UpdateSeniorityLevelJunctionCommandValidator : AbstractValidator<UpdateSeniorityLevelJunctionCommand>
     {
-        RuleFor(x => x.Id).NotEmpty();
-        RuleFor(x => x.SeniorityLevelId).NotEmpty();
-        RuleFor(x => x.SkillId).NotEmpty();
+        public UpdateSeniorityLevelJunctionCommandValidator()
+        {
+            RuleFor(x => x.SkillId)
+                .NotEmpty().WithMessage("SkillId is required.");
+
+            RuleFor(x => x.SeniorityLevelIds)
+                .NotNull().WithMessage("SeniorityLevelIds cannot be null.")
+                .Must(ids => ids.Count > 0)
+                .WithMessage("At least one SeniorityLevelId must be provided.");
+        }
     }
 }
