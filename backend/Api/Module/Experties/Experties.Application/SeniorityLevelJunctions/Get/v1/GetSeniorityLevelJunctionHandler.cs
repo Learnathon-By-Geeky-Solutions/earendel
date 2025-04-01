@@ -4,6 +4,7 @@ using TalentMesh.Framework.Core.Persistence;
 using TalentMesh.Framework.Core.Caching;
 using TalentMesh.Module.Experties.Domain;
 using MediatR;
+using TalentMesh.Module.Experties.Application.Seniorities.Get.v1;
 
 namespace TalentMesh.Module.Experties.Application.SeniorityLevelJunctions.Get.v1;
 public sealed class GetSeniorityLevelJunctionHandler(
@@ -23,9 +24,14 @@ public sealed class GetSeniorityLevelJunctionHandler(
                     throw new SeniorityLevelJunctionNotFoundException(request.Id);
 
                 return new SeniorityLevelJunctionResponse(
-                    junction.Id,
-                    junction.SeniorityLevelId,
-                    junction.SkillId);
+    junction.Id,
+    junction.SeniorityLevelId,
+    junction.SkillId,
+    new SeniorityResponse(
+         junction.Seniority.Id,
+         junction.Seniority.Name,
+         junction.Seniority.Description)
+);
             },
             cancellationToken: cancellationToken);
         return item!;

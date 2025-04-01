@@ -21,7 +21,7 @@ internal sealed class SeniorityLevelJunctionConfiguration : IEntityTypeConfigura
             .OnDelete(DeleteBehavior.Restrict);
 
         builder.HasOne(x => x.Skill)
-            .WithMany()
+            .WithMany(s => s.SeniorityLevelJunctions)  // Ensure Skill entity has SeniorityLevelJunctions defined
             .HasForeignKey(x => x.SkillId)
             .OnDelete(DeleteBehavior.Restrict);
     }

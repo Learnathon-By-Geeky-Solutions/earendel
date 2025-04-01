@@ -6,11 +6,9 @@ using TalentMesh.Module.Experties.Domain.Events;
 namespace TalentMesh.Module.Experties.Domain;
 public class SeniorityLevelJunction : AuditableEntity, IAggregateRoot
 {
-    public Guid SeniorityLevelId { get; private set; }
     public Guid SkillId { get; private set; }
-
     public virtual Skill Skill { get; private set; } = default!;
-
+    public Guid SeniorityLevelId { get; private set; }
     public virtual Seniority Seniority { get; private set; } = default!;
 
 
