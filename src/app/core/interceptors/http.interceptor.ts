@@ -7,11 +7,15 @@ export const HttpTokenInterceptor: HttpInterceptorFn = (req, next) => {
   };
 
   // Fetch the token from localStorage
-  const idToken = localStorage.getItem('token');
+  const sessionData = sessionStorage.getItem('loggedInUser');
 
+  // Parse JSON if sessionData is not null
+  const user = sessionData ? JSON.parse(sessionData) : null;
+
+  const token = user?.token;
   // If token is present, add Authorization header
-  if (idToken) {
-    headersConfig['Authorization'] = `Bearer ${idToken}`; // Ensure correct format
+  if (token) {
+    headersConfig['Authorization'] = `Bearer ${token}`;
   }
 
   // Add tenant header (this could be static or dynamic based on your logic)

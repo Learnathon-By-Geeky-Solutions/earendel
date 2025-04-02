@@ -1,8 +1,12 @@
-import { Component } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { SidebarComponent } from '../sidebar/sidebar.component';
 import { PaginationComponent } from '../pagination/pagination.component';
+import { Subscription } from 'rxjs';
+import { NotificationhubService } from '../../shared/services/signalr/notificationhub.service';
+import { HrService } from '../services/hr.service';
+import { HttpClientModule } from '@angular/common/http';
 
 interface HRPersonnel {
   id: number;
@@ -15,7 +19,13 @@ interface HRPersonnel {
 @Component({
   selector: 'app-hr',
   standalone: true,
-  imports: [CommonModule, FormsModule, SidebarComponent, PaginationComponent],
+  imports: [
+    CommonModule,
+    FormsModule,
+    SidebarComponent,
+    PaginationComponent,
+    HttpClientModule,
+  ],
   template: `
     <div class="d-flex">
       <app-sidebar></app-sidebar>
@@ -455,7 +465,15 @@ interface HRPersonnel {
     `,
   ],
 })
-export class HrComponent {
+export class HrComponent implements OnInit, OnDestroy {
+  adminNotification: string | null = null;
+  userNotification: string | null = null;
+
+  private adminSub: Subscription | undefined;
+  private userSub: Subscription | undefined;
+
+  hrDetails: any;
+
   // Pagination
   currentPage = 1;
   pageSize = 10;
@@ -470,6 +488,44 @@ export class HrComponent {
   newPerson: Partial<HRPersonnel> = {};
   editingPerson: Partial<HRPersonnel> = {};
   selectedPerson: HRPersonnel | null = null;
+
+  constructor(
+    private readonly notificationHubService: NotificationhubService,
+    private readonly hrService: HrService
+  ) {}
+
+  ngOnInit(): void {
+    const sessionData = sessionStorage.getItem('loggedInUser');
+
+    // Parse JSON if sessionData is not null
+    const user = sessionData ? JSON.parse(sessionData) : null;
+
+    // Safely access token
+    const userToken = user?.token;
+
+    this.notificationHubService.startConnection(userToken);
+
+    this.userSub = this.notificationHubService.userNotifications$.subscribe(
+      (message) => {
+        console.log(message);
+        this.userNotification = message;
+        setTimeout(() => {
+          console.log(this.userNotification);
+          this.userNotification = null;
+        }, 5000);
+      }
+    );
+
+    this.hrService.hrDetailsData().subscribe((data) => {
+      console.log(data);
+      console.log(this.userNotification);
+    });
+  }
+  ngOnDestroy(): void {
+    this.notificationHubService.stopConnection();
+    this.adminSub?.unsubscribe();
+    this.userSub?.unsubscribe();
+  }
 
   personnel: HRPersonnel[] = [
     {
