@@ -6,43 +6,46 @@ import * as signalR from '@microsoft/signalr';
   providedIn: 'root',
 })
 export class NotificationhubService {
-  private hubConnection: any;
-
+  private hubConnection!: signalR.HubConnection;
   private readonly baseUrl =
-    // 'http://localhost:58585/notifications?access_token=';
     'http://173.249.54.173/notifications?access_token=';
+  // 'http://localhost:51027/notifications?access_token=';
 
   public userNotifications$ = new BehaviorSubject<string | null>(null);
 
   constructor() {}
-  startConnection(userToken: any): void {
+
+  public connectionEstablished$ = new BehaviorSubject<boolean>(false);
+
+  startConnection(userToken: string): void {
     this.hubConnection = new signalR.HubConnectionBuilder()
-      .withUrl(this.baseUrl + userToken, {
-        transport:
-          signalR.HttpTransportType.WebSockets |
-          signalR.HttpTransportType.ServerSentEvents,
-      })
+      .withUrl(this.baseUrl + userToken)
       .configureLogging(signalR.LogLevel.Information)
       .withAutomaticReconnect()
       .build();
 
     this.hubConnection
       .start()
-      .then(() => console.log('SignalR Connection Started'))
-      .catch((err: any) =>
-        console.error('Error while starting connection: ', err)
-      );
-
-    this.addListeners();
+      .then(() => {
+        console.log('SignalR Connection Started');
+        this.addListeners();
+        this.connectionEstablished$.next(true); // <-- Notify connection ready
+      })
+      .catch((err) => {
+        this.connectionEstablished$.next(false);
+      });
   }
+
   private addListeners(): void {
     if (!this.hubConnection) return;
+    console.log('Registering SignalR event listeners...');
 
     this.hubConnection.on('ReceiveMessage', (message: any) => {
       console.log('User Notification:', message);
       this.userNotifications$.next(message);
     });
   }
+
   stopConnection(): void {
     if (this.hubConnection) {
       this.hubConnection

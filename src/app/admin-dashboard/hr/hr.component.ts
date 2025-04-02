@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { AfterViewInit, Component, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { SidebarComponent } from '../sidebar/sidebar.component';
@@ -7,6 +7,7 @@ import { Subscription } from 'rxjs';
 import { NotificationhubService } from '../../shared/services/signalr/notificationhub.service';
 import { HrService } from '../services/hr.service';
 import { HttpClientModule } from '@angular/common/http';
+import { filter } from 'rxjs/operators';
 
 interface HRPersonnel {
   id: number;
@@ -495,32 +496,29 @@ export class HrComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    const sessionData = sessionStorage.getItem('loggedInUser');
-
-    // Parse JSON if sessionData is not null
-    const user = sessionData ? JSON.parse(sessionData) : null;
-
-    // Safely access token
+    const user = JSON.parse(sessionStorage.getItem('loggedInUser') || '{}');
     const userToken = user?.token;
 
     this.notificationHubService.startConnection(userToken);
 
+    // Wait for connection before making initial requests
+    this.notificationHubService.connectionEstablished$
+      .pipe(filter((connected) => connected))
+      .subscribe(() => {
+        // Make your initial data request HERE
+        this.hrService.hrDetailsData().subscribe((data) => {
+          console.log('Initial data loaded', data);
+        });
+      });
+
+    // Keep existing subscription for messages
     this.userSub = this.notificationHubService.userNotifications$.subscribe(
       (message) => {
         console.log(message);
-        this.userNotification = message;
-        setTimeout(() => {
-          console.log(this.userNotification);
-          this.userNotification = null;
-        }, 5000);
       }
     );
-
-    this.hrService.hrDetailsData().subscribe((data) => {
-      console.log(data);
-      console.log(this.userNotification);
-    });
   }
+
   ngOnDestroy(): void {
     this.notificationHubService.stopConnection();
     this.adminSub?.unsubscribe();
