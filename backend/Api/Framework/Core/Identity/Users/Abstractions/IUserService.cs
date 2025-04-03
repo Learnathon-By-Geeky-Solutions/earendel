@@ -19,7 +19,10 @@ public interface IUserService
     Task<List<UserDetail>> GetListAsync(CancellationToken cancellationToken);
     Task<int> GetCountAsync(CancellationToken cancellationToken);
     Task<UserDetail> GetAsync(string userId, CancellationToken cancellationToken);
+    Task<bool> GetInterviewerDetailAsync(string userId, CancellationToken cancellationToken);
     Task<bool> GetHrsAsync(string? search, string? sortBy, string? sortDirection, int pageNumber, int pageSize, CancellationToken cancellationToken);
+    Task<List<UserDetail>> GetAdminsAsync(CancellationToken cancellationToken);
+    Task<bool> GetInterviewersAsync(string? search, string? sortBy, string? sortDirection, int pageNumber, int pageSize, CancellationToken cancellationToken);
     Task ToggleStatusAsync(ToggleUserStatusCommand request, CancellationToken cancellationToken);
     Task<string> GetOrCreateFromPrincipalAsync(ClaimsPrincipal principal);
     Task<RegisterUserResponse> RegisterAsync(RegisterUserCommand request, string origin, CancellationToken cancellationToken);

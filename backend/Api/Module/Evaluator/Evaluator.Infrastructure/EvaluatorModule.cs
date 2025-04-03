@@ -8,6 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 using TalentMesh.Module.Evaluator.Domain;
 using TalentMesh.Module.Evaluator.Infrastructure.Endpoints.v1;
 using TalentMesh.Module.Evaluator.Infrastructure.Persistence;
+using TalentMesh.Module.Evaluator.Infrastructure.Messaging;
 using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Module.Interviews.Infrastructure
@@ -52,6 +53,8 @@ namespace TalentMesh.Module.Interviews.Infrastructure
             ArgumentNullException.ThrowIfNull(builder);
             builder.Services.BindDbContext<EvaluatorDbContext>();
             builder.Services.AddScoped<IDbInitializer, EvaluatorDbInitializer>();
+
+            builder.Services.AddHostedService<InterviewerFormConsumer>();
 
             // Register keyed repositories for InterviewerApplication
             builder.Services.AddKeyedScoped<IRepository<InterviewerApplication>, EvaluatorRepository<InterviewerApplication>>("interviews:interviewerapplication");

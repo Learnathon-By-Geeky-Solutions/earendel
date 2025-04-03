@@ -6,13 +6,15 @@ using Microsoft.Extensions.Logging;
 using TalentMesh.Framework.Infrastructure.Messaging;
 using System.Threading;
 using System.Threading.Tasks;
+using TalentMesh.Module.Experties.Application.SeniorityLevelJunctions.Create.v1;
 
 namespace TalentMesh.Module.Experties.Application.Skills.Create.v1
 {
     public sealed class CreateSkillHandler(
         ILogger<CreateSkillHandler> logger,
         [FromKeyedServices("skills:skill")] IRepository<Experties.Domain.Skill> repository,
-        IMessageBus messageBus)
+        IMessageBus messageBus,
+        IMediator mediator) // Add IMediator dependency
         : IRequestHandler<CreateSkillCommand, CreateSkillResponse>
     {
         public async Task<CreateSkillResponse> Handle(CreateSkillCommand request, CancellationToken cancellationToken)
@@ -23,7 +25,7 @@ namespace TalentMesh.Module.Experties.Application.Skills.Create.v1
             await repository.AddAsync(skill, cancellationToken);
             logger.LogInformation("Skill created {SkillId}", skill.Id);
 
-            // Prepare a message payload to publish via RabbitMQ.
+            // Publish skill creation event
             var skillMessage = new
             {
                 SkillId = skill.Id,
@@ -31,8 +33,14 @@ namespace TalentMesh.Module.Experties.Application.Skills.Create.v1
                 Description = skill.Description
             };
 
-            // Publish the message to the "skill.events" exchange with "skill.created" routing key.
             await messageBus.PublishAsync(skillMessage, "skill.events.user", "skill.created.user", cancellationToken);
+
+            // **Trigger CreateSeniorityLevelJunctionHandler**
+            if (request.SeniorityLevels?.Any() == true)
+            {
+                var createJunctionCommand = new CreateSeniorityLevelJunctionCommand(skill.Id, request.SeniorityLevels);
+                await mediator.Send(createJunctionCommand, cancellationToken);
+            }
 
             return new CreateSkillResponse(skill.Id);
         }

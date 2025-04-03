@@ -21,6 +21,9 @@ internal static class Extensions
         app.MapGetMeEndpoint();
         app.MapGetUserEndpoint();
         app.MapGetHrsEndpoint();
+        app.MapGetAdminsEndpoint();
+        app.MapGetInterviewersEndpoint();
+        app.MapGetInterviewerDetailEndpoint();
         app.MapGetCurrentUserPermissionsEndpoint();
         app.ToggleUserStatusEndpointEndpoint();
         app.MapAssignRolesToUserEndpoint();
