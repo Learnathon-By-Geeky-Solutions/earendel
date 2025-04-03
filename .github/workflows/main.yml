@@ -5,12 +5,12 @@ on:
     branches:
       - main
       - development
-      - feature/code-coverage
+      - feature/CD
   pull_request:
     branches:
       - main
       - development
-      - feature/code-coverage
+      - feature/CD
 
 jobs:
   build:
@@ -21,7 +21,7 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v3
 
-      - name: Restore TenantConstants.cs
+      - name: Restore TenantConstants.cs Locally
         run: echo "${{ secrets._TENANT_CONSTANTS_CS }}" | base64 --decode > backend/Shared/Authorization/TenantConstants.cs
 
       - name: Debug Directory Structure
@@ -42,7 +42,7 @@ jobs:
         run: |
           mkdir -p test-results
           find backend/Api/Module -type f -name "*.Test.csproj" | \
-            xargs -I {} sh -c 'echo "Running tests for project: {}"; dotnet test "{}" | tee "test-results/$(basename {}).log" || true'
+            xargs -I {} sh -c 'echo "Running tests for project: {}"; dotnet test "{}" --no-build --configuration Release --collect:"XPlat Code Coverage" --logger trx | tee "test-results/$(basename {}).log" || true'
           echo "### Listing All Test Log Files ###"
           ls -l test-results
           echo "### Individual Test Summaries ###"
@@ -63,7 +63,7 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v3
 
-      - name: Restore TenantConstants.cs
+      - name: Restore TenantConstants.cs Locally
         run: echo "${{ secrets._TENANT_CONSTANTS_CS }}" | base64 --decode > backend/Shared/Authorization/TenantConstants.cs
 
       - name: Setup .NET SDK
@@ -82,3 +82,36 @@ jobs:
         with:
           name: published-app
           path: backend/Api/Server/publish/
+
+  deploy:
+    name: Deploy to Server
+    runs-on: ubuntu-latest
+    needs: publish
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Deploy appsettings.json to Server
+        uses: appleboy/ssh-action@v0.1.8
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          password: ${{ secrets.SERVER_PASSWORD }}
+          script: |
+            # Deploy appsettings.json
+            echo "${{ secrets._APPSETTINGS }}" | base64 --decode > /root/Learnathon/earendel/backend/Api/Server/appsettings.json
+            chmod 600 /root/Learnathon/earendel/backend/Api/Server/appsettings.json
+
+      - name: Deploy TenantConstants.cs to Server
+        uses: appleboy/ssh-action@v0.1.8
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          password: ${{ secrets.SERVER_PASSWORD }}
+          script: |
+            # Deploy TenantConstants.cs
+            echo "${{ secrets._TENANT_CONSTANTS_CS }}" | base64 --decode > /root/Learnathon/earendel/backend/Shared/Authorization/TenantConstants.cs
+            chmod 600 /root/Learnathon/earendel/backend/Shared/Authorization/TenantConstants.cs
+
+      
