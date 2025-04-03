@@ -1,124 +1,65 @@
 using System;
-using System.Text;
+using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Collections.Generic;
-using System.Text.Json;
 using Microsoft.AspNetCore.SignalR;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using RabbitMQ.Client.Events;
 using RabbitMQ.Client;
-using TalentMesh.Module.Job.Infrastructure.Persistence;
 using TalentMesh.Framework.Infrastructure.SignalR;
 using TalentMesh.Framework.Infrastructure.Messaging;
 using TalentMesh.Framework.Infrastructure.Common;
+using TalentMesh.Module.Job.Infrastructure.Persistence;
 
 namespace TalentMesh.Module.Job.Infrastructure.Messaging
 {
-    public class HrJobListConsumer : RabbitMqConsumerBase
+    public class HrJobListConsumer : RabbitMqConsumer<HrMessage>
     {
-        private readonly IHubContext<NotificationHub> _hubContext;
-        private readonly IServiceScopeFactory _scopeFactory;
-
         public HrJobListConsumer(
             ILogger<HrJobListConsumer> logger,
             IConnectionFactory connectionFactory,
             IMessageBus messageBus,
             IServiceScopeFactory scopeFactory,
             IHubContext<NotificationHub> hubContext)
-            : base(logger, connectionFactory, "hr.job.list.events", "hr.job.list.fetched", "hr.job.list.fetched")
-        {
-            _hubContext = hubContext;
-            _scopeFactory = scopeFactory;
-        }
+            : base(logger, connectionFactory, "hr.job.list.events", "hr.job.list.fetched", "hr.job.list.fetched", hubContext, scopeFactory)
+        { }
 
-        protected override Task ExecuteAsync(CancellationToken stoppingToken)
+        protected override async Task ProcessDomainMessage(HrMessage message, IServiceScope scope, CancellationToken stoppingToken)
         {
-            SetUpRabbitMQConnection();
+            var dbContext = scope.ServiceProvider.GetRequiredService<JobDbContext>();
+            var hrIds = message.HRs.Select(hr => hr.Id).ToList();
 
-            var consumer = new AsyncEventingBasicConsumer(_channel);
-            consumer.Received += async (sender, ea) => await ProcessMessageAsync(ea, stoppingToken);
-            _channel.BasicConsume(queue: _queueName, autoAck: false, consumer: consumer);
-            return Task.CompletedTask;
-        }
+            var allJobs = await dbContext.Jobs
+                .Where(j => hrIds.Contains(j.CreatedBy))
+                .Select(j => new JobItem
+                {
+                    Id = j.Id,
+                    Title = j.Name,
+                    Description = j.Description,
+                    CreatedAt = j.Created.UtcDateTime,
+                    PostedBy = j.CreatedBy
+                })
+                .ToListAsync(stoppingToken);
 
-        private async Task ProcessMessageAsync(BasicDeliverEventArgs ea, CancellationToken stoppingToken)
-        {
-            try
+            var jobsByHr = allJobs.ToLookup(j => j.PostedBy);
+            foreach (var hr in message.HRs)
             {
-                _logger.LogInformation("Received HR job list event message.");
-                var messageJson = Encoding.UTF8.GetString(ea.Body.ToArray());
-                var hrMessage = JsonHelper.Deserialize<HrMessage>(messageJson);
-
-                if (hrMessage == null)
-                {
-                    _logger.LogWarning("Failed to deserialize HR job list message.");
-                    _channel.BasicNack(ea.DeliveryTag, false, true);
-                    return;
-                }
-
-                using var scope = _scopeFactory.CreateScope();
-                var dbContext = scope.ServiceProvider.GetRequiredService<JobDbContext>();
-
-                var hrIds = hrMessage.HRs.Select(hr => hr.Id).ToList();
-
-                var allJobs = await dbContext.Jobs
-                    .Where(j => hrIds.Contains(j.CreatedBy))
-                    .Select(j => new JobItem
-                    {
-                        Id = j.Id,
-                        Title = j.Name,
-                        Description = j.Description,
-                        CreatedAt = j.Created.UtcDateTime,
-                        PostedBy = j.CreatedBy
-                    })
-                    .ToListAsync(stoppingToken);
-
-                var jobsByHr = allJobs.ToLookup(j => j.PostedBy);
-
-                foreach (var hr in hrMessage.HRs)
-                {
-                    hr.Jobs = jobsByHr[hr.Id].ToList();
-                    hr.JobCount = hr.Jobs.Count;
-                }
-
-                if (!string.IsNullOrEmpty(hrMessage.SortBy) &&
-                    hrMessage.SortBy.Equals("jobcount", StringComparison.OrdinalIgnoreCase))
-                {
-                    bool isAscending = string.Equals(hrMessage.SortDirection, "asc", StringComparison.OrdinalIgnoreCase);
-                    hrMessage.HRs = isAscending
-                        ? hrMessage.HRs.OrderBy(hr => hr.JobCount).ToList()
-                        : hrMessage.HRs.OrderByDescending(hr => hr.JobCount).ToList();
-                }
-
-                var finalResponse = new
-                {
-                    EventType = "hr.job.list.updated",
-                    Timestamp = DateTime.UtcNow,
-                    TotalHrCount = hrMessage.TotalRecords,
-                    TotalJobCount = allJobs.Count,
-                    TotalRecords = hrMessage.TotalRecords,
-                    HRs = hrMessage.HRs
-                };
-
-                var finalJson = JsonHelper.Serialize(finalResponse);
-                _logger.LogInformation("Final HR Job List Response: {Response}", finalJson);
-
-                await _hubContext.Clients.Group($"user:{hrMessage.RequestedBy}")
-                    .SendAsync("ReceiveMessage", finalJson);
-
-                _channel.BasicAck(ea.DeliveryTag, false);
+                hr.Jobs = jobsByHr[hr.Id].ToList();
+                hr.JobCount = hr.Jobs.Count;
             }
-            catch (Exception ex)
+
+            if (!string.IsNullOrEmpty(message.SortBy) &&
+                message.SortBy.Equals("jobcount", StringComparison.OrdinalIgnoreCase))
             {
-                _logger.LogError(ex, "Error processing HR job list message");
-                _channel.BasicNack(ea.DeliveryTag, false, true);
+                bool isAscending = string.Equals(message.SortDirection, "asc", StringComparison.OrdinalIgnoreCase);
+                message.HRs = isAscending
+                    ? message.HRs.OrderBy(hr => hr.JobCount).ToList()
+                    : message.HRs.OrderByDescending(hr => hr.JobCount).ToList();
             }
         }
 
+        protected override Guid GetRequestedBy(HrMessage message) => message.RequestedBy;
     }
 
     public class HrMessage
