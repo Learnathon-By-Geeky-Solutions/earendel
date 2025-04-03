@@ -101,7 +101,7 @@ jobs:
           script: |
             # Deploy appsettings.json
             echo "${{ secrets._APPSETTINGS }}" | base64 --decode > /root/Learnathon/earendel/backend/Api/Server/appsettings.json
-            chmod 600 /root/Learnathon/earendel/backend/Api/Server/appsettings.json
+            chmod 644 /root/Learnathon/earendel/backend/Api/Server/appsettings.json
 
       - name: Deploy TenantConstants.cs to Server
         uses: appleboy/ssh-action@v0.1.8
@@ -112,7 +112,7 @@ jobs:
           script: |
             # Deploy TenantConstants.cs
             echo "${{ secrets._TENANT_CONSTANTS_CS }}" | base64 --decode > /root/Learnathon/earendel/backend/Shared/Authorization/TenantConstants.cs
-            chmod 600 /root/Learnathon/earendel/backend/Shared/Authorization/TenantConstants.cs
+            chmod 644 /root/Learnathon/earendel/backend/Shared/Authorization/TenantConstants.cs
 
       - name: Deploy Application via SSH
         uses: appleboy/ssh-action@v0.1.8
