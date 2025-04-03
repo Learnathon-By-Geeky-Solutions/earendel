@@ -117,7 +117,7 @@ namespace TalentMesh.Module.Interviews.Infrastructure.Services
             return response;
         }
 
-        private async Task<string> CleanResponseAsync(HttpResponseMessage response)
+        private static async Task<string> CleanResponseAsync(HttpResponseMessage response)
         {
             string rawJson = (await response.Content.ReadAsStringAsync().ConfigureAwait(false)).Trim();
             if (!string.IsNullOrEmpty(rawJson) && rawJson[^1] == ';')
@@ -224,7 +224,7 @@ namespace TalentMesh.Module.Interviews.Infrastructure.Services
             throw new InvalidOperationException("Zoom API response did not contain 'id'");
         }
 
-        private void ValidateSignatureParameters(string meetingNumber, int role)
+        private static void ValidateSignatureParameters(string meetingNumber, int role)
         {
             if (string.IsNullOrEmpty(meetingNumber) || (role != 0 && role != 1))
             {
