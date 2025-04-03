@@ -139,4 +139,4 @@ jobs:
             echo "Building and restarting Docker containers..."
             cd backend
             docker-compose down
-            docker-compose up --build -d
+            docker-compose up --build
