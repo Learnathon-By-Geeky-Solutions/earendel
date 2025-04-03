@@ -6,16 +6,15 @@ using TalentMesh.Module.Experties.Application.Skills.Get.v1;
 using TalentMesh.Module.Experties.Application.Skills.Search.v1;
 using TalentMesh.Module.Experties.Application.Skills.Update.v1;
 using TalentMesh.Module.Experties.Domain.Exceptions;
-using TalentMesh.Framework.Core.Paging;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using TalentMesh.Module.Experties.Domain;
 using TalentMesh.Framework.Core.Persistence;
-using System;
-using System.Threading;
-using System.Threading.Tasks;
 using TalentMesh.Framework.Core.Caching;
 using TalentMesh.Framework.Infrastructure.Messaging;
+using TalentMesh.Module.Experties.Application.SubSkills.Get.v1;
+using TalentMesh.Module.Experties.Application.SeniorityLevelJunctions.Get.v1;
+using System.Reflection;
 
 namespace TalentMesh.Module.Experties.Tests
 {
@@ -30,6 +29,7 @@ namespace TalentMesh.Module.Experties.Tests
         private readonly Mock<ILogger<SearchSkillsHandler>> _searchLoggerMock;
         private readonly Mock<ILogger<UpdateSkillHandler>> _updateLoggerMock;
         private readonly Mock<IMessageBus> _messageBusMock;
+        private readonly Mock<IMediator> _mediatorMock;
         private readonly CreateSkillHandler _createHandler;
         private readonly DeleteSkillHandler _deleteHandler;
         private readonly GetSkillHandler _getHandler;
@@ -48,24 +48,30 @@ namespace TalentMesh.Module.Experties.Tests
             _readRepositoryMock = new Mock<IReadRepository<Skill>>(); // Initialize Read Repository Mock
 
             _messageBusMock = new Mock<IMessageBus>();
-            _createHandler = new CreateSkillHandler(_createLoggerMock.Object, _repositoryMock.Object, _messageBusMock.Object);
+            _mediatorMock = new Mock<IMediator>(); // Initialize the mediator mock
+
+            _createHandler = new CreateSkillHandler(_createLoggerMock.Object, _repositoryMock.Object, _messageBusMock.Object, _mediatorMock.Object);
             _deleteHandler = new DeleteSkillHandler(_deleteLoggerMock.Object, _repositoryMock.Object);
             _getHandler = new GetSkillHandler(_readRepositoryMock.Object, _cacheServiceMock.Object); // Correct parameters
             _searchHandler = new SearchSkillsHandler(_readRepositoryMock.Object);
-            _updateHandler = new UpdateSkillHandler(_updateLoggerMock.Object, _repositoryMock.Object);
+            _updateHandler = new UpdateSkillHandler(_updateLoggerMock.Object, _repositoryMock.Object, _mediatorMock.Object);
         }
 
         [Fact]
         public async Task CreateSkill_ReturnsSkillResponse()
         {
             // Arrange
-            var request = new CreateSkillCommand("C# Development", "Advanced C# programming");
+            var request = new CreateSkillCommand(
+                "C# Development",
+                "Advanced C# programming",
+                new List<Guid> { Guid.NewGuid(), Guid.NewGuid() } // Provide a list of Seniority Levels
+            );
 
             // Use a fixed GUID for the expected skill ID
             var expectedId = Guid.NewGuid();
 
             // Initialize expectedSkill using the expectedId
-            var expectedSkill = Skill.Create(request.Name!, request.Description);  // Pass the expected Id to Create
+            var expectedSkill = Skill.Create(request.Name!, request.Description);
 
             _repositoryMock
                 .Setup(repo => repo.AddAsync(It.IsAny<Skill>(), It.IsAny<CancellationToken>()))
@@ -78,7 +84,6 @@ namespace TalentMesh.Module.Experties.Tests
             Assert.NotNull(result);
             _repositoryMock.Verify(repo => repo.AddAsync(It.IsAny<Skill>(), It.IsAny<CancellationToken>()), Times.Once);
         }
-
 
 
         [Fact]
@@ -114,38 +119,37 @@ namespace TalentMesh.Module.Experties.Tests
         {
             // Arrange
             var skill = Skill.Create("C# Development", "Advanced C#");
-            var skillId = skill.Id; // Use the skill's own ID
 
-            // Setup the repository to return the skill when queried with the same ID
-            _readRepositoryMock
-                .Setup(repo => repo.GetByIdAsync(It.Is<Guid>(id => id == skillId), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(skill);
+            // Add SubSkill
+            var subSkill = SubSkill.Create("LINQ", "Language Queries", skill.Id);
+            skill.SubSkills.Add(subSkill);
 
-            // Setup the cache to always return null (simulate a cache miss) regardless of the key
-            _cacheServiceMock
-                .Setup(cache => cache.GetAsync<SkillResponse>(It.IsAny<string>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync((SkillResponse)null);
+            // Create Seniority and Junction
+            var seniority = Seniority.Create("Senior", "Senior developer");
+            var junction = SeniorityLevelJunction.Create(seniority.Id, skill.Id);
 
-            // Setup the cache's SetAsync to simply return a completed task
-            _cacheServiceMock
-                .Setup(cache => cache.SetAsync(It.IsAny<string>(), It.IsAny<SkillResponse>(), It.IsAny<TimeSpan?>(), It.IsAny<CancellationToken>()))
-                .Returns(Task.CompletedTask);
+            // Set navigation property using CORRECT reflection
+            var seniorityProp = typeof(SeniorityLevelJunction)
+                               .GetProperty("Seniority", BindingFlags.Public | BindingFlags.Instance);
+            seniorityProp?.SetValue(junction, seniority);
+
+            skill.SeniorityLevelJunctions.Add(junction);
+
+            // Mock repository response
+            _readRepositoryMock.Setup(repo =>
+                repo.GetBySpecAsync(It.IsAny<GetSkillSpec>(), It.IsAny<CancellationToken>())
+            ).ReturnsAsync(skill);
 
             // Act
-            var result = await _getHandler.Handle(new GetSkillRequest(skillId), CancellationToken.None);
+            var result = await _getHandler.Handle(new GetSkillRequest(skill.Id), CancellationToken.None);
 
             // Assert
             Assert.NotNull(result);
-            Assert.Equal(skillId, result.Id);
-            Assert.Equal(skill.Name, result.Name);
-            Assert.Equal(skill.Description, result.Description);
+            Assert.Equal(skill.Id, result.Id);
 
-            // Verify that the repository's GetByIdAsync was called exactly once with the correct id.
-            _readRepositoryMock.Verify(repo => repo.GetByIdAsync(skillId, It.IsAny<CancellationToken>()), Times.Once);
-
-            // Verify that the cache GetAsync and SetAsync were each called exactly once (ignoring the key)
-            _cacheServiceMock.Verify(cache => cache.GetAsync<SkillResponse>(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Once);
-            _cacheServiceMock.Verify(cache => cache.SetAsync(It.IsAny<string>(), It.IsAny<SkillResponse>(), It.IsAny<TimeSpan?>(), It.IsAny<CancellationToken>()), Times.Once);
+            var junctionResponse = result.SeniorityLevelJunctions.First();
+            Assert.Equal(seniority.Id, junctionResponse.SeniorityLevelId);
+            Assert.Equal("Senior", junctionResponse.Seniority.Name); // Full validation
         }
 
         [Fact]
@@ -168,11 +172,12 @@ namespace TalentMesh.Module.Experties.Tests
                 PageSize = 10
             };
 
-            var skills = new List<SkillResponse> // Ensure this is List<SkillResponse>
-{
-    new SkillResponse(Guid.NewGuid(), "C# Development", "Advanced C#"),
-    new SkillResponse(Guid.NewGuid(), "ASP.NET", "Web development with .NET")
-};
+            var skills = new List<SkillResponse>
+            {
+                new SkillResponse(Guid.NewGuid(), "C# Development", "Advanced C#", new List<SubSkillResponse>(), new List<SeniorityLevelJunctionResponse>()),
+                new SkillResponse(Guid.NewGuid(), "ASP.NET", "Web development with .NET", new List<SubSkillResponse>(), new List<SeniorityLevelJunctionResponse>())
+            };
+
 
             _readRepositoryMock
                 .Setup(repo => repo.ListAsync(It.IsAny<SearchSkillSpecs>(), It.IsAny<CancellationToken>()))
