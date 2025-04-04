@@ -69,16 +69,16 @@ jobs:
           dotnet tool install --global dotnet-reportgenerator-globaltool
           reportgenerator \
             -reports:"test-results/**/coverage.opencover.xml" \
-            -targetdir:"CoverageReports" \
+            -targetdir:"${{ github.workspace }}/CoverageReports" \
             -reporttypes:"SonarQube" \
             -verbosity:Warning
 
       - name: Validate Report
         run: |
           echo "=== Coverage File ==="
-          ls -l CoverageReports/coverage.opencover.xml
+          ls -l ${{ github.workspace }}/CoverageReports/coverage.opencover.xml
           echo "=== File Size ==="
-          du -h CoverageReports/coverage.opencover.xml
+          du -h ${{ github.workspace }}/CoverageReports/coverage.opencover.xml
 
       - name: End Sonar Analysis
         run: dotnet sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
