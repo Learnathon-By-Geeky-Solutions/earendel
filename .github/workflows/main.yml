@@ -90,6 +90,8 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         with:
           args: >
+            -Dsonar.projectKey=Learnathon-By-Geeky-Solutions_earendel
+            -Dsonar.organization=learnathon-by-geeky-solutions
             -Dsonar.cs.opencover.reportsPaths=${{ github.workspace }}/CoverageReports/coverage.opencover.xml
             -Dsonar.projectBaseDir=${{ github.workspace }}
             -Dsonar.qualitygate.wait=true
@@ -100,7 +102,7 @@ jobs:
           ls -lR CoverageReports
           echo "=== File Contents ==="
           cat CoverageReports/coverage.opencover.xml | head -n 5
-          
+
   publish:
     name: Publish Application
     runs-on: ubuntu-latest
