@@ -49,7 +49,7 @@ jobs:
           dotnet test backend/Aspire/Aspire.sln \
             --no-build \
             --configuration Release \
-            --collect:"XPlat Code Coverage" \
+            --collect:"XPlat Code Coverage;Format=opencover" \
             --results-directory test-results
 
       - name: Generate Coverage Report
