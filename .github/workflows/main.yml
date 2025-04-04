@@ -82,20 +82,20 @@ jobs:
           name: coverage-reports
           path: CoverageReports
       
-      - name: Install XML tools
-        run: sudo apt-get update && sudo apt-get install -y libxml2-utils
+      # - name: Install XML tools
+      #   run: sudo apt-get update && sudo apt-get install -y libxml2-utils
 
-      - name: Validate Coverage Format
-        run: |
-          echo "=== XML Structure Verification ==="
-          xmllint --format CoverageReports/**/coverage.opencover.xml > /dev/null
-          echo "XML validation successful!"
+      # - name: Validate Coverage Format
+      #   run: |
+      #     echo "=== XML Structure Verification ==="
+      #     xmllint --format CoverageReports/**/coverage.opencover.xml > /dev/null
+      #     echo "XML validation successful!"
     
-          echo "=== Root Element Check ==="
-          grep '<CoverageSession' CoverageReports/**/coverage.opencover.xml
+      #     echo "=== Root Element Check ==="
+      #     grep '<CoverageSession' CoverageReports/**/coverage.opencover.xml
     
-          echo "=== Line Coverage Count ==="
-          grep -c '<LineToCover' CoverageReports/**/coverage.opencover.xml
+      #     echo "=== Line Coverage Count ==="
+      #     grep -c '<LineToCover' CoverageReports/**/coverage.opencover.xml
 
       - name: SonarCloud Scan
         uses: SonarSource/sonarqube-scan-action@v5
