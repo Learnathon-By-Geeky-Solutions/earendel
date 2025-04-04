@@ -74,18 +74,20 @@ jobs:
           reportgenerator \
             -reports:"test-results/**/coverage.opencover.xml" \
             -targetdir:"CoverageReports" \
-            -reporttypes:"SonarQube"
+            -reporttypes:"OpenCover"
 
       - name: Upload Reports
         uses: actions/upload-artifact@v4
         with:
           name: coverage-reports
           path: CoverageReports
-      - name: Verify SonarQube.xml Exists
+      
+      - name: Validate Coverage Format
         run: |
-          echo "SonarQube.xml content:"
-          cat CoverageReports/SonarQube.xml | head -n 5
-          echo "File exists at: $(pwd)/CoverageReports/SonarQube.xml"
+           echo "=== XML Root Element ==="
+           xmllint --xpath 'name(/*)' CoverageReports/**/coverage.opencover.xml
+           echo "=== Line Coverage Entries ==="
+           grep -c '<LineToCover' CoverageReports/**/coverage.opencover.xml
 
       - name: SonarCloud Scan
         uses: SonarSource/sonarqube-scan-action@v5
@@ -93,7 +95,7 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         with:
           args: >
-            -Dsonar.cs.opencover.reportsPaths=CoverageReports/SonarQube.xml
+            -Dsonar.cs.opencover.reportsPaths=CoverageReports/**/coverage.opencover.xml
 
   publish:
     name: Publish Application
