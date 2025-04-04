@@ -30,24 +30,21 @@ namespace TalentMesh.Module.Experties.Application.SeniorityLevelJunctions.Update
             ArgumentNullException.ThrowIfNull(request);
 
             // List all junctions for the given SkillId.
-            var existingJunctions = await _repository.ListAsync(cancellationToken);
+            var existingJunctions = await _repository.ListAsync(cancellationToken) ?? new List<SeniorityLevelJunction>();
 
             // Filter the junctions in-memory based on SkillId.
             var junctionsToRemove = existingJunctions.Where(j => j.SkillId == request.SkillId).ToList();
 
             // Check if there are any junctions to remove.
-            if (junctionsToRemove.Any())
+            if (!junctionsToRemove.Any())
             {
-                // Iterate over the junctions to remove and delete them one by one.
-                foreach (var junction in junctionsToRemove)
-                {
-                    await _repository.DeleteAsync(junction, cancellationToken);
-                }
-
-                _logger.LogInformation("Removed {Count} existing junctions for Skill {SkillId}", junctionsToRemove.Count, request.SkillId);
+                throw new SeniorityLevelJunctionNotFoundException(request.SkillId);
             }
 
-
+            foreach (var junction in junctionsToRemove)
+            {
+                await _repository.DeleteAsync(junction, cancellationToken);
+            }
 
             // Create new junction records for each provided seniority level
             var createdJunctionIds = new List<Guid>();
