@@ -1,4 +1,4 @@
-name: .NET CI/CD Workflow
+name: .NET CI/CD Workflow with SonarCloud
 
 on:
   push:
@@ -13,13 +13,11 @@ on:
       - feature/CD
 
 jobs:
-  build:
-    name: Build, Test and Analyze
+  build-and-analyze:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
 
     steps:
-      - name: Checkout Code
+      - name: Checkout code
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
@@ -27,88 +25,61 @@ jobs:
       - name: Setup .NET 8 SDK
         uses: actions/setup-dotnet@v3
         with:
-          dotnet-version: "8.0.x"
+          dotnet-version: '8.0.x'
 
-      - name: Install SonarScanner
-        run: dotnet tool install --global dotnet-sonarscanner
+      - name: Install required tools
+        run: |
+          dotnet tool install --global dotnet-coverage
+          dotnet tool install --global dotnet-sonarscanner
 
-      - name: Begin Sonar Analysis
+      - name: Begin SonarCloud analysis
         run: |
           dotnet sonarscanner begin \
             /k:"Learnathon-By-Geeky-Solutions_earendel" \
             /o:"learnathon-by-geeky-solutions" \
-            /d:sonar.host.url="https://sonarcloud.io" \
-            /d:sonar.login="${{ secrets.SONAR_TOKEN }}" \
-            /d:sonar.cs.opencover.reportsPaths="CoverageReports/coverage.opencover.xml" \
-            /d:sonar.coverage.exclusions="**Test*.cs" \
-            /d:sonar.qualitygate.wait=true \
-            /d:sonar.projectBaseDir="${{ github.workspace }}"
+            /d:sonar.token="${{ secrets.SONAR_TOKEN }}" \
+            /d:sonar.cs.vscoveragexml.reportsPaths="**/coverage.xml" \
+            /d:sonar.coverage.exclusions="**Test*.cs"
 
       - name: Restore TenantConstants.cs
         run: |
           echo "${{ secrets._TENANT_CONSTANTS_CS }}" | base64 --decode > backend/Shared/Authorization/TenantConstants.cs
 
-      - name: Restore Dependencies
-        run: dotnet restore backend/Aspire/Aspire.sln
+      - name: Build solution
+        run: dotnet restore backend/Aspire/Aspire.sln && dotnet build backend/Aspire/Aspire.sln -c Release --no-restore
 
-      - name: Build Solution
-        run: dotnet build backend/Aspire/Aspire.sln -c Release --no-restore
-
-      - name: Run Tests with Coverage
-        timeout-minutes: 15
+      - name: Run tests with coverage collection
         run: |
           mkdir -p test-results
-          dotnet test backend/Aspire/Aspire.sln \
-            --no-build \
-            --configuration Release \
-            --collect:"XPlat Code Coverage;Format=opencover" \
-            --results-directory test-results
+          dotnet-coverage collect "dotnet test backend/Aspire/Aspire.sln --no-build --configuration Release" \
+            -f xml \
+            -o "backend/Aspire/coverage.xml"
 
-      - name: Generate Coverage Report
-        run: |
-          dotnet tool install --global dotnet-reportgenerator-globaltool
-          reportgenerator \
-            -reports:"test-results/**/coverage.opencover.xml" \
-            -targetdir:"${{ github.workspace }}/CoverageReports" \
-            -reporttypes:"SonarQube" \
-            -verbosity:Warning
-
-      - name: Validate Report
-        run: |
-          echo "=== Coverage File ==="
-          ls -l ${{ github.workspace }}/CoverageReports/coverage.opencover.xml
-          echo "=== File Size ==="
-          du -h ${{ github.workspace }}/CoverageReports/coverage.opencover.xml
-
-      - name: End Sonar Analysis
-        run: dotnet sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
+      - name: End SonarCloud analysis
+        run: dotnet sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
 
   publish:
     name: Publish Application
     runs-on: ubuntu-latest
-    needs: build
+    needs: build-and-analyze
     timeout-minutes: 20
 
     steps:
-      - name: Checkout Code
+      - name: Checkout code
         uses: actions/checkout@v3
-
-      - name: Restore TenantConstants.cs
-        run: |
-          echo "${{ secrets._TENANT_CONSTANTS_CS }}" | base64 --decode > backend/Shared/Authorization/TenantConstants.cs
 
       - name: Setup .NET SDK
         uses: actions/setup-dotnet@v3
         with:
           dotnet-version: "8.0.x"
 
-      - name: Build and Publish
+      - name: Publish application
         run: |
           dotnet publish backend/Api/Server/Server.csproj \
             -c Release \
             -o backend/Api/Server/publish
 
-      - name: Upload Artifact
+      - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: published-app
@@ -121,7 +92,7 @@ jobs:
     timeout-minutes: 45
 
     steps:
-      - name: Deploy Configuration Files
+      - name: Deploy configuration
         uses: appleboy/ssh-action@v0.1.8
         with:
           host: ${{ secrets.SERVER_HOST }}
@@ -129,13 +100,13 @@ jobs:
           password: ${{ secrets.SERVER_PASSWORD }}
           script_timeout: 600
           script: |
-            mkdir -p /root/Learnathon/earendel/backend/Api/Server
+            mkdir -p /root/Learnathon/earendel/backend
             echo "${{ secrets._APPSETTINGS }}" | base64 --decode > /root/Learnathon/earendel/backend/Api/Server/appsettings.json
             echo "${{ secrets._TENANT_CONSTANTS_CS }}" | base64 --decode > /root/Learnathon/earendel/backend/Shared/Authorization/TenantConstants.cs
             chmod 644 /root/Learnathon/earendel/backend/Api/Server/appsettings.json
             chmod 644 /root/Learnathon/earendel/backend/Shared/Authorization/TenantConstants.cs
 
-      - name: Deploy Application
+      - name: Deploy application
         uses: appleboy/ssh-action@v0.1.8
         with:
           host: ${{ secrets.SERVER_HOST }}
