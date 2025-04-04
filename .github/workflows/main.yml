@@ -39,10 +39,9 @@ jobs:
             /o:"learnathon-by-geeky-solutions" \
             /d:sonar.host.url="https://sonarcloud.io" \
             /d:sonar.token="${{ secrets.SONAR_TOKEN }}" \
-            /d:sonar.cs.vscoveragexml.reportsPaths="**/coverage.xml" \
+            /d:sonar.cs.vscoveragexml.reportsPaths="backend/Aspire/coverage.xml" \
             /d:sonar.coverage.exclusions="**Test*.cs,**/Migrations/**" \
             /d:sonar.projectBaseDir="${{ github.workspace }}" \
-            /d:sonar.working.directory=".sonar" \
             /d:sonar.qualitygate.wait=true
 
       - name: Restore TenantConstants.cs
