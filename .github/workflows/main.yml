@@ -28,49 +28,40 @@ jobs:
         run: |
           echo "${{ secrets._TENANT_CONSTANTS_CS }}" | base64 --decode > backend/Shared/Authorization/TenantConstants.cs
 
-      - name: Setup .NET SDK
+      - name: Setup .NET 8 SDK
         uses: actions/setup-dotnet@v3
         with:
           dotnet-version: "8.0.x"
 
-      - name: Install Required Tools
-        run: |
-          sudo apt-get update && sudo apt-get install -y libxml2-utils
-          dotnet tool install --global dotnet-sonarscanner
-          dotnet tool install --global dotnet-reportgenerator-globaltool
+      - name: Install XML Tools
+        run: sudo apt-get update && sudo apt-get install -y libxml2-utils
 
-      - name: Start SonarCloud Analysis
-        run: |
-          dotnet sonarscanner begin \
-            /k:"Learnathon-By-Geeky-Solutions_earendel" \
-            /o:"learnathon-by-geeky-solutions" \
-            /d:sonar.host.url="https://sonarcloud.io" \
-            /d:sonar.login="${{ secrets.SONAR_TOKEN }}" \
-            /d:sonar.cs.cobertura.reportPaths="CoverageReports/Cobertura.xml" \
-            /d:sonar.coverage.exclusions="**Test*.cs" \
-            /d:sonar.qualitygate.wait=true
+      - name: Restore Dependencies
+        run: dotnet restore backend/Aspire/Aspire.sln
 
-      - name: Build Solution
-        run: dotnet build backend/Aspire/Aspire.sln -c Release --no-restore
+      - name: Build Application
+        run: dotnet build backend/Aspire/Aspire.sln --configuration Release --no-restore
 
       - name: Run Tests with Coverage
         timeout-minutes: 15
         run: |
           mkdir -p test-results
           dotnet test backend/Aspire/Aspire.sln \
-            --no-build --configuration Release \
+            --no-build \
+            --configuration Release \
             --collect:"XPlat Code Coverage" \
             --results-directory test-results
 
       - name: Generate Coverage Report
         run: |
+          dotnet tool install --global dotnet-reportgenerator-globaltool
           reportgenerator \
-            -reports:"test-results/**/coverage.cobertura.xml" \
+            -reports:"test-results/**/coverage.opencover.xml" \
             -targetdir:"${{ github.workspace }}/CoverageReports" \
             -reporttypes:"Cobertura" \
             -title:"Code Coverage Report"
 
-      - name: Validate Coverage Report
+      - name: Validate Coverage File
         run: |
           echo "=== Coverage File Verification ==="
           ls -l "${{ github.workspace }}/CoverageReports/Cobertura.xml"
@@ -79,8 +70,20 @@ jobs:
           echo "=== Coverage Summary ==="
           grep -E '<coverage|lines-covered' "${{ github.workspace }}/CoverageReports/Cobertura.xml"
 
-      - name: Complete SonarCloud Analysis
-        run: dotnet sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
+      - name: SonarCloud Analysis
+        uses: SonarSource/sonarcloud-github-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          args: >
+            -Dsonar.projectKey=Learnathon-By-Geeky-Solutions_earendel
+            -Dsonar.organization=learnathon-by-geeky-solutions
+            -Dsonar.cs.cobertura.reportPaths="${{ github.workspace }}/CoverageReports/Cobertura.xml"
+            -Dsonar.coverage.exclusions="**Test*.cs"
+            -Dsonar.qualitygate.wait=true
+            -Dsonar.qualitygate.timeout=600
+            -Dsonar.projectBaseDir="${{ github.workspace }}"
 
   publish:
     name: Publish Application
@@ -92,19 +95,26 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v3
 
+      - name: Restore TenantConstants.cs
+        run: |
+          echo "${{ secrets._TENANT_CONSTANTS_CS }}" | base64 --decode > backend/Shared/Authorization/TenantConstants.cs
+
       - name: Setup .NET SDK
         uses: actions/setup-dotnet@v3
         with:
           dotnet-version: "8.0.x"
 
-      - name: Publish Application
-        run: dotnet publish backend/Api/Server/Server.csproj -c Release -o publish
+      - name: Build and Publish
+        run: |
+          dotnet publish backend/Api/Server/Server.csproj \
+            -c Release \
+            -o backend/Api/Server/publish
 
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
           name: published-app
-          path: publish
+          path: backend/Api/Server/publish/
 
   deploy:
     name: Deploy to Server
@@ -113,7 +123,7 @@ jobs:
     timeout-minutes: 45
 
     steps:
-      - name: Deploy Configuration
+      - name: Deploy Configuration Files
         uses: appleboy/ssh-action@v0.1.8
         with:
           host: ${{ secrets.SERVER_HOST }}
@@ -121,10 +131,11 @@ jobs:
           password: ${{ secrets.SERVER_PASSWORD }}
           script_timeout: 600
           script: |
-            mkdir -p /app/config
-            echo "${{ secrets._APPSETTINGS }}" | base64 --decode > /app/config/appsettings.json
-            echo "${{ secrets._TENANT_CONSTANTS_CS }}" | base64 --decode > /app/config/TenantConstants.cs
-            chmod 644 /app/config/*
+            mkdir -p /root/Learnathon/earendel/backend/Api/Server
+            echo "${{ secrets._APPSETTINGS }}" | base64 --decode > /root/Learnathon/earendel/backend/Api/Server/appsettings.json
+            echo "${{ secrets._TENANT_CONSTANTS_CS }}" | base64 --decode > /root/Learnathon/earendel/backend/Shared/Authorization/TenantConstants.cs
+            chmod 644 /root/Learnathon/earendel/backend/Api/Server/appsettings.json
+            chmod 644 /root/Learnathon/earendel/backend/Shared/Authorization/TenantConstants.cs
 
       - name: Deploy Application
         uses: appleboy/ssh-action@v0.1.8
@@ -134,6 +145,9 @@ jobs:
           password: ${{ secrets.SERVER_PASSWORD }}
           script_timeout: 1800
           script: |
-            cd /app
+            cd /root/Learnathon/earendel
+            git checkout main
+            git pull origin main
+            cd backend
             docker-compose down --timeout 300
             docker-compose up --build -d --timeout 600
