@@ -24,23 +24,35 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Restore TenantConstants.cs
-        run: |
-          echo "${{ secrets._TENANT_CONSTANTS_CS }}" | base64 --decode > backend/Shared/Authorization/TenantConstants.cs
-
       - name: Setup .NET 8 SDK
         uses: actions/setup-dotnet@v3
         with:
           dotnet-version: "8.0.x"
 
-      - name: Install XML Tools
-        run: sudo apt-get update && sudo apt-get install -y libxml2-utils
+      - name: Install SonarScanner
+        run: dotnet tool install --global dotnet-sonarscanner
+
+      - name: Begin Sonar Analysis
+        run: |
+          dotnet sonarscanner begin \
+            /k:"Learnathon-By-Geeky-Solutions_earendel" \
+            /o:"learnathon-by-geeky-solutions" \
+            /d:sonar.host.url="https://sonarcloud.io" \
+            /d:sonar.login="${{ secrets.SONAR_TOKEN }}" \
+            /d:sonar.cs.opencover.reportsPaths="CoverageReports/coverage.opencover.xml" \
+            /d:sonar.coverage.exclusions="**Test*.cs" \
+            /d:sonar.qualitygate.wait=true \
+            /d:sonar.projectBaseDir="${{ github.workspace }}"
+
+      - name: Restore TenantConstants.cs
+        run: |
+          echo "${{ secrets._TENANT_CONSTANTS_CS }}" | base64 --decode > backend/Shared/Authorization/TenantConstants.cs
 
       - name: Restore Dependencies
         run: dotnet restore backend/Aspire/Aspire.sln
 
-      - name: Build Application
-        run: dotnet build backend/Aspire/Aspire.sln --configuration Release --no-restore
+      - name: Build Solution
+        run: dotnet build backend/Aspire/Aspire.sln -c Release --no-restore
 
       - name: Run Tests with Coverage
         timeout-minutes: 15
@@ -57,33 +69,19 @@ jobs:
           dotnet tool install --global dotnet-reportgenerator-globaltool
           reportgenerator \
             -reports:"test-results/**/coverage.opencover.xml" \
-            -targetdir:"${{ github.workspace }}/CoverageReports" \
-            -reporttypes:"Cobertura" \
-            -title:"Code Coverage Report"
+            -targetdir:"CoverageReports" \
+            -reporttypes:"SonarQube" \
+            -verbosity:Warning
 
-      - name: Validate Coverage File
+      - name: Validate Report
         run: |
-          echo "=== Coverage File Verification ==="
-          ls -l "${{ github.workspace }}/CoverageReports/Cobertura.xml"
-          echo "=== XML Validation ==="
-          xmllint --noout "${{ github.workspace }}/CoverageReports/Cobertura.xml"
-          echo "=== Coverage Summary ==="
-          grep -E '<coverage|lines-covered' "${{ github.workspace }}/CoverageReports/Cobertura.xml"
+          echo "=== Coverage File ==="
+          ls -l CoverageReports/coverage.opencover.xml
+          echo "=== File Size ==="
+          du -h CoverageReports/coverage.opencover.xml
 
-      - name: SonarCloud Analysis
-        uses: SonarSource/sonarcloud-github-action@master
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        with:
-          args: >
-            -Dsonar.projectKey=Learnathon-By-Geeky-Solutions_earendel
-            -Dsonar.organization=learnathon-by-geeky-solutions
-            -Dsonar.cs.cobertura.reportPaths="${{ github.workspace }}/CoverageReports/Cobertura.xml"
-            -Dsonar.coverage.exclusions="**Test*.cs"
-            -Dsonar.qualitygate.wait=true
-            -Dsonar.qualitygate.timeout=600
-            -Dsonar.projectBaseDir="${{ github.workspace }}"
+      - name: End Sonar Analysis
+        run: dotnet sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
 
   publish:
     name: Publish Application
