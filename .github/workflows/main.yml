@@ -16,37 +16,22 @@ jobs:
   build:
     name: Build and Test Application
     runs-on: ubuntu-latest
-    timeout-minutes: 30
-    env:
-      SONAR_PROJECT_KEY: Learnathon-By-Geeky-Solutions_earendel
-      SONAR_ORG: learnathon-by-geeky-solutions
+    timeout-minutes: 30  # ⏱️ Global timeout for build job
 
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
-        with:
-          fetch-depth: 0  # Required for SonarCloud analysis
 
       - name: Restore TenantConstants.cs Locally
         run: echo "${{ secrets._TENANT_CONSTANTS_CS }}" | base64 --decode > backend/Shared/Authorization/TenantConstants.cs
+
+      - name: Debug Directory Structure
+        run: ls -R backend
 
       - name: Setup .NET SDK
         uses: actions/setup-dotnet@v3
         with:
           dotnet-version: "8.0.x"
-
-      - name: Install SonarCloud Scanner
-        run: dotnet tool install --global dotnet-sonarscanner
-
-      - name: Begin SonarCloud Analysis
-        run: |
-          dotnet sonarscanner begin \
-            /k:"$SONAR_PROJECT_KEY" \
-            /o:"$SONAR_ORG" \
-            /d:sonar.host.url="https://sonarcloud.io" \
-            /d:sonar.login="${{ secrets.SONAR_TOKEN }}" \
-            /d:sonar.cs.opencover.reportsPaths="CoverageResults/Summary.xml" \
-            /d:sonar.coverage.exclusions="**Test*.cs"
 
       - name: Restore Dependencies
         run: dotnet restore backend/Aspire/Aspire.sln
@@ -54,42 +39,54 @@ jobs:
       - name: Build Application
         run: dotnet build backend/Aspire/Aspire.sln --no-restore --configuration Release
 
-      - name: Run Tests with Coverage Collection
+      # - name: Run Tests for All Modules in Parallel and Summarize
+      #   timeout-minutes: 15  # ⏱️ Test execution timeout
+      #   run: |
+      #     mkdir -p test-results
+      #     find backend/Api/Module -type f -name "*.Test.csproj" | \
+      #       xargs -I {} sh -c 'echo "Running tests for project: {}"; dotnet test "{}" --no-build --configuration Release --collect:"XPlat Code Coverage" --logger trx | tee "test-results/$(basename {}).log" || true'
+      #     echo "### Listing All Test Log Files ###"
+      #     ls -l test-results
+      #     echo "### Individual Test Summaries ###"
+      #     for file in test-results/*.log; do
+      #       echo "Summary for $(basename "$file"):"
+      #       grep -E "(Passed!|Total:)" "$file" || echo "No summary found in $file"
+      #       echo "------"
+      #     done
+      #     echo "### Final Aggregated Test Summary ###"
+      #     grep -H -E "(Passed!|Total:)" test-results/*.log || echo "No test summary lines found."
+
+      - name: Run Tests with Coverage
         timeout-minutes: 15
         run: |
           mkdir -p test-results
           find backend/Api/Module -type f -name "*.Test.csproj" | \
             xargs -I {} sh -c 'dotnet test "{}" --no-build --configuration Release \
-              --collect:"XPlat Code Coverage" \
+              --collect:"XPlat Code Coverage;Format=opencover" \
               --logger trx \
               --results-directory ./test-results'
 
       - name: Install ReportGenerator
         run: dotnet tool install --global dotnet-reportgenerator-globaltool
 
-      - name: Generate Coverage Reports
+      - name: Consolidate Coverage Reports
         run: |
           reportgenerator \
-            -reports:"test-results/**/coverage.cobertura.xml" \
-            -targetdir:"CoverageResults" \
-            -reporttypes:"Html;OpenCover"
+            -reports:"test-results/**/coverage.opencover.xml" \
+            -targetdir:"CoverageReports" \
+            -reporttypes:"SonarQube"
 
-      - name: End SonarCloud Analysis
-        run: dotnet sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
-
-      - name: Upload Test Results
+      - name: Upload Reports
         uses: actions/upload-artifact@v4
         with:
-          name: test-results
-          path: |
-            test-results
-            CoverageResults
+          name: coverage-reports
+          path: CoverageReports
 
   publish:
     name: Publish Application
     runs-on: ubuntu-latest
     needs: build
-    timeout-minutes: 20
+    timeout-minutes: 20  # ⏱️ Publishing timeout
 
     steps:
       - name: Checkout Code
@@ -119,7 +116,7 @@ jobs:
     name: Deploy to Server
     runs-on: ubuntu-latest
     needs: publish
-    timeout-minutes: 45
+    timeout-minutes: 45  # ⏱️ Extended deployment timeout
 
     steps:
       - name: Checkout Code
@@ -131,7 +128,7 @@ jobs:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
           password: ${{ secrets.SERVER_PASSWORD }}
-          script_timeout: 600
+          script_timeout: 600  # ⏱️ 10 minute timeout for this step
           script: |
             echo "${{ secrets._APPSETTINGS }}" | base64 --decode > /root/Learnathon/earendel/backend/Api/Server/appsettings.json
             chmod 644 /root/Learnathon/earendel/backend/Api/Server/appsettings.json
@@ -142,7 +139,7 @@ jobs:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
           password: ${{ secrets.SERVER_PASSWORD }}
-          script_timeout: 600
+          script_timeout: 600  # ⏱️ 10 minute timeout
           script: |
             echo "${{ secrets._TENANT_CONSTANTS_CS }}" | base64 --decode > /root/Learnathon/earendel/backend/Shared/Authorization/TenantConstants.cs
             chmod 644 /root/Learnathon/earendel/backend/Shared/Authorization/TenantConstants.cs
@@ -153,7 +150,7 @@ jobs:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
           password: ${{ secrets.SERVER_PASSWORD }}
-          script_timeout: 1800
+          script_timeout: 1800  # ⏱️ 30 minute timeout for deployment
           script: |
             cd /root/Learnathon/earendel
             echo "Switching to main branch and pulling latest changes..."
