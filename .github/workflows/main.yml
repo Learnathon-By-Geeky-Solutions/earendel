@@ -81,6 +81,11 @@ jobs:
         with:
           name: coverage-reports
           path: CoverageReports
+      - name: Verify SonarQube.xml Exists
+        run: |
+          echo "SonarQube.xml content:"
+          cat CoverageReports/SonarQube.xml | head -n 5
+          echo "File exists at: $(pwd)/CoverageReports/SonarQube.xml"
 
   publish:
     name: Publish Application
