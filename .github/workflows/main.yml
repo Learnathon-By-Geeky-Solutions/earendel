@@ -37,9 +37,13 @@ jobs:
           dotnet sonarscanner begin \
             /k:"Learnathon-By-Geeky-Solutions_earendel" \
             /o:"learnathon-by-geeky-solutions" \
+            /d:sonar.host.url="https://sonarcloud.io" \
             /d:sonar.token="${{ secrets.SONAR_TOKEN }}" \
             /d:sonar.cs.vscoveragexml.reportsPaths="**/coverage.xml" \
-            /d:sonar.coverage.exclusions="**Test*.cs"
+            /d:sonar.coverage.exclusions="**Test*.cs,**/Migrations/**" \
+            /d:sonar.projectBaseDir="${{ github.workspace }}" \
+            /d:sonar.working.directory=".sonar" \
+            /d:sonar.qualitygate.wait=true
 
       - name: Restore TenantConstants.cs
         run: |
