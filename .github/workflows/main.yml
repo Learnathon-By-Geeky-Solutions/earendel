@@ -74,36 +74,27 @@ jobs:
           reportgenerator \
             -reports:"test-results/**/coverage.opencover.xml" \
             -targetdir:"CoverageReports" \
-            -reporttypes:"OpenCover"
-
+            -reporttypes:"OpenCover;Html" \
+            -sourcedirs:"${{ github.workspace }}"
+      
       - name: Upload Reports
         uses: actions/upload-artifact@v4
         with:
           name: coverage-reports
           path: CoverageReports
       
-      # - name: Install XML tools
-      #   run: sudo apt-get update && sudo apt-get install -y libxml2-utils
-
-      # - name: Validate Coverage Format
-      #   run: |
-      #     echo "=== XML Structure Verification ==="
-      #     xmllint --format CoverageReports/**/coverage.opencover.xml > /dev/null
-      #     echo "XML validation successful!"
-    
-      #     echo "=== Root Element Check ==="
-      #     grep '<CoverageSession' CoverageReports/**/coverage.opencover.xml
-    
-      #     echo "=== Line Coverage Count ==="
-      #     grep -c '<LineToCover' CoverageReports/**/coverage.opencover.xml
-
       - name: SonarCloud Scan
-        uses: SonarSource/sonarqube-scan-action@v5
+        uses: SonarSource/sonarcloud-github-action@master  # ✅ Correct .NET action
         env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Required for PR analysis
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         with:
           args: >
-            -Dsonar.cs.opencover.reportsPaths=CoverageReports/**/coverage.opencover.xml
+            -Dsonar.projectKey=Learnathon-By-Geeky-Solutions_earendel
+            -Dsonar.organization=learnathon-by-geeky-solutions
+            -Dsonar.cs.opencover.reportsPaths=CoverageReports/coverage.opencover.xml
+            -Dsonar.qualitygate.wait=true
+            -Dsonar.qualitygate.timeout=600
 
   publish:
     name: Publish Application
