@@ -66,19 +66,29 @@ jobs:
           dotnet tool install --global dotnet-reportgenerator-globaltool
           reportgenerator \
             -reports:"test-results/**/coverage.opencover.xml" \
-            -targetdir:"CoverageReports" \
+            -targetdir:"${{ github.workspace }}/CoverageReports" \
             -reporttypes:"Cobertura" \
             -title:"Code Coverage"
 
       - name: Validate Coverage File
         run: |
           echo "=== Coverage File Verification ==="
-          ls -l "${{ github.workspace }}/CoverageReports/coverage.opencover.xml"
+          ls -lR "${{ github.workspace }}/CoverageReports"
           echo "=== XML Validation ==="
-          xmllint --noout "${{ github.workspace }}/CoverageReports/coverage.opencover.xml"
+          xmllint --noout "${{ github.workspace }}/CoverageReports/Cobertura.xml"
 
-      - name: End SonarCloud Analysis
-        run: dotnet sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          args: >
+            -Dsonar.projectKey=Learnathon-By-Geeky-Solutions_earendel
+            -Dsonar.organization=learnathon-by-geeky-solutions
+            -Dsonar.coverageReportPaths=CoverageReports/Cobertura.xml
+            -Dsonar.cs.cobertura.reportPaths=CoverageReports/Cobertura.xml
+            -Dsonar.projectBaseDir=${{ github.workspace }}  
 
   publish:
     name: Publish Application
