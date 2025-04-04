@@ -5,23 +5,24 @@ on:
     branches:
       - main
       - development
-      - feature/code-coverage
+      - feature/CD
   pull_request:
     branches:
       - main
       - development
-      - feature/code-coverage
+      - feature/CD
 
 jobs:
   build:
     name: Build and Test Application
     runs-on: ubuntu-latest
+    timeout-minutes: 30  # ⏱️ Global timeout for build job
 
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
 
-      - name: Restore TenantConstants.cs
+      - name: Restore TenantConstants.cs Locally
         run: echo "${{ secrets._TENANT_CONSTANTS_CS }}" | base64 --decode > backend/Shared/Authorization/TenantConstants.cs
 
       - name: Debug Directory Structure
@@ -38,32 +39,60 @@ jobs:
       - name: Build Application
         run: dotnet build backend/Aspire/Aspire.sln --no-restore --configuration Release
 
-      - name: Run Tests for All Modules in Parallel and Summarize
+      # - name: Run Tests for All Modules in Parallel and Summarize
+      #   timeout-minutes: 15  # ⏱️ Test execution timeout
+      #   run: |
+      #     mkdir -p test-results
+      #     find backend/Api/Module -type f -name "*.Test.csproj" | \
+      #       xargs -I {} sh -c 'echo "Running tests for project: {}"; dotnet test "{}" --no-build --configuration Release --collect:"XPlat Code Coverage" --logger trx | tee "test-results/$(basename {}).log" || true'
+      #     echo "### Listing All Test Log Files ###"
+      #     ls -l test-results
+      #     echo "### Individual Test Summaries ###"
+      #     for file in test-results/*.log; do
+      #       echo "Summary for $(basename "$file"):"
+      #       grep -E "(Passed!|Total:)" "$file" || echo "No summary found in $file"
+      #       echo "------"
+      #     done
+      #     echo "### Final Aggregated Test Summary ###"
+      #     grep -H -E "(Passed!|Total:)" test-results/*.log || echo "No test summary lines found."
+
+      - name: Run Tests with Coverage
+        timeout-minutes: 15
         run: |
           mkdir -p test-results
           find backend/Api/Module -type f -name "*.Test.csproj" | \
-            xargs -I {} sh -c 'echo "Running tests for project: {}"; dotnet test "{}" | tee "test-results/$(basename {}).log" || true'
-          echo "### Listing All Test Log Files ###"
-          ls -l test-results
-          echo "### Individual Test Summaries ###"
-          for file in test-results/*.log; do
-            echo "Summary for $(basename "$file"):"
-            grep -E "(Passed!|Total:)" "$file" || echo "No summary found in $file"
-            echo "------"
-          done
-          echo "### Final Aggregated Test Summary ###"
-          grep -H -E "(Passed!|Total:)" test-results/*.log || echo "No test summary lines found."
+            xargs -I {} sh -c 'dotnet test "{}" --no-build --configuration Release \
+              --collect:"XPlat Code Coverage;Format=opencover" \
+              --logger trx \
+              --results-directory ./test-results'
+
+      - name: Install ReportGenerator
+        run: dotnet tool install --global dotnet-reportgenerator-globaltool
+
+      - name: Consolidate Coverage Reports
+        run: |
+          reportgenerator \
+            -reports:"test-results/**/coverage.opencover.xml" \
+            -targetdir:"CoverageReports" \
+            -reporttypes:"SonarQube"
+
+      - name: Upload Reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-reports
+          path: CoverageReports
 
   publish:
     name: Publish Application
     runs-on: ubuntu-latest
     needs: build
+    timeout-minutes: 20  # ⏱️ Publishing timeout
 
     steps:
       - name: Checkout Code
         uses: actions/checkout@v3
 
-      - name: Restore TenantConstants.cs
+      - name: Restore TenantConstants.cs Locally
         run: echo "${{ secrets._TENANT_CONSTANTS_CS }}" | base64 --decode > backend/Shared/Authorization/TenantConstants.cs
 
       - name: Setup .NET SDK
@@ -82,3 +111,68 @@ jobs:
         with:
           name: published-app
           path: backend/Api/Server/publish/
+
+  deploy:
+    name: Deploy to Server
+    runs-on: ubuntu-latest
+    needs: publish
+    timeout-minutes: 45  # ⏱️ Extended deployment timeout
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Deploy appsettings.json to Server
+        uses: appleboy/ssh-action@v0.1.8
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          password: ${{ secrets.SERVER_PASSWORD }}
+          script_timeout: 600  # ⏱️ 10 minute timeout for this step
+          script: |
+            echo "${{ secrets._APPSETTINGS }}" | base64 --decode > /root/Learnathon/earendel/backend/Api/Server/appsettings.json
+            chmod 644 /root/Learnathon/earendel/backend/Api/Server/appsettings.json
+
+      - name: Deploy TenantConstants.cs to Server
+        uses: appleboy/ssh-action@v0.1.8
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          password: ${{ secrets.SERVER_PASSWORD }}
+          script_timeout: 600  # ⏱️ 10 minute timeout
+          script: |
+            echo "${{ secrets._TENANT_CONSTANTS_CS }}" | base64 --decode > /root/Learnathon/earendel/backend/Shared/Authorization/TenantConstants.cs
+            chmod 644 /root/Learnathon/earendel/backend/Shared/Authorization/TenantConstants.cs
+
+      - name: Deploy Application via SSH
+        uses: appleboy/ssh-action@v0.1.8
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          password: ${{ secrets.SERVER_PASSWORD }}
+          script_timeout: 1800  # ⏱️ 30 minute timeout for deployment
+          script: |
+            cd /root/Learnathon/earendel
+            echo "Switching to main branch and pulling latest changes..."
+            timeout 5m git checkout main || exit 1
+            timeout 5m git pull origin main || exit 1
+            
+            echo "Switching to migrations branch..."
+            timeout 5m git checkout migrations || exit 1
+            timeout 5m git pull origin migrations || exit 1
+            
+            echo "Backing up migration files..."
+            mkdir -p /tmp/migration-backup
+            timeout 3m cp -r Migrations/* /tmp/migration-backup/ || exit 1
+            
+            echo "Switching back to main branch..."
+            timeout 5m git checkout main || exit 1
+            
+            echo "Updating migrations folder..."
+            timeout 5m cp -r /tmp/migration-backup/* backend/Api/Migrations/PGSql/ || exit 1
+            rm -rf /tmp/migration-backup
+            
+            echo "Building and restarting Docker containers..."
+            cd backend
+            timeout 10m docker-compose down --timeout 300 || exit 1
+            timeout 30m docker-compose up --build -d --timeout 600 || exit 1

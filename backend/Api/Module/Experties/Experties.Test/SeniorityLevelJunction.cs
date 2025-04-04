@@ -15,6 +15,7 @@ using TalentMesh.Module.Experties.Application.SeniorityLevelJunctions.Delete.v1;
 using TalentMesh.Module.Experties.Application.SeniorityLevelJunctions.Get.v1;
 using TalentMesh.Module.Experties.Application.SeniorityLevelJunctions.Update.v1;
 using TalentMesh.Module.Experties.Application.SeniorityLevelJunctions.Search.v1;
+using TalentMesh.Module.Experties.Application.Seniorities.Get.v1;
 
 namespace TalentMesh.Module.Experties.Tests
 {
@@ -60,8 +61,9 @@ namespace TalentMesh.Module.Experties.Tests
             // Arrange
             var skillId = Guid.NewGuid();
             var seniorityLevelId = Guid.NewGuid();
-            var request = new CreateSeniorityLevelJunctionCommand(skillId, seniorityLevelId);
-            var expectedSeniority = SeniorityLevelJunction.Create(skillId, seniorityLevelId);
+            var request = new CreateSeniorityLevelJunctionCommand(skillId, new List<Guid> { seniorityLevelId });
+
+            var expectedSeniority = SeniorityLevelJunction.Create(seniorityLevelId, skillId);
 
             _repositoryMock.Setup(repo => repo.AddAsync(It.IsAny<SeniorityLevelJunction>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(expectedSeniority);
@@ -112,7 +114,15 @@ namespace TalentMesh.Module.Experties.Tests
         public async Task GetSeniorityLevelJunction_ReturnsSeniorityLevelJunctionResponse()
         {
             // Arrange
+            var dummySeniority = Seniority.Create("Test Seniority", "Test Description");
+
+
             var expectedSeniority = SeniorityLevelJunction.Create(Guid.NewGuid(), Guid.NewGuid());
+            // Ensure Seniority is set via reflection
+            typeof(SeniorityLevelJunction)
+                .GetProperty("Seniority", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public)
+                ?.SetValue(expectedSeniority, dummySeniority);
+
             var seniorityId = expectedSeniority.Id;
 
             _readRepositoryMock.Setup(repo => repo.GetByIdAsync(seniorityId, It.IsAny<CancellationToken>()))
@@ -128,10 +138,14 @@ namespace TalentMesh.Module.Experties.Tests
             Assert.NotNull(result);
             Assert.Equal(expectedSeniority.SkillId, result.SkillId);
             Assert.Equal(expectedSeniority.SeniorityLevelId, result.SeniorityLevelId);
+            // Additionally, verify that Seniority is mapped correctly.
+            Assert.NotNull(result.Seniority);
+            Assert.Equal(dummySeniority.Id, result.Seniority.Id);
 
             _readRepositoryMock.Verify(repo => repo.GetByIdAsync(seniorityId, It.IsAny<CancellationToken>()), Times.Once);
             _cacheServiceMock.Verify(cache => cache.SetAsync(It.IsAny<string>(), It.IsAny<SeniorityLevelJunctionResponse>(), It.IsAny<TimeSpan?>(), It.IsAny<CancellationToken>()), Times.Once);
         }
+
 
         [Fact]
         public async Task GetSeniorityLevelJunction_ThrowsExceptionIfNotFound()
@@ -165,21 +179,32 @@ namespace TalentMesh.Module.Experties.Tests
             };
 
             var seniorities = new List<SeniorityLevelJunctionResponse>
-    {
-        new SeniorityLevelJunctionResponse(Guid.NewGuid(), seniorityLevelId, skillId),
-        new SeniorityLevelJunctionResponse(Guid.NewGuid(), seniorityLevelId, skillId)
-    };
+            {
+                new SeniorityLevelJunctionResponse(
+                    Guid.NewGuid(),
+                    seniorityLevelId,
+                    skillId,
+                    new SeniorityResponse(seniorityLevelId, "Junior", "Entry-level position")
+                ),
+                new SeniorityLevelJunctionResponse(
+                    Guid.NewGuid(),
+                    seniorityLevelId,
+                    skillId,
+                new SeniorityResponse(seniorityLevelId, "Senior", "High-level expertise")
+                )
+           };
+
             var totalCount = seniorities.Count;
 
             // Mock repository to return filtered results
             _readRepositoryMock
-    .Setup(repo => repo.ListAsync(
-        It.Is<SearchSeniorityLevelJunctionSpecs>(spec =>
-            spec.GetType() == typeof(SearchSeniorityLevelJunctionSpecs)
-        ),
-        It.IsAny<CancellationToken>()
-    ))
-    .ReturnsAsync(seniorities);
+            .Setup(repo => repo.ListAsync(
+                It.Is<SearchSeniorityLevelJunctionSpecs>(spec =>
+                spec.GetType() == typeof(SearchSeniorityLevelJunctionSpecs)
+                ),
+                It.IsAny<CancellationToken>()
+                ))
+                .ReturnsAsync(seniorities);
 
             _readRepositoryMock
                 .Setup(repo => repo.CountAsync(
@@ -204,43 +229,49 @@ namespace TalentMesh.Module.Experties.Tests
         public async Task UpdateSeniorityLevelJunction_ReturnsUpdatedRubricResponse()
         {
             // Arrange
-            var existingSeniority = SeniorityLevelJunction.Create(Guid.NewGuid(), Guid.NewGuid());
-            var seniorityId = existingSeniority.Id;
+            var seniorityLevelId = Guid.NewGuid();
+            var skillId = Guid.NewGuid();
+            var existingSeniority = SeniorityLevelJunction.Create(seniorityLevelId, skillId);
             var request = new UpdateSeniorityLevelJunctionCommand(
-                seniorityId,
-                Guid.NewGuid(),
-                Guid.NewGuid()
+                skillId, // Correctly pass SkillId instead of the junction's Id
+                new List<Guid> { Guid.NewGuid(), Guid.NewGuid() }
             );
 
-            _repositoryMock.Setup(repo => repo.GetByIdAsync(seniorityId, It.IsAny<CancellationToken>()))
-                .ReturnsAsync(existingSeniority);
+            _repositoryMock.Setup(repo => repo.ListAsync(It.IsAny<CancellationToken>()))
+                .ReturnsAsync(new List<SeniorityLevelJunction> { existingSeniority });
 
             // Act
             var result = await _updateHandler.Handle(request, CancellationToken.None);
 
             // Assert
             Assert.NotNull(result);
-            Assert.Equal(seniorityId, result.Id);
+            Assert.Equal(2, result.JunctionIds.Count); // Expect two new junctions
 
-            _repositoryMock.Verify(repo => repo.GetByIdAsync(seniorityId, It.IsAny<CancellationToken>()), Times.Once);
-            _repositoryMock.Verify(repo => repo.UpdateAsync(It.IsAny<SeniorityLevelJunction>(), It.IsAny<CancellationToken>()), Times.Once);
+            _repositoryMock.Verify(repo => repo.DeleteAsync(existingSeniority, It.IsAny<CancellationToken>()), Times.Once);
+            _repositoryMock.Verify(repo => repo.AddAsync(It.IsAny<SeniorityLevelJunction>(), It.IsAny<CancellationToken>()), Times.Exactly(2));
+            _repositoryMock.Verify(repo => repo.UpdateAsync(It.IsAny<SeniorityLevelJunction>(), It.IsAny<CancellationToken>()), Times.Never); // Remove if not used
         }
 
         [Fact]
         public async Task UpdateSeniorityLevelJunction_ThrowsExceptionIfNotFound()
         {
             // Arrange
-            var seniorityId = Guid.NewGuid();
-            var request = new UpdateSeniorityLevelJunctionCommand(seniorityId, Guid.NewGuid(), Guid.NewGuid());
+            var skillId = Guid.NewGuid();
+            var request = new UpdateSeniorityLevelJunctionCommand(
+                skillId,
+                new List<Guid> { Guid.NewGuid(), Guid.NewGuid() }
+            );
 
-            _repositoryMock.Setup(repo => repo.GetByIdAsync(seniorityId, It.IsAny<CancellationToken>()))
-                .ReturnsAsync((SeniorityLevelJunction)null);
+            // Mock ListAsync to return no existing junctions for the SkillId
+            _repositoryMock.Setup(repo => repo.ListAsync(It.IsAny<CancellationToken>()))
+                .ReturnsAsync(new List<SeniorityLevelJunction>());
 
             // Act & Assert
             await Assert.ThrowsAsync<SeniorityLevelJunctionNotFoundException>(() =>
                 _updateHandler.Handle(request, CancellationToken.None));
 
-            _repositoryMock.Verify(repo => repo.GetByIdAsync(seniorityId, It.IsAny<CancellationToken>()), Times.Once);
+            // Verify ListAsync was called
+            _repositoryMock.Verify(repo => repo.ListAsync(It.IsAny<CancellationToken>()), Times.Once);
         }
     }
 }
