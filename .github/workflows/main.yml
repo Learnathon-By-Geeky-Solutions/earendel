@@ -88,18 +88,12 @@ jobs:
           echo "File exists at: $(pwd)/CoverageReports/SonarQube.xml"
 
       - name: SonarCloud Scan
-        uses: SonarSource/sonarcloud-github-action@master
+        uses: SonarSource/sonarqube-scan-action@v5
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         with:
           args: >
-            -Dsonar.projectKey=Learnathon-By-Geeky-Solutions_earendel
-            -Dsonar.organization=learnathon-by-geeky-solutions
             -Dsonar.cs.opencover.reportsPaths=CoverageReports/SonarQube.xml
-            -Dsonar.coverage.exclusions="**Test*.cs"
-            -Dsonar.qualitygate.wait=true
-            -Dsonar.qualitygate.timeout=600
 
   publish:
     name: Publish Application
