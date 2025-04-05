@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using TalentMesh.Framework.Infrastructure.Identity.Tokens.Endpoints;
 using System.Diagnostics.CodeAnalysis;
+using TalentMesh.Framework.Core.Identity.Users.Features.GithubLogin;
 
 namespace TalentMesh.Framework.Infrastructure.Identity.Users.Endpoints;
 [ExcludeFromCodeCoverage]
@@ -16,7 +17,7 @@ public static class GithubLoginUserEndpoint
 {
     internal static RouteHandlerBuilder MapGithubLoginUserEndpoint(this IEndpointRouteBuilder endpoints)
     {
-        return endpoints.MapPost("/github-login", (TokenRequestCommand request,
+        return endpoints.MapPost("/github-login", (GithubRequestCommand request,
             // [FromHeader(Name = TenantConstants.Identifier)] string tenant,
             IUserService service,
             HttpContext context,

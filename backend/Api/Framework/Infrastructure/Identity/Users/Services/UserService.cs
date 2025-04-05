@@ -28,6 +28,7 @@ using TalentMesh.Framework.Core.Identity.Tokens;
 using TalentMesh.Framework.Core.Identity.Tokens.Features.Generate;
 using Microsoft.AspNetCore.Http;
 using TalentMesh.Framework.Core.Identity.Users.Features.GoogleLogin;
+using TalentMesh.Framework.Core.Identity.Users.Features.GithubLogin;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Cryptography;
 using Google.Apis.Auth.OAuth2.Responses;
@@ -44,19 +45,22 @@ public class IdentityServices
     public IHttpContextAccessor HttpContextAccessor { get; }
     public RoleManager<TMRole> RoleManager { get; }
     public IdentityDbContext Db { get; }
+    public IExternalApiClient ApiClient { get; }
 
     public IdentityServices(
         UserManager<TMUser> userManager,
         SignInManager<TMUser> signInManager,
         RoleManager<TMRole> roleManager,
         IHttpContextAccessor httpContextAccessor,
-        IdentityDbContext db)
+        IdentityDbContext db,
+        IExternalApiClient apiClient)
     {
         UserManager = userManager;
         SignInManager = signInManager;
         RoleManager = roleManager;
         HttpContextAccessor = httpContextAccessor;
         Db = db;
+        ApiClient = apiClient;
     }
 }
 
@@ -103,6 +107,8 @@ internal sealed partial class UserService(
     private readonly SignInManager<TMUser> signInManager = identityServices.SignInManager;
     private readonly RoleManager<TMRole> roleManager = identityServices.RoleManager;
     private readonly IdentityDbContext db = identityServices.Db;
+    private readonly IExternalApiClient apiClient = identityServices.ApiClient;
+
     private readonly IHttpContextAccessor httpContextAccessor = identityServices.HttpContextAccessor;
 
 
@@ -551,7 +557,90 @@ internal sealed partial class UserService(
             return new GoogleLoginUserResponse($"Error: {ex.Message}", "", "", []);
         }
     }
-    
+
+    public async Task<string> GithubLogin(GithubRequestCommand request, string ip, string origin, CancellationToken cancellationToken)
+    {
+        string accessToken = await apiClient.GetAccessTokenAsync(request.Code);
+        Console.WriteLine(request.Code);
+        Console.WriteLine(accessToken);
+        return accessToken;
+        // try
+        // {
+
+        // Validate Google token
+        //     var payload = await GoogleJsonWebSignature.ValidateAsync(request.Token);
+        //     var email = payload.Email;
+        //     var providerKey = payload.Subject; // Google unique user ID
+        //     // Check if user already exists
+        //     var existingUser = await userManager.FindByEmailAsync(email);
+        //     if (existingUser != null)
+        //     {
+        //         // Check if user is an external login
+        //         var logins = await userManager.GetLoginsAsync(existingUser);
+        //         if (logins.Any(l => l.LoginProvider == "Google"))
+        //         {
+        //             var tokenGenerationCommandForExistingUser = new TokenGenerationCommand(email, null); // Pass email and password
+
+        //             // Generate JWT token for existing user
+        //             var tokenResponseForExistingUser = await tokenService.GenerateTokenAsync(
+        //                 tokenGenerationCommandForExistingUser,
+        //                 ip,
+        //                 cancellationToken
+        //             );
+
+        //             return new GoogleLoginUserResponse(existingUser.Id, tokenResponseForExistingUser.Token, tokenResponseForExistingUser.RefreshToken, tokenResponseForExistingUser.Roles);
+        //         }
+        //         else
+        //         {
+        //             return new GoogleLoginUserResponse("Email is already registered with a different method.", "", "", []);
+        //         }
+        //     }
+
+        //     // Create new user WITHOUT a password
+        //     var newUser = new TMUser
+        //     {
+        //         Email = email,
+        //         UserName = email,
+        //         IsActive = true,
+        //         ImageUrl = new Uri(payload.Picture),
+        //         EmailConfirmed = true
+        //     };
+
+        //     var createUserResult = await userManager.CreateAsync(newUser);
+        //     if (!createUserResult.Succeeded)
+        //     {
+        //         return new GoogleLoginUserResponse("User creation failed", "", "", []);
+        //     }
+
+        //     // Link Google account to this user
+        //     var loginInfo = new UserLoginInfo("Google", providerKey, "Google");
+        //     var addLoginResult = await userManager.AddLoginAsync(newUser, loginInfo);
+        //     if (!addLoginResult.Succeeded)
+        //     {
+        //         return new GoogleLoginUserResponse("Failed to add external login", "", "", []);
+        //     }
+
+        //     // Assign default role
+        //     await userManager.AddToRoleAsync(newUser, TMRoles.Candidate);
+
+        //     // Generate JWT for the new user
+        //     var tokenGenerationCommand = new TokenGenerationCommand(email, null); // Pass email and password
+
+        //     // Generate JWT token for existing user
+        //     var tokenResponse = await tokenService.GenerateTokenAsync(
+        //      tokenGenerationCommand,
+        //      ip,
+        //      cancellationToken
+        //  );
+
+        //     return new GoogleLoginUserResponse(newUser.Id, tokenResponse.Token, tokenResponse.RefreshToken, tokenResponse.Roles);
+        // }
+        // catch (Exception ex)
+        // {
+        //     return new GoogleLoginUserResponse($"Error: {ex.Message}", "", "", []);
+        // }
+    }
+
     public async Task ToggleStatusAsync(ToggleUserStatusCommand request, CancellationToken cancellationToken)
     {
         var user = await userManager.Users.Where(u => u.Id == request.UserId).FirstOrDefaultAsync(cancellationToken);

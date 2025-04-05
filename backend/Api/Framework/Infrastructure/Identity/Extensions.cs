@@ -75,7 +75,8 @@ namespace TalentMesh.Framework.Infrastructure.Identity
                     sp.GetRequiredService<SignInManager<TMUser>>(),
                     sp.GetRequiredService<RoleManager<TMRole>>(),
                     sp.GetRequiredService<IHttpContextAccessor>(),
-                    sp.GetRequiredService<IdentityDbContext>()
+                    sp.GetRequiredService<IdentityDbContext>(),
+                    sp.GetRequiredService<IExternalApiClient>()
                 );
             });
 
@@ -95,6 +96,7 @@ namespace TalentMesh.Framework.Infrastructure.Identity
 
             // Register UserService with its dependencies.
             services.AddTransient<IUserService, UserService>();
+            services.AddHttpClient<IExternalApiClient, ExternalApiClient>();
             services.AddTransient<IRoleService, RoleService>();
             services.AddTransient<IAuditService, AuditService>();
 
