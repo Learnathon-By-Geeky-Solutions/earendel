@@ -551,8 +551,7 @@ internal sealed partial class UserService(
             return new GoogleLoginUserResponse($"Error: {ex.Message}", "", "", []);
         }
     }
-
-
+    
     public async Task ToggleStatusAsync(ToggleUserStatusCommand request, CancellationToken cancellationToken)
     {
         var user = await userManager.Users.Where(u => u.Id == request.UserId).FirstOrDefaultAsync(cancellationToken);
