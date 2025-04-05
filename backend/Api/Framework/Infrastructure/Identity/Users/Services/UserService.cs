@@ -561,8 +561,11 @@ internal sealed partial class UserService(
     public async Task<string> GithubLogin(GithubRequestCommand request, string ip, string origin, CancellationToken cancellationToken)
     {
         string accessToken = await apiClient.GetAccessTokenAsync(request.Code);
-        Console.WriteLine(request.Code);
         Console.WriteLine(accessToken);
+        var (Login, Email) = await apiClient.GetUserInfoAsync(accessToken);
+        Console.WriteLine(Login);
+        Console.WriteLine(Email);
+
         return accessToken;
         // try
         // {
