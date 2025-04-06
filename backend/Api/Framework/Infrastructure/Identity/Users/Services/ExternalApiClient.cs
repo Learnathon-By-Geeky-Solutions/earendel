@@ -24,16 +24,21 @@ namespace TalentMesh.Framework.Infrastructure.Identity.Users.Services
         private readonly string _clientSecret;
         private readonly string _requestAccessTokenUrl;
         private readonly string _requestUserInfoUrl;
-
         public ExternalApiClient(HttpClient httpClient, ILogger<ExternalApiClient> logger, IConfiguration configuration)
         {
-            _clientId = configuration["GithubCredentials:ClientId"];
-            _clientSecret = configuration["GithubCredentials:ClientSecret"];
-            _requestAccessTokenUrl = configuration["GithubCredentials:RequestAccessTokenUrl"];
-            _requestUserInfoUrl = configuration["GithubCredentials:RequestUserInfoUrl"];
-            _httpClient = httpClient;
-            _logger = logger;
+            _clientId = configuration["GithubCredentials:ClientId"]
+                ?? throw new ArgumentNullException("GithubCredentials:ClientId is missing in configuration");
+            _clientSecret = configuration["GithubCredentials:ClientSecret"]
+                ?? throw new ArgumentNullException("GithubCredentials:ClientSecret is missing in configuration");
+            _requestAccessTokenUrl = configuration["GithubCredentials:RequestAccessTokenUrl"]
+                ?? throw new ArgumentNullException("GithubCredentials:RequestAccessTokenUrl is missing in configuration");
+            _requestUserInfoUrl = configuration["GithubCredentials:RequestUserInfoUrl"]
+                ?? throw new ArgumentNullException("GithubCredentials:RequestUserInfoUrl is missing in configuration");
+
+            _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
+
 
         public async Task<string> GetAccessTokenAsync(string code)
         {
@@ -77,10 +82,17 @@ namespace TalentMesh.Framework.Infrastructure.Identity.Users.Services
             using var jsonDoc = JsonDocument.Parse(responseContent);
             var root = jsonDoc.RootElement;
 
-            var login = root.GetProperty("login").GetString();
-            var avatar = root.GetProperty("avatar_url").GetString();
+            // Handle required fields with null checks
+            var login = root.GetProperty("login").GetString()
+                ?? throw new InvalidOperationException("GitHub response missing login field");
+            var avatar = root.GetProperty("avatar_url").GetString()
+                ?? throw new InvalidOperationException("GitHub response missing avatar_url field");
             var providerKey = root.GetProperty("id").GetInt64().ToString();
-            var email = root.TryGetProperty("email", out var emailElement) ? emailElement.GetString() : null;
+
+            // Handle optional email field with fallback
+            var email = root.TryGetProperty("email", out var emailElement)
+                ? emailElement.GetString() ?? string.Empty
+                : string.Empty;
 
             return (login, email, avatar, providerKey);
         }
@@ -99,13 +111,23 @@ namespace TalentMesh.Framework.Infrastructure.Identity.Users.Services
         {
             var queryDict = QueryHelpers.ParseQuery(responseContent);
 
-            if (queryDict.TryGetValue("access_token", out var token))
+            if (queryDict.TryGetValue("access_token", out var token) &&
+                token.Count > 0)
             {
-                return token.First();
+                // Use indexer instead of First()
+                var accessToken = token[0];
+
+                if (string.IsNullOrEmpty(accessToken))
+                {
+                    _logger.LogError("Empty access token received");
+                    throw new InvalidOperationException("Empty access token in response");
+                }
+
+                return accessToken;
             }
 
-            _logger.LogError("Github API response did not contain 'access_token'");
-            throw new InvalidOperationException("Github API response did not contain 'access_token'");
+            _logger.LogError("Missing access_token in response: {Response}", responseContent);
+            throw new InvalidOperationException("No access token found in GitHub response");
         }
     }
 }

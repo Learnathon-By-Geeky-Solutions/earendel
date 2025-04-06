@@ -494,9 +494,9 @@ internal sealed partial class UserService(
             {
                 // Check if user is an external login
                 var logins = await userManager.GetLoginsAsync(existingUser);
-                if (logins.Any(l => l.LoginProvider == "Google" || l.LoginProvider == "GitHub"))
+                if (logins.Any(l => l.LoginProvider == AuthProviders.Google || l.LoginProvider == AuthProviders.GitHub))
                 {
-                    var tokenGenerationCommandForExistingUser = new TokenGenerationCommand(email, null); // Pass email and password
+                    var tokenGenerationCommandForExistingUser = new TokenGenerationCommand(email, string.Empty); // Pass email and password
 
                     // Generate JWT token for existing user
                     var tokenResponseForExistingUser = await tokenService.GenerateTokenAsync(
@@ -530,7 +530,7 @@ internal sealed partial class UserService(
             }
 
             // Link Google account to this user
-            var loginInfo = new UserLoginInfo("Google", providerKey, "Google");
+            var loginInfo = new UserLoginInfo(AuthProviders.Google, providerKey, AuthProviders.GitHub);
             var addLoginResult = await userManager.AddLoginAsync(newUser, loginInfo);
             if (!addLoginResult.Succeeded)
             {
@@ -541,7 +541,7 @@ internal sealed partial class UserService(
             await userManager.AddToRoleAsync(newUser, TMRoles.Candidate);
 
             // Generate JWT for the new user
-            var tokenGenerationCommand = new TokenGenerationCommand(email, null); // Pass email and password
+            var tokenGenerationCommand = new TokenGenerationCommand(email, string.Empty); // Pass email and password
 
             // Generate JWT token for existing user
             var tokenResponse = await tokenService.GenerateTokenAsync(
@@ -578,9 +578,9 @@ internal sealed partial class UserService(
             {
                 // Check if user is an external login
                 var logins = await userManager.GetLoginsAsync(existingUser);
-                if (logins.Any(l => l.LoginProvider == "Google" || l.LoginProvider == "Github"))
+                if (logins.Any(l => l.LoginProvider == AuthProviders.Google || l.LoginProvider == AuthProviders.GitHub))
                 {
-                    var tokenGenerationCommandForExistingUser = new TokenGenerationCommand(Email, null); // Pass email and password
+                    var tokenGenerationCommandForExistingUser = new TokenGenerationCommand(Email, string.Empty); // Pass email and password
 
                     // Generate JWT token for existing user
                     var tokenResponseForExistingUser = await tokenService.GenerateTokenAsync(
@@ -614,7 +614,7 @@ internal sealed partial class UserService(
             }
 
             // Link Google account to this user
-            var loginInfo = new UserLoginInfo("Github", ProviderKey, "Github");
+            var loginInfo = new UserLoginInfo(AuthProviders.GitHub, ProviderKey, AuthProviders.GitHub);
             var addLoginResult = await userManager.AddLoginAsync(newUser, loginInfo);
             if (!addLoginResult.Succeeded)
             {
@@ -625,7 +625,7 @@ internal sealed partial class UserService(
             await userManager.AddToRoleAsync(newUser, TMRoles.Candidate);
 
             // Generate JWT for the new user
-            var tokenGenerationCommand = new TokenGenerationCommand(Email, null); // Pass email and password
+            var tokenGenerationCommand = new TokenGenerationCommand(Email, string.Empty); // Pass email and password
 
             // Generate JWT token for existing user
             var tokenResponse = await tokenService.GenerateTokenAsync(
