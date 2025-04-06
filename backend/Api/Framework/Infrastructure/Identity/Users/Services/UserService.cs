@@ -28,6 +28,7 @@ using TalentMesh.Framework.Core.Identity.Tokens;
 using TalentMesh.Framework.Core.Identity.Tokens.Features.Generate;
 using Microsoft.AspNetCore.Http;
 using TalentMesh.Framework.Core.Identity.Users.Features.GoogleLogin;
+using TalentMesh.Framework.Core.Identity.Users.Features.GithubLogin;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Cryptography;
 using Google.Apis.Auth.OAuth2.Responses;
@@ -44,19 +45,22 @@ public class IdentityServices
     public IHttpContextAccessor HttpContextAccessor { get; }
     public RoleManager<TMRole> RoleManager { get; }
     public IdentityDbContext Db { get; }
+    public IExternalApiClient ApiClient { get; }
 
     public IdentityServices(
         UserManager<TMUser> userManager,
         SignInManager<TMUser> signInManager,
         RoleManager<TMRole> roleManager,
         IHttpContextAccessor httpContextAccessor,
-        IdentityDbContext db)
+        IdentityDbContext db,
+        IExternalApiClient apiClient)
     {
         UserManager = userManager;
         SignInManager = signInManager;
         RoleManager = roleManager;
         HttpContextAccessor = httpContextAccessor;
         Db = db;
+        ApiClient = apiClient;
     }
 }
 
@@ -103,6 +107,8 @@ internal sealed partial class UserService(
     private readonly SignInManager<TMUser> signInManager = identityServices.SignInManager;
     private readonly RoleManager<TMRole> roleManager = identityServices.RoleManager;
     private readonly IdentityDbContext db = identityServices.Db;
+    private readonly IExternalApiClient apiClient = identityServices.ApiClient;
+
     private readonly IHttpContextAccessor httpContextAccessor = identityServices.HttpContextAccessor;
 
 
@@ -488,7 +494,7 @@ internal sealed partial class UserService(
             {
                 // Check if user is an external login
                 var logins = await userManager.GetLoginsAsync(existingUser);
-                if (logins.Any(l => l.LoginProvider == "Google"))
+                if (logins.Any(l => l.LoginProvider == AuthProviders.Google || l.LoginProvider == AuthProviders.GitHub))
                 {
                     var tokenGenerationCommandForExistingUser = new TokenGenerationCommand(email, null); // Pass email and password
 
@@ -524,7 +530,7 @@ internal sealed partial class UserService(
             }
 
             // Link Google account to this user
-            var loginInfo = new UserLoginInfo("Google", providerKey, "Google");
+            var loginInfo = new UserLoginInfo(AuthProviders.Google, providerKey, AuthProviders.GitHub);
             var addLoginResult = await userManager.AddLoginAsync(newUser, loginInfo);
             if (!addLoginResult.Succeeded)
             {
@@ -552,6 +558,89 @@ internal sealed partial class UserService(
         }
     }
 
+    public async Task<GoogleLoginUserResponse> GithubLogin(GithubRequestCommand request, string ip, string origin, CancellationToken cancellationToken)
+    {
+        string accessToken = await apiClient.GetAccessTokenAsync(request.Code);
+
+        var (Login, Email, Avatar, ProviderKey) = await apiClient.GetUserInfoAsync(accessToken);
+
+        Console.WriteLine(Login);
+        Console.WriteLine(Email);
+        Console.WriteLine(Avatar);
+        Console.WriteLine(ProviderKey);
+
+        try
+        {
+
+            // Check if user already exists
+            var existingUser = await userManager.FindByEmailAsync(Email);
+            if (existingUser != null)
+            {
+                // Check if user is an external login
+                var logins = await userManager.GetLoginsAsync(existingUser);
+                if (logins.Any(l => l.LoginProvider == AuthProviders.Google || l.LoginProvider == AuthProviders.GitHub))
+                {
+                    var tokenGenerationCommandForExistingUser = new TokenGenerationCommand(Email, null); // Pass email and password
+
+                    // Generate JWT token for existing user
+                    var tokenResponseForExistingUser = await tokenService.GenerateTokenAsync(
+                        tokenGenerationCommandForExistingUser,
+                        ip,
+                        cancellationToken
+                    );
+
+                    return new GoogleLoginUserResponse(existingUser.Id, tokenResponseForExistingUser.Token, tokenResponseForExistingUser.RefreshToken, tokenResponseForExistingUser.Roles);
+                }
+                else
+                {
+                    return new GoogleLoginUserResponse("Email is already registered with a different method.", "", "", []);
+                }
+            }
+
+            // Create new user WITHOUT a password
+            var newUser = new TMUser
+            {
+                Email = Email,
+                UserName = Login,
+                IsActive = true,
+                ImageUrl = new Uri(Avatar),
+                EmailConfirmed = true
+            };
+
+            var createUserResult = await userManager.CreateAsync(newUser);
+            if (!createUserResult.Succeeded)
+            {
+                return new GoogleLoginUserResponse("User creation failed", "", "", []);
+            }
+
+            // Link Google account to this user
+            var loginInfo = new UserLoginInfo(AuthProviders.GitHub, ProviderKey, AuthProviders.GitHub);
+            var addLoginResult = await userManager.AddLoginAsync(newUser, loginInfo);
+            if (!addLoginResult.Succeeded)
+            {
+                return new GoogleLoginUserResponse("Failed to add external login", "", "", []);
+            }
+
+            // Assign default role
+            await userManager.AddToRoleAsync(newUser, TMRoles.Candidate);
+
+            // Generate JWT for the new user
+            var tokenGenerationCommand = new TokenGenerationCommand(Email, null); // Pass email and password
+
+            // Generate JWT token for existing user
+            var tokenResponse = await tokenService.GenerateTokenAsync(
+             tokenGenerationCommand,
+             ip,
+             cancellationToken
+         );
+
+            return new GoogleLoginUserResponse(newUser.Id, tokenResponse.Token, tokenResponse.RefreshToken, tokenResponse.Roles);
+        }
+        catch (Exception ex)
+        {
+            return new GoogleLoginUserResponse($"Error: {ex.Message}", "", "", []);
+        }
+    }
 
     public async Task ToggleStatusAsync(ToggleUserStatusCommand request, CancellationToken cancellationToken)
     {

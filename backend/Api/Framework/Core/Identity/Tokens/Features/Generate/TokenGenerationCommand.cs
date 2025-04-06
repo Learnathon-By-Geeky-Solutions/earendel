@@ -7,7 +7,7 @@ namespace TalentMesh.Framework.Core.Identity.Tokens.Features.Generate;
 [ExcludeFromCodeCoverage]
 public record TokenGenerationCommand(
     [property: DefaultValue(TenantConstants.Root.EmailAddress)] string Email,
-    [property: DefaultValue(TenantConstants.DefaultPassword)] string Password);
+    [property: DefaultValue(TenantConstants.DefaultPassword)] string? Password);
 
 [ExcludeFromCodeCoverage]
 
@@ -17,6 +17,10 @@ public class GenerateTokenValidator : AbstractValidator<TokenGenerationCommand>
     {
         RuleFor(p => p.Email).Cascade(CascadeMode.Stop).NotEmpty().EmailAddress();
 
-        RuleFor(p => p.Password).Cascade(CascadeMode.Stop).NotEmpty();
+        When(p => p.Password is not null, () =>
+            {
+                RuleFor(p => p.Password)
+                    .NotEmpty();
+            });
     }
 }
