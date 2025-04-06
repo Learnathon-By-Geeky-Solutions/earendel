@@ -28,7 +28,7 @@ public interface IUserService
     Task<string> GetOrCreateFromPrincipalAsync(ClaimsPrincipal principal);
     Task<RegisterUserResponse> RegisterAsync(RegisterUserCommand request, string origin, CancellationToken cancellationToken);
     Task<GoogleLoginUserResponse> GoogleLogin(TokenRequestCommand request, string ip, string origin, CancellationToken cancellationToken);
-    Task<string> GithubLogin(GithubRequestCommand request, string ip, string origin, CancellationToken cancellationToken);
+    Task<GoogleLoginUserResponse> GithubLogin(GithubRequestCommand request, string ip, string origin, CancellationToken cancellationToken);
     Task UpdateAsync(UpdateUserCommand request, string userId);
     Task DeleteAsync(string userId);
     Task<string> ConfirmEmailAsync(string userId, string code, string tenant, CancellationToken cancellationToken);

@@ -56,7 +56,7 @@ namespace TalentMesh.Framework.Infrastructure.Identity.Users.Services
             return ExtractAccessToken(responseContent);
         }
 
-        public async Task<(string Login, string Email)> GetUserInfoAsync(string accessToken)
+        public async Task<(string Login, string Email, string Avatar, string ProviderKey)> GetUserInfoAsync(string accessToken)
         {
             var requestUrl = $"{_requestUserInfoUrl}";
             var request = new HttpRequestMessage(HttpMethod.Get, requestUrl);
@@ -78,9 +78,11 @@ namespace TalentMesh.Framework.Infrastructure.Identity.Users.Services
             var root = jsonDoc.RootElement;
 
             var login = root.GetProperty("login").GetString();
+            var avatar = root.GetProperty("avatar_url").GetString();
+            var providerKey = root.GetProperty("id").GetInt64().ToString();
             var email = root.TryGetProperty("email", out var emailElement) ? emailElement.GetString() : null;
 
-            return (login, email);
+            return (login, email, avatar, providerKey);
         }
 
         private object CreateAccessTokenRequestBody(string code)

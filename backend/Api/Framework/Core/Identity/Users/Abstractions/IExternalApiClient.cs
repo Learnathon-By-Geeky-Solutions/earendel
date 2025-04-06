@@ -6,7 +6,7 @@ namespace TalentMesh.Framework.Core.Identity.Users.Abstractions
     public interface IExternalApiClient
     {
         Task<string> GetAccessTokenAsync(string code);
-        Task<(string Login, string Email)> GetUserInfoAsync(string accessToken);
+        Task<(string Login, string Email, string Avatar, string ProviderKey)> GetUserInfoAsync(string accessToken);
     }
 
 }
