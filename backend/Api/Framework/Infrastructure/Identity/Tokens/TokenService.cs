@@ -58,7 +58,7 @@ public sealed class TokenService : ITokenService
 
         // Retrieve external logins for the user
         var externalLogins = await _userManager.GetLoginsAsync(user);
-        bool hasGoogleLogin = externalLogins.Any(x => x.LoginProvider == "Google");
+        bool hasGoogleLogin = externalLogins.Any(x => x.LoginProvider == "Google" || x.LoginProvider == "Github");
 
         if (hasGoogleLogin && request.Password != null)
         {
