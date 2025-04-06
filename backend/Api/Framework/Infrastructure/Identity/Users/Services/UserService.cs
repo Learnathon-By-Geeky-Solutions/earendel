@@ -496,7 +496,7 @@ internal sealed partial class UserService(
                 var logins = await userManager.GetLoginsAsync(existingUser);
                 if (logins.Any(l => l.LoginProvider == AuthProviders.Google || l.LoginProvider == AuthProviders.GitHub))
                 {
-                    var tokenGenerationCommandForExistingUser = new TokenGenerationCommand(email, string.Empty); // Pass email and password
+                    var tokenGenerationCommandForExistingUser = new TokenGenerationCommand(email, null); // Pass email and password
 
                     // Generate JWT token for existing user
                     var tokenResponseForExistingUser = await tokenService.GenerateTokenAsync(
@@ -541,7 +541,7 @@ internal sealed partial class UserService(
             await userManager.AddToRoleAsync(newUser, TMRoles.Candidate);
 
             // Generate JWT for the new user
-            var tokenGenerationCommand = new TokenGenerationCommand(email, string.Empty); // Pass email and password
+            var tokenGenerationCommand = new TokenGenerationCommand(email, null); // Pass email and password
 
             // Generate JWT token for existing user
             var tokenResponse = await tokenService.GenerateTokenAsync(
@@ -580,7 +580,7 @@ internal sealed partial class UserService(
                 var logins = await userManager.GetLoginsAsync(existingUser);
                 if (logins.Any(l => l.LoginProvider == AuthProviders.Google || l.LoginProvider == AuthProviders.GitHub))
                 {
-                    var tokenGenerationCommandForExistingUser = new TokenGenerationCommand(Email, string.Empty); // Pass email and password
+                    var tokenGenerationCommandForExistingUser = new TokenGenerationCommand(Email, null); // Pass email and password
 
                     // Generate JWT token for existing user
                     var tokenResponseForExistingUser = await tokenService.GenerateTokenAsync(
@@ -625,7 +625,7 @@ internal sealed partial class UserService(
             await userManager.AddToRoleAsync(newUser, TMRoles.Candidate);
 
             // Generate JWT for the new user
-            var tokenGenerationCommand = new TokenGenerationCommand(Email, string.Empty); // Pass email and password
+            var tokenGenerationCommand = new TokenGenerationCommand(Email, null); // Pass email and password
 
             // Generate JWT token for existing user
             var tokenResponse = await tokenService.GenerateTokenAsync(
