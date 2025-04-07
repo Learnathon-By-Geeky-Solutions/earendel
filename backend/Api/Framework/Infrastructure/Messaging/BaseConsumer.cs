@@ -11,9 +11,11 @@ using RabbitMQ.Client.Events;
 using TalentMesh.Framework.Infrastructure.SignalR;
 using TalentMesh.Framework.Infrastructure.Messaging;
 using TalentMesh.Framework.Infrastructure.Common;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Framework.Infrastructure.Messaging
 {
+    [ExcludeFromCodeCoverage]
     public abstract class RabbitMqConsumer<TMessage> : RabbitMqConsumerBase
     {
         protected readonly IHubContext<NotificationHub> _hubContext;

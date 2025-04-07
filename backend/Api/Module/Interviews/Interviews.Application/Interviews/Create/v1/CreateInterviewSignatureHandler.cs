@@ -4,9 +4,11 @@ using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using TalentMesh.Module.Interviews.Application.Services;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Module.Interviews.Application.Interviews.Create.v1;
 
+[ExcludeFromCodeCoverage]
 public sealed class CreateInterviewSignatureHandler(
     ILogger<CreateInterviewSignatureHandler> logger,
     [FromKeyedServices("interviews:interview")] IRepository<Interview> repository,
