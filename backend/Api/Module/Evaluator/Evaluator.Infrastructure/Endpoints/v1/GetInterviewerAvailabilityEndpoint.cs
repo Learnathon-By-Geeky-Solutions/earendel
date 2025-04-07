@@ -23,7 +23,7 @@ namespace TalentMesh.Module.Evaluator.Infrastructure.Endpoints.v1
                 .WithSummary("Gets Interviewer Availability by id")
                 .WithDescription("Retrieves an Interviewer Availability record by its identifier")
                 .Produces<InterviewerAvailabilityResponse>()
-                .RequirePermission("Permissions.Interviewer.View")
+                // .RequirePermission("Permissions.Interviewer.View")
                 .MapToApiVersion(1);
         }
     }

@@ -197,6 +197,212 @@ namespace TalentMesh.Module.Experties.Tests
         }
 
         [Fact]
+        public async Task UpdateSeniority_WhenFieldsChanged_ShouldUpdate()
+        {
+            var existingSeniority = Seniority.Create("Old Title", "Old Desc");
+            var seniorityId = existingSeniority.Id;
+            var request = new UpdateSeniorityCommand(seniorityId, "New Title", "New Desc");
+
+            _repositoryMock.Setup(r => r.GetByIdAsync(seniorityId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(existingSeniority);
+            _repositoryMock.Setup(r => r.UpdateAsync(existingSeniority, It.IsAny<CancellationToken>()))
+                .Returns(Task.CompletedTask);
+
+            var result = await _updateHandler.Handle(request, CancellationToken.None);
+
+            Assert.NotNull(result);
+            Assert.Equal(seniorityId, result.Id);
+
+            _repositoryMock.Verify(r => r.UpdateAsync(It.IsAny<Seniority>(), It.IsAny<CancellationToken>()), Times.Once);
+        }
+        [Fact]
+        public async Task UpdateSeniority_WhenFieldsUnchanged_ShouldStillReturnButNotReassign()
+        {
+            var existingSeniority = Seniority.Create("Same Title", "Same Desc");
+            var seniorityId = existingSeniority.Id;
+            var request = new UpdateSeniorityCommand(seniorityId, "Same Title", "Same Desc");
+
+            _repositoryMock.Setup(r => r.GetByIdAsync(seniorityId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(existingSeniority);
+            _repositoryMock.Setup(r => r.UpdateAsync(existingSeniority, It.IsAny<CancellationToken>()))
+                .Returns(Task.CompletedTask);
+
+            var result = await _updateHandler.Handle(request, CancellationToken.None);
+
+            Assert.NotNull(result);
+            Assert.Equal(seniorityId, result.Id);
+
+            _repositoryMock.Verify(r => r.UpdateAsync(It.IsAny<Seniority>(), It.IsAny<CancellationToken>()), Times.Once);
+        }
+
+        [Fact]
+        public async Task UpdateSeniority_WhenNewTitleIsDifferent_ShouldUpdateTitle()
+        {
+            // Arrange
+            var existingSeniority = Seniority.Create("Old Title", "Old Desc");
+            var seniorityId = existingSeniority.Id;
+            var request = new UpdateSeniorityCommand(seniorityId, "New Title", "Old Desc");
+
+            _repositoryMock.Setup(r => r.GetByIdAsync(seniorityId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(existingSeniority);
+            _repositoryMock.Setup(r => r.UpdateAsync(existingSeniority, It.IsAny<CancellationToken>()))
+                .Returns(Task.CompletedTask);
+
+            // Act
+            var result = await _updateHandler.Handle(request, CancellationToken.None);
+
+            // Assert
+            Assert.NotNull(result);
+            // The title should be updated because "New Title" is different from "Old Title"
+            Assert.Equal("New Title", existingSeniority.Name);
+        }
+
+        // 2. When new title is non-null but equals the current title (case-insensitive) → update block is skipped.
+        [Fact]
+        public async Task UpdateSeniority_WhenNewTitleIsSame_ShouldNotUpdateTitle()
+        {
+            // Arrange
+            var existingSeniority = Seniority.Create("Old Title", "Old Desc");
+            var seniorityId = existingSeniority.Id;
+            // Using a different casing but the same value
+            var request = new UpdateSeniorityCommand(seniorityId, "old title", "Old Desc");
+
+            _repositoryMock.Setup(r => r.GetByIdAsync(seniorityId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(existingSeniority);
+            _repositoryMock.Setup(r => r.UpdateAsync(existingSeniority, It.IsAny<CancellationToken>()))
+                .Returns(Task.CompletedTask);
+
+            // Act
+            var result = await _updateHandler.Handle(request, CancellationToken.None);
+
+            // Assert
+            Assert.NotNull(result);
+            // The title remains unchanged because "old title" equals "Old Title" (ignoring case)
+            Assert.Equal("Old Title", existingSeniority.Name);
+        }
+
+        // 3. When new title is null → update block is skipped.
+        [Fact]
+        public async Task UpdateSeniority_WhenNewTitleIsNull_ShouldNotUpdateTitle()
+        {
+            // Arrange
+            var existingSeniority = Seniority.Create("Old Title", "Old Desc");
+            var seniorityId = existingSeniority.Id;
+            // Passing null for title means no change should occur.
+            var request = new UpdateSeniorityCommand(seniorityId, null, "Updated Desc");
+
+            _repositoryMock.Setup(r => r.GetByIdAsync(seniorityId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(existingSeniority);
+            _repositoryMock.Setup(r => r.UpdateAsync(existingSeniority, It.IsAny<CancellationToken>()))
+                .Returns(Task.CompletedTask);
+
+            // Act
+            var result = await _updateHandler.Handle(request, CancellationToken.None);
+
+            // Assert
+            Assert.NotNull(result);
+            // The title remains unchanged because null did not trigger an update.
+            Assert.Equal("Old Title", existingSeniority.Name);
+        }
+
+        // 4. When the current title is null and a new non-null title is provided → update occurs.
+        [Fact]
+        public async Task UpdateSeniority_WhenCurrentTitleIsNullAndNewTitleIsNonNull_ShouldUpdateTitle()
+        {
+            // Arrange
+            // Create a seniority with a non-null title then force the title to null for test purposes.
+            var existingSeniority = Seniority.Create(null, "Old Desc");
+            // Forcing the Name to null (assuming Name has an accessible setter in test context)
+            var seniorityId = existingSeniority.Id;
+            var request = new UpdateSeniorityCommand(seniorityId, "New Title", "Old Desc");
+
+            _repositoryMock.Setup(r => r.GetByIdAsync(seniorityId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(existingSeniority);
+            _repositoryMock.Setup(r => r.UpdateAsync(existingSeniority, It.IsAny<CancellationToken>()))
+                .Returns(Task.CompletedTask);
+
+            // Act
+            var result = await _updateHandler.Handle(request, CancellationToken.None);
+
+            // Assert
+            Assert.NotNull(result);
+            // Since the current title was null, it should be updated to "New Title"
+            Assert.Equal("New Title", existingSeniority.Name);
+        }
+
+        [Fact]
+        public async Task UpdateSeniority_WhenNewDescriptionIsDifferent_ShouldUpdateDescription()
+        {
+            var existingSeniority = Seniority.Create("Any Title", "Old Desc");
+            var seniorityId = existingSeniority.Id;
+            var request = new UpdateSeniorityCommand(seniorityId, "Any Title", "New Desc");
+
+            _repositoryMock.Setup(r => r.GetByIdAsync(seniorityId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(existingSeniority);
+            _repositoryMock.Setup(r => r.UpdateAsync(existingSeniority, It.IsAny<CancellationToken>()))
+                .Returns(Task.CompletedTask);
+
+            var result = await _updateHandler.Handle(request, CancellationToken.None);
+
+            Assert.NotNull(result);
+            Assert.Equal("New Desc", existingSeniority.Description);
+        }
+
+        [Fact]
+        public async Task UpdateSeniority_WhenNewDescriptionIsSame_ShouldNotUpdateDescription()
+        {
+            var existingSeniority = Seniority.Create("Any Title", "Same Desc");
+            var seniorityId = existingSeniority.Id;
+            var request = new UpdateSeniorityCommand(seniorityId, "Any Title", "same desc"); // same but lowercase
+
+            _repositoryMock.Setup(r => r.GetByIdAsync(seniorityId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(existingSeniority);
+            _repositoryMock.Setup(r => r.UpdateAsync(existingSeniority, It.IsAny<CancellationToken>()))
+                .Returns(Task.CompletedTask);
+
+            var result = await _updateHandler.Handle(request, CancellationToken.None);
+
+            Assert.NotNull(result);
+            Assert.Equal("Same Desc", existingSeniority.Description); // unchanged
+        }
+
+        [Fact]
+        public async Task UpdateSeniority_WhenNewDescriptionIsNull_ShouldNotUpdateDescription()
+        {
+            var existingSeniority = Seniority.Create("Any Title", "Existing Desc");
+            var seniorityId = existingSeniority.Id;
+            var request = new UpdateSeniorityCommand(seniorityId, "Any Title", null); // null desc
+
+            _repositoryMock.Setup(r => r.GetByIdAsync(seniorityId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(existingSeniority);
+            _repositoryMock.Setup(r => r.UpdateAsync(existingSeniority, It.IsAny<CancellationToken>()))
+                .Returns(Task.CompletedTask);
+
+            var result = await _updateHandler.Handle(request, CancellationToken.None);
+
+            Assert.NotNull(result);
+            Assert.Equal("Existing Desc", existingSeniority.Description); // unchanged
+        }
+
+        [Fact]
+        public async Task UpdateSeniority_WhenCurrentDescriptionIsNullAndNewIsProvided_ShouldUpdateDescription()
+        {
+            var existingSeniority = Seniority.Create("Any Title", null);
+            var seniorityId = existingSeniority.Id;
+            var request = new UpdateSeniorityCommand(seniorityId, "Any Title", "Provided Desc");
+
+            _repositoryMock.Setup(r => r.GetByIdAsync(seniorityId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(existingSeniority);
+            _repositoryMock.Setup(r => r.UpdateAsync(existingSeniority, It.IsAny<CancellationToken>()))
+                .Returns(Task.CompletedTask);
+
+            var result = await _updateHandler.Handle(request, CancellationToken.None);
+
+            Assert.NotNull(result);
+            Assert.Equal("Provided Desc", existingSeniority.Description);
+        }        
+
+        [Fact]
         public async Task UpdateSeniority_ThrowsExceptionIfNotFound()
         {
             var seniorityId = Guid.NewGuid();

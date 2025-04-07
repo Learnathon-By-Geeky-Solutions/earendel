@@ -98,8 +98,6 @@ namespace TalentMesh.Module.Experties.Tests
             _repositoryMock.Verify(repo => repo.DeleteAsync(It.IsAny<SubSkill>(), It.IsAny<CancellationToken>()), Times.Once);
         }
 
-
-
         [Fact]
         public async Task DeleteSubSkill_ThrowsExceptionIfNotFound()
         {
@@ -148,6 +146,7 @@ namespace TalentMesh.Module.Experties.Tests
             // Assert
             Assert.NotNull(result);
             Assert.Equal(subSkillId, result.Id);
+            Assert.Equal(subSkill.SkillId, result.SkillId);
             Assert.Equal(subSkill.Name, result.Name);
             Assert.Equal(subSkill.Description, result.Description);
 

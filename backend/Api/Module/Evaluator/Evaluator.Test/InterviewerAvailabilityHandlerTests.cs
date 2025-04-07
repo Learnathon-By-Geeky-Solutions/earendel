@@ -89,6 +89,126 @@ namespace TalentMesh.Module.Evaluator.Tests
         }
 
         [Fact]
+        public async Task CreateInterviewerAvailability_WithOverlappingSlot_ThrowsInvalidOperationException()
+        {
+            // Arrange
+            var interviewerId = Guid.NewGuid();
+            var now = DateTime.UtcNow;
+
+            // This is the new slot the command is trying to add
+            var requestSlot = new AvailabilitySlot(now, now.AddHours(1));
+
+            // This existing availability overlaps with requestSlot
+            var existingAvailabilities = new List<InterviewerAvailability>
+            {
+                InterviewerAvailability.Create(interviewerId, now.AddMinutes(30), now.AddHours(2), true)
+            };
+
+            var request = new CreateInterviewerAvailabilityCommand(
+                interviewerId,
+                new List<AvailabilitySlot> { requestSlot }
+            );
+
+            _repositoryMock.Setup(repo => repo.ListAsync(It.IsAny<InterviewerAvailabilityByInterviewerIdSpec>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(existingAvailabilities);
+
+            // Act & Assert
+            var exception = await Assert.ThrowsAsync<InvalidOperationException>(() =>
+                _createHandler.Handle(request, CancellationToken.None)
+            );
+
+            Assert.Contains("already has an availability", exception.Message);
+
+            _repositoryMock.Verify(repo => repo.ListAsync(It.IsAny<InterviewerAvailabilityByInterviewerIdSpec>(), It.IsAny<CancellationToken>()), Times.Once);
+            _repositoryMock.Verify(repo => repo.AddRangeAsync(It.IsAny<List<InterviewerAvailability>>(), It.IsAny<CancellationToken>()), Times.Never);
+        }
+        [Fact]
+        public async Task CreateInterviewerAvailability_WithOverlappingSlot_CoversOverlapLogic()
+        {
+            // Arrange
+            var interviewerId = Guid.NewGuid();
+            var slotStart = DateTime.UtcNow;
+            var slotEnd = slotStart.AddHours(1);
+
+            // Existing overlaps the slot
+            var existingAvailability = InterviewerAvailability.Create(
+                interviewerId,
+                slotStart.AddMinutes(30), // starts after the slot
+                slotEnd.AddHours(1),      // ends after the slot
+                true
+            );
+
+            var availabilitySlots = new List<AvailabilitySlot>
+    {
+        new AvailabilitySlot(slotStart, slotEnd)
+    };
+
+            var request = new CreateInterviewerAvailabilityCommand(interviewerId, availabilitySlots);
+
+            _repositoryMock.Setup(repo => repo.ListAsync(It.IsAny<InterviewerAvailabilityByInterviewerIdSpec>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(new List<InterviewerAvailability> { existingAvailability });
+
+            // Act & Assert
+            await Assert.ThrowsAsync<InvalidOperationException>(() =>
+                _createHandler.Handle(request, CancellationToken.None)
+            );
+
+            // This will ensure the IsOverlapping logic was triggered
+        }
+
+        [Fact]
+        public void IsOverlapping_ReturnsTrue_ForOverlappingSlot()
+        {
+            // Arrange
+            var slot = new AvailabilitySlot(
+                new DateTime(2025, 4, 6, 10, 0, 0, DateTimeKind.Utc),
+                new DateTime(2025, 4, 6, 11, 0, 0, DateTimeKind.Utc)
+            );
+
+            var existingAvailabilities = new List<InterviewerAvailability>
+        {
+            // Overlapping: starts at 10:30 and ends at 11:30 => overlaps with 10:00-11:00
+            InterviewerAvailability.Create(
+                Guid.NewGuid(),
+                new DateTime(2025, 4, 6, 10, 30, 0, DateTimeKind.Utc),
+                new DateTime(2025, 4, 6, 11, 30, 0, DateTimeKind.Utc),
+                true)
+        };
+
+            // Act
+            var result = CreateInterviewerAvailabilityHandler.IsOverlapping(slot, existingAvailabilities);
+
+            // Assert
+            Assert.True(result);
+        }
+
+        [Fact]
+        public void IsOverlapping_ReturnsFalse_ForNonOverlappingSlot()
+        {
+            // Arrange
+            var slot = new AvailabilitySlot(
+                new DateTime(2025, 4, 6, 10, 0, 0, DateTimeKind.Utc),
+                new DateTime(2025, 4, 6, 11, 0, 0, DateTimeKind.Utc)
+            );
+
+            var existingAvailabilities = new List<InterviewerAvailability>
+        {
+            // Non-overlapping: existing slot starts at 11:30 (after new slot ends)
+            InterviewerAvailability.Create(
+                Guid.NewGuid(),
+                new DateTime(2025, 4, 6, 11, 30, 0, DateTimeKind.Utc),
+                new DateTime(2025, 4, 6, 12, 30, 0, DateTimeKind.Utc),
+                true)
+        };
+
+            // Act
+            var result = CreateInterviewerAvailabilityHandler.IsOverlapping(slot, existingAvailabilities);
+
+            // Assert
+            Assert.False(result);
+        }
+
+        [Fact]
         public async Task DeleteInterviewerAvailability_DeletesSuccessfully()
         {
             // Arrange
@@ -241,6 +361,34 @@ namespace TalentMesh.Module.Evaluator.Tests
             Assert.Equal(InterviewerAvailabilityId, result.Id);
 
             _repositoryMock.Verify(repo => repo.GetByIdAsync(InterviewerAvailabilityId, It.IsAny<CancellationToken>()), Times.Once);
+            _repositoryMock.Verify(repo => repo.UpdateAsync(It.IsAny<InterviewerAvailability>(), It.IsAny<CancellationToken>()), Times.Once);
+        }
+
+        [Fact]
+        public async Task UpdateInterviewerAvailability_ChangesAvailabilityStatus()
+        {
+            // Arrange
+            var existingInterviewerAvailability = InterviewerAvailability.Create(Guid.NewGuid(), DateTime.UtcNow, DateTime.UtcNow.AddHours(1), true);
+            var InterviewerAvailabilityId = existingInterviewerAvailability.Id;
+
+            // Flip isAvailable to false for this test
+            var request = new UpdateInterviewerAvailabilityCommand(
+                InterviewerAvailabilityId,
+                Guid.NewGuid(),
+                DateTime.UtcNow,
+                DateTime.UtcNow.AddHours(1),
+                false // <-- different from existing value
+            );
+
+            _repositoryMock.Setup(repo => repo.GetByIdAsync(InterviewerAvailabilityId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(existingInterviewerAvailability);
+
+            // Act
+            var result = await _updateHandler.Handle(request, CancellationToken.None);
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.Equal(InterviewerAvailabilityId, result.Id);
             _repositoryMock.Verify(repo => repo.UpdateAsync(It.IsAny<InterviewerAvailability>(), It.IsAny<CancellationToken>()), Times.Once);
         }
 

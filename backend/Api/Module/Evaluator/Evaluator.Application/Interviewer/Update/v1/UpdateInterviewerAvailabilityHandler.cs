@@ -22,6 +22,8 @@ namespace TalentMesh.Module.Evaluator.Application.Interviewer.Update.v1
             }
             var updatedEntity = entity.Update(request.StartTime, request.EndTime, request.IsAvailable);
             await repository.UpdateAsync(updatedEntity, cancellationToken);
+            logger.LogInformation("Interviewer with id : {InterviewerId} updated.", request.InterviewerId);
+
             logger.LogInformation("InterviewerAvailability with id {Id} updated.", entity.Id);
             return new UpdateInterviewerAvailabilityResponse(entity.Id);
         }
