@@ -12,9 +12,11 @@ using RabbitMQ.Client;
 using TalentMesh.Framework.Infrastructure.Messaging;
 using TalentMesh.Shared.Authorization;
 using TalentMesh.Framework.Infrastructure.Common;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Framework.Infrastructure.Identity.Users.Services
 {
+    [ExcludeFromCodeCoverage]
     public class UsersConsumer : RabbitMqConsumerBase
     {
         private readonly IServiceScopeFactory _scopeFactory;

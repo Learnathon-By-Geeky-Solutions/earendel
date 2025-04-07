@@ -29,29 +29,16 @@ public class SubSkill : AuditableEntity, IAggregateRoot
     public SubSkill Update(string? name, string? description, Guid? skillId)
     {
         if (name is not null && Name?.Equals(name, StringComparison.OrdinalIgnoreCase) is not true) Name = name;
+        
         if (description is not null && Description?.Equals(description, StringComparison.OrdinalIgnoreCase) is not true) Description = description;
-        if (skillId.HasValue && skillId != skillId.Value)
+        
+        if (skillId is not null && skillId.HasValue)
         {
             SkillId = skillId.Value;
         }
         this.QueueDomainEvent(new SubSkillUpdated() { SubSkill = this });
 
         return this;
-    }
-
-    public static SubSkill Update(Guid id, string name, string? description, Guid? skillId)
-    {
-        var subSkill = new SubSkill
-        {
-            Id = id,
-            Name = name,
-            Description = description,
-            SkillId = skillId
-        };
-
-        subSkill.QueueDomainEvent(new SubSkillUpdated() { SubSkill = subSkill });
-
-        return subSkill;
     }
 }
 
