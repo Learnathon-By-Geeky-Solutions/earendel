@@ -14,7 +14,7 @@ namespace TalentMesh.Module.CandidateLogic
     {
         public class Endpoints : CarterModule
         {
-            public Endpoints() : base("job") { }
+            public Endpoints() : base("jobView") { }
 
             public override void AddRoutes(IEndpointRouteBuilder app)
             {
@@ -26,7 +26,7 @@ namespace TalentMesh.Module.CandidateLogic
             }
         }
 
-        public static WebApplicationBuilder RegisterJobServices(this WebApplicationBuilder builder)
+        public static WebApplicationBuilder RegisterCandidateLogicServices(this WebApplicationBuilder builder)
         {
             ArgumentNullException.ThrowIfNull(builder);
             builder.Services.BindDbContext<JobDbContext>();
@@ -38,7 +38,7 @@ namespace TalentMesh.Module.CandidateLogic
             return builder;
         }
 
-        public static WebApplication UseJobModule(this WebApplication app)
+        public static WebApplication UseCandidateLogicModule(this WebApplication app)
         {
             return app;
         }
