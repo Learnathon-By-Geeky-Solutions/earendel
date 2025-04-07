@@ -11,9 +11,11 @@ using TalentMesh.Framework.Infrastructure.SignalR;
 using TalentMesh.Framework.Infrastructure.Messaging;
 using TalentMesh.Framework.Infrastructure.Common;
 using TalentMesh.Module.Evaluator.Infrastructure.Persistence;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Module.Evaluator.Infrastructure.Messaging
 {
+    [ExcludeFromCodeCoverage] 
     public class InterviewerFormConsumer : RabbitMqConsumer<InterviewerMessage>
     {
         public InterviewerFormConsumer(

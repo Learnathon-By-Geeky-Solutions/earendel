@@ -207,33 +207,78 @@ namespace TalentMesh.Module.Evaluator.Tests
             );
         }
         [Fact]
-        public async Task UpdateInterviewerEntryForm_ReturnsUpdatedInterviewerEntryFormResponse()
+        public async Task UpdateInterviewerEntryForm_UpdatesAdditionalInfoAndStatus_WhenDifferent()
         {
             // Arrange
-            var existingInterviewerEntryForm = InterviewerEntryForm.Create(Guid.NewGuid(), "string");
-            var InterviewerEntryFormId = existingInterviewerEntryForm.Id;
-            var request = new UpdateInterviewerEntryFormCommand(
-                InterviewerEntryFormId,
-                Guid.NewGuid(),
-                "string",
-                "approved"
+            var initialAdditionalInfo = "initial comment";
+            var initialStatus = "pending"; // assume default status from Create or set it explicitly if needed
+            var updatedAdditionalInfo = "updated comment";
+            var updatedStatus = "approved";
 
+            // Create an InterviewerEntryForm with initial values.
+            // Note: If your Create method doesn't set the Status, you might need to use reflection or a test-specific method to set it.
+            var existingInterviewerEntryForm = InterviewerEntryForm.Create(Guid.NewGuid(), initialAdditionalInfo);
+
+            var interviewerEntryFormId = existingInterviewerEntryForm.Id;
+
+            var request = new UpdateInterviewerEntryFormCommand(
+                interviewerEntryFormId,
+                Guid.NewGuid(),       // JobId (if applicable)
+                updatedAdditionalInfo,
+                updatedStatus
             );
 
-            _repositoryMock.Setup(repo => repo.GetByIdAsync(InterviewerEntryFormId, It.IsAny<CancellationToken>()))
-                .ReturnsAsync(existingInterviewerEntryForm);
+            _repositoryMock.Setup(repo => repo.GetByIdAsync(interviewerEntryFormId, It.IsAny<CancellationToken>()))
+                           .ReturnsAsync(existingInterviewerEntryForm);
 
             // Act
             var result = await _updateHandler.Handle(request, CancellationToken.None);
 
             // Assert
             Assert.NotNull(result);
-            Assert.Equal(InterviewerEntryFormId, result.Id);
+            Assert.Equal(interviewerEntryFormId, result.Id);
+            Assert.Equal(updatedAdditionalInfo, existingInterviewerEntryForm.AdditionalInfo);
+            Assert.Equal(updatedStatus, existingInterviewerEntryForm.Status);
 
-            _repositoryMock.Verify(repo => repo.GetByIdAsync(InterviewerEntryFormId, It.IsAny<CancellationToken>()), Times.Once);
+            _repositoryMock.Verify(repo => repo.GetByIdAsync(interviewerEntryFormId, It.IsAny<CancellationToken>()), Times.Once);
             _repositoryMock.Verify(repo => repo.UpdateAsync(It.IsAny<InterviewerEntryForm>(), It.IsAny<CancellationToken>()), Times.Once);
         }
 
+        [Fact]
+        public void Update_UpdatesAdditionalInfo()
+        {
+            // Arrange
+            var interviewerEntryForm = InterviewerEntryForm.Create(
+                Guid.NewGuid(),
+                "Info"
+            );
+
+            var newInfo = "New Info";
+
+            // Act
+            interviewerEntryForm.Update(newInfo, null); // null status to isolate comment update
+
+            // Assert
+            Assert.Equal(newInfo, interviewerEntryForm.AdditionalInfo);
+        }
+
+        [Fact]
+        public void Update_UpdatesStatusInfo()
+        {
+            // Arrange
+            var interviewerEntryForm = InterviewerEntryForm.Create(
+                Guid.NewGuid(),
+                "Info"
+            );
+
+            var newStatus = "done";
+
+            // Act
+            interviewerEntryForm.Update(null, newStatus); 
+
+            // Assert
+            Assert.Equal(newStatus, interviewerEntryForm.Status);
+        }
         [Fact]
         public async Task UpdateInterviewerEntryForm_ThrowsExceptionIfNotFound()
         {

@@ -239,6 +239,130 @@ namespace TalentMesh.Module.Evaluator.Tests
         }
 
         [Fact]
+        public void Update_WithDifferentValues_UpdatesPropertiesAndQueuesEvent()
+        {
+            // Arrange: Create an initial InterviewerApplication with known values.
+            // (Assuming InterviewerApplication.Create sets initial values.)
+            var initialStatus = "pending";
+            var initialComments = "waiting for review";
+            var app = InterviewerApplication.Create(Guid.NewGuid(), Guid.NewGuid(), initialComments);
+            // For this example, assume the created application has Status "pending".
+            // (If your Create method doesn't set Status, you can simulate it by reflection or a test-specific method.)
+
+            // Act: Update with new values.
+            var newStatus = "approved";
+            var newComments = "reviewed and approved";
+            var updatedApp = app.Update(newStatus, newComments);
+
+            // Assert: Ensure that the properties are updated.
+            Assert.Equal(newStatus, updatedApp.Status);
+            Assert.Equal(newComments, updatedApp.Comments);
+
+            // Optionally, if you can inspect queued domain events, verify that the CandidateProfileUpdated event (or InterviewerApplicationUpdated event)
+            // was queued.
+        }
+
+        [Fact]
+        public void Update_WithSameValues_DoesNotChangeProperties()
+        {
+            // Arrange: Create an application with specific values.
+            var initialStatus = "pending";
+            var initialComments = "waiting for review";
+            var app = InterviewerApplication.Create(Guid.NewGuid(), Guid.NewGuid(), initialComments);
+            // For this test, assume the initial Status is "pending" (or set it accordingly if possible).
+
+            // Act: Call update with the same values.
+            var updatedApp = app.Update(initialStatus, initialComments);
+
+            // Assert: The properties should remain unchanged.
+            Assert.Equal(initialStatus, updatedApp.Status);
+            Assert.Equal(initialComments, updatedApp.Comments);
+        }
+        [Fact]
+        public async Task UpdateInterviewerApplication_UpdatesStatus_WhenChanged()
+        {
+            // Arrange
+            var originalStatus = "pending";
+            var existing = InterviewerApplication.Create(Guid.NewGuid(), Guid.NewGuid(), "old comment");
+            var request = new UpdateInterviewerApplicationCommand(
+                existing.Id,
+                Guid.NewGuid(),
+                Guid.NewGuid(),
+                "approved",  // Different status
+                existing.Comments
+            );
+
+            _repositoryMock.Setup(x => x.GetByIdAsync(existing.Id, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(existing);
+
+            // Act
+            var result = await _updateHandler.Handle(request, CancellationToken.None);
+
+            // Assert
+            Assert.Equal("approved", existing.Status);
+            Assert.Equal("old comment", existing.Comments); // Should remain unchanged
+        }
+
+        [Fact]
+        public void Update_WithDifferentComments_UpdatesComments()
+        {
+            // Arrange
+            var interviewerApplication = InterviewerApplication.Create(
+                Guid.NewGuid(),
+                Guid.NewGuid(),
+                "Old comment"
+            );
+
+            var newComment = "New comment";
+
+            // Act
+            interviewerApplication.Update(null, newComment); // null status to isolate comment update
+
+            // Assert
+            Assert.Equal(newComment, interviewerApplication.Comments);
+        }
+
+
+
+        [Fact]
+        public void Update_WithSameComments_DoesNotUpdateComments()
+        {
+            // Arrange
+            var comment = "unchanged comment";
+            var interviewerApplication = InterviewerApplication.Create(Guid.NewGuid(), Guid.NewGuid(), comment);
+
+            // Act
+            var updated = interviewerApplication.Update(comment, null);
+
+            // Assert
+            Assert.Equal(comment, updated.Comments); // should stay the same
+        }
+
+        [Fact]
+        public async Task UpdateInterviewerApplication_UpdatesComments_WhenChanged()
+        {
+            // Arrange
+            var existing = InterviewerApplication.Create(Guid.NewGuid(), Guid.NewGuid(), "old comment");
+            var request = new UpdateInterviewerApplicationCommand(
+                existing.Id,
+                Guid.NewGuid(),
+                Guid.NewGuid(),
+                existing.Status,  // Same status
+                "new comment"    // Different comment
+            );
+
+            _repositoryMock.Setup(x => x.GetByIdAsync(existing.Id, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(existing);
+
+            // Act
+            var result = await _updateHandler.Handle(request, CancellationToken.None);
+
+            // Assert
+            Assert.Equal("new comment", existing.Comments);
+            Assert.Equal("pending", existing.Status); // Default status should remain
+        }
+
+        [Fact]
         public async Task UpdateInterviewerApplication_ThrowsExceptionIfNotFound()
         {
             // Arrange

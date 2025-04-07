@@ -14,6 +14,8 @@ using TalentMesh.Framework.Core.Caching;
 using TalentMesh.Framework.Infrastructure.Messaging;
 using TalentMesh.Module.Experties.Application.SubSkills.Get.v1;
 using TalentMesh.Module.Experties.Application.SeniorityLevelJunctions.Get.v1;
+using TalentMesh.Module.Experties.Application.SeniorityLevelJunctions.Create.v1;
+
 using System.Reflection;
 
 namespace TalentMesh.Module.Experties.Tests
@@ -58,21 +60,47 @@ namespace TalentMesh.Module.Experties.Tests
         }
 
         [Fact]
-        public async Task CreateSkill_ReturnsSkillResponse()
+        public async Task CreateSkill_WithSeniorityLevels_ReturnsSkillResponseAndCreatesJunction()
+        {
+            // Arrange
+            var seniorityLevelIds = new List<Guid> { Guid.NewGuid(), Guid.NewGuid() };
+
+            var request = new CreateSkillCommand(
+                "C# Development",
+                "Advanced C# programming",
+                seniorityLevelIds // Non-empty SeniorityLevels
+            );
+
+            var expectedSkill = Skill.Create(request.Name!, request.Description);
+
+            _repositoryMock
+                .Setup(repo => repo.AddAsync(It.IsAny<Skill>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(expectedSkill);
+
+            _mediatorMock
+                .Setup(m => m.Send(It.IsAny<CreateSeniorityLevelJunctionCommand>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(new CreateSeniorityLevelJunctionResponse(seniorityLevelIds));
+
+            // Act
+            var result = await _createHandler.Handle(request, CancellationToken.None);
+
+            // Assert
+            Assert.NotNull(result);
+            _repositoryMock.Verify(repo => repo.AddAsync(It.IsAny<Skill>(), It.IsAny<CancellationToken>()), Times.Once);
+            _mediatorMock.Verify(m => m.Send(It.IsAny<CreateSeniorityLevelJunctionCommand>(), It.IsAny<CancellationToken>()), Times.Once);
+        }
+
+        [Fact]
+        public async Task CreateSkill_WithoutSeniorityLevels_ReturnsSkillResponseAndSkipsJunction()
         {
             // Arrange
             var request = new CreateSkillCommand(
                 "C# Development",
                 "Advanced C# programming",
-                new List<Guid> { Guid.NewGuid(), Guid.NewGuid() } // Provide a list of Seniority Levels
+                null // No SeniorityLevels (or use new List<Guid>())
             );
 
-            // Use a fixed GUID for the expected skill ID
-            var expectedId = Guid.NewGuid();
-
-            // Initialize expectedSkill using the expectedId
             var expectedSkill = Skill.Create(request.Name!, request.Description);
-
             _repositoryMock
                 .Setup(repo => repo.AddAsync(It.IsAny<Skill>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(expectedSkill);
@@ -83,8 +111,8 @@ namespace TalentMesh.Module.Experties.Tests
             // Assert
             Assert.NotNull(result);
             _repositoryMock.Verify(repo => repo.AddAsync(It.IsAny<Skill>(), It.IsAny<CancellationToken>()), Times.Once);
+            _mediatorMock.Verify(m => m.Send(It.IsAny<CreateSeniorityLevelJunctionCommand>(), It.IsAny<CancellationToken>()), Times.Never);
         }
-
 
         [Fact]
         public async Task DeleteSkill_DeletesSuccessfully()
@@ -209,7 +237,9 @@ namespace TalentMesh.Module.Experties.Tests
         {
             var existingSkill = Skill.Create("Old C#", "Old description");
             var skillId = existingSkill.Id;
-            var request = new UpdateSkillCommand(skillId, "Updated C#", "Updated description");
+            var seniorityLevelIds = new List<Guid> { Guid.NewGuid(), Guid.NewGuid() };
+
+            var request = new UpdateSkillCommand(skillId, "Updated C#", "Updated description", seniorityLevelIds);
 
             _repositoryMock.Setup(repo => repo.GetByIdAsync(skillId, It.IsAny<CancellationToken>())).ReturnsAsync(existingSkill);
             _repositoryMock.Setup(repo => repo.UpdateAsync(existingSkill, It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
@@ -219,6 +249,231 @@ namespace TalentMesh.Module.Experties.Tests
             Assert.NotNull(result);
             Assert.Equal(skillId, result.Id);
         }
+
+
+        [Fact]
+        public async Task UpdateSkill_WhenFieldsChanged_ShouldUpdate()
+        {
+            var existingSeniority = Skill.Create("Old Title", "Old Desc");
+            var seniorityId = existingSeniority.Id;
+            var request = new UpdateSkillCommand(seniorityId, "New Title", "New Desc");
+
+            _repositoryMock.Setup(r => r.GetByIdAsync(seniorityId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(existingSeniority);
+            _repositoryMock.Setup(r => r.UpdateAsync(existingSeniority, It.IsAny<CancellationToken>()))
+                .Returns(Task.CompletedTask);
+
+            var result = await _updateHandler.Handle(request, CancellationToken.None);
+
+            Assert.NotNull(result);
+            Assert.Equal(seniorityId, result.Id);
+
+            _repositoryMock.Verify(r => r.UpdateAsync(It.IsAny<Skill>(), It.IsAny<CancellationToken>()), Times.Once);
+        }
+        [Fact]
+        public async Task UpdateSkill_WhenFieldsUnchanged_ShouldStillReturnButNotReassign()
+        {
+            var existingSeniority = Skill.Create("Same Title", "Same Desc");
+            var seniorityId = existingSeniority.Id;
+            var request = new UpdateSkillCommand(seniorityId, "Same Title", "Same Desc");
+
+            _repositoryMock.Setup(r => r.GetByIdAsync(seniorityId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(existingSeniority);
+            _repositoryMock.Setup(r => r.UpdateAsync(existingSeniority, It.IsAny<CancellationToken>()))
+                .Returns(Task.CompletedTask);
+
+            var result = await _updateHandler.Handle(request, CancellationToken.None);
+
+            Assert.NotNull(result);
+            Assert.Equal(seniorityId, result.Id);
+
+            _repositoryMock.Verify(r => r.UpdateAsync(It.IsAny<Skill>(), It.IsAny<CancellationToken>()), Times.Once);
+        }
+
+        [Fact]
+        public async Task UpdateSkill_WhenNewTitleIsDifferent_ShouldUpdateTitle()
+        {
+            // Arrange
+            var existingSeniority = Skill.Create("Old Title", "Old Desc");
+            var seniorityId = existingSeniority.Id;
+            var request = new UpdateSkillCommand(seniorityId, "New Title", "Old Desc");
+
+            _repositoryMock.Setup(r => r.GetByIdAsync(seniorityId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(existingSeniority);
+            _repositoryMock.Setup(r => r.UpdateAsync(existingSeniority, It.IsAny<CancellationToken>()))
+                .Returns(Task.CompletedTask);
+
+            // Act
+            var result = await _updateHandler.Handle(request, CancellationToken.None);
+
+            // Assert
+            Assert.NotNull(result);
+            // The title should be updated because "New Title" is different from "Old Title"
+            Assert.Equal("New Title", existingSeniority.Name);
+        }
+
+        // 2. When new title is non-null but equals the current title (case-insensitive) → update block is skipped.
+        [Fact]
+        public async Task UpdateSkill_WhenNewTitleIsSame_ShouldNotUpdateTitle()
+        {
+            // Arrange
+            var existingSeniority = Skill.Create("Old Title", "Old Desc");
+            var seniorityId = existingSeniority.Id;
+            // Using a different casing but the same value
+            var request = new UpdateSkillCommand(seniorityId, "old title", "Old Desc");
+
+            _repositoryMock.Setup(r => r.GetByIdAsync(seniorityId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(existingSeniority);
+            _repositoryMock.Setup(r => r.UpdateAsync(existingSeniority, It.IsAny<CancellationToken>()))
+                .Returns(Task.CompletedTask);
+
+            // Act
+            var result = await _updateHandler.Handle(request, CancellationToken.None);
+
+            // Assert
+            Assert.NotNull(result);
+            // The title remains unchanged because "old title" equals "Old Title" (ignoring case)
+            Assert.Equal("Old Title", existingSeniority.Name);
+        }
+
+        // 3. When new title is null → update block is skipped.
+        [Fact]
+        public async Task UpdateSkill_WhenNewTitleIsNull_ShouldNotUpdateTitle()
+        {
+            // Arrange
+            var existingSeniority = Skill.Create("Old Title", "Old Desc");
+            var seniorityId = existingSeniority.Id;
+            // Passing null for title means no change should occur.
+            var request = new UpdateSkillCommand(seniorityId, null, "Updated Desc");
+
+            _repositoryMock.Setup(r => r.GetByIdAsync(seniorityId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(existingSeniority);
+            _repositoryMock.Setup(r => r.UpdateAsync(existingSeniority, It.IsAny<CancellationToken>()))
+                .Returns(Task.CompletedTask);
+
+            // Act
+            var result = await _updateHandler.Handle(request, CancellationToken.None);
+
+            // Assert
+            Assert.NotNull(result);
+            // The title remains unchanged because null did not trigger an update.
+            Assert.Equal("Old Title", existingSeniority.Name);
+        }
+
+        // 4. When the current title is null and a new non-null title is provided → update occurs.
+        [Fact]
+        public async Task UpdateSkill_WhenCurrentTitleIsNullAndNewTitleIsNonNull_ShouldUpdateTitle()
+        {
+            // Arrange
+            // Create a seniority with a non-null title then force the title to null for test purposes.
+            var existingSeniority = Skill.Create(null, "Old Desc");
+            // Forcing the Name to null (assuming Name has an accessible setter in test context)
+            var seniorityId = existingSeniority.Id;
+            var request = new UpdateSkillCommand(seniorityId, "New Title", "Old Desc");
+
+            _repositoryMock.Setup(r => r.GetByIdAsync(seniorityId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(existingSeniority);
+            _repositoryMock.Setup(r => r.UpdateAsync(existingSeniority, It.IsAny<CancellationToken>()))
+                .Returns(Task.CompletedTask);
+
+            // Act
+            var result = await _updateHandler.Handle(request, CancellationToken.None);
+
+            // Assert
+            Assert.NotNull(result);
+            // Since the current title was null, it should be updated to "New Title"
+            Assert.Equal("New Title", existingSeniority.Name);
+        }
+
+        [Fact]
+        public async Task UpdateSkill_WhenNewDescriptionIsDifferent_ShouldUpdateDescription()
+        {
+            var existingSeniority = Skill.Create("Any Title", "Old Desc");
+            var seniorityId = existingSeniority.Id;
+            var request = new UpdateSkillCommand(seniorityId, "Any Title", "New Desc");
+
+            _repositoryMock.Setup(r => r.GetByIdAsync(seniorityId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(existingSeniority);
+            _repositoryMock.Setup(r => r.UpdateAsync(existingSeniority, It.IsAny<CancellationToken>()))
+                .Returns(Task.CompletedTask);
+
+            var result = await _updateHandler.Handle(request, CancellationToken.None);
+
+            Assert.NotNull(result);
+            Assert.Equal("New Desc", existingSeniority.Description);
+        }
+
+        [Fact]
+        public async Task UpdateSkill_WhenNewDescriptionIsSame_ShouldNotUpdateDescription()
+        {
+            var existingSeniority = Skill.Create("Any Title", "Same Desc");
+            var seniorityId = existingSeniority.Id;
+            var request = new UpdateSkillCommand(seniorityId, "Any Title", "same desc"); // same but lowercase
+
+            _repositoryMock.Setup(r => r.GetByIdAsync(seniorityId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(existingSeniority);
+            _repositoryMock.Setup(r => r.UpdateAsync(existingSeniority, It.IsAny<CancellationToken>()))
+                .Returns(Task.CompletedTask);
+
+            var result = await _updateHandler.Handle(request, CancellationToken.None);
+
+            Assert.NotNull(result);
+            Assert.Equal("Same Desc", existingSeniority.Description); // unchanged
+        }
+
+        [Fact]
+        public async Task UpdateSkill_WhenNewDescriptionIsNull_ShouldNotUpdateDescription()
+        {
+            var existingSeniority = Skill.Create("Any Title", "Existing Desc");
+            var seniorityId = existingSeniority.Id;
+            var request = new UpdateSkillCommand(seniorityId, "Any Title", null); // null desc
+
+            _repositoryMock.Setup(r => r.GetByIdAsync(seniorityId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(existingSeniority);
+            _repositoryMock.Setup(r => r.UpdateAsync(existingSeniority, It.IsAny<CancellationToken>()))
+                .Returns(Task.CompletedTask);
+
+            var result = await _updateHandler.Handle(request, CancellationToken.None);
+
+            Assert.NotNull(result);
+            Assert.Equal("Existing Desc", existingSeniority.Description); // unchanged
+        }
+
+        [Fact]
+        public async Task UpdateSkill_WhenCurrentDescriptionIsNullAndNewIsProvided_ShouldUpdateDescription()
+        {
+            var existingSeniority = Skill.Create("Any Title", null);
+            var seniorityId = existingSeniority.Id;
+            var request = new UpdateSkillCommand(seniorityId, "Any Title", "Provided Desc");
+
+            _repositoryMock.Setup(r => r.GetByIdAsync(seniorityId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(existingSeniority);
+            _repositoryMock.Setup(r => r.UpdateAsync(existingSeniority, It.IsAny<CancellationToken>()))
+                .Returns(Task.CompletedTask);
+
+            var result = await _updateHandler.Handle(request, CancellationToken.None);
+
+            Assert.NotNull(result);
+            Assert.Equal("Provided Desc", existingSeniority.Description);
+        }
+
+
+        // [Fact]
+        // public async Task UpdateSkill_WithoutSeniorityIds()
+        // {
+        //     var existingSkill = Skill.Create("Old C#", "Old description");
+        //     var skillId = existingSkill.Id;
+
+        //     var request = new UpdateSkillCommand(skillId, "Updated C#", "Updated description", null);
+
+        //     _repositoryMock.Setup(repo => repo.GetByIdAsync(skillId, It.IsAny<CancellationToken>())).ReturnsAsync(existingSkill);
+        //     _repositoryMock.Setup(repo => repo.UpdateAsync(existingSkill, It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
+
+        //     var result = await _updateHandler.Handle(request, CancellationToken.None);
+
+        //     Assert.NotNull(result);
+        //     Assert.Equal(skillId, result.Id);
+        // }
 
         [Fact]
         public async Task UpdateSkill_ThrowsExceptionIfNotFound()

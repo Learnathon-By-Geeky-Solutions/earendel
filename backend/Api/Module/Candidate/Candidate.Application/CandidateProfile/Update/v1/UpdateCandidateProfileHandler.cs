@@ -24,7 +24,7 @@ namespace TalentMesh.Module.Candidate.Application.CandidateProfile.Update.v1
             await repository.UpdateAsync(updatedJobApplication, cancellationToken);
 
             logger.LogInformation("Job application with id : {JobApplicationId} updated.", candidateProfile.Id);
-            return new UpdateCandidateProfileResponse(candidateProfile.Id);
+            return new UpdateCandidateProfileResponse(candidateProfile.Id, candidateProfile.Resume, candidateProfile.Skills, candidateProfile.Experience, candidateProfile.Education);
         }
     }
 }
