@@ -33,7 +33,7 @@ public static class JobViewEndpoint
 
             return await mediator.Send(query);
         })
-            .WithTags("Jobs")
+            .WithTags("JobView")
             .WithName("GetAllJobs For Candidates")
             .Produces<List<Jobs>>(StatusCodes.Status200OK)
             .Produces(StatusCodes.Status500InternalServerError);
