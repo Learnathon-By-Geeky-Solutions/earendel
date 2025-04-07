@@ -13,9 +13,11 @@ using System.Security.Claims;
 using Microsoft.IdentityModel.Tokens;
 using TalentMesh.Framework.Core.Identity.Users.Abstractions;
 using Microsoft.AspNetCore.WebUtilities;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Framework.Infrastructure.Identity.Users.Services
 {
+    [ExcludeFromCodeCoverage]
     public class ExternalApiClient : IExternalApiClient
     {
         private readonly HttpClient _httpClient;

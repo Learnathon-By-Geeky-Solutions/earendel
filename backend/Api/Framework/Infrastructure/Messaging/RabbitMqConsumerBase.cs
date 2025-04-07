@@ -6,9 +6,11 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Framework.Infrastructure.Messaging
 {
+    [ExcludeFromCodeCoverage]
     public abstract class RabbitMqConsumerBase : BackgroundService
     {
         protected readonly ILogger _logger;

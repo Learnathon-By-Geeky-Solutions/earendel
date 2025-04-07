@@ -39,11 +39,12 @@ namespace TalentMesh.Module.Experties.Domain
             if (rubricDescription is not null && RubricDescription?.Equals(rubricDescription, StringComparison.OrdinalIgnoreCase) is not true)
                 RubricDescription = rubricDescription;
 
-            if (subSkillId is not null && subSkillId.HasValue && subSkillId != SubSkillId)
+            if (subSkillId is not null && subSkillId.HasValue)
             {
                 SubSkillId = subSkillId.Value;
             }
-            if (seniorityLevelId is not null && seniorityLevelId.HasValue && seniorityLevelId != SeniorityLevelId)
+
+            if (seniorityLevelId is not null && seniorityLevelId.HasValue)
             {
                 SeniorityLevelId = seniorityLevelId.Value;
             }
