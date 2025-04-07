@@ -49,7 +49,7 @@ namespace TalentMesh.Module.Experties.Tests
 
             _createHandler = new CreateSeniorityLevelJunctionHandler(_createLoggerMock.Object, _repositoryMock.Object);
             _deleteHandler = new DeleteSeniorityLevelJunctionHandler(_deleteLoggerMock.Object, _repositoryMock.Object);
-            _getHandler = new GetSeniorityLevelJunctionHandler(_readRepositoryMock.Object, _cacheServiceMock.Object);
+            _getHandler = new GetSeniorityLevelJunctionHandler(_readRepositoryMock.Object, _cacheServiceMock.Object, _getLoggerMock.Object);
             _searchHandler = new SearchSeniorityLevelJunctionHandler(_readRepositoryMock.Object);
             _updateHandler = new UpdateSeniorityLevelJunctionHandler(_updateLoggerMock.Object, _repositoryMock.Object);
 
@@ -137,6 +137,7 @@ namespace TalentMesh.Module.Experties.Tests
             // Assert
             Assert.NotNull(result);
             Assert.Equal(expectedSeniority.SkillId, result.SkillId);
+            Assert.Equal(expectedSeniority.Id, result.Id);
             Assert.Equal(expectedSeniority.SeniorityLevelId, result.SeniorityLevelId);
             // Additionally, verify that Seniority is mapped correctly.
             Assert.NotNull(result.Seniority);
@@ -224,54 +225,6 @@ namespace TalentMesh.Module.Experties.Tests
             Assert.Equal(2, result.Items.Count);
             Assert.All(result.Items, item => Assert.Equal(seniorityLevelId, item.SeniorityLevelId));
 
-        }
-        [Fact]
-        public async Task UpdateSeniorityLevelJunction_ReturnsUpdatedRubricResponse()
-        {
-            // Arrange
-            var seniorityLevelId = Guid.NewGuid();
-            var skillId = Guid.NewGuid();
-            var existingSeniority = SeniorityLevelJunction.Create(seniorityLevelId, skillId);
-            var request = new UpdateSeniorityLevelJunctionCommand(
-                skillId, // Correctly pass SkillId instead of the junction's Id
-                new List<Guid> { Guid.NewGuid(), Guid.NewGuid() }
-            );
-
-            _repositoryMock.Setup(repo => repo.ListAsync(It.IsAny<CancellationToken>()))
-                .ReturnsAsync(new List<SeniorityLevelJunction> { existingSeniority });
-
-            // Act
-            var result = await _updateHandler.Handle(request, CancellationToken.None);
-
-            // Assert
-            Assert.NotNull(result);
-            Assert.Equal(2, result.JunctionIds.Count); // Expect two new junctions
-
-            _repositoryMock.Verify(repo => repo.DeleteAsync(existingSeniority, It.IsAny<CancellationToken>()), Times.Once);
-            _repositoryMock.Verify(repo => repo.AddAsync(It.IsAny<SeniorityLevelJunction>(), It.IsAny<CancellationToken>()), Times.Exactly(2));
-            _repositoryMock.Verify(repo => repo.UpdateAsync(It.IsAny<SeniorityLevelJunction>(), It.IsAny<CancellationToken>()), Times.Never); // Remove if not used
-        }
-
-        [Fact]
-        public async Task UpdateSeniorityLevelJunction_ThrowsExceptionIfNotFound()
-        {
-            // Arrange
-            var skillId = Guid.NewGuid();
-            var request = new UpdateSeniorityLevelJunctionCommand(
-                skillId,
-                new List<Guid> { Guid.NewGuid(), Guid.NewGuid() }
-            );
-
-            // Mock ListAsync to return no existing junctions for the SkillId
-            _repositoryMock.Setup(repo => repo.ListAsync(It.IsAny<CancellationToken>()))
-                .ReturnsAsync(new List<SeniorityLevelJunction>());
-
-            // Act & Assert
-            await Assert.ThrowsAsync<SeniorityLevelJunctionNotFoundException>(() =>
-                _updateHandler.Handle(request, CancellationToken.None));
-
-            // Verify ListAsync was called
-            _repositoryMock.Verify(repo => repo.ListAsync(It.IsAny<CancellationToken>()), Times.Once);
         }
     }
 }

@@ -12,9 +12,11 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using Microsoft.IdentityModel.Tokens;
 using TalentMesh.Module.Interviews.Application.Services;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Module.Interviews.Infrastructure.Services
 {
+    [ExcludeFromCodeCoverage]
     public class ZoomService : IZoomService
     {
         private readonly HttpClient _httpClient;

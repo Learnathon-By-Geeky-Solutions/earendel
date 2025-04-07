@@ -47,10 +47,9 @@ namespace TalentMesh.Module.Evaluator.Application.Interviewer.Create.v1
             return new CreateInterviewerAvailabilityResponse(newAvailabilities.Select(a => a.Id).ToList());
         }
 
-        private static bool IsOverlapping(AvailabilitySlot slot, IEnumerable<InterviewerAvailability> existingAvailabilities)
+        public static bool IsOverlapping(AvailabilitySlot slot, IEnumerable<InterviewerAvailability> existingAvailabilities)
         {
-            return existingAvailabilities.Any(existing =>
-                slot.StartTime < existing.EndTime && existing.StartTime < slot.EndTime);
+            return existingAvailabilities.Any(existing => slot.StartTime < existing.EndTime && existing.StartTime < slot.EndTime);
         }
     }
 }

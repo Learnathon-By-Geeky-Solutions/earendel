@@ -3,8 +3,8 @@ using MediatR;
 namespace TalentMesh.Module.Experties.Application.Rubrics.Update.v1;
 public sealed record UpdateRubricCommand(
     Guid Id,
-    Guid SubSkillId,
-    Guid SeniorityLevelId,
-    decimal Weight,
-    string? Title,
+    Guid? SubSkillId = null,
+    Guid? SeniorityLevelId = null,
+    decimal? Weight = null,
+    string? Title = null,
     string? RubricDescription = null) : IRequest<UpdateRubricResponse>;

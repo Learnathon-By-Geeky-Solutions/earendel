@@ -23,7 +23,7 @@ namespace TalentMesh.Module.Evaluator.Infrastructure.Endpoints.v1
                 .WithSummary("Deletes Interviewer Availability by id")
                 .WithDescription("Deletes Interviewer Availability by id")
                 .Produces(StatusCodes.Status204NoContent)
-                .RequirePermission("Permissions.Interviewer.Delete")
+                // .RequirePermission("Permissions.Interviewer.Delete")
                 .MapToApiVersion(1);
         }
     }

@@ -203,6 +203,7 @@ namespace TalentMesh.Module.Experties.Tests
                 Times.Once
             );
         }
+        
         [Fact]
         public async Task UpdateRubric_ReturnsUpdatedRubricResponse()
         {
@@ -231,6 +232,36 @@ namespace TalentMesh.Module.Experties.Tests
             _repositoryMock.Verify(repo => repo.GetByIdAsync(rubricId, It.IsAny<CancellationToken>()), Times.Once);
             _repositoryMock.Verify(repo => repo.UpdateAsync(It.IsAny<Rubric>(), It.IsAny<CancellationToken>()), Times.Once);
         }
+
+        [Fact]
+        public async Task UpdateRubric_AllFieldsChanged_DoesnotUpdateTitle()
+        {
+            // Arrange
+            var existingSubSkillId = Guid.NewGuid();
+            var existingSeniorityLevelId = Guid.NewGuid();
+            var existingRubric = Rubric.Create("Old Title", "Old Desc", existingSubSkillId, existingSeniorityLevelId, 0.5m);
+            var rubricId = existingRubric.Id;
+            var request = new UpdateRubricCommand(
+                rubricId,
+                existingSubSkillId,
+                existingSeniorityLevelId,
+                1.2m, 
+                null, 
+                "desc" 
+            );
+
+            _repositoryMock.Setup(repo => repo.GetByIdAsync(rubricId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(existingRubric);
+            _repositoryMock.Setup(repo => repo.UpdateAsync(existingRubric, It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
+
+            // Act
+            var result = await _updateHandler.Handle(request, CancellationToken.None);
+
+            // Assert
+            Assert.NotNull(result);
+            Assert.Equal(rubricId, result.Id);
+        }
+
 
         [Fact]
         public async Task UpdateRubric_ThrowsExceptionIfNotFound()

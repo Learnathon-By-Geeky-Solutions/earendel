@@ -38,18 +38,5 @@ namespace TalentMesh.Module.Experties.Domain
             return this;
         }
 
-        public static Skill Update(Guid id, string name, string? description)
-        {
-            var skill = new Skill
-            {
-                Id = id,
-                Name = name,
-                Description = description
-            };
-
-            skill.QueueDomainEvent(new SkillUpdated() { Skill = skill });
-
-            return skill;
-        }
     }
 }

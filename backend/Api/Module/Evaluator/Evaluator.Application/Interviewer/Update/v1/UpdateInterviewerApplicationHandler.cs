@@ -15,6 +15,9 @@ namespace TalentMesh.Module.Evaluator.Application.Interviewer.Update.v1
         public async Task<UpdateInterviewerApplicationResponse> Handle(UpdateInterviewerApplicationCommand request, CancellationToken cancellationToken)
         {
             ArgumentNullException.ThrowIfNull(request);
+            
+            logger.LogInformation("Updating InterviewerApplication with JobId: {JobId}, InterviewerId: {InterviewerId}", request.JobId, request.InterviewerId);
+
             var entity = await repository.GetByIdAsync(request.Id, cancellationToken);
             if (entity == null)
             {
