@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using TalentMesh.Framework.Core.Persistence;
 using TalentMesh.Framework.Infrastructure.Persistence;
+using TalentMesh.Module.CandidateLogic.JobApplicationView;
 using TalentMesh.Module.CandidateLogic.JobView;
 using TalentMesh.Module.Job.Domain;
 using TalentMesh.Module.Job.Infrastructure.Persistence;
@@ -22,7 +23,7 @@ namespace TalentMesh.Module.CandidateLogic
                 // Endpoints for Jobs
                 var jobView = app.MapGroup("candidateview").WithTags("JobViewCandidate");
                 jobView.MapJobViewEndpoints();
-
+                jobView.MapJobApplicationViewEndpoints();
                 
             }
         }
@@ -34,7 +35,7 @@ namespace TalentMesh.Module.CandidateLogic
 
             // Register repositories for Jobs
             builder.Services.AddKeyedScoped<IReadRepository<Jobs>, JobRepository<Jobs>>("jobs:jobReadOnly");
-
+            builder.Services.AddKeyedScoped<IReadRepository<JobApplication>, JobRepository<JobApplication>>("jobApplication:jobApplicationReadOnly");
          
             return builder;
         }
