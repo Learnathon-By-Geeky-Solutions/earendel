@@ -7,4 +7,5 @@ export const endpoint = {
   userRegistrationUrl: `${base}/api/users/self-register`,
   userLoginUrl: `${base}/api/token`,
   hrDetailsUrl: `${base}/api/users/hr`,
+  createavailabilityUrl: `${base}/api/v1/evaluator/intervieweravailabilities/search`,
 };
