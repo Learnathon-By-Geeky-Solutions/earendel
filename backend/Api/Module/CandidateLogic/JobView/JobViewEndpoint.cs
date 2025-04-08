@@ -4,16 +4,17 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.EntityFrameworkCore;
+using TalentMesh.Module.CandidateLogic;
 using TalentMesh.Module.Job.Domain;
 using TalentMesh.Module.Job.Infrastructure.Persistence;
 
-namespace TalentMesh.Module.CandidateLogic;
+namespace TalentMesh.Module.CandidateLogic.JobView;
 
 public static class JobViewEndpoint
 {
     public static RouteHandlerBuilder MapJobViewEndpoints(this IEndpointRouteBuilder app)
     {
-        return app.MapGet("/jobview", 
+        return app.MapGet("", 
             async (
                 IMediator mediator,
                 [FromQuery] string? name,

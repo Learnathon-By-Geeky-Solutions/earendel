@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using TalentMesh.Module.Job.Infrastructure.Persistence;
 
-namespace TalentMesh.Module.CandidateLogic;
+namespace TalentMesh.Module.CandidateLogic.JobView;
 
 
 public class JobViewService : IRequestHandler<JobViewFilters, IResult>

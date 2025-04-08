@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using TalentMesh.Framework.Core.Persistence;
 using TalentMesh.Framework.Infrastructure.Persistence;
+using TalentMesh.Module.CandidateLogic.JobView;
 using TalentMesh.Module.Job.Domain;
 using TalentMesh.Module.Job.Infrastructure.Persistence;
 
@@ -14,12 +15,12 @@ namespace TalentMesh.Module.CandidateLogic
     {
         public class Endpoints : CarterModule
         {
-            public Endpoints() : base("jobView") { }
+            public Endpoints() : base("JobView") { }
 
             public override void AddRoutes(IEndpointRouteBuilder app)
             {
                 // Endpoints for Jobs
-                var jobView = app.MapGroup("jobview").WithTags("JobViewCandidate");
+                var jobView = app.MapGroup("candidateview").WithTags("JobViewCandidate");
                 jobView.MapJobViewEndpoints();
 
                 

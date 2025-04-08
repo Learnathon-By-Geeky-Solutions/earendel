@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 using TalentMesh.Framework.Core.Paging;
 using TalentMesh.Module.Job.Application.Jobs.Get.v1;
 
-namespace TalentMesh.Module.CandidateLogic;
+namespace TalentMesh.Module.CandidateLogic.JobView;
 
 public record JobViewFilters(
         string? Name,
