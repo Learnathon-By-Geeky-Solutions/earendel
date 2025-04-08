@@ -33,7 +33,7 @@ namespace TalentMesh.Module.CandidateLogic.JobApplicationView // Or your preferr
                     // Send the filters to the handler (JobApplicationViewService)
                     return await mediator.Send(filters);
                 })
-                .WithTags("JobApplicationView") // Group in Swagger UI
+                .WithTags("CandidateLogic") // Group in Swagger UI
                 .WithName("GetFilteredJobApplications") // Unique name for the endpoint
                 .Produces<List<JobApplication>>(StatusCodes.Status200OK) // Specify the expected success response
                 .Produces(StatusCodes.Status400BadRequest) // Example error response
