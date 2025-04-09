@@ -1,19 +1,18 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Http;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using TalentMesh.Framework.Core.Paging;
-using TalentMesh.Module.Job.Application.Jobs.Get.v1;
-
+using System.ComponentModel.DataAnnotations;
 namespace TalentMesh.Module.CandidateLogic.JobView;
 
 public record JobViewFilters(
+        [StringLength(100)]
         string? Name,
+        [StringLength(1000)]
         string? Description,
+        [StringLength(1000)]
         string? Requirements,
+        [StringLength(50)]
         string? Location,
+        [StringLength(50)]
         string? JobType,
+        [StringLength(50)]
         string? ExperienceLevel) : IRequest<IResult>;

@@ -12,7 +12,7 @@ public class JobViewService : IRequestHandler<JobViewFilters, IResult>
 
     public JobViewService(JobDbContext context)
     {
-        _job_context = context;
+        _job_context = context ?? throw new ArgumentNullException(nameof(context));
     }
 
     public async Task<IResult> Handle(JobViewFilters request, CancellationToken cancellationToken)
@@ -20,7 +20,7 @@ public class JobViewService : IRequestHandler<JobViewFilters, IResult>
         var query = _job_context.Jobs.AsQueryable();
 
         if (!string.IsNullOrWhiteSpace(request.Name))
-            query = query.Where(j => j.Name.Contains(request.Name));
+            query = query.Where(j => j.Name.Contains(request.Name, StringComparison.OrdinalIgnoreCase));
 
         if (!string.IsNullOrWhiteSpace(request.Description))
             query = query.Where(j => j.Description != null && j.Description.Contains(request.Description));

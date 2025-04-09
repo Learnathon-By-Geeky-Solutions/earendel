@@ -1,15 +1,19 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Http;
 using System;
+using System.ComponentModel.DataAnnotations;
 
-namespace TalentMesh.Module.CandidateLogic.JobApplicationView // Or your preferred namespace
+namespace TalentMesh.Module.CandidateLogic.JobApplicationView 
 {
     public record JobApplicationViewFilters(
         Guid? JobId,
         Guid? CandidateId, // User ID
+        [DataType(DataType.Date)]
         DateTime? ApplicationDateStart,
+        [DataType(DataType.Date)]
         DateTime? ApplicationDateEnd,
+        [StringLength(50)]
         string? Status
-        // Add other potential filters like pagination parameters if needed
+        
         ) : IRequest<IResult>;
 }

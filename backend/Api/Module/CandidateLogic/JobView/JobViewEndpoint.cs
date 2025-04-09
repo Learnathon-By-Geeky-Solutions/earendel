@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.EntityFrameworkCore;
+using TalentMesh.Framework.Infrastructure.Auth.Policy;
 using TalentMesh.Module.CandidateLogic;
 using TalentMesh.Module.Job.Domain;
 using TalentMesh.Module.Job.Infrastructure.Persistence;
@@ -14,7 +15,7 @@ public static class JobViewEndpoint
 {
     public static RouteHandlerBuilder MapJobViewEndpoints(this IEndpointRouteBuilder app)
     {
-        return app.MapGet("", 
+        return app.MapGet("JobView", 
             async (
                 IMediator mediator,
                 [FromQuery] string? name,
@@ -37,6 +38,7 @@ public static class JobViewEndpoint
             .WithTags("CandidateLogic")
             .WithName("GetAllJobs For Candidates")
             .Produces<List<Jobs>>(StatusCodes.Status200OK)
+            .RequirePermission("Permissions.CandidateLogic.View")
             .Produces(StatusCodes.Status500InternalServerError);
     }
 }
