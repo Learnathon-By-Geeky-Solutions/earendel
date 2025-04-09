@@ -23,19 +23,19 @@ public class JobViewService : IRequestHandler<JobViewFilters, IResult>
             query = query.Where(j => j.Name.Contains(request.Name, StringComparison.OrdinalIgnoreCase));
 
         if (!string.IsNullOrWhiteSpace(request.Description))
-            query = query.Where(j => j.Description != null && j.Description.Contains(request.Description));
+            query = query.Where(j => j.Description != null && j.Description.Contains(request.Description, StringComparison.OrdinalIgnoreCase));
 
         if (!string.IsNullOrWhiteSpace(request.Requirements))
-            query = query.Where(j => j.Requirments.Contains(request.Requirements));
+            query = query.Where(j => j.Requirments != null && j.Requirments.Contains(request.Requirements, StringComparison.OrdinalIgnoreCase));
 
         if (!string.IsNullOrWhiteSpace(request.Location))
-            query = query.Where(j => j.Location.Contains(request.Location));
+            query = query.Where(j => j.Location != null && j.Location.Contains(request.Location, StringComparison.OrdinalIgnoreCase));
 
         if (!string.IsNullOrWhiteSpace(request.JobType))
-            query = query.Where(j => j.JobType.Contains(request.JobType));
+            query = query.Where(j => j.JobType != null && j.JobType.Contains(request.JobType, StringComparison.OrdinalIgnoreCase));
 
         if (!string.IsNullOrWhiteSpace(request.ExperienceLevel))
-            query = query.Where(j => j.ExperienceLevel.Contains(request.ExperienceLevel));
+            query = query.Where(j => j.ExperienceLevel != null && j.ExperienceLevel.Contains(request.ExperienceLevel, StringComparison.OrdinalIgnoreCase));
 
         var results = await query.ToListAsync(cancellationToken);
         return Results.Ok(results);
