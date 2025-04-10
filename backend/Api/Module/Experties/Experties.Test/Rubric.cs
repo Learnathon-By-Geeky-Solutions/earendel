@@ -203,6 +203,7 @@ namespace TalentMesh.Module.Experties.Tests
                 Times.Once
             );
         }
+
         [Fact]
         public async Task UpdateRubric_ReturnsUpdatedRubricResponse()
         {
@@ -232,7 +233,580 @@ namespace TalentMesh.Module.Experties.Tests
             _repositoryMock.Verify(repo => repo.UpdateAsync(It.IsAny<Rubric>(), It.IsAny<CancellationToken>()), Times.Once);
         }
 
+        // 1. New title is non-null and different → should update.
         [Fact]
+        public async Task UpdateRubric_WhenTitleChanged_ShouldUpdateTitle()
+        {
+            // Arrange
+            var existingRubric = Rubric.Create("Old Title", "Old Desc", Guid.NewGuid(), Guid.NewGuid(), 0.5m);
+            var rubricId = existingRubric.Id;
+            var request = new UpdateRubricCommand(
+                rubricId,
+                null,               // No update for SubSkillId
+                null,               // No update for SeniorityLevelId
+                null,               // No update for Weight
+                "New Title",        // New title provided
+                null                // No update for description
+            );
+            _repositoryMock.Setup(repo => repo.GetByIdAsync(rubricId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(existingRubric);
+            _repositoryMock.Setup(repo => repo.UpdateAsync(existingRubric, It.IsAny<CancellationToken>()))
+                .Returns(Task.CompletedTask);
+
+            // Act
+            await _updateHandler.Handle(request, CancellationToken.None);
+
+            // Assert
+            Assert.Equal("New Title", existingRubric.Title);
+        }
+
+        // 2. New title is non-null but equals current title (ignoring case) → no update.
+        [Fact]
+        public async Task UpdateRubric_WhenTitleIsSame_ShouldNotUpdateTitle()
+        {
+            // Arrange
+            var existingRubric = Rubric.Create("Old Title", "Old Desc", Guid.NewGuid(), Guid.NewGuid(), 0.5m);
+            var rubricId = existingRubric.Id;
+            var request = new UpdateRubricCommand(
+                rubricId,
+                null,
+                null,
+                null,
+                "old title",  // same title in different case
+                null
+            );
+            _repositoryMock.Setup(repo => repo.GetByIdAsync(rubricId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(existingRubric);
+            _repositoryMock.Setup(repo => repo.UpdateAsync(existingRubric, It.IsAny<CancellationToken>()))
+                .Returns(Task.CompletedTask);
+
+            // Act
+            await _updateHandler.Handle(request, CancellationToken.None);
+
+            // Assert
+            Assert.Equal("Old Title", existingRubric.Title);
+        }
+
+        // 3. New title is null → update block skipped.
+        [Fact]
+        public async Task UpdateRubric_WhenTitleIsNull_ShouldNotUpdateTitle()
+        {
+            // Arrange
+            var existingRubric = Rubric.Create("Old Title", "Old Desc", Guid.NewGuid(), Guid.NewGuid(), 0.5m);
+            var rubricId = existingRubric.Id;
+            var request = new UpdateRubricCommand(
+                rubricId,
+                null,
+                null,
+                null,
+                null,  // title is null
+                null
+            );
+            _repositoryMock.Setup(repo => repo.GetByIdAsync(rubricId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(existingRubric);
+            _repositoryMock.Setup(repo => repo.UpdateAsync(existingRubric, It.IsAny<CancellationToken>()))
+                .Returns(Task.CompletedTask);
+
+            // Act
+            await _updateHandler.Handle(request, CancellationToken.None);
+
+            // Assert
+            Assert.Equal("Old Title", existingRubric.Title);
+        }
+
+        [Fact]
+        public async Task UpdateRubric_WhenCurrentTitleIsNull_ShouldNotUpdateTitle()
+        {
+            // Arrange
+            var existingRubric = Rubric.Create(null, "Old Desc", Guid.NewGuid(), Guid.NewGuid(), 0.5m);
+            var rubricId = existingRubric.Id;
+            var request = new UpdateRubricCommand(
+                rubricId,
+                null,
+                null,
+                null,
+                "Provided Title",
+                null
+            );
+            _repositoryMock.Setup(repo => repo.GetByIdAsync(rubricId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(existingRubric);
+            _repositoryMock.Setup(repo => repo.UpdateAsync(existingRubric, It.IsAny<CancellationToken>()))
+                .Returns(Task.CompletedTask);
+
+            // Act
+            await _updateHandler.Handle(request, CancellationToken.None);
+
+            // Assert
+            Assert.Equal("Provided Title", existingRubric.Title);
+        }
+
+        // =======================
+        // RubricDescription update tests
+        // =======================
+
+        // 1. New description is non-null and different → should update.
+        [Fact]
+        public async Task UpdateRubric_WhenDescriptionChanged_ShouldUpdateDescription()
+        {
+            // Arrange
+            var existingRubric = Rubric.Create("Old Title", "Old Desc", Guid.NewGuid(), Guid.NewGuid(), 0.5m);
+            var rubricId = existingRubric.Id;
+            var request = new UpdateRubricCommand(
+                rubricId,
+                null,
+                null,
+                null,
+                null,
+                "New Desc"  // update description
+            );
+            _repositoryMock.Setup(repo => repo.GetByIdAsync(rubricId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(existingRubric);
+            _repositoryMock.Setup(repo => repo.UpdateAsync(existingRubric, It.IsAny<CancellationToken>()))
+                .Returns(Task.CompletedTask);
+
+            // Act
+            await _updateHandler.Handle(request, CancellationToken.None);
+
+            // Assert
+            Assert.Equal("New Desc", existingRubric.RubricDescription);
+        }
+
+        // 2. New description is non-null but equals current description (ignoring case) → no update.
+        [Fact]
+        public async Task UpdateRubric_WhenDescriptionIsSame_ShouldNotUpdateDescription()
+        {
+            // Arrange
+            var existingRubric = Rubric.Create("Old Title", "Old Desc", Guid.NewGuid(), Guid.NewGuid(), 0.5m);
+            var rubricId = existingRubric.Id;
+            var request = new UpdateRubricCommand(
+                rubricId,
+                null,
+                null,
+                null,
+                null,
+                "old desc"  // same description in different case
+            );
+            _repositoryMock.Setup(repo => repo.GetByIdAsync(rubricId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(existingRubric);
+            _repositoryMock.Setup(repo => repo.UpdateAsync(existingRubric, It.IsAny<CancellationToken>()))
+                .Returns(Task.CompletedTask);
+
+            // Act
+            await _updateHandler.Handle(request, CancellationToken.None);
+
+            // Assert
+            Assert.Equal("Old Desc", existingRubric.RubricDescription);
+        }
+
+        // 3. New description is null → update block skipped.
+        [Fact]
+        public async Task UpdateRubric_WhenDescriptionIsNull_ShouldNotUpdateDescription()
+        {
+            // Arrange
+            var existingRubric = Rubric.Create("Old Title", "Old Desc", Guid.NewGuid(), Guid.NewGuid(), 0.5m);
+            var rubricId = existingRubric.Id;
+            var request = new UpdateRubricCommand(
+                rubricId,
+                null,
+                null,
+                null,
+                null,
+                null  // description is null
+            );
+            _repositoryMock.Setup(repo => repo.GetByIdAsync(rubricId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(existingRubric);
+            _repositoryMock.Setup(repo => repo.UpdateAsync(existingRubric, It.IsAny<CancellationToken>()))
+                .Returns(Task.CompletedTask);
+
+            // Act
+            await _updateHandler.Handle(request, CancellationToken.None);
+
+            // Assert
+            Assert.Equal("Old Desc", existingRubric.RubricDescription);
+        }
+
+        [Fact]
+        public async Task UpdateRubric_WhenCurrentDescriptionIsNull_ShouldNotUpdateDescription()
+        {
+            // Arrange
+            var existingRubric = Rubric.Create("Old Title", null, Guid.NewGuid(), Guid.NewGuid(), 0.5m);
+            var rubricId = existingRubric.Id;
+            var request = new UpdateRubricCommand(
+                rubricId,
+                null,
+                null,
+                null,
+                null,
+                "Provided Desc"
+            );
+            _repositoryMock.Setup(repo => repo.GetByIdAsync(rubricId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(existingRubric);
+            _repositoryMock.Setup(repo => repo.UpdateAsync(existingRubric, It.IsAny<CancellationToken>()))
+                .Returns(Task.CompletedTask);
+
+            // Act
+            await _updateHandler.Handle(request, CancellationToken.None);
+
+            // Assert
+            Assert.Equal("Provided Desc", existingRubric.RubricDescription);
+        }
+
+        // =======================
+        // SubSkillId update tests
+        // =======================
+
+        // 1. New subSkillId is non-null and different → should update.
+        [Fact]
+        public async Task UpdateRubric_WhenSubSkillIdChanged_ShouldUpdateSubSkillId()
+        {
+            // Arrange
+            var oldSubSkillId = Guid.NewGuid();
+            var newSubSkillId = Guid.NewGuid();
+            var existingRubric = Rubric.Create("Old Title", "Old Desc", oldSubSkillId, Guid.NewGuid(), 0.5m);
+            var rubricId = existingRubric.Id;
+            var request = new UpdateRubricCommand(
+                rubricId,
+                newSubSkillId,  // update subSkillId
+                null,
+                null,
+                null,
+                null
+            );
+            _repositoryMock.Setup(repo => repo.GetByIdAsync(rubricId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(existingRubric);
+            _repositoryMock.Setup(repo => repo.UpdateAsync(existingRubric, It.IsAny<CancellationToken>()))
+                .Returns(Task.CompletedTask);
+
+            // Act
+            await _updateHandler.Handle(request, CancellationToken.None);
+
+            // Assert
+            Assert.Equal(newSubSkillId, existingRubric.SubSkillId);
+        }
+
+        // 2. New subSkillId is non-null but same as current → no update.
+        [Fact]
+        public async Task UpdateRubric_WhenSubSkillIdIsSame_ShouldNotUpdateSubSkillId()
+        {
+            // Arrange
+            var subSkillId = Guid.NewGuid();
+            var existingRubric = Rubric.Create("Old Title", "Old Desc", subSkillId, Guid.NewGuid(), 0.5m);
+            var rubricId = existingRubric.Id;
+            var request = new UpdateRubricCommand(
+                rubricId,
+                subSkillId,  // same value
+                null,
+                null,
+                null,
+                null
+            );
+            _repositoryMock.Setup(repo => repo.GetByIdAsync(rubricId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(existingRubric);
+            _repositoryMock.Setup(repo => repo.UpdateAsync(existingRubric, It.IsAny<CancellationToken>()))
+                .Returns(Task.CompletedTask);
+
+            // Act
+            await _updateHandler.Handle(request, CancellationToken.None);
+
+            // Assert
+            Assert.Equal(subSkillId, existingRubric.SubSkillId);
+        }
+
+        // 3. New subSkillId is null → update block skipped.
+        [Fact]
+        public async Task UpdateRubric_WhenSubSkillIdIsNull_ShouldNotUpdateSubSkillId()
+        {
+            // Arrange
+            var existingSubSkillId = Guid.NewGuid();
+            var existingRubric = Rubric.Create("Old Title", "Old Desc", existingSubSkillId, Guid.NewGuid(), 0.5m);
+            var rubricId = existingRubric.Id;
+            var request = new UpdateRubricCommand(
+                rubricId,
+                null, // subSkillId null
+                null,
+                null,
+                null,
+                null
+            );
+            _repositoryMock.Setup(repo => repo.GetByIdAsync(rubricId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(existingRubric);
+            _repositoryMock.Setup(repo => repo.UpdateAsync(existingRubric, It.IsAny<CancellationToken>()))
+                .Returns(Task.CompletedTask);
+
+            // Act
+            await _updateHandler.Handle(request, CancellationToken.None);
+
+            // Assert
+            Assert.Equal(existingSubSkillId, existingRubric.SubSkillId);
+        }
+
+        [Fact]
+        public async Task UpdateRubric_WhenProvidedSubSkillIdIsNull_ShouldNotUpdateSubSkillId()
+        {
+            // Arrange
+            var existingSubSkillId = Guid.NewGuid();
+            var existingRubric = Rubric.Create("Old Title", "Old Desc", null, Guid.NewGuid(), 0.5m);
+            var rubricId = existingRubric.Id;
+            var request = new UpdateRubricCommand(
+                rubricId,
+                existingSubSkillId,
+                null,
+                null,
+                null,
+                null
+            );
+            _repositoryMock.Setup(repo => repo.GetByIdAsync(rubricId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(existingRubric);
+            _repositoryMock.Setup(repo => repo.UpdateAsync(existingRubric, It.IsAny<CancellationToken>()))
+                .Returns(Task.CompletedTask);
+
+            // Act
+            await _updateHandler.Handle(request, CancellationToken.None);
+
+            // Assert
+            Assert.Equal(existingSubSkillId, existingRubric.SubSkillId);
+        }
+
+        // =======================
+        // SeniorityLevelId update tests
+        // =======================
+
+        // 1. New seniorityLevelId is non-null and different → should update.
+        [Fact]
+        public async Task UpdateRubric_WhenSeniorityLevelIdChanged_ShouldUpdateSeniorityLevelId()
+        {
+            // Arrange
+            var oldSeniorityLevelId = Guid.NewGuid();
+            var newSeniorityLevelId = Guid.NewGuid();
+            var existingRubric = Rubric.Create("Old Title", "Old Desc", Guid.NewGuid(), oldSeniorityLevelId, 0.5m);
+            var rubricId = existingRubric.Id;
+            var request = new UpdateRubricCommand(
+                rubricId,
+                null,
+                newSeniorityLevelId,  // update seniorityLevelId
+                null,
+                null,
+                null
+            );
+            _repositoryMock.Setup(repo => repo.GetByIdAsync(rubricId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(existingRubric);
+            _repositoryMock.Setup(repo => repo.UpdateAsync(existingRubric, It.IsAny<CancellationToken>()))
+                .Returns(Task.CompletedTask);
+
+            // Act
+            await _updateHandler.Handle(request, CancellationToken.None);
+
+            // Assert
+            Assert.Equal(newSeniorityLevelId, existingRubric.SeniorityLevelId);
+        }
+
+        // 2. New seniorityLevelId is non-null but same as current → no update.
+        [Fact]
+        public async Task UpdateRubric_WhenSeniorityLevelIdIsSame_ShouldNotUpdateSeniorityLevelId()
+        {
+            // Arrange
+            var seniorityLevelId = Guid.NewGuid();
+            var existingRubric = Rubric.Create("Old Title", "Old Desc", Guid.NewGuid(), seniorityLevelId, 0.5m);
+            var rubricId = existingRubric.Id;
+            var request = new UpdateRubricCommand(
+                rubricId,
+                null,
+                seniorityLevelId,  // same value
+                null,
+                null,
+                null
+            );
+            _repositoryMock.Setup(repo => repo.GetByIdAsync(rubricId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(existingRubric);
+            _repositoryMock.Setup(repo => repo.UpdateAsync(existingRubric, It.IsAny<CancellationToken>()))
+                .Returns(Task.CompletedTask);
+
+            // Act
+            await _updateHandler.Handle(request, CancellationToken.None);
+
+            // Assert
+            Assert.Equal(seniorityLevelId, existingRubric.SeniorityLevelId);
+        }
+
+        // 3. New seniorityLevelId is null → update block skipped.
+        [Fact]
+        public async Task UpdateRubric_WhenSeniorityLevelIdIsNull_ShouldNotUpdateSeniorityLevelId()
+        {
+            // Arrange
+            var existingSeniorityLevelId = Guid.NewGuid();
+            var existingRubric = Rubric.Create("Old Title", "Old Desc", Guid.NewGuid(), existingSeniorityLevelId, 0.5m);
+            var rubricId = existingRubric.Id;
+            var request = new UpdateRubricCommand(
+                rubricId,
+                null,
+                null, // seniorityLevelId null
+                null,
+                null,
+                null
+            );
+            _repositoryMock.Setup(repo => repo.GetByIdAsync(rubricId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(existingRubric);
+            _repositoryMock.Setup(repo => repo.UpdateAsync(existingRubric, It.IsAny<CancellationToken>()))
+                .Returns(Task.CompletedTask);
+
+            // Act
+            await _updateHandler.Handle(request, CancellationToken.None);
+
+            // Assert
+            Assert.Equal(existingSeniorityLevelId, existingRubric.SeniorityLevelId);
+        }
+
+        [Fact]
+        public async Task UpdateRubric_WhenUpdatedSeniorityLevelIdIsNull_ShouldNotUpdateSeniorityLevelId()
+        {
+            // Arrange
+            var existingSeniorityLevelId = Guid.NewGuid();
+            var existingRubric = Rubric.Create("Old Title", "Old Desc", Guid.NewGuid(), null, 0.5m);
+            var rubricId = existingRubric.Id;
+            var request = new UpdateRubricCommand(
+                rubricId,
+                null,
+                existingSeniorityLevelId, 
+                null,
+                null,
+                null
+            );
+            _repositoryMock.Setup(repo => repo.GetByIdAsync(rubricId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(existingRubric);
+            _repositoryMock.Setup(repo => repo.UpdateAsync(existingRubric, It.IsAny<CancellationToken>()))
+                .Returns(Task.CompletedTask);
+
+            // Act
+            await _updateHandler.Handle(request, CancellationToken.None);
+
+            // Assert
+            Assert.Equal(existingSeniorityLevelId, existingRubric.SeniorityLevelId);
+        }
+
+        // =======================
+        // Weight update tests
+        // =======================
+
+        // 1. New weight is non-null, > 0, and different → should update.
+        [Fact]
+        public async Task UpdateRubric_WhenWeightChanged_ShouldUpdateWeight()
+        {
+            // Arrange
+            var existingRubric = Rubric.Create("Old Title", "Old Desc", Guid.NewGuid(), Guid.NewGuid(), 0.5m);
+            var rubricId = existingRubric.Id;
+            var request = new UpdateRubricCommand(
+                rubricId,
+                null,
+                null,
+                1.0m, // update weight
+                null,
+                null
+            );
+            _repositoryMock.Setup(repo => repo.GetByIdAsync(rubricId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(existingRubric);
+            _repositoryMock.Setup(repo => repo.UpdateAsync(existingRubric, It.IsAny<CancellationToken>()))
+                .Returns(Task.CompletedTask);
+
+            // Act
+            await _updateHandler.Handle(request, CancellationToken.None);
+
+            // Assert
+            Assert.Equal(1.0m, existingRubric.Weight);
+        }
+
+        // 2. New weight is non-null but same as current → no update.
+        [Fact]
+        public async Task UpdateRubric_WhenWeightIsSame_ShouldNotUpdateWeight()
+        {
+            // Arrange
+            var existingRubric = Rubric.Create("Old Title", "Old Desc", Guid.NewGuid(), Guid.NewGuid(), 1.0m);
+            var rubricId = existingRubric.Id;
+            var request = new UpdateRubricCommand(
+                rubricId,
+                null,
+                null,
+                1.0m, // same weight
+                null,
+                null
+            );
+            _repositoryMock.Setup(repo => repo.GetByIdAsync(rubricId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(existingRubric);
+            _repositoryMock.Setup(repo => repo.UpdateAsync(existingRubric, It.IsAny<CancellationToken>()))
+                .Returns(Task.CompletedTask);
+
+            // Act
+            await _updateHandler.Handle(request, CancellationToken.None);
+
+            // Assert
+            Assert.Equal(1.0m, existingRubric.Weight);
+        }
+
+        // 3. New weight is null → update block skipped.
+        [Fact]
+        public async Task UpdateRubric_WhenWeightIsNull_ShouldNotUpdateWeight()
+        {
+            // Arrange
+            var existingRubric = Rubric.Create("Old Title", "Old Desc", Guid.NewGuid(), Guid.NewGuid(), 1.0m);
+            var rubricId = existingRubric.Id;
+            var request = new UpdateRubricCommand(
+                rubricId,
+                null,
+                null,
+                null,  // weight null
+                null,
+                null
+            );
+            _repositoryMock.Setup(repo => repo.GetByIdAsync(rubricId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(existingRubric);
+            _repositoryMock.Setup(repo => repo.UpdateAsync(existingRubric, It.IsAny<CancellationToken>()))
+                .Returns(Task.CompletedTask);
+
+            // Act
+            await _updateHandler.Handle(request, CancellationToken.None);
+
+            // Assert
+            Assert.Equal(1.0m, existingRubric.Weight);
+        }
+
+        // 4. New weight is zero or negative → update block skipped.
+        [Fact]
+        public async Task UpdateRubric_WhenWeightIsZeroOrNegative_ShouldNotUpdateWeight()
+        {
+            // Arrange
+            var existingRubric = Rubric.Create("Old Title", "Old Desc", Guid.NewGuid(), Guid.NewGuid(), 1.0m);
+            var rubricId = existingRubric.Id;
+            // Test with zero
+            var requestZero = new UpdateRubricCommand(
+                rubricId,
+                null,
+                null,
+                0m,
+                null,
+                null
+            );
+            // Test with negative weight
+            var requestNegative = new UpdateRubricCommand(
+                rubricId,
+                null,
+                null,
+                -0.5m,
+                null,
+                null
+            );
+            _repositoryMock.Setup(repo => repo.GetByIdAsync(rubricId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(existingRubric);
+            _repositoryMock.Setup(repo => repo.UpdateAsync(existingRubric, It.IsAny<CancellationToken>()))
+                .Returns(Task.CompletedTask);
+
+            // Act
+            await _updateHandler.Handle(requestZero, CancellationToken.None);
+            await _updateHandler.Handle(requestNegative, CancellationToken.None);
+
+            // Assert: weight should remain unchanged (1.0m)
+            Assert.Equal(1.0m, existingRubric.Weight);
+        }
+
+       [Fact]
         public async Task UpdateRubric_ThrowsExceptionIfNotFound()
         {
             // Arrange

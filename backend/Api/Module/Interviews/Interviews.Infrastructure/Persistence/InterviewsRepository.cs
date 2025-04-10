@@ -3,8 +3,10 @@ using Ardalis.Specification.EntityFrameworkCore;
 using TalentMesh.Framework.Core.Domain.Contracts;
 using TalentMesh.Framework.Core.Persistence;
 using Mapster;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Module.Interviews.Infrastructure.Persistence;
+[ExcludeFromCodeCoverage]
 internal sealed class InterviewsRepository<T> : RepositoryBase<T>, IReadRepository<T>, IRepository<T>
     where T : class, IAggregateRoot
 {

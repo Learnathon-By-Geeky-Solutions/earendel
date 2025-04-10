@@ -1,9 +1,9 @@
 using System.ComponentModel;
 using MediatR;
+using System.Collections.Generic;
 
 namespace TalentMesh.Module.Experties.Application.SeniorityLevelJunctions.Create.v1;
 public sealed record CreateSeniorityLevelJunctionCommand(
-    Guid SeniorityLevelId,
-    Guid SkillId
+    Guid SkillId,
+    List<Guid> SeniorityLevelIds
 ) : IRequest<CreateSeniorityLevelJunctionResponse>;
-

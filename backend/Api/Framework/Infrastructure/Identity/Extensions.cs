@@ -13,6 +13,7 @@ using TalentMesh.Framework.Infrastructure.Identity.Tokens.Endpoints;
 using TalentMesh.Framework.Infrastructure.Identity.Users;
 using TalentMesh.Framework.Infrastructure.Identity.Users.Endpoints;
 using TalentMesh.Framework.Infrastructure.Identity.Users.Services;
+using TalentMesh.Framework.Infrastructure.Messaging;
 using TalentMesh.Framework.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -46,6 +47,7 @@ namespace TalentMesh.Framework.Infrastructure.Identity
 
             // Register TokenService (and other services assumed to be registered elsewhere)
             services.AddScoped<ITokenService, TokenService>();
+            services.AddHostedService<UsersConsumer>();
 
             // Bind Identity DbContext
             services.BindDbContext<IdentityDbContext>();
@@ -72,7 +74,9 @@ namespace TalentMesh.Framework.Infrastructure.Identity
                     sp.GetRequiredService<UserManager<TMUser>>(),
                     sp.GetRequiredService<SignInManager<TMUser>>(),
                     sp.GetRequiredService<RoleManager<TMRole>>(),
-                    sp.GetRequiredService<IdentityDbContext>()
+                    sp.GetRequiredService<IHttpContextAccessor>(),
+                    sp.GetRequiredService<IdentityDbContext>(),
+                    sp.GetRequiredService<IExternalApiClient>()
                 );
             });
 
@@ -85,12 +89,14 @@ namespace TalentMesh.Framework.Infrastructure.Identity
                     sp.GetRequiredService<IMailService>(),
                     sp.GetRequiredService<IMultiTenantContextAccessor<TMTenantInfo>>(),
                     sp.GetRequiredService<IStorageService>(),
+                    sp.GetRequiredService<IMessageBus>(),
                     sp.GetRequiredService<ITokenService>()
                 );
             });
 
             // Register UserService with its dependencies.
             services.AddTransient<IUserService, UserService>();
+            services.AddHttpClient<IExternalApiClient, ExternalApiClient>();
             services.AddTransient<IRoleService, RoleService>();
             services.AddTransient<IAuditService, AuditService>();
 

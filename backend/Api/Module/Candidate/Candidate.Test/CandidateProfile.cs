@@ -226,6 +226,119 @@ namespace TalentMesh.Module.Candidate.Tests
         }
 
         [Fact]
+        public async Task UpdateCandidateProfile_WithDifferentValues_UpdatesAllFields()
+        {
+            // Arrange
+            var existingCandidateProfile = CandidateProfile.Create(
+                Guid.NewGuid(),
+                "old resume",
+                "old skills",
+                "old experience",
+                "old education");
+
+            var candidateProfileId = existingCandidateProfile.Id;
+
+            var request = new UpdateCandidateProfileCommand(
+                candidateProfileId,
+                "new resume",
+                "new skills",
+                "new experience",
+                "new education"
+            );
+
+            _repositoryMock.Setup(repo => repo.GetByIdAsync(candidateProfileId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(existingCandidateProfile);
+
+            // Act
+            var result = await _updateHandler.Handle(request, CancellationToken.None);
+
+            // Assert
+            Assert.Equal("new resume", result.Resume);
+            Assert.Equal("new skills", result.Skills);
+            Assert.Equal("new experience", result.Experience);
+            Assert.Equal("new education", result.Education);
+
+            _repositoryMock.Verify(repo => repo.UpdateAsync(It.IsAny<CandidateProfile>(), It.IsAny<CancellationToken>()), Times.Once);
+        }
+
+        [Fact]
+        public async Task UpdateCandidateProfile_WithSameValues_DoesNotUpdateFields()
+        {
+            // Arrange
+            var resume = "same resume";
+            var skills = "same skills";
+            var experience = "same experience";
+            var education = "same education";
+
+            var existingCandidateProfile = CandidateProfile.Create(
+                Guid.NewGuid(),
+                resume,
+                skills,
+                experience,
+                education
+            );
+
+            var candidateProfileId = existingCandidateProfile.Id;
+
+            var request = new UpdateCandidateProfileCommand(
+                candidateProfileId,
+                resume,
+                skills,
+                experience,
+                education
+            );
+
+            _repositoryMock.Setup(repo => repo.GetByIdAsync(candidateProfileId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(existingCandidateProfile);
+
+            // Act
+            var result = await _updateHandler.Handle(request, CancellationToken.None);
+
+            // Assert
+            Assert.Equal(resume, result.Resume);
+            Assert.Equal(skills, result.Skills);
+            Assert.Equal(experience, result.Experience);
+            Assert.Equal(education, result.Education);
+
+            _repositoryMock.Verify(repo => repo.UpdateAsync(It.IsAny<CandidateProfile>(), It.IsAny<CancellationToken>()), Times.Once);
+        }
+        [Fact]
+        public async Task UpdateCandidateProfile_WithNullValues_DoesNotChangeExistingFields()
+        {
+            // Arrange
+            var existingCandidateProfile = CandidateProfile.Create(
+                Guid.NewGuid(),
+                "existing resume",
+                "existing skills",
+                "existing experience",
+                "existing education"
+            );
+
+            var candidateProfileId = existingCandidateProfile.Id;
+
+            var request = new UpdateCandidateProfileCommand(
+                candidateProfileId,
+                null,
+                null,
+                null,
+                null
+            );
+
+            _repositoryMock.Setup(repo => repo.GetByIdAsync(candidateProfileId, It.IsAny<CancellationToken>()))
+                .ReturnsAsync(existingCandidateProfile);
+
+            // Act
+            var result = await _updateHandler.Handle(request, CancellationToken.None);
+
+            // Assert
+            Assert.Equal("existing resume", result.Resume);
+            Assert.Equal("existing skills", result.Skills);
+            Assert.Equal("existing experience", result.Experience);
+            Assert.Equal("existing education", result.Education);
+        }
+
+
+        [Fact]
         public async Task UpdateCandidateProfile_ThrowsExceptionIfNotFound()
         {
             // Arrange

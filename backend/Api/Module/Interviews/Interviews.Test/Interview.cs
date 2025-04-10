@@ -15,6 +15,7 @@ using TalentMesh.Module.Interviews.Domain;
 using TalentMesh.Framework.Core.Persistence;
 using TalentMesh.Framework.Core.Caching;
 using Microsoft.Extensions.Logging;
+using TalentMesh.Module.Interviews.Application.Services;
 
 namespace TalentMesh.Module.Interviews.Tests
 {
@@ -28,6 +29,7 @@ namespace TalentMesh.Module.Interviews.Tests
         private readonly Mock<ILogger<GetInterviewHandler>> _getLoggerMock;
         private readonly Mock<ILogger<SearchInterviewsHandler>> _searchLoggerMock;
         private readonly Mock<ILogger<UpdateInterviewHandler>> _updateLoggerMock;
+        private readonly Mock<IZoomService> _zoomServiceMock;
 
         private readonly CreateInterviewHandler _createHandler;
         private readonly DeleteInterviewHandler _deleteHandler;
@@ -46,7 +48,9 @@ namespace TalentMesh.Module.Interviews.Tests
             _searchLoggerMock = new Mock<ILogger<SearchInterviewsHandler>>();
             _updateLoggerMock = new Mock<ILogger<UpdateInterviewHandler>>();
 
-            _createHandler = new CreateInterviewHandler(_createLoggerMock.Object, _repositoryMock.Object);
+            _zoomServiceMock = new Mock<IZoomService>();
+
+            _createHandler = new CreateInterviewHandler(_createLoggerMock.Object, _repositoryMock.Object, _zoomServiceMock.Object);
             _deleteHandler = new DeleteInterviewHandler(_deleteLoggerMock.Object, _repositoryMock.Object);
             _getHandler = new GetInterviewHandler(_readRepositoryMock.Object, _cacheServiceMock.Object);
             _searchHandler = new SearchInterviewsHandler(_readRepositoryMock.Object);
@@ -78,6 +82,7 @@ namespace TalentMesh.Module.Interviews.Tests
             Assert.NotNull(result);
             _repositoryMock.Verify(repo => repo.AddAsync(It.IsAny<Interview>(), It.IsAny<CancellationToken>()), Times.Once);
         }
+
 
         [Fact]
         public async Task DeleteInterview_DeletesSuccessfully()

@@ -12,6 +12,7 @@ internal static class Extensions
         app.MapRegisterUserEndpoint();
         app.MapSelfRegisterUserEndpoint();
         app.MapGoogleLoginUserEndpoint();
+        app.MapGithubLoginUserEndpoint();
         app.MapUpdateUserEndpoint();
         app.MapGetUsersListEndpoint();
         app.MapDeleteUserEndpoint();
@@ -20,6 +21,10 @@ internal static class Extensions
         app.MapResetPasswordEndpoint();
         app.MapGetMeEndpoint();
         app.MapGetUserEndpoint();
+        app.MapGetHrsEndpoint();
+        app.MapGetAdminsEndpoint();
+        app.MapGetInterviewersEndpoint();
+        app.MapGetInterviewerDetailEndpoint();
         app.MapGetCurrentUserPermissionsEndpoint();
         app.ToggleUserStatusEndpointEndpoint();
         app.MapAssignRolesToUserEndpoint();

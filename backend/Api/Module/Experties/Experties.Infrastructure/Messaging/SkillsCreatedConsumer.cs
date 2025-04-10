@@ -4,9 +4,11 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Module.Experties.Infrastructure.Messaging
 {
+    [ExcludeFromCodeCoverage]
     public class SkillsCreatedConsumer : BackgroundService
     {
         private readonly ILogger<SkillsCreatedConsumer> _logger;

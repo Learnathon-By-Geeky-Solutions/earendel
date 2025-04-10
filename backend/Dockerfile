@@ -18,6 +18,7 @@ COPY Api/Module/Interviews/ Api/Module/Interviews/
 COPY Api/Module/Jobs/ Api/Module/Jobs/
 COPY Api/Module/Notifications/ Api/Module/Notifications/
 COPY Api/Module/Quizzes/ Api/Module/Quizzes/
+COPY Api/Module/Evaluator/ Api/Module/Evaluator/
 COPY Shared/ Shared/
 COPY Test/ Test/
 

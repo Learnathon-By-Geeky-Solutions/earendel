@@ -22,29 +22,16 @@ public class Seniority : AuditableEntity, IAggregateRoot
 
         return seniority;
     }
-
     public Seniority Update(string? name, string? description)
     {
-        if (name is not null && Name?.Equals(name, StringComparison.OrdinalIgnoreCase) is not true) Name = name;
-        if (description is not null && Description?.Equals(description, StringComparison.OrdinalIgnoreCase) is not true) Description = description;
+        if (name is not null && Name?.Equals(name, StringComparison.OrdinalIgnoreCase) is not true)
+        Name = name;
+        if (description is not null && Description?.Equals(description, StringComparison.OrdinalIgnoreCase) is not true) 
+        Description = description;
 
         this.QueueDomainEvent(new SeniorityUpdated() { Seniority = this });
 
         return this;
-    }
-
-    public static Seniority Update(Guid id, string name, string? description)
-    {
-        var seniority = new Seniority
-        {
-            Id = id,
-            Name = name,
-            Description = description
-        };
-
-        seniority.QueueDomainEvent(new SeniorityUpdated() { Seniority = seniority });
-
-        return seniority;
     }
 }
 

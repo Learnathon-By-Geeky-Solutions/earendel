@@ -1,50 +1,42 @@
-﻿using System.Net.Http.Headers;
+﻿using System;
+using System.Net.Http.Headers;
 using TalentMesh.Framework.Core.Domain;
 using TalentMesh.Framework.Core.Domain.Contracts;
 using TalentMesh.Module.Experties.Domain.Events;
 
-
-namespace TalentMesh.Module.Experties.Domain;
-public class Skill : AuditableEntity, IAggregateRoot
+namespace TalentMesh.Module.Experties.Domain
 {
-    public string Name { get; private set; } = default!;
-    public string? Description { get; private set; }
-
-    public static Skill Create(string name, string? description)
+    public class Skill : AuditableEntity, IAggregateRoot
     {
-        var skill = new Skill
+        public string Name { get; private set; } = default!;
+        public string? Description { get; private set; }
+        public ICollection<SubSkill> SubSkills { get; private set; } = new List<SubSkill>();
+        public ICollection<SeniorityLevelJunction> SeniorityLevelJunctions { get; private set; } = new List<SeniorityLevelJunction>();
+
+        public static Skill Create(string name, string? description)
         {
-            Name = name,
-            Description = description
-        };
+            var skill = new Skill
+            {
+                Name = name,
+                Description = description
+            };
 
-        skill.QueueDomainEvent(new SkillCreated() { Skill = skill });
+            skill.QueueDomainEvent(new SkillCreated() { Skill = skill });
 
-        return skill;
-    }
+            return skill;
+        }
 
-    public Skill Update(string? name, string? description)
-    {
-        if (name is not null && Name?.Equals(name, StringComparison.OrdinalIgnoreCase) is not true) Name = name;
-        if (description is not null && Description?.Equals(description, StringComparison.OrdinalIgnoreCase) is not true) Description = description;
-
-        this.QueueDomainEvent(new SkillUpdated() { Skill = this });
-
-        return this;
-    }
-
-    public static Skill Update(Guid id, string name, string? description)
-    {
-        var skill = new Skill
+        public Skill Update(string? name, string? description)
         {
-            Id = id,
-            Name = name,
-            Description = description
-        };
+            if (name is not null && Name?.Equals(name, StringComparison.OrdinalIgnoreCase) is not true)
+                Name = name;
+            if (description is not null && Description?.Equals(description, StringComparison.OrdinalIgnoreCase) is not true)
+                Description = description;
 
-        skill.QueueDomainEvent(new SkillUpdated() { Skill = skill });
+            this.QueueDomainEvent(new SkillUpdated() { Skill = this });
 
-        return skill;
+            return this;
+        }
+
     }
 }
-

@@ -6,11 +6,9 @@ using TalentMesh.Module.Experties.Domain.Events;
 namespace TalentMesh.Module.Experties.Domain;
 public class SeniorityLevelJunction : AuditableEntity, IAggregateRoot
 {
-    public Guid SeniorityLevelId { get; private set; }
     public Guid SkillId { get; private set; }
-
     public virtual Skill Skill { get; private set; } = default!;
-
+    public Guid SeniorityLevelId { get; private set; }
     public virtual Seniority Seniority { get; private set; } = default!;
 
 
@@ -27,30 +25,4 @@ public class SeniorityLevelJunction : AuditableEntity, IAggregateRoot
         return junction;
     }
 
-    public SeniorityLevelJunction Update(Guid seniorityLevelId, Guid skillId)
-    {
-        if (seniorityLevelId != Guid.Empty && !SeniorityLevelId.Equals(seniorityLevelId))
-            SeniorityLevelId = seniorityLevelId;
-
-        if (skillId != Guid.Empty && !SkillId.Equals(skillId))
-            SkillId = skillId;
-
-        this.QueueDomainEvent(new SeniorityLevelJunctionUpdated() { SeniorityLevelJunction = this });
-
-        return this;
-    }
-
-    public static SeniorityLevelJunction Update(Guid id, Guid seniorityLevelId, Guid skillId)
-    {
-        var junction = new SeniorityLevelJunction
-        {
-            Id = id,
-            SeniorityLevelId = seniorityLevelId,
-            SkillId = skillId
-        };
-
-        junction.QueueDomainEvent(new SeniorityLevelJunctionUpdated() { SeniorityLevelJunction = junction });
-
-        return junction;
-    }
 }

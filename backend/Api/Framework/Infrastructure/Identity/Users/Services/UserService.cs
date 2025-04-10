@@ -28,10 +28,12 @@ using TalentMesh.Framework.Core.Identity.Tokens;
 using TalentMesh.Framework.Core.Identity.Tokens.Features.Generate;
 using Microsoft.AspNetCore.Http;
 using TalentMesh.Framework.Core.Identity.Users.Features.GoogleLogin;
+using TalentMesh.Framework.Core.Identity.Users.Features.GithubLogin;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Cryptography;
 using Google.Apis.Auth.OAuth2.Responses;
 using System.Diagnostics.CodeAnalysis;
+using TalentMesh.Framework.Infrastructure.Messaging;
 
 namespace TalentMesh.Framework.Infrastructure.Identity.Users.Services;
 
@@ -40,19 +42,25 @@ public class IdentityServices
 {
     public UserManager<TMUser> UserManager { get; }
     public SignInManager<TMUser> SignInManager { get; }
+    public IHttpContextAccessor HttpContextAccessor { get; }
     public RoleManager<TMRole> RoleManager { get; }
     public IdentityDbContext Db { get; }
+    public IExternalApiClient ApiClient { get; }
 
     public IdentityServices(
         UserManager<TMUser> userManager,
         SignInManager<TMUser> signInManager,
         RoleManager<TMRole> roleManager,
-        IdentityDbContext db)
+        IHttpContextAccessor httpContextAccessor,
+        IdentityDbContext db,
+        IExternalApiClient apiClient)
     {
         UserManager = userManager;
         SignInManager = signInManager;
         RoleManager = roleManager;
+        HttpContextAccessor = httpContextAccessor;
         Db = db;
+        ApiClient = apiClient;
     }
 }
 
@@ -65,6 +73,7 @@ public class InfrastructureServices
     public IMailService MailService { get; }
     public IMultiTenantContextAccessor<TMTenantInfo> MultiTenantContextAccessor { get; }
     public IStorageService StorageService { get; }
+    public IMessageBus MessageBus { get; }
     public ITokenService TokenService { get; }
 
     public InfrastructureServices(
@@ -73,6 +82,7 @@ public class InfrastructureServices
         IMailService mailService,
         IMultiTenantContextAccessor<TMTenantInfo> multiTenantContextAccessor,
         IStorageService storageService,
+        IMessageBus messageBus,
         ITokenService tokenService)
     {
         CacheService = cacheService;
@@ -80,6 +90,7 @@ public class InfrastructureServices
         MailService = mailService;
         MultiTenantContextAccessor = multiTenantContextAccessor;
         StorageService = storageService;
+        MessageBus = messageBus;
         TokenService = tokenService;
     }
 }
@@ -96,12 +107,17 @@ internal sealed partial class UserService(
     private readonly SignInManager<TMUser> signInManager = identityServices.SignInManager;
     private readonly RoleManager<TMRole> roleManager = identityServices.RoleManager;
     private readonly IdentityDbContext db = identityServices.Db;
+    private readonly IExternalApiClient apiClient = identityServices.ApiClient;
+
+    private readonly IHttpContextAccessor httpContextAccessor = identityServices.HttpContextAccessor;
+
 
     private readonly ICacheService cache = infrastructureServices.CacheService;
     private readonly IJobService jobService = infrastructureServices.JobService;
     private readonly IMailService mailService = infrastructureServices.MailService;
     private readonly IMultiTenantContextAccessor<TMTenantInfo> multiTenantContextAccessor = infrastructureServices.MultiTenantContextAccessor;
     private readonly IStorageService storageService = infrastructureServices.StorageService;
+    private readonly IMessageBus messageBus = infrastructureServices.MessageBus;
     private readonly ITokenService tokenService = infrastructureServices.TokenService;
 
 
@@ -145,23 +161,7 @@ internal sealed partial class UserService(
 
     public async Task<UserDetail> GetAsync(string userId, CancellationToken cancellationToken)
     {
-        var userDetail = await (from user in userManager.Users
-                                where user.Id == userId
-                                select new UserDetail
-                                {
-                                    Id = Guid.Parse(user.Id),
-                                    UserName = user.UserName,
-                                    Email = user.Email,
-                                    IsActive = user.IsActive,
-                                    EmailConfirmed = user.EmailConfirmed,
-                                    ImageUrl = user.ImageUrl,
-                                    Roles = (from ur in db.UserRoles
-                                             join r in db.Roles on ur.RoleId equals r.Id
-                                             where ur.UserId == userId
-                                             select r.Name).ToList()
-                                })
-                                .AsNoTracking()
-                                .FirstOrDefaultAsync(cancellationToken);
+        var userDetail = await GetUserDetailAsync(userId, cancellationToken);
 
         if (userDetail is null)
         {
@@ -169,6 +169,263 @@ internal sealed partial class UserService(
         }
 
         return userDetail;
+    }
+
+    public async Task<bool> GetInterviewerDetailAsync(string userId, CancellationToken cancellationToken)
+    {
+        var userDetail = await GetUserDetailAsync(userId, cancellationToken);
+
+        if (userDetail is null)
+        {
+            throw new NotFoundException(UserNotFoundMessage);
+        }
+
+        await PublishInterviewerDetailEvent(userDetail);
+        return true;
+    }
+
+    private async Task<UserDetail?> GetUserDetailAsync(string userId, CancellationToken cancellationToken)
+    {
+        var userDetail = await (from user in userManager.Users
+                                where user.Id == userId
+                                join ur in db.UserRoles on user.Id equals ur.UserId into userRoles
+                                from ur in userRoles.DefaultIfEmpty()
+                                join r in db.Roles on ur.RoleId equals r.Id into roles
+                                from role in roles.DefaultIfEmpty()
+                                group role by new
+                                {
+                                    user.Id,
+                                    user.UserName,
+                                    user.Email,
+                                    user.IsActive,
+                                    user.EmailConfirmed,
+                                    user.ImageUrl
+                                } into g
+                                select new UserDetail
+                                {
+                                    Id = Guid.Parse(g.Key.Id),
+                                    UserName = g.Key.UserName,
+                                    Email = g.Key.Email,
+                                    IsActive = g.Key.IsActive,
+                                    EmailConfirmed = g.Key.EmailConfirmed,
+                                    ImageUrl = g.Key.ImageUrl,
+                                    Roles = g.Select(r => r.Name).Where(r => r != null).Distinct().ToList()
+                                })
+                                .AsNoTracking()
+                                .FirstOrDefaultAsync(cancellationToken);
+
+        return userDetail;
+    }
+
+
+    public async Task<bool> GetHrsAsync(
+        string? search,
+        string? sortBy,
+        string? sortDirection,
+        int pageNumber,
+        int pageSize,
+        CancellationToken cancellationToken)
+    {
+        var baseQuery = BuildBaseQuery("HR");
+        var filteredQuery = ApplySearchFilter(baseQuery, search);
+        var sortedQuery = ApplySorting(filteredQuery, sortBy, sortDirection);
+
+        var (totalRecords, hrs) = await ExecutePaginatedQuery(sortedQuery, pageNumber, pageSize, cancellationToken);
+
+        await PublishHrFetchedEvent(totalRecords, hrs, sortBy, sortDirection);
+        return true;
+    }
+    public async Task<List<UserDetail>> GetAdminsAsync(CancellationToken cancellationToken)
+    {
+        var baseQuery = BuildBaseQuery("Admin");
+        return await baseQuery.ToListAsync(cancellationToken);
+    }
+
+    public async Task<bool> GetInterviewersAsync(
+        string? search,
+        string? sortBy,
+        string? sortDirection,
+        int pageNumber,
+        int pageSize,
+        CancellationToken cancellationToken)
+    {
+        var baseQuery = BuildBaseQuery("Interviewer");
+        var filteredQuery = ApplySearchFilter(baseQuery, search);
+        var sortedQuery = ApplySorting(filteredQuery, sortBy, sortDirection);
+
+        var (totalRecords, interviewers) = await ExecutePaginatedQuery(sortedQuery, pageNumber, pageSize, cancellationToken);
+
+        await PublishInterviewerFormFetchedEvent(totalRecords, interviewers, sortBy, sortDirection);
+        return true;
+    }
+
+    private IQueryable<UserDetail> BuildBaseQuery(string role)
+    {
+        return from u in db.Users
+               join ur in db.UserRoles on u.Id equals ur.UserId
+               join r in db.Roles on ur.RoleId equals r.Id
+               where r.Name == role
+               select new UserDetail
+               {
+                   Id = Guid.Parse(u.Id),
+                   UserName = u.UserName,
+                   Email = u.Email,
+                   IsActive = u.IsActive,
+                   EmailConfirmed = u.EmailConfirmed,
+                   ImageUrl = u.ImageUrl,
+                   Roles = new List<string> { role }
+               };
+    }
+
+    private static IQueryable<UserDetail> ApplySearchFilter(IQueryable<UserDetail> query, string? search)
+    {
+        if (string.IsNullOrWhiteSpace(search)) return query;
+
+        var searchLower = search.ToLower();
+        return query.Where(user =>
+            user.UserName.ToLower().Contains(searchLower) ||
+            user.Email.ToLower().Contains(searchLower)
+        );
+    }
+
+    private static IQueryable<UserDetail> ApplySorting(
+    IQueryable<UserDetail> query,
+    string? sortBy,
+    string? sortDirection)
+    {
+        var isAscending = string.Equals(sortDirection, "asc", StringComparison.OrdinalIgnoreCase);
+
+        return (sortBy?.ToLower()) switch
+        {
+            "name" => isAscending ?
+                query.OrderBy(user => user.UserName) :
+                query.OrderByDescending(user => user.UserName),
+            "email" => isAscending ?
+                query.OrderBy(user => user.Email) :
+                query.OrderByDescending(user => user.Email),
+            _ => query.OrderBy(user => user.UserName)
+        };
+    }
+
+    private static async Task<(int TotalRecords, List<UserDetail> Users)> ExecutePaginatedQuery(
+    IQueryable<UserDetail> query,
+    int pageNumber,
+    int pageSize,
+    CancellationToken cancellationToken)
+    {
+        var totalRecords = await query.CountAsync(cancellationToken);
+
+        var results = await query
+            .Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize)
+            .AsNoTracking()
+            .ToListAsync(cancellationToken);
+
+        return (totalRecords, results);
+    }
+
+    private async Task PublishHrFetchedEvent(
+    int totalRecords,
+    List<UserDetail> hrs,
+    string? sortBy,
+    string? sortDirection)
+    {
+        var user = httpContextAccessor.HttpContext?.User;
+        var userId = user?.GetUserId();
+
+        var payload = new
+        {
+            EventType = "hr.list.fetched",
+            Timestamp = DateTime.UtcNow,
+            RequestedBy = userId,
+            SortBy = sortBy,
+            SortDirection = sortDirection,
+            TotalRecords = totalRecords,
+            Hrs = hrs.Select(hr => new
+            {
+                hr.Id,
+                hr.UserName,
+                hr.Email,
+                hr.IsActive,
+                hr.EmailConfirmed,
+                hr.ImageUrl,
+                hr.Roles
+            }).ToList()
+        };
+
+        await messageBus.PublishAsync(
+            payload,
+            "hr.job.list.events",
+            "hr.job.list.fetched",
+            CancellationToken.None
+        );
+    }
+
+    private async Task PublishInterviewerDetailEvent(
+    UserDetail interviewer)
+    {
+        var user = httpContextAccessor.HttpContext?.User;
+        var userId = user?.GetUserId();
+
+        var payload = new
+        {
+            EventType = "interviewer.detail.fetched",
+            Timestamp = DateTime.UtcNow,
+            RequestedBy = userId,
+            Interviewer = new
+            {
+                interviewer.Id,
+                interviewer.UserName,
+                interviewer.Email,
+                interviewer.ImageUrl,
+            }
+        };
+
+        Console.WriteLine(payload);
+
+        await messageBus.PublishAsync(
+            payload,
+            "interviewer.detail.events",
+            "interviewer.detail.fetched",
+            CancellationToken.None
+        );
+    }
+
+    private async Task PublishInterviewerFormFetchedEvent(
+    int totalRecords,
+    List<UserDetail> interviewers,
+    string? sortBy,
+    string? sortDirection)
+    {
+        var user = httpContextAccessor.HttpContext?.User;
+        var userId = user?.GetUserId();
+
+        var payload = new
+        {
+            EventType = "interviewer.list.fetched",
+            Timestamp = DateTime.UtcNow,
+            RequestedBy = userId,
+            SortBy = sortBy,
+            SortDirection = sortDirection,
+            TotalRecords = totalRecords,
+            Interviewers = interviewers.Select(interviewer => new
+            {
+                interviewer.Id,
+                interviewer.UserName,
+                interviewer.Email,
+                interviewer.IsActive,
+                interviewer.EmailConfirmed,
+                interviewer.ImageUrl,
+                interviewer.Roles
+            }).ToList()
+        };
+
+        await messageBus.PublishAsync(
+            payload,
+            "interviewer.form.list.events",
+            "interviewer.form.list.fetched",
+            CancellationToken.None
+        );
     }
 
     public Task<int> GetCountAsync(CancellationToken cancellationToken) =>
@@ -237,7 +494,7 @@ internal sealed partial class UserService(
             {
                 // Check if user is an external login
                 var logins = await userManager.GetLoginsAsync(existingUser);
-                if (logins.Any(l => l.LoginProvider == "Google"))
+                if (logins.Any(l => l.LoginProvider == AuthProviders.Google || l.LoginProvider == AuthProviders.GitHub))
                 {
                     var tokenGenerationCommandForExistingUser = new TokenGenerationCommand(email, null); // Pass email and password
 
@@ -273,7 +530,7 @@ internal sealed partial class UserService(
             }
 
             // Link Google account to this user
-            var loginInfo = new UserLoginInfo("Google", providerKey, "Google");
+            var loginInfo = new UserLoginInfo(AuthProviders.Google, providerKey, AuthProviders.GitHub);
             var addLoginResult = await userManager.AddLoginAsync(newUser, loginInfo);
             if (!addLoginResult.Succeeded)
             {
@@ -301,6 +558,89 @@ internal sealed partial class UserService(
         }
     }
 
+    public async Task<GoogleLoginUserResponse> GithubLogin(GithubRequestCommand request, string ip, string origin, CancellationToken cancellationToken)
+    {
+        string accessToken = await apiClient.GetAccessTokenAsync(request.Code);
+
+        var (Login, Email, Avatar, ProviderKey) = await apiClient.GetUserInfoAsync(accessToken);
+
+        Console.WriteLine(Login);
+        Console.WriteLine(Email);
+        Console.WriteLine(Avatar);
+        Console.WriteLine(ProviderKey);
+
+        try
+        {
+
+            // Check if user already exists
+            var existingUser = await userManager.FindByEmailAsync(Email);
+            if (existingUser != null)
+            {
+                // Check if user is an external login
+                var logins = await userManager.GetLoginsAsync(existingUser);
+                if (logins.Any(l => l.LoginProvider == AuthProviders.Google || l.LoginProvider == AuthProviders.GitHub))
+                {
+                    var tokenGenerationCommandForExistingUser = new TokenGenerationCommand(Email, null); // Pass email and password
+
+                    // Generate JWT token for existing user
+                    var tokenResponseForExistingUser = await tokenService.GenerateTokenAsync(
+                        tokenGenerationCommandForExistingUser,
+                        ip,
+                        cancellationToken
+                    );
+
+                    return new GoogleLoginUserResponse(existingUser.Id, tokenResponseForExistingUser.Token, tokenResponseForExistingUser.RefreshToken, tokenResponseForExistingUser.Roles);
+                }
+                else
+                {
+                    return new GoogleLoginUserResponse("Email is already registered with a different method.", "", "", []);
+                }
+            }
+
+            // Create new user WITHOUT a password
+            var newUser = new TMUser
+            {
+                Email = Email,
+                UserName = Login,
+                IsActive = true,
+                ImageUrl = new Uri(Avatar),
+                EmailConfirmed = true
+            };
+
+            var createUserResult = await userManager.CreateAsync(newUser);
+            if (!createUserResult.Succeeded)
+            {
+                return new GoogleLoginUserResponse("User creation failed", "", "", []);
+            }
+
+            // Link Google account to this user
+            var loginInfo = new UserLoginInfo(AuthProviders.GitHub, ProviderKey, AuthProviders.GitHub);
+            var addLoginResult = await userManager.AddLoginAsync(newUser, loginInfo);
+            if (!addLoginResult.Succeeded)
+            {
+                return new GoogleLoginUserResponse("Failed to add external login", "", "", []);
+            }
+
+            // Assign default role
+            await userManager.AddToRoleAsync(newUser, TMRoles.Candidate);
+
+            // Generate JWT for the new user
+            var tokenGenerationCommand = new TokenGenerationCommand(Email, null); // Pass email and password
+
+            // Generate JWT token for existing user
+            var tokenResponse = await tokenService.GenerateTokenAsync(
+             tokenGenerationCommand,
+             ip,
+             cancellationToken
+         );
+
+            return new GoogleLoginUserResponse(newUser.Id, tokenResponse.Token, tokenResponse.RefreshToken, tokenResponse.Roles);
+        }
+        catch (Exception ex)
+        {
+            return new GoogleLoginUserResponse($"Error: {ex.Message}", "", "", []);
+        }
+    }
 
     public async Task ToggleStatusAsync(ToggleUserStatusCommand request, CancellationToken cancellationToken)
     {

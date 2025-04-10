@@ -1,83 +1,128 @@
-name: .NET CI/CD Workflow
+name: .NET CI/CD Workflow with SonarCloud
 
 on:
   push:
     branches:
       - main
       - development
-      - feature/code-coverage
+      - feature/UserService
   pull_request:
     branches:
       - main
       - development
-      - feature/code-coverage
+      - feature/UserService
 
 jobs:
-  build:
-    name: Build and Test Application
+  deploy:
+    name: Deploy to Server
     runs-on: ubuntu-latest
+    timeout-minutes: 45
 
     steps:
-      - name: Checkout Code
+      - name: Deploy configuration
+        uses: appleboy/ssh-action@v0.1.8
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          password: ${{ secrets.SERVER_PASSWORD }}
+          script_timeout: 600
+          script: |
+            mkdir -p /root/Learnathon/earendel/backend
+            echo "${{ secrets._APPSETTINGS }}" | base64 --decode > /root/Learnathon/earendel/backend/Api/Server/appsettings.json
+            echo "${{ secrets._TENANT_CONSTANTS_CS }}" | base64 --decode > /root/Learnathon/earendel/backend/Shared/Authorization/TenantConstants.cs
+            chmod 644 /root/Learnathon/earendel/backend/Api/Server/appsettings.json
+            chmod 644 /root/Learnathon/earendel/backend/Shared/Authorization/TenantConstants.cs
+
+      - name: Deploy application
+        uses: appleboy/ssh-action@v0.1.8
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          password: ${{ secrets.SERVER_PASSWORD }}
+          script_timeout: 1800
+          script: |
+            cd /root/Learnathon/earendel
+            git checkout main
+            git pull origin main
+            cd backend
+            docker-compose down --timeout 300
+            docker-compose up --build -d --timeout 600
+
+  build-and-analyze:
+    runs-on: ubuntu-latest
+    needs: deploy
+
+    steps:
+      - name: Checkout code
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
 
-      - name: Restore TenantConstants.cs
-        run: echo "${{ secrets._TENANT_CONSTANTS_CS }}" | base64 --decode > backend/Shared/Authorization/TenantConstants.cs
-
-      - name: Debug Directory Structure
-        run: ls -R backend
-
-      - name: Setup .NET SDK
+      - name: Setup .NET 8 SDK
         uses: actions/setup-dotnet@v3
         with:
-          dotnet-version: "8.0.x"
+          dotnet-version: '8.0.x'
 
-      - name: Restore Dependencies
-        run: dotnet restore backend/Aspire/Aspire.sln
+      - name: Install required tools
+        run: |
+          dotnet tool install --global dotnet-coverage
+          dotnet tool install --global dotnet-sonarscanner
 
-      - name: Build Application
-        run: dotnet build backend/Aspire/Aspire.sln --no-restore --configuration Release
+      - name: Begin SonarCloud analysis
+        run: |
+          dotnet sonarscanner begin \
+            /k:"Learnathon-By-Geeky-Solutions_earendel" \
+            /o:"learnathon-by-geeky-solutions" \
+            /d:sonar.host.url="https://sonarcloud.io" \
+            /d:sonar.token="${{ secrets.SONAR_TOKEN }}" \
+            /d:sonar.cs.vscoveragexml.reportsPaths="backend/Aspire/coverage.xml" \
+            /d:sonar.coverage.exclusions="**Test*.cs,**/Migrations/**" \
+            /d:sonar.projectBaseDir="${{ github.workspace }}" \
+            /d:sonar.qualitygate.wait=true
 
-      - name: Run Tests for All Modules in Parallel and Summarize
+      - name: Restore TenantConstants.cs
+        run: |
+          echo "${{ secrets._TENANT_CONSTANTS_CS }}" | base64 --decode > backend/Shared/Authorization/TenantConstants.cs
+
+      - name: Build solution
+        run: dotnet restore backend/Aspire/Aspire.sln && dotnet build backend/Aspire/Aspire.sln -c Release --no-restore
+
+      - name: Run tests with coverage collection
         run: |
           mkdir -p test-results
-          find backend/Api/Module -type f -name "*.Test.csproj" | \
-            xargs -I {} sh -c 'echo "Running tests for project: {}"; dotnet test "{}" | tee "test-results/$(basename {}).log" || true'
-          echo "### Listing All Test Log Files ###"
-          ls -l test-results
-          echo "### Individual Test Summaries ###"
-          for file in test-results/*.log; do
-            echo "Summary for $(basename "$file"):"
-            grep -E "(Passed!|Total:)" "$file" || echo "No summary found in $file"
-            echo "------"
-          done
-          echo "### Final Aggregated Test Summary ###"
-          grep -H -E "(Passed!|Total:)" test-results/*.log || echo "No test summary lines found."
+          dotnet-coverage collect "dotnet test backend/Aspire/Aspire.sln --no-build --configuration Release" \
+            -f xml \
+            -o "backend/Aspire/coverage.xml"
+
+      - name: End SonarCloud analysis
+        run: dotnet sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
 
   publish:
     name: Publish Application
     runs-on: ubuntu-latest
-    needs: build
+    needs: build-and-analyze
+    timeout-minutes: 20
 
     steps:
-      - name: Checkout Code
+      - name: Checkout code
         uses: actions/checkout@v3
 
       - name: Restore TenantConstants.cs
-        run: echo "${{ secrets._TENANT_CONSTANTS_CS }}" | base64 --decode > backend/Shared/Authorization/TenantConstants.cs
+        run: |
+          echo "${{ secrets._TENANT_CONSTANTS_CS }}" | base64 --decode > backend/Shared/Authorization/TenantConstants.cs
 
       - name: Setup .NET SDK
         uses: actions/setup-dotnet@v3
         with:
           dotnet-version: "8.0.x"
 
-      - name: Restore Dependencies
-        run: dotnet restore backend/Aspire/Aspire.sln
+      - name: Publish application
+        run: |
+          dotnet publish backend/Api/Server/Server.csproj \
+            -c Release \
+            -o backend/Api/Server/publish
 
-      - name: Build and Publish
-        run: dotnet publish backend/Api/Server/Server.csproj -c Release -o backend/Api/Server/publish
-
-      - name: Upload Published Application
+      - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: published-app
