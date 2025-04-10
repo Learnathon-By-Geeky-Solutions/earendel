@@ -494,7 +494,7 @@ internal sealed partial class UserService(
             {
                 // Check if user is an external login
                 var logins = await userManager.GetLoginsAsync(existingUser);
-                if (logins.Any(l => l.LoginProvider == AuthProviders.Google || l.LoginProvider == AuthProviders.GitHub))
+                if (logins.Any(l => l.LoginProvider == AuthProviders.Google))
                 {
                     var tokenGenerationCommandForExistingUser = new TokenGenerationCommand(email, null); // Pass email and password
 
@@ -575,7 +575,7 @@ internal sealed partial class UserService(
             {
                 // Check if user is an external login
                 var logins = await userManager.GetLoginsAsync(existingUser);
-                if (logins.Any(l => l.LoginProvider == AuthProviders.Google || l.LoginProvider == AuthProviders.GitHub))
+                if (logins.Any(l => l.LoginProvider == AuthProviders.GitHub))
                 {
                     var tokenGenerationCommandForExistingUser = new TokenGenerationCommand(Email, null); // Pass email and password
 
