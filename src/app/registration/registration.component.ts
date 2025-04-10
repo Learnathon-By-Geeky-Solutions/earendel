@@ -321,8 +321,60 @@ export class RegistrationComponent implements AfterViewInit {
   }
 
   ngAfterViewInit() {
-    (window as any).handleCredentialResponse =
-      this.handleCredentialResponse.bind(this);
+    this.loadGoogleScript()
+      .then(() => {
+        this.initializeGoogleSignIn();
+      })
+      .catch((error) => {
+        console.error('Google Sign-In failed to load:', error);
+      });
+  }
+
+  private loadGoogleScript(): Promise<void> {
+    return new Promise((resolve, reject) => {
+      if (typeof window === 'undefined')
+        return reject('Window object not available');
+
+      // Add global type declaration for Google
+      (window as any).handleCredentialResponse =
+        this.handleCredentialResponse.bind(this);
+
+      const script = document.createElement('script');
+      script.src = 'https://accounts.google.com/gsi/client';
+      script.async = true;
+      script.defer = true;
+      script.onload = () => resolve();
+      script.onerror = (error) => reject(error);
+      document.head.appendChild(script);
+    });
+  }
+
+  private initializeGoogleSignIn() {
+    // Type assertion for Google API
+    const google = (window as any).google;
+
+    if (!google || !google.accounts || !google.accounts.id) {
+      console.error('Google Identity Services not loaded');
+      return;
+    }
+
+    google.accounts.id.initialize({
+      client_id: this.googleClientId,
+      callback: this.handleCredentialResponse.bind(this),
+      context: 'signin',
+      ux_mode: 'popup',
+    });
+
+    google.accounts.id.renderButton(
+      document.getElementById('google-signin-button'),
+      {
+        type: 'icon',
+        shape: 'circle',
+        theme: 'outline',
+        text: 'continue_with',
+        size: 'large',
+      }
+    );
   }
 
   createForm(): FormGroup {

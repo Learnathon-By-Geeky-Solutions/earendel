@@ -22,8 +22,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
     RouterLink,
     HttpClientModule,
     ReactiveFormsModule,
-    FormsModule,
-    MatSnackBarModule, // Import MatSnackBarModule
+    MatSnackBarModule,
   ],
   template: `
     <div
@@ -65,7 +64,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
           <div class="text-center">
             <p class="mb-3">Or login with</p>
 
-            <!-- Google Identity Services Interface -->
+            <!-- Google Identity Services -->
             <div
               id="g_id_onload"
               [attr.data-client_id]="googleClientId"
@@ -84,6 +83,12 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
                 data-size="large"
               ></div>
             </div>
+
+            <!-- Circular GitHub Button -->
+            <button class="github-button" (click)="onGithubLogin()">
+              <i class="bi bi-github"></i>
+            </button>
+
             <p class="mb-0 mt-3">
               Don't have an account? <a routerLink="/register">Register</a>
             </p>
@@ -96,8 +101,6 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
     `
       :host {
         display: block;
-        height: 100vh;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       }
       .card {
         border-radius: 15px;
@@ -114,6 +117,25 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
         justify-content: center;
         align-items: center;
       }
+      /* GitHub Button Styles */
+      .github-button {
+        background-color: #24292e;
+        border: none;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        color: white;
+        font-size: 24px;
+        display: inline-flex;
+        justify-content: center;
+        align-items: center;
+        margin-top: 10px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+      }
+      .github-button:hover {
+        background-color: #444d56;
+      }
     `,
   ],
 })
@@ -122,17 +144,70 @@ export class LoginComponent implements AfterViewInit {
   password = '';
   token!: string;
   googleClientId = environment.googleClientId;
+  githubClientId = environment.githubClientId;
 
   constructor(
     private formBuilder: FormBuilder,
     private router: Router,
     private loginService: LoginSignupService,
-    private snackBar: MatSnackBar // Inject MatSnackBar
+    private snackBar: MatSnackBar
   ) {}
 
   ngAfterViewInit() {
-    (window as any).handleCredentialResponse =
-      this.handleCredentialResponse.bind(this);
+    this.loadGoogleScript()
+      .then(() => {
+        this.initializeGoogleSignIn();
+      })
+      .catch((error) => {
+        console.error('Google Sign-In failed to load:', error);
+      });
+  }
+
+  private loadGoogleScript(): Promise<void> {
+    return new Promise((resolve, reject) => {
+      if (typeof window === 'undefined')
+        return reject('Window object not available');
+
+      // Add global type declaration for Google
+      (window as any).handleCredentialResponse =
+        this.handleCredentialResponse.bind(this);
+
+      const script = document.createElement('script');
+      script.src = 'https://accounts.google.com/gsi/client';
+      script.async = true;
+      script.defer = true;
+      script.onload = () => resolve();
+      script.onerror = (error) => reject(error);
+      document.head.appendChild(script);
+    });
+  }
+
+  private initializeGoogleSignIn() {
+    // Type assertion for Google API
+    const google = (window as any).google;
+
+    if (!google || !google.accounts || !google.accounts.id) {
+      console.error('Google Identity Services not loaded');
+      return;
+    }
+
+    google.accounts.id.initialize({
+      client_id: this.googleClientId,
+      callback: this.handleCredentialResponse.bind(this),
+      context: 'signin',
+      ux_mode: 'popup',
+    });
+
+    google.accounts.id.renderButton(
+      document.getElementById('google-signin-button'),
+      {
+        type: 'icon',
+        shape: 'circle',
+        theme: 'outline',
+        text: 'continue_with',
+        size: 'large',
+      }
+    );
   }
 
   // Handle credential response from Google
@@ -140,6 +215,7 @@ export class LoginComponent implements AfterViewInit {
     this.token = response.credential;
     this.loginService.googleLogin(this.token).subscribe(
       (data) => {
+        console.log(data);
         sessionStorage.setItem('loggedInUser', JSON.stringify(data));
         this.snackBar.open('Login successful!', 'Close', {
           duration: 3000,
@@ -154,6 +230,11 @@ export class LoginComponent implements AfterViewInit {
         });
       }
     );
+  }
+
+  // Function to redirect on GitHub button click
+  onGithubLogin() {
+    window.location.href = `https://github.com/login/oauth/authorize?client_id=${this.githubClientId}&scope=user`;
   }
 
   onSubmit() {
@@ -171,12 +252,10 @@ export class LoginComponent implements AfterViewInit {
         (data: any) => {
           if (data && data.token && data.refreshToken) {
             sessionStorage.setItem('loggedInUser', JSON.stringify(data));
-
             this.snackBar.open('Login successful!', 'Close', {
               duration: 3000,
               panelClass: ['snack-bar-success'],
             });
-
             this.router.navigateByUrl('/candidate-dashboard');
           } else {
             this.snackBar.open(

@@ -45,6 +45,7 @@ import { AdminListComponent } from './admin-dashboard/admin-list/admin-list.comp
 import { AdminProfileComponent } from './admin-dashboard/profile/profile.component';
 import { InterviewerRegistrationComponent } from './candidate-dashboard/interviewer-registration/interviewer-registration.component';
 import { AuthGuardService } from './shared/services/auth-guard.service';
+import { GithubcallbackComponent } from './githubcallback/githubcallback.component';
 
 export const routes: Routes = [
   { path: '', component: LandingComponent },
@@ -85,6 +86,10 @@ export const routes: Routes = [
     component: LoginComponent,
     canActivate: [AuthGuardService],
     data: { public: true, redirectIfLoggedIn: true },
+  },
+  {
+    path: 'github-callback',
+    component: GithubcallbackComponent,
   },
   // HR dashboard (only accessible to HR role)
   {
