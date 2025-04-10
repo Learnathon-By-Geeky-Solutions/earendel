@@ -157,6 +157,11 @@ import { MatSnackBar } from '@angular/material/snack-bar';
                     data-size="large"
                   ></div>
                 </div>
+
+                <!-- Circular GitHub Button -->
+                <button class="github-button" (click)="onGithubLogin()">
+                  <i class="bi bi-github"></i>
+                </button>
               </div>
             </mat-tab>
 
@@ -298,6 +303,26 @@ import { MatSnackBar } from '@angular/material/snack-bar';
         font-size: 0.9rem;
         text-align: center;
       }
+
+      /* GitHub Button Styles */
+      .github-button {
+        background-color: #24292e;
+        border: none;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        color: white;
+        font-size: 24px;
+        display: inline-flex;
+        justify-content: center;
+        align-items: center;
+        margin-top: 10px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+      }
+      .github-button:hover {
+        background-color: #444d56;
+      }
     `,
   ],
 })
@@ -306,6 +331,7 @@ export class RegistrationComponent implements AfterViewInit {
   hiringForm: FormGroup;
   selectedTabIndex = 0;
   googleClientId = environment.googleClientId;
+  githubClientId = environment.githubClientId;
   token!: string;
   userFormError: string = '';
   hiringFormError: string = '';
@@ -393,6 +419,11 @@ export class RegistrationComponent implements AfterViewInit {
     return form.get('password')?.value === form.get('confirmPassword')?.value
       ? null
       : { mismatch: true };
+  }
+
+  // Function to redirect on GitHub button click
+  onGithubLogin() {
+    window.location.href = `https://github.com/login/oauth/authorize?client_id=${this.githubClientId}&scope=user`;
   }
 
   onSubmit(type: 'hiring' | 'user') {
@@ -489,12 +520,26 @@ export class RegistrationComponent implements AfterViewInit {
     this.token = response.credential;
     this.loginService.googleLogin(this.token).subscribe(
       (data) => {
-        sessionStorage.setItem('loggedInUser', JSON.stringify(data));
-        this.snackBar.open('Login successful!', 'Close', {
-          duration: 3000,
-          panelClass: ['snack-bar-success'],
-        });
-        this.router.navigateByUrl('/candidate-dashboard');
+        if (
+          data?.userId ===
+          'Email is already registered with a different method.'
+        ) {
+          this.snackBar.open(
+            'Email is already registered with a different method.',
+            'Close',
+            {
+              duration: 3000,
+              panelClass: ['snack-bar-error'],
+            }
+          );
+        } else {
+          sessionStorage.setItem('loggedInUser', JSON.stringify(data));
+          this.snackBar.open('Login successful!', 'Close', {
+            duration: 3000,
+            panelClass: ['snack-bar-success'],
+          });
+          this.router.navigateByUrl('/candidate-dashboard');
+        }
       },
       (error) => {
         this.snackBar.open('Google login failed. Please try again.', 'Close', {

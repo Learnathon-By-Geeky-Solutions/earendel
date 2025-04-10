@@ -215,13 +215,27 @@ export class LoginComponent implements AfterViewInit {
     this.token = response.credential;
     this.loginService.googleLogin(this.token).subscribe(
       (data) => {
-        console.log(data);
-        sessionStorage.setItem('loggedInUser', JSON.stringify(data));
-        this.snackBar.open('Login successful!', 'Close', {
-          duration: 3000,
-          panelClass: ['snack-bar-success'],
-        });
-        this.router.navigateByUrl('/candidate-dashboard');
+        console.log(data.userId);
+        if (
+          data?.userId ===
+          'Email is already registered with a different method.'
+        ) {
+          this.snackBar.open(
+            'Email is already registered with a different method.',
+            'Close',
+            {
+              duration: 3000,
+              panelClass: ['snack-bar-error'],
+            }
+          );
+        } else {
+          sessionStorage.setItem('loggedInUser', JSON.stringify(data));
+          this.snackBar.open('Login successful!', 'Close', {
+            duration: 3000,
+            panelClass: ['snack-bar-success'],
+          });
+          this.router.navigateByUrl('/candidate-dashboard');
+        }
       },
       (error) => {
         this.snackBar.open('Google login failed. Please try again.', 'Close', {
