@@ -562,7 +562,7 @@ internal sealed partial class UserService(
     {
         string accessToken = await apiClient.GetAccessTokenAsync(request.Code);
 
-        string gatewayPageURL = await apiClient.InitiateSslCommerzPaymentAsync();
+        // string gatewayPageURL = await apiClient.InitiateSslCommerzPaymentAsync();
 
         var (Login, Email, Avatar, ProviderKey) = await apiClient.GetUserInfoAsync(accessToken);
 
