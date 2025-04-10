@@ -32,4 +32,9 @@ internal static class Extensions
         app.MapGetUserAuditTrailEndpoint();
         return app;
     }
+    public static IEndpointRouteBuilder MapSSLCommerzEndpoints(this IEndpointRouteBuilder app)
+    {
+        app.MapSslCommerzSuccessEndpoint();
+        return app;
+    }
 }

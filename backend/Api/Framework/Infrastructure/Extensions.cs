@@ -102,6 +102,7 @@ public static class Extensions
         app.UseAuthorization();
         app.MapTenantEndpoints();
         app.MapIdentityEndpoints();
+        app.MapPaymentGatewayEndpoints();
 
         // Current user middleware
         app.UseMiddleware<CurrentUserMiddleware>();

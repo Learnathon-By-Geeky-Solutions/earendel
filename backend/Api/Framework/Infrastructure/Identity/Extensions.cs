@@ -117,5 +117,14 @@ namespace TalentMesh.Framework.Infrastructure.Identity
 
             return app;
         }
+
+        [ExcludeFromCodeCoverage]
+        public static IEndpointRouteBuilder MapPaymentGatewayEndpoints(this IEndpointRouteBuilder app)
+        {
+            var payments = app.MapGroup("api/payments/sslcommerz").WithTags("payments");
+            payments.MapSSLCommerzEndpoints();
+            
+            return app;
+        }
     }
 }

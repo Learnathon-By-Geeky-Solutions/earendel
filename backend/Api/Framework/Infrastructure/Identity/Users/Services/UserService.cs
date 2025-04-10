@@ -494,7 +494,7 @@ internal sealed partial class UserService(
             {
                 // Check if user is an external login
                 var logins = await userManager.GetLoginsAsync(existingUser);
-                if (logins.Any(l => l.LoginProvider == AuthProviders.Google || l.LoginProvider == AuthProviders.GitHub))
+                if (logins.Any(l => l.LoginProvider == AuthProviders.Google))
                 {
                     var tokenGenerationCommandForExistingUser = new TokenGenerationCommand(email, null); // Pass email and password
 
@@ -562,12 +562,9 @@ internal sealed partial class UserService(
     {
         string accessToken = await apiClient.GetAccessTokenAsync(request.Code);
 
-        var (Login, Email, Avatar, ProviderKey) = await apiClient.GetUserInfoAsync(accessToken);
+        // string gatewayPageURL = await apiClient.InitiateSslCommerzPaymentAsync();
 
-        Console.WriteLine(Login);
-        Console.WriteLine(Email);
-        Console.WriteLine(Avatar);
-        Console.WriteLine(ProviderKey);
+        var (Login, Email, Avatar, ProviderKey) = await apiClient.GetUserInfoAsync(accessToken);
 
         try
         {
@@ -578,7 +575,7 @@ internal sealed partial class UserService(
             {
                 // Check if user is an external login
                 var logins = await userManager.GetLoginsAsync(existingUser);
-                if (logins.Any(l => l.LoginProvider == AuthProviders.Google || l.LoginProvider == AuthProviders.GitHub))
+                if (logins.Any(l => l.LoginProvider == AuthProviders.GitHub))
                 {
                     var tokenGenerationCommandForExistingUser = new TokenGenerationCommand(Email, null); // Pass email and password
 
