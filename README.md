@@ -2,13 +2,34 @@
 
 # 🚀 TalentMesh
 
-<img src="public/images/talentmesh-banner.png" alt="TalentMesh Banner" width="100%">
 <h3>Next-Generation Interview as a Service Platform</h3>
 
-[![.NET 8](https://img.shields.io/badge/.NET-8.0-512BD4?style=for-the-badge&logo=.net&logoColor=white)](https://dotnet.microsoft.com/download)
-[![ASP.NET Core](https://img.shields.io/badge/ASP.NET-Core-purple?style=for-the-badge&logo=.net&logoColor=white)](https://dotnet.microsoft.com/apps/aspnet)
-[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-316192?style=for-the-badge&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
+<img src="public/images/talentmesh-banner.png" alt="TalentMesh Banner" width="100%">
+
+
+
+### Explore Our Wiki, API Docs, and Project Management Tools!
+
+[![Explore the Wiki](https://img.shields.io/badge/Explore-Wiki-0077B5?style=for-the-badge&logo=readthedocs&logoColor=white)](https://github.com/Learnathon-By-Geeky-Solutions/earendel/wiki)
+[![API Swagger](https://img.shields.io/badge/API-Swagger-85EA2D?style=for-the-badge&logo=swagger&logoColor=white)](http://173.249.54.173/swagger/index.html)
+[![Kanban Board](https://img.shields.io/badge/View-Kanban%20Board-00AAEF?style=for-the-badge&logo=trello&logoColor=white)](https://github.com/orgs/Learnathon-By-Geeky-Solutions/projects/91/views/1)
+[![🚀 Sprint Board](https://img.shields.io/badge/View-Sprint-FF5733?style=for-the-badge&logo=trello&logoColor=white)](https://github.com/orgs/Learnathon-By-Geeky-Solutions/projects/91/views/7)
+[![License: MIT](https://img.shields.io/badge/License-MIT-00A859?style=for-the-badge&logo=opensource&logoColor=white)](https://github.com/Learnathon-By-Geeky-Solutions/earendel/tree/development?tab=License-1-ov-file)
+
+### Tech Stack
+
+[![.NET 8](https://img.shields.io/badge/.NET-8.0-512BD4?style=for-the-badge&logoColor=white)](https://dotnet.microsoft.com/download)
 [![Angular](https://img.shields.io/badge/Angular-17-DD0031?style=for-the-badge&logo=angular&logoColor=white)](https://angular.io)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-316192?style=for-the-badge&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
+[![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)](https://www.docker.com/)
+[![Nginx](https://img.shields.io/badge/Nginx-009639?style=for-the-badge&logo=nginx&logoColor=white)](https://nginx.org/)
+[![Grafana](https://img.shields.io/badge/Grafana-0e0e0e?style=for-the-badge&logo=grafana&logoColor=white)](#grafana)
+[![Prometheus](https://img.shields.io/badge/Prometheus-EC5858?style=for-the-badge&logo=prometheus&logoColor=white)](https://prometheus.io/)
+[![Kubernetes](https://img.shields.io/badge/Kubernetes-326CE5?style=for-the-badge&logo=kubernetes&logoColor=white)](https://kubernetes.io/)
+[![RabbitMQ](https://img.shields.io/badge/RabbitMQ-FF6600?style=for-the-badge&logo=rabbitmq&logoColor=white)](#rabbitmq)
+[![Aspire Dashboard](https://img.shields.io/badge/Aspire%20Dashboard-dcd5f6?style=for-the-badge&logo=pydantic&logoColor=7455dd)](#aspire)
+[![Hangfire](https://img.shields.io/badge/Hangfire%20Background%20Jobs-2b4a7b?style=for-the-badge&logo=hetzner&logoColor=white)](#hangfire)
+
 
 <br>
 
@@ -112,16 +133,16 @@ TalentMesh **solves these problems** by offering an **on-demand interview outsou
 ### 📊 Dashboards  
 We use various monitoring and visualization tools to track system health and metrics:  
 
-<h4> <b>Grafana</b> – Real-time application monitoring </h4> 
+<h4 id="grafana"> <b>Grafana</b> – Real-time application monitoring </h4> 
 <img src="public/images/grafana-dashboard.png" alt="Grafana Dashboard" width="100%">
 
-<h4> <b>Aspire</b> –  API and service management </h4> 
+<h4 id="aspire"> <b>Aspire</b> –  API and service management </h4> 
 <img src="public/images/aspire-logging-system.png" alt="Aspire Dashboard" width="100%">
 
-<h4> <b>RabbitMQ</b> – Queue management and message broker </h4>
+<h4 id="rabbitmq"> <b>RabbitMQ</b> – Queue management and message broker </h4>
 <img src="public/images/rabbitmq.png" alt="RabbitMQ" width="100%">
 
-<h4> <b>Hangfire</b> – Background Job Processing </h4>
+<h4 id="hangfire"> <b>Hangfire</b> – Background Job Processing </h4>
 <img src="public/images/hangfire-dashboard.png" alt="Hangfire" width="100%">
 
 ---
@@ -136,26 +157,16 @@ We follow **GitFlow** branching strategy to maintain code quality and streamline
 ## 📜 API Documentation  
 We provide a fully interactive **Swagger UI** for API testing and documentation.  
 
-![Swagger](path/to/swagger-ui.png)  
+[![Swagger](https://img.shields.io/badge/Swagger-85EA2D?style=for-the-badge&logo=swagger&logoColor=black)](http://173.249.54.173/swagger/index.html)
 
-🔗 [View API Documentation](#)  
-
+ 
 ---
 
 
 <div align="center">
 
-# 🌟 Talent Mesh Frontend
-
-  <p align="center">
-    <a href="https://angular.io">
-      <img src="https://img.shields.io/badge/Angular-17.3.11-red.svg" alt="Angular">
-    </a>
-    <a href="https://www.typescriptlang.org/">
-      <img src="https://img.shields.io/badge/TypeScript-5.2-blue.svg" alt="TypeScript">
-    </a>
-  </p>
-
+# 🖥️ Talent Mesh Frontend
+ 
 </div>
 
 <div align="center">
@@ -172,30 +183,7 @@ While this repository only hosts our backend services. But for convenience, we h
 </div>
 
 ---
-
-## 🌟 Overview
-
-TalentMesh is a revolutionary **Interview as a Service (IaaS)** platform that leverages cutting-edge .NET 8 Modular Monolithic & Clean Architecture to deliver instant, affordable, and standardized technical assessments. Our platform seamlessly connects talent with opportunities through an innovative approach to technical recruitment.
-
-### 🎯 Core Features
-
-- **🤖 AI-Powered Interview Engine**
-
-  - Real-time code analysis and evaluation
-  - Automated skill assessment and scoring
-  - Behavioral analysis through ML algorithms
-
-- **💻 Advanced Technical Assessment**
-
-  - Live coding environments with 20+ languages
-  - System design interview tools
-  - Automated test case generation
-
-- **📈 Enterprise Analytics**
-  - Comprehensive recruitment metrics
-  - Candidate performance analytics
-  - ROI and efficiency tracking
-
+ 
 ## 🛠 Technical Architecture
 
 ### Architecture Overview
@@ -230,7 +218,6 @@ Technology Stack:
 Development Practices:
   - Domain-Driven Design
   - CQRS Pattern
-  - Vertical Slice Architecture
   - Event-Driven Communication
 ```
 
@@ -240,7 +227,6 @@ Development Practices:
 
   - Modular Monolithic Design
   - Containerized with Docker
-  - Azure App Service Deployment
   - GitHub Actions CI/CD Pipeline
 
 - **🔐 Security & Authentication**
@@ -257,40 +243,6 @@ Development Practices:
   - Performance Monitoring
 
 <!-- ## 📂 Project Structure -->
-
-## 🚀 Quick Start
-
-### Prerequisites
-
-```bash
-# Install .NET 8 SDK
-dotnet --version  # Should be 8.0.x
-
-# Install PostgreSQL
-brew install postgresql@15
-
-# Install Redis
-brew install redis
-```
-
-### Development Setup
-
-```bash
-# Clone the repository
-git clone https://github.com/Learnathon-By-Geeky-Solutions/earendel.git
-
-# Navigate to backend
-cd earendel/backend
-
-# Restore dependencies
-dotnet restore
-
-# Update database
-dotnet ef database update
-
-# Run the application
-dotnet run --project Api/Earendel.Api.csproj
-```
 
 ## 📐 Documentation
 
