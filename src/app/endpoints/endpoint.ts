@@ -1,6 +1,6 @@
 // const base = 'https://localhost:7100';
 
-const base = 'http://173.249.54.173';
+const base = 'https://talentmesh.genericsolution.net/';
 
 export const endpoint = {
   googleLoginUrl: `${base}/api/users/google-login`,
