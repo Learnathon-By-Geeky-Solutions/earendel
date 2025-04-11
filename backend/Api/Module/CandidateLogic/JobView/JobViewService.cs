@@ -1,44 +1,103 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
-using TalentMesh.Module.Job.Infrastructure.Persistence;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using TalentMesh.Module.Job.Infrastructure.Persistence; // Your DbContext namespace
 
-namespace TalentMesh.Module.CandidateLogic.JobView;
-
-
-public class JobViewService : IRequestHandler<JobViewFilters, IResult>
+namespace TalentMesh.Module.CandidateLogic.JobView // Or your preferred namespace
 {
-    private readonly JobDbContext _job_context;
-
-    public JobViewService(JobDbContext context)
+    public class JobViewService : IRequestHandler<JobViewFilters, IResult>
     {
-        _job_context = context ?? throw new ArgumentNullException(nameof(context));
-    }
+        private readonly JobDbContext _jobDbContext; // Renamed for clarity
 
-    public async Task<IResult> Handle(JobViewFilters request, CancellationToken cancellationToken)
-    {
-        var query = _job_context.Jobs.AsQueryable();
+        public JobViewService(JobDbContext context)
+        {
+            _jobDbContext = context ?? throw new ArgumentNullException(nameof(context));
+        }
 
-        if (!string.IsNullOrWhiteSpace(request.Name))
-            query = query.Where(j => j.Name.Contains(request.Name, StringComparison.OrdinalIgnoreCase));
+        public async Task<IResult> Handle(JobViewFilters request, CancellationToken cancellationToken)
+        {
+            // --- 1. Filter Jobs ---
+            var jobQuery = _jobDbContext.Jobs.AsNoTracking().AsQueryable(); 
 
-        if (!string.IsNullOrWhiteSpace(request.Description))
-            query = query.Where(j => j.Description != null && j.Description.Contains(request.Description, StringComparison.OrdinalIgnoreCase));
+            if (!string.IsNullOrWhiteSpace(request.Name))
+                jobQuery = jobQuery.Where(j => j.Name.Contains(request.Name));
 
-        if (!string.IsNullOrWhiteSpace(request.Requirements))
-            query = query.Where(j => j.Requirments != null && j.Requirments.Contains(request.Requirements, StringComparison.OrdinalIgnoreCase));
+            if (!string.IsNullOrWhiteSpace(request.Description))
+                jobQuery = jobQuery.Where(j => j.Description != null && j.Description.Contains(request.Description));
 
-        if (!string.IsNullOrWhiteSpace(request.Location))
-            query = query.Where(j => j.Location != null && j.Location.Contains(request.Location, StringComparison.OrdinalIgnoreCase));
+            if (!string.IsNullOrWhiteSpace(request.Requirements))
+                jobQuery = jobQuery.Where(j => j.Requirments.Contains(request.Requirements));
 
-        if (!string.IsNullOrWhiteSpace(request.JobType))
-            query = query.Where(j => j.JobType != null && j.JobType.Contains(request.JobType, StringComparison.OrdinalIgnoreCase));
+            if (!string.IsNullOrWhiteSpace(request.Location))
+                jobQuery = jobQuery.Where(j => j.Location.Contains(request.Location));
 
-        if (!string.IsNullOrWhiteSpace(request.ExperienceLevel))
-            query = query.Where(j => j.ExperienceLevel != null && j.ExperienceLevel.Contains(request.ExperienceLevel, StringComparison.OrdinalIgnoreCase));
+            if (!string.IsNullOrWhiteSpace(request.JobType))
+                jobQuery = jobQuery.Where(j => j.JobType.Contains(request.JobType));
 
-        var results = await query.ToListAsync(cancellationToken);
-        return Results.Ok(results);
+            if (!string.IsNullOrWhiteSpace(request.ExperienceLevel))
+                jobQuery = jobQuery.Where(j => j.ExperienceLevel.Contains(request.ExperienceLevel));
+
+            var filteredJobs = await jobQuery
+                .Select(j => new // Project to anonymous type initially to reduce data transfer
+                {
+                    j.Id,
+                    j.Name,
+                    j.Description,
+                    j.Requirments,
+                    j.Location,
+                    j.JobType,
+                    j.ExperienceLevel,
+                    j.Created 
+                })
+                .ToListAsync(cancellationToken);
+
+            if (!filteredJobs.Any())
+            {
+                return Results.Ok(new List<JobViewDto>()); // Return empty list if no jobs found
+            }
+
+            var jobIds = filteredJobs.Select(j => j.Id).ToList();
+
+            // --- 2. Fetch Required Skills & Subskills ---
+            var requiredSkills = await _jobDbContext.JobRequiredSkill
+                .AsNoTracking()
+                .Where(rs => jobIds.Contains(rs.JobId))
+                .Select(rs => new { rs.JobId, rs.SkillId }) // Select only needed data
+                .ToListAsync(cancellationToken);
+
+            var requiredSubskills = await _jobDbContext.JobRequiredSubskill
+                .AsNoTracking()
+                .Where(rss => jobIds.Contains(rss.JobId))
+                .Select(rss => new { rss.JobId, rss.SubskillId }) // Select only needed data
+                .ToListAsync(cancellationToken);
+
+            // --- 3. Group Skills/Subskills by JobId ---
+            var skillsByJobId = requiredSkills.ToLookup(rs => rs.JobId, rs => rs.SkillId);
+            var subskillsByJobId = requiredSubskills.ToLookup(rss => rss.JobId, rss => rss.SubskillId);
+
+            // --- 4. Map to DTO ---
+            var results = filteredJobs.Select(job => new JobViewDto
+            {
+                Id = job.Id,
+                Name = job.Name,
+                Description = job.Description,
+                Requirments = job.Requirments,
+                Location = job.Location,
+                JobType = job.JobType,
+                ExperienceLevel = job.ExperienceLevel,
+                CreatedOn = job.Created,
+
+
+                RequiredSkillIds = skillsByJobId.Contains(job.Id) ? skillsByJobId[job.Id].ToList() : new List<Guid>(),
+                RequiredSubskillIds = subskillsByJobId.Contains(job.Id) ? subskillsByJobId[job.Id].ToList() : new List<Guid>()
+            }).ToList();
+
+            return Results.Ok(results);
+        }
     }
 }
-
