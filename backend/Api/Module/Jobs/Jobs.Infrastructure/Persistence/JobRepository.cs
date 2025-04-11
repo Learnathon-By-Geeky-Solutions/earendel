@@ -6,7 +6,7 @@ using Mapster;
 using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Module.Job.Infrastructure.Persistence;
-internal sealed class JobRepository<T> : RepositoryBase<T>, IReadRepository<T>, IRepository<T>
+public sealed class JobRepository<T> : RepositoryBase<T>, IReadRepository<T>, IRepository<T>
     where T : class, IAggregateRoot
 {
     public JobRepository(JobDbContext context)

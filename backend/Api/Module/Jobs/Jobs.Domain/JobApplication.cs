@@ -7,7 +7,6 @@ namespace TalentMesh.Module.Job.Domain
     public class JobApplication : AuditableEntity, IAggregateRoot
     {
         public Guid JobId { get; set; }
-
         public Guid CandidateId { get; set; }
         public DateTime ApplicationDate { get; set; }
         public string Status { get; set; } = default!;  // e.g., "applied", "under review", "accepted", "rejected"

@@ -19,6 +19,7 @@
     <ProjectReference Include="..\Framework\Core\Core.csproj" />
     <ProjectReference Include="..\Framework\Infrastructure\Infrastructure.csproj" />
     <ProjectReference Include="..\Migrations\PGSql\PGSql.csproj" />
+    <ProjectReference Include="..\Module\CandidateLogic\CandidateLogic.csproj" />
     <ProjectReference Include="..\Module\Candidate\Candidate.Infrastructure\Candidate.Infrastructure.csproj" />
     <ProjectReference Include="..\Module\Evaluator\Evaluator.Infrastructure\Evaluator.Infrastructure.csproj" />
     <ProjectReference Include="..\Module\Experties\Experties.Infrastructure\Experties.Infrastructure.csproj" />
