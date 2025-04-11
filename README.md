@@ -56,20 +56,42 @@
 
 </div>
 
----
 
 <div align="center">
 
-### 🔥 Meet Team - Earendel
+  <h2>🔥 Meet Team - <b>Earendel</b></h2>
 
-  <ul>
-  <li><b>Rakibul Hasan</b> <i>(Team Leader)</i></li>
-  <li><b>Nafiul Hasan Hamim</b> </li>
-  <li><b>MFR Siam</b> </li>
-  <li><b>Mahmudul Hasan</b> <i>(Mentor)</i></li>
-  </ul>
+  <table style="width: 90%;">
+    <tr>
+      <td align="center" width="24%">
+        <h4>Rakibul Hasan</h4>
+        <img src="https://img.shields.io/badge/Team%20Leader-2D9CDB?style=for-the-badge"> 
+        <br> <a href="https://github.com/rakibul24466" target="_blank">
+              <img src="https://img.shields.io/badge/GitHub-100000?style=flat&logo=github&logoColor=white">
+             </a>
+      </td>
+      <td style="min-width: 220px;"  align="center" width="30%">
+          <h4 style="white-space: nowrap; font-size: 16px; padding: 0 5px;">Nafiul Hasan Hamim</h4>
+          <img src="https://img.shields.io/badge/FullStack%20Developer-F2C94C?style=for-the-badge">  
+        <br><a href="https://github.com/nafiulhasanhamim" target="_blank">
+              <img src="https://img.shields.io/badge/GitHub-100000?style=flat&logo=github&logoColor=white">
+             </a>
+      </td>
+      <td align="center" width="25%">
+        <h4>MFR Siam</h4>
+        <img src="https://img.shields.io/badge/backend%20developer-F2C94C?style=for-the-badge"> 
+        <br><a href="https://github.com/MFRSiam" target="_blank">
+              <img src="https://img.shields.io/badge/GitHub-100000?style=flat&logo=github&logoColor=white">
+             </a>
+      </td>
+      <td align="center" width="20%">
+        <h4>Mahmudul Hasan</h4>
+        <img src="https://img.shields.io/badge/Mentor-4E9BCD?style=for-the-badge"> 
+    </tr>
+  </table>
 
 </div>
+
 
 ---
 
@@ -97,14 +119,7 @@ TalentMesh **solves these problems** by offering an **on-demand interview outsou
 🔹 High-quality and standardized evaluations  
 🔹 A pay-per-interview pricing model  
 🔹 Real-time assessments with a collaborative coding environment  
-
-## 🚀 How TalentMesh Works
-
-1️⃣ **HR/Recruiters** submit job roles and interview requirements.  
-2️⃣ **TalentMesh** matches them with experienced interviewers from a global talent pool.  
-3️⃣ **Interviews** are conducted in real-time, with structured evaluation criteria.  
-4️⃣ **Reports** and detailed feedback are generated instantly.  
-5️⃣ **Companies** make informed hiring decisions based on standardized assessments.  
+🔹 **Reports** and detailed feedback are generated instantly. 
 
 ## 🌍 Market Opportunity
 
@@ -130,19 +145,81 @@ TalentMesh **solves these problems** by offering an **on-demand interview outsou
 <img src="public/images/ER-Diagram.png" alt="ER Diagram" width="100%">
 
 
-### 📊 Dashboards  
-We use various monitoring and visualization tools to track system health and metrics:  
+## 📊 Dashboards  
+We used various monitoring and visualization tools to track our system health and metrics:  
+
 
 <h4 id="grafana"> <b>Grafana</b> – Real-time application monitoring </h4> 
+<table>
+<tr>
+<td>
+   <a href="#grafana">
+    <img src="https://img.shields.io/badge/View-Grafana%20Live%20Link-0e0e0e?style=for-the-badge&logo=grafana&logoColor=white" alt="Grafana">
+  </a>
+</td>
+ <td>
+   <a href="http://173.249.54.173:3000/login">
+    http://173.249.54.173:3000/login
+  </a>
+</td>
+</tr>
+</table>
 <img src="public/images/grafana-dashboard.png" alt="Grafana Dashboard" width="100%">
+
+
+<h4 id="prometheus"> <b>Prometheus</b> – Monitoring system & time series database </h4> 
+<table>
+<tr>
+<td>
+   <a href="#prometheus">
+    <img src="https://img.shields.io/badge/Prometheus%20Live%20Link-EC5858?style=for-the-badge&logo=prometheus&logoColor=white" alt="Prometheus">
+  </a>
+</td>
+ <td>
+   <a href="http://173.249.54.173:9090/query?g0.expr=node_cpu_seconds_total&g0.show_tree=0&g0.tab=table&g0.range_input=1h&g0.res_type=auto&g0.res_density=medium&g0.display_mode=lines&g0.show_exemplars=0">
+    http://173.249.54.173:9090/
+  </a>
+</td>
+</tr>
+</table>
+<img src="public/images/prometheus-dashboard.png" alt="Prometheus Dashboard" width="100%">
+
 
 <h4 id="aspire"> <b>Aspire</b> –  API and service management </h4> 
 <img src="public/images/aspire-logging-system.png" alt="Aspire Dashboard" width="100%">
 
 <h4 id="rabbitmq"> <b>RabbitMQ</b> – Queue management and message broker </h4>
+<table>
+<tr>
+<td>
+   <a href="#rabbitmq">
+    <img src="https://img.shields.io/badge/RabbitMQ%20Live%20Link-FF6600?style=for-the-badge&logo=rabbitmq&logoColor=white" alt="RabbitMQ">
+  </a>
+</td>
+ <td>
+   <a href="http://173.249.54.173/rabbitmq/">
+    http://173.249.54.173/rabbitmq/
+  </a>
+</td>
+</tr>
+</table>
 <img src="public/images/rabbitmq.png" alt="RabbitMQ" width="100%">
 
 <h4 id="hangfire"> <b>Hangfire</b> – Background Job Processing </h4>
+<table>
+<tr>
+<td>
+   <a href="#hangfire">
+    <img src="https://img.shields.io/badge/Hangfire%20Live%20Link-2b4a7b?style=for-the-badge&logo=hetzner&logoColor=white" alt="Hangfire Dashboard">
+  </a>
+</td>
+ <td>
+   <a href="http://173.249.54.173/jobs">
+    http://173.249.54.173/jobs
+  </a>
+</td>
+</tr>
+</table>
 <img src="public/images/hangfire-dashboard.png" alt="Hangfire" width="100%">
 
 ---
@@ -150,7 +227,7 @@ We use various monitoring and visualization tools to track system health and met
 ## 🔀 Git Workflow Strategy  
 We follow **GitFlow** branching strategy to maintain code quality and streamline development.  
 
-<img src="public/images/GitFlow-Branching-Strategy.png" alt="Gitflow Diagram" width="100%">
+<img src="public/images/GitFlow-Branching-Strategy.png" alt="Gitflow Diagram" width="100%" alt="Gitflow Image">
 
 ---
 
@@ -242,13 +319,3 @@ Development Practices:
   - Health Checks & Diagnostics
   - Performance Monitoring
 
-<!-- ## 📂 Project Structure -->
-
-## 📐 Documentation
-
-- [📚 API Documentation](https://api.earendel.dev/swagger)
-- [🛠 Architecture Guide](docs/architecture.md)
-- [👨‍💻 Developer Guide](docs/development.md)
-- [🔧 Configuration Guide](docs/configuration.md)
-
----
