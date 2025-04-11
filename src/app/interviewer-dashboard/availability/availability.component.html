@@ -19,50 +19,31 @@
             </p>
 
             <div class="calendar">
-              <div
-                class="d-flex justify-content-between align-items-center mb-4"
-              >
-                <button
-                  class="btn btn-link text-dark p-0"
-                  (click)="previousMonth()"
-                >
+              <div class="d-flex justify-content-between align-items-center mb-4">
+                <button class="btn btn-link text-dark p-0" (click)="previousMonth()">
                   <i class="bi bi-chevron-left"></i>
                 </button>
                 <h6 class="mb-0">{{ monthNames[currentMonth] }}, {{ currentYear }}</h6>
-                <button
-                  class="btn btn-link text-dark p-0"
-                  (click)="nextMonth()"
-                >
+                <button class="btn btn-link text-dark p-0" (click)="nextMonth()">
                   <i class="bi bi-chevron-right"></i>
                 </button>
               </div>
 
               <div class="calendar-grid">
                 <div class="calendar-header">
-                  <div
-                    *ngFor="let day of daysOfWeek"
-                    class="text-muted small text-center"
-                  >
+                  <div *ngFor="let day of daysOfWeek" class="text-muted small text-center">
                     {{ day }}
                   </div>
                 </div>
 
                 <div class="calendar-body">
-                  <div
-                    *ngFor="let week of calendarDays"
-                    class="calendar-week"
-                  >
-                    <div
-                      *ngFor="let day of week"
-                      class="calendar-day"
-                      [class.selected]="isDateSelected(day.date)"
-                      [class.disabled]="day.isDisabled"
-                      (click)="
+                  <div *ngFor="let week of calendarDays" class="calendar-week">
+                    <div *ngFor="let day of week" class="calendar-day" [class.selected]="isDateSelected(day.date)"
+                      [class.disabled]="day.isDisabled" (click)="
                         day.isCurrentMonth &&
                           !day.isDisabled &&
                           toggleDate(day.date)
-                      "
-                    >
+                      ">
                       {{ day.isCurrentMonth ? day.dayNumber : '' }}
                     </div>
                   </div>
@@ -84,39 +65,19 @@
 
             <div class="mb-3">
               <div class="form-group">
-                <label for="timeRange" class="form-label"
-                  >Select Time Range</label
-                >
+                <label for="timeRange" class="form-label">Select Time Range</label>
                 <div *ngFor="let range of timeRanges; let i = index">
-                  <input
-                    type="time"
-                    class="form-control"
-                    [(ngModel)]="range.startTime"
-                    [name]="'startTime_' + i"
-                    [min]="getMinTime()"
-                  />
-                  <input
-                    type="time"
-                    class="form-control mt-2"
-                    [(ngModel)]="range.endTime"
-                    [name]="'endTime_' + i"
-                    [min]="getMinTime()"
-                  />
-                  <button
-                    *ngIf="timeRanges.length > 1"
-                    type="button"
-                    class="btn btn-outline-danger mt-2"
-                    (click)="removeTimeRange(i)"
-                  >
+                  <input type="time" class="form-control" [(ngModel)]="range.startTime" [name]="'startTime_' + i"
+                    [min]="getMinTime()" />
+                  <input type="time" class="form-control mt-2" [(ngModel)]="range.endTime" [name]="'endTime_' + i"
+                    [min]="getMinTime()" />
+                  <button *ngIf="timeRanges.length > 1" type="button" class="btn btn-outline-danger mt-2"
+                    (click)="removeTimeRange(i)">
                     Remove
                   </button>
                 </div>
               </div>
-              <button
-                type="button"
-                class="btn btn-outline-dark mt-2"
-                (click)="addMoreTimeRange()"
-              >
+              <button type="button" class="btn btn-outline-dark mt-2" (click)="addMoreTimeRange()">
                 Add More Time Range
               </button>
             </div>
@@ -137,17 +98,11 @@
               View and manage availability
             </p>
             <ul class="list-group availability-list">
-              <li
-                *ngFor="let interviewer of interviewerAvailability"
-                class="list-group-item availability-item"
-              >
+              <li *ngFor="let interviewer of interviewerAvailability" class="list-group-item availability-item">
                 <div class="d-flex justify-content-between align-items-center mb-2">
                   <h6 class="mb-0">{{ interviewer.name }}</h6>
                   <div class="d-flex align-items-center">
-                    <span
-                      class="badge me-2"
-                      [ngClass]="interviewer.isAvailable ? 'bg-success' : 'bg-secondary'"
-                    >
+                    <span class="badge me-2" [ngClass]="interviewer.isAvailable ? 'bg-success' : 'bg-secondary'">
                       {{ interviewer.isAvailable ? 'Available' : 'Not Available' }}
                     </span>
                     <button class="btn btn-link p-0 toggle-btn" (click)="toggleExpand(interviewer)">
@@ -186,19 +141,19 @@
     </div>
   </div>
   <div class="modal" [class.show]="showDeleteConfirmation" [style.display]="showDeleteConfirmation ? 'block' : 'none'">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">Confirm Deletion</h5>
-        <button type="button" class="btn-close" (click)="closeDeleteModal()"></button>
-      </div>
-      <div class="modal-body">
-        <p>Are you sure you want to delete this time slot?</p>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" (click)="closeDeleteModal()">Cancel</button>
-        <button type="button" class="btn btn-danger" (click)="confirmDelete()">Delete</button>
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Confirm Deletion</h5>
+          <button type="button" class="btn-close" (click)="closeDeleteModal()"></button>
+        </div>
+        <div class="modal-body">
+          <p>Are you sure you want to delete this time slot?</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="closeDeleteModal()">Cancel</button>
+          <button type="button" class="btn btn-danger" (click)="confirmDelete()">Delete</button>
+        </div>
       </div>
     </div>
   </div>
-</div>

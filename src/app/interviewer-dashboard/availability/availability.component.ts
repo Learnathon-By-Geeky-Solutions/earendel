@@ -1,8 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { SidebarComponent } from '../sidebar/sidebar.component';
+import { InterviewerService, AvailabilitySlot } from '../../shared/services/interviewer.service';
 
 interface TimeSlot {
   id: number;
@@ -25,7 +26,7 @@ interface Interviewer {
   templateUrl: './availability.component.html',
   styleUrls: ['./availability.component.css'],
 })
-export class AvailabilityComponent {
+export class AvailabilityComponent implements OnInit {
   daysOfWeek = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
   currentDate = new Date();
   currentMonth = this.currentDate.getMonth();
@@ -34,6 +35,10 @@ export class AvailabilityComponent {
   timeRanges: { startTime: string; endTime: string }[] = [
     { startTime: '09:00', endTime: '17:00' },
   ];
+
+  // API integration states
+  isLoading = false;
+  apiError = "";
 
   monthNames = [
     'January',
@@ -58,26 +63,7 @@ export class AvailabilityComponent {
   }[][] = [];
 
   interviewerAvailability: Interviewer[] = [
-    {
-      name: 'John Doe',
-      date: new Date('2025-01-26'),
-      timeSlots: [
-        { id: 1, startTime: '09:00', endTime: '11:00' },
-        { id: 2, startTime: '14:00', endTime: '16:00' },
-      ],
-      isAvailable: true,
-      expanded: false,
-    },
-    {
-      name: 'Jane Smith',
-      date: new Date('2025-01-27'),
-      timeSlots: [
-        { id: 3, startTime: '10:00', endTime: '12:00' },
-        { id: 4, startTime: '15:00', endTime: '17:00' },
-      ],
-      isAvailable: true,
-      expanded: false,
-    },
+  
   ];
 
   showDeleteConfirmation = false;
@@ -85,8 +71,235 @@ export class AvailabilityComponent {
   selectedSlotId: number | null = null;
   editingSlot: { interviewer: Interviewer; slotIndex: number } | null = null;
 
-  constructor() {
+  constructor(private interviewerService: InterviewerService) {
     this.generateCalendarDays();
+  }
+
+  ngOnInit(): void {
+    // Debug session storage data
+    console.log('===== SESSION STORAGE DEBUG =====');
+    console.log('loggedInUser:', sessionStorage.getItem('loggedInUser'));
+    console.log('userData:', sessionStorage.getItem('userData'));
+    
+    const loggedInUser = sessionStorage.getItem('loggedInUser');
+    const userData = sessionStorage.getItem('userData');
+    
+    if (loggedInUser) {
+      try {
+        const parsedUser = JSON.parse(loggedInUser);
+        console.log('Parsed loggedInUser userId:', parsedUser.userId);
+        console.log('Parsed loggedInUser token exists:', !!parsedUser.token);
+      } catch (e) {
+        console.error('Error parsing loggedInUser:', e);
+      }
+    }
+    
+    if (userData) {
+      try {
+        const parsedData = JSON.parse(userData);
+        console.log('Parsed userData userId:', parsedData.userId);
+        console.log('Parsed userData token exists:', !!parsedData.token);
+      } catch (e) {
+        console.error('Error parsing userData:', e);
+      }
+    }
+    console.log('================================');
+    
+    this.loadAvailabilities();
+  }
+
+  // Load availabilities from API
+  loadAvailabilities(): void {
+    this.isLoading = true;
+    this.apiError = "";
+
+    console.log('Loading interviewer availabilities from API...');
+
+    this.interviewerService.searchAvailabilities().subscribe({
+      next: (response) => {
+        console.log('API response received:', response);
+        this.isLoading = false;
+        
+        // Process API response - handle both potential response formats
+        if (response && response.items && Array.isArray(response.items)) {
+          // The API is returning items instead of data
+          console.log('Found', response.items.length, 'availability records in items');
+          
+          if (response.items.length > 0) {
+            this.processAvailabilityData(response.items);
+          } else {
+            console.log('No availability data returned from API');
+          }
+        } else if (response && response.data && Array.isArray(response.data)) {
+          // In case API format changes back to data
+          console.log('Found', response.data.length, 'availability records in data');
+          
+          if (response.data.length > 0) {
+            this.processAvailabilityData(response.data);
+          } else {
+            console.log('No availability data returned from API');
+          }
+        } else if (Array.isArray(response)) {
+          // Direct array response
+          console.log('Found', response.length, 'availability records in array');
+          
+          if (response.length > 0) {
+            this.processAvailabilityData(response);
+          } else {
+            console.log('No availability data returned from API');
+          }
+        } else {
+          console.warn('Unexpected API response format:', response);
+          this.apiError = "Could not load availabilities from server";
+        }
+      },
+      error: (error) => {
+        console.error('API error loading availabilities:', error);
+        this.isLoading = false;
+        this.apiError = "Error loading availabilities from server";
+      }
+    });
+  }
+
+  // Process availability data from API
+  processAvailabilityData(data: any[]): void {
+    console.log('Processing availability data...');
+    
+    if (!data || data.length === 0) {
+      console.log('No data to process');
+      return;
+    }
+
+    try {
+      // Get current user info
+      let userName = 'Current User'; 
+      try {
+        const userData = JSON.parse(sessionStorage.getItem('loggedInUser') || sessionStorage.getItem('userData') || '{}');
+        userName = userData.name || userData.userName || 'Current User';
+        console.log('Current user name:', userName);
+      } catch (e) {
+        console.error('Could not parse user data', e);
+      }
+
+      // Group API data by date
+      const groupedByDate: {[key: string]: any[]} = {};
+      
+      data.forEach((item, index) => {
+        console.log(`Processing item ${index}:`, item);
+        
+        if (!item) {
+          console.log('Skipping null/undefined item');
+          return;
+        }
+        
+        // Handle various possible response formats
+        let startTime: Date | undefined;
+        let endTime: Date | undefined;
+        let id: number = Math.floor(Math.random() * 10000); // Default ID
+        
+        if (item.startTime && item.endTime) {
+          // Direct format
+          startTime = new Date(item.startTime);
+          endTime = new Date(item.endTime);
+          id = item.id || Math.floor(Math.random() * 10000);
+          console.log(`Direct format - Start: ${startTime}, End: ${endTime}, ID: ${id}`);
+        } else if (item.availabilitySlot) {
+          // Nested format
+          startTime = new Date(item.availabilitySlot.startTime);
+          endTime = new Date(item.availabilitySlot.endTime);
+          id = item.id || Math.floor(Math.random() * 10000);
+          console.log(`Nested format - Start: ${startTime}, End: ${endTime}, ID: ${id}`);
+        } else if (item.availability && item.availability.startTime && item.availability.endTime) {
+          // Another possible nested format
+          startTime = new Date(item.availability.startTime);
+          endTime = new Date(item.availability.endTime);
+          id = item.id || Math.floor(Math.random() * 10000);
+          console.log(`Availability nested format - Start: ${startTime}, End: ${endTime}, ID: ${id}`);
+        } else if (item.interviewerAvailabilityId) {
+          // Format from screenshots
+          id = item.interviewerAvailabilityId || Math.floor(Math.random() * 10000);
+          
+          // Try different possible paths for time data
+          if (item.startTime && item.endTime) {
+            startTime = new Date(item.startTime);
+            endTime = new Date(item.endTime);
+          } else if (item.availabilitySlot) {
+            startTime = new Date(item.availabilitySlot.startTime);
+            endTime = new Date(item.availabilitySlot.endTime);
+          }
+          
+          if (startTime && endTime) {
+            console.log(`ID format - Start: ${startTime}, End: ${endTime}, ID: ${id}`);
+          } else {
+            console.warn('Missing time data for item with ID:', id);
+            return;
+          }
+        } else {
+          // Look for any properties that contain startTime/endTime
+          const keys = Object.keys(item);
+          for (const key of keys) {
+            if (typeof item[key] === 'object' && item[key] !== null) {
+              if (item[key].startTime && item[key].endTime) {
+                startTime = new Date(item[key].startTime);
+                endTime = new Date(item[key].endTime);
+                id = item.id || item[key].id || Math.floor(Math.random() * 10000);
+                console.log(`Found in ${key} - Start: ${startTime}, End: ${endTime}, ID: ${id}`);
+                break;
+              }
+            }
+          }
+          
+          if (!startTime || !endTime) {
+            console.warn('Unknown item format:', item);
+            return;
+          }
+        }
+        
+        // Ensure we have valid dates before proceeding
+        if (!startTime || !endTime || isNaN(startTime.getTime()) || isNaN(endTime.getTime())) {
+          console.warn('Invalid date format in item:', item);
+          return;
+        }
+        
+        const dateKey = startTime.toDateString();
+        console.log('Date key:', dateKey);
+        
+        if (!groupedByDate[dateKey]) {
+          groupedByDate[dateKey] = [];
+        }
+        
+        groupedByDate[dateKey].push({
+          id: id,
+          startTime: this.formatTime(startTime),
+          endTime: this.formatTime(endTime)
+        });
+      });
+      
+      console.log('Grouped data by date:', groupedByDate);
+      
+      // Create interviewer objects
+      const newAvailability = Object.keys(groupedByDate).map(dateKey => ({
+        name: userName,
+        date: new Date(dateKey),
+        timeSlots: groupedByDate[dateKey],
+        isAvailable: true,
+        expanded: false
+      }));
+      
+      console.log('New availability data:', newAvailability);
+      
+      // Replace the existing data with new data from API
+      if (newAvailability.length > 0) {
+        this.interviewerAvailability = newAvailability;
+      }
+    } catch (error) {
+      console.error('Error processing availability data:', error);
+    }
+  }
+
+  // Format time from date to HH:MM
+  formatTime(date: Date): string {
+    return date.toTimeString().substring(0, 5);
   }
 
   generateCalendarDays() {
@@ -340,23 +553,85 @@ export class AvailabilityComponent {
       }
     }
 
-    if (this.editingSlot) {
-      // Update existing slot
-      const { interviewer, slotIndex } = this.editingSlot;
-      interviewer.timeSlots[slotIndex] = {
-        id: interviewer.timeSlots[slotIndex].id,
-        startTime: this.timeRanges[0].startTime,
-        endTime: this.timeRanges[0].endTime,
-      };
-      this.editingSlot = null;
-    } else {
-      // Add new availability
-      this.updateAvailabilityList();
-    }
+    // After all validations, prepare API request for saving availability
+    this.isLoading = true;
+    this.apiError = "";
 
-    this.selectedDate = null;
-    this.timeRanges = [{ startTime: '09:00', endTime: '17:00' }];
-    alert('Availability saved successfully.');
+    console.log('Preparing availability data for saving...');
+    console.log('Selected date:', selectedDateTime);
+    console.log('Time ranges to save:', this.timeRanges);
+
+    const formattedDate = selectedDateTime.toISOString().split('T')[0];
+    const availabilitySlots: AvailabilitySlot[] = this.timeRanges.map(range => {
+      // Create full ISO date strings for the API
+      const startDateTime = new Date(`${formattedDate}T${range.startTime}:00`);
+      const endDateTime = new Date(`${formattedDate}T${range.endTime}:00`);
+      
+      return {
+        startTime: startDateTime.toISOString(),
+        endTime: endDateTime.toISOString()
+      };
+    });
+
+    console.log('Formatted availability slots for API:', availabilitySlots);
+    console.log('Sending availability data to API...');
+
+    this.interviewerService.createAvailability(availabilitySlots).subscribe({
+      next: (response) => {
+        console.log('API success response:', response);
+        this.isLoading = false;
+        
+        // Update UI
+        if (this.editingSlot) {
+          // Update existing slot
+          const { interviewer, slotIndex } = this.editingSlot;
+          interviewer.timeSlots[slotIndex] = {
+            id: interviewer.timeSlots[slotIndex].id,
+            startTime: this.timeRanges[0].startTime,
+            endTime: this.timeRanges[0].endTime,
+          };
+          this.editingSlot = null;
+        } else {
+          // Add new availability
+          this.updateAvailabilityList();
+        }
+
+        this.selectedDate = null;
+        this.timeRanges = [{ startTime: '09:00', endTime: '17:00' }];
+        alert('Availability saved successfully.');
+        
+        // Reload availabilities from API to ensure we have the latest data
+        console.log('Reloading availabilities from API...');
+        setTimeout(() => {
+          this.loadAvailabilities();
+        }, 500);
+      },
+      error: (error) => {
+        console.error('API error saving availability:', error);
+        this.isLoading = false;
+        this.apiError = "Failed to save availability";
+        
+        const errorMessage = error.error?.message || 'Server error occurred. Please try again.';
+        console.log('Error message:', errorMessage);
+        alert('Error saving availability: ' + errorMessage);
+        
+        // Still update UI locally for user experience
+        if (this.editingSlot) {
+          const { interviewer, slotIndex } = this.editingSlot;
+          interviewer.timeSlots[slotIndex] = {
+            id: interviewer.timeSlots[slotIndex].id,
+            startTime: this.timeRanges[0].startTime,
+            endTime: this.timeRanges[0].endTime,
+          };
+          this.editingSlot = null;
+        } else {
+          this.updateAvailabilityList();
+        }
+
+        this.selectedDate = null;
+        this.timeRanges = [{ startTime: '09:00', endTime: '17:00' }];
+      }
+    });
   }
 
   toggleExpand(interviewer: Interviewer) {
