@@ -1,4 +1,3 @@
-// const base = 'https://localhost:7100';
 
 const base = 'https://talentmesh.genericsolution.net/';
 
