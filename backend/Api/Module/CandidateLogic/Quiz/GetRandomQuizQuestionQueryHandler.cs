@@ -1,13 +1,13 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Http;
-using Microsoft.EntityFrameworkCore; // For EF Core specific methods like FirstOrDefaultAsync, Contains
+using Microsoft.EntityFrameworkCore; 
 using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using TalentMesh.Module.Quizzes.Infrastructure.Persistence;
 
-namespace TalentMesh.Module.Quizzes.Application.QuizQuestions.Get // Or your preferred namespace
+namespace TalentMesh.Module.Quizzes.Application.QuizQuestions.Get 
 {
     public class GetRandomQuizQuestionQueryHandler : IRequestHandler<GetRandomQuizQuestionQuery, IResult>
     {
@@ -20,7 +20,7 @@ namespace TalentMesh.Module.Quizzes.Application.QuizQuestions.Get // Or your pre
 
         public async Task<IResult> Handle(GetRandomQuizQuestionQuery request, CancellationToken cancellationToken)
         {
-            // 1. Validate attempt exists (optional but recommended)
+            // 1. Validate attempt exists 
             var attemptExists = await _context.QuizAttempts.AnyAsync(a => a.Id == request.AttemptId, cancellationToken);
             if (!attemptExists)
             {

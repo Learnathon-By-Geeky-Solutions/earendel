@@ -61,31 +61,24 @@ namespace TalentMesh.Module.Quizzes.Application.QuizAttempts.SubmitAnswer // Or 
             );
             _context.QuizAttemptAnswers.Add(newAnswer);
 
-            // 6. Update the QuizAttempt score
-            // We need a way to update the score. The existing Update methods aren't ideal.
-            // Let's modify the fetched entity directly (ensure it's tracked).
-            // A domain method like quizAttempt.RecordAnswer(isCorrect) would be cleaner.
-            decimal newScore = quizAttempt.Score + (isCorrect ? 1 : 0); // Simple scoring: +1 if correct
-            int newTotalQuestions = quizAttempt.TotalQuestions + 1; // Increment answered count
 
-            // Use the static Update factory method for consistency or add a dedicated method
-            // This replaces the tracked entity with a new one before saving
+            decimal newScore = quizAttempt.Score + (isCorrect ? 1 : 0); 
+            int newTotalQuestions = quizAttempt.TotalQuestions + 1;
+
+
             var updatedAttempt = QuizAttempt.Update(
                 id: quizAttempt.Id,
-                userId: quizAttempt.UserId, // Keep original UserId
+                userId: quizAttempt.UserId, 
                 score: newScore,
                 totalQuestions: newTotalQuestions
                 );
 
-            // If using direct modification on the tracked entity (alternative):
-            // quizAttempt.GetType().GetProperty("Score").SetValue(quizAttempt, newScore, null); // Reflection needed due to private setters
-            // quizAttempt.GetType().GetProperty("TotalQuestions").SetValue(quizAttempt, newTotalQuestions, null);
-            // _context.QuizAttempts.Update(quizAttempt); // Mark as modified if needed
+         
 
-            _context.Entry(quizAttempt).CurrentValues.SetValues(updatedAttempt); // Apply changes to tracked entity
+            _context.Entry(quizAttempt).CurrentValues.SetValues(updatedAttempt);
 
 
-            // 7. Save changes
+
             await _context.SaveChangesAsync(cancellationToken);
 
             // 8. Return result

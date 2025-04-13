@@ -17,15 +17,13 @@ namespace TalentMesh.Module.Quizzes.Api.Endpoints // Or your preferred namespace
     {
         public static RouteHandlerBuilder MapStartQuizEndpoint(this IEndpointRouteBuilder app)
         {
-            // POST endpoint to start a quiz
             return app.MapPost("/quiz-attempts/start",
                 async (
                     IMediator mediator,
-                    [FromBody] StartQuizRequest request // Assuming UserId comes from body
-                                                        // Alternatively, inject IHttpContextAccessor to get UserId from claims
+                    [FromBody] StartQuizRequest request 
+                                                        
                     ) =>
                 {
-                    // TODO: Add validation for request.UserId if needed
                     var command = new Application.QuizAttempts.Start.StartQuizCommand(request.UserId);
                     return await mediator.Send(command);
                 })

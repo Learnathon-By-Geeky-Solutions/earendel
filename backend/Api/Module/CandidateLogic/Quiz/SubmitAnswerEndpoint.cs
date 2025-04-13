@@ -26,7 +26,6 @@ namespace TalentMesh.Module.Quizzes.Api.Endpoints // Or your preferred namespace
                     [FromBody] SubmitAnswerRequest request, // Get answer details from body
                     IMediator mediator) =>
                 {
-                    // TODO: Add validation (e.g., SelectedOption is 1-4)
                     var command = new SubmitAnswerCommand(
                         AttemptId: attemptId,
                         QuestionId: request.QuestionId,

@@ -56,7 +56,7 @@ namespace TalentMesh.Module.CandidateLogic.JobView // Or your preferred namespac
                 })
                 .ToListAsync(cancellationToken);
 
-            if (!filteredJobs.Any())
+            if (filteredJobs.Count == 0)
             {
                 return Results.Ok(new List<JobViewDto>()); // Return empty list if no jobs found
             }
