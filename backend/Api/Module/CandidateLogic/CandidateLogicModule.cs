@@ -9,6 +9,7 @@ using TalentMesh.Module.CandidateLogic.JobApplicationView;
 using TalentMesh.Module.CandidateLogic.JobView;
 using TalentMesh.Module.Job.Domain;
 using TalentMesh.Module.Job.Infrastructure.Persistence;
+using TalentMesh.Module.Quizzes.Api.Endpoints;
 
 namespace TalentMesh.Module.CandidateLogic
 {
@@ -24,7 +25,10 @@ namespace TalentMesh.Module.CandidateLogic
                 var jobView = app.MapGroup("candidateview").WithTags("JobViewCandidate");
                 jobView.MapJobViewEndpoints();
                 jobView.MapJobApplicationViewEndpoints();
-                
+                jobView.MapStartQuizEndpoint();
+                jobView.MapGetQuizQuestionEndpoint();
+                jobView.MapSubmitAnswerEndpoint();
+
             }
         }
 
