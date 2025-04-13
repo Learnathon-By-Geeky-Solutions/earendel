@@ -56,7 +56,7 @@ namespace TalentMesh.Framework.Infrastructure.Identity.Users.Endpoints
                     var response = await externalApiClient.ValidateSslCommerzPaymentAsync(valId);
 
                     if (response != null &&
-                        response?.ToUpperInvariant() == "VALID")
+                        response.ToUpperInvariant() == "VALID")
                     {
                         logger.LogInformation("Payment validation succeeded for TranId: {TranId}", tranId);
                         return $"Payment validated successfully with val_id: {valId}";

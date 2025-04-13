@@ -172,10 +172,11 @@ internal sealed partial class UserService(
             var codeBytes = WebEncoders.Base64UrlDecode(code);
             decodedCode = Encoding.UTF8.GetString(codeBytes);
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             return "Invalid confirmation code format.";
         }
+
 
         // Confirm the email using the Identity API.
         var result = await userManager.ConfirmEmailAsync(user, decodedCode);

@@ -30,7 +30,6 @@ internal static class Extensions
         services.AddAuthorization(options =>
         {
             options.FallbackPolicy = options.GetPolicy(RequiredPermissionDefaults.PolicyName);
-            // options.FallbackPolicy = null;
             
         });
         return services;

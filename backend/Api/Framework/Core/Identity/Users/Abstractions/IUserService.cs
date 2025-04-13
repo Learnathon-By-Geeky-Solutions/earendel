@@ -31,8 +31,7 @@ public interface IUserService
     Task<GoogleLoginUserResponse> GithubLogin(GithubRequestCommand request, string ip, string origin, CancellationToken cancellationToken);
     Task UpdateAsync(UpdateUserCommand request, string userId);
     Task DeleteAsync(string userId);
-    Task<string> ConfirmEmailAsync(string userId, string code, string tenancy, CancellationToken cancellationToken);
-    // Task<string> ConfirmEmailAsync(string userId, string code, CancellationToken cancellationToken);
+    Task<string> ConfirmEmailAsync(string userId, string code, string tenacy, CancellationToken cancellationToken);
     Task<string> ConfirmPhoneNumberAsync(string userId, string code);
 
     // permisions

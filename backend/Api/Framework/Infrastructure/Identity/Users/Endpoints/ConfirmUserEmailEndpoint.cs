@@ -8,8 +8,6 @@ using Microsoft.Extensions.Options;
 using Microsoft.AspNetCore.Builder;
 using System.Diagnostics.CodeAnalysis;
 using TalentMesh.Shared.Authorization;
-using Microsoft.AspNetCore.Http;
-
 
 namespace TalentMesh.Framework.Infrastructure.Identity.Users.Endpoints;
 

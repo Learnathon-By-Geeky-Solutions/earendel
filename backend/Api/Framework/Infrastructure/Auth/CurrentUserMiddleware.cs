@@ -9,12 +9,6 @@ public class CurrentUserMiddleware(ICurrentUserInitializer currentUserInitialize
 {
     private readonly ICurrentUserInitializer _currentUserInitializer = currentUserInitializer;
 
-    // public async Task InvokeAsync(HttpContext context, RequestDelegate next)
-    // {
-    //     _currentUserInitializer.SetCurrentUser(context.User);
-    //     await next(context);
-    // }
-
     public async Task InvokeAsync(HttpContext context, RequestDelegate next)
     {
         var endpoint = context.GetEndpoint();

@@ -14,7 +14,6 @@ using Microsoft.IdentityModel.Tokens;
 using TalentMesh.Framework.Core.Identity.Users.Abstractions;
 using Microsoft.AspNetCore.WebUtilities;
 using System.Diagnostics.CodeAnalysis;
-using System.Text.RegularExpressions;
 
 namespace TalentMesh.Framework.Infrastructure.Identity.Users.Services
 {
@@ -195,7 +194,13 @@ namespace TalentMesh.Framework.Infrastructure.Identity.Users.Services
             using var jsonDoc = JsonDocument.Parse(responseContent);
             if (jsonDoc.RootElement.TryGetProperty("GatewayPageURL", out JsonElement gatewayPageUrlElement))
             {
-                string gatewayPageUrl = gatewayPageUrlElement.GetString();
+                string? gatewayPageUrl = gatewayPageUrlElement.GetString();
+
+                if (string.IsNullOrEmpty(gatewayPageUrl))
+                {
+                    throw new InvalidOperationException("GatewayPageURL is null or empty.");
+                }
+
                 _logger.LogInformation("Successfully extracted GatewayPageURL: {GatewayPageURL}", gatewayPageUrl);
                 return gatewayPageUrl;
             }
@@ -209,20 +214,22 @@ namespace TalentMesh.Framework.Infrastructure.Identity.Users.Services
         public async Task<string> ValidateSslCommerzPaymentAsync(string valId)
         {
             // Build URL with required parameters
-            var url = QueryHelpers.AddQueryString(_sslCommerzValidationUrl, new Dictionary<string, string>
+            var queryParams = new Dictionary<string, string?>
             {
                 { "val_id", valId },
                 { "store_id", _sslCommerzStoreId },
                 { "store_passwd", _sslCommerzStorePass },
                 { "v", "1" },
                 { "format", "json" }
-            });
+            };
+
+            var url = QueryHelpers.AddQueryString(_sslCommerzValidationUrl, queryParams);
+
 
             _logger.LogInformation("Validating SSLCommerz payment with val_id: {ValId}", valId);
 
             var response = await _httpClient.GetAsync(url).ConfigureAwait(false);
             string responseContent = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
-            _logger.LogInformation("SSLCommerz Validation Response: {Response}", responseContent);
 
             if (!response.IsSuccessStatusCode)
             {
@@ -234,9 +241,15 @@ namespace TalentMesh.Framework.Infrastructure.Identity.Users.Services
             using var jsonDoc = JsonDocument.Parse(responseContent);
             if (jsonDoc.RootElement.TryGetProperty("status", out JsonElement gatewayPageUrlElement))
             {
-                string status = gatewayPageUrlElement.GetString();
-                _logger.LogInformation("Successfully extracted status: {Status}", status);
-                return status;
+                string? status = gatewayPageUrlElement.GetString();
+                if (!string.IsNullOrEmpty(status))
+                {
+                    return status;
+                }
+                else
+                {
+                    _logger.LogWarning("Status property is null or empty.");
+                }
             }
             else
             {
