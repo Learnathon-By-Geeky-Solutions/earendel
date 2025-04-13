@@ -22,6 +22,7 @@ internal static class Extensions
         app.MapGetMeEndpoint();
         app.MapGetUserEndpoint();
         app.MapGetHrsEndpoint();
+        app.MapConfirmUserEmailEndpoint();
         app.MapGetAdminsEndpoint();
         app.MapGetInterviewersEndpoint();
         app.MapGetInterviewerDetailEndpoint();

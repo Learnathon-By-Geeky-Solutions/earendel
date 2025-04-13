@@ -41,6 +41,7 @@ public static class Extensions
         builder.AddServiceDefaults();
         builder.ConfigureSerilog();
         builder.ConfigureDatabase();
+        builder.Services.AddTransient<DefaultTenantMiddleware>();
         builder.Services.ConfigureMultitenancy();
         builder.Services.ConfigureIdentity();
         builder.Services.AddCorsPolicy(builder.Configuration);
@@ -85,6 +86,7 @@ public static class Extensions
         app.MapDefaultEndpoints();
         app.UseRateLimit();
         app.UseSecurityHeaders();
+        app.UseMiddleware<DefaultTenantMiddleware>();
         app.UseMultitenancy();
         app.UseExceptionHandler();
         app.UseCorsPolicy();

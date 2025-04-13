@@ -56,6 +56,11 @@ public sealed class TokenService : ITokenService
             throw new UnauthorizedException();
         }
 
+        if (!user.EmailConfirmed)
+        {
+            throw new UnauthorizedException("Email address is not confirmed.");
+        }
+
         // Retrieve external logins for the user
         var externalLogins = await _userManager.GetLoginsAsync(user);
         bool hasGoogleLogin = externalLogins.Any(x => x.LoginProvider == "Google" || x.LoginProvider == "Github");

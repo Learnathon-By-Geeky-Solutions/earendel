@@ -46,6 +46,7 @@ internal static class Extensions
                 };
             })
             .WithClaimStrategy(TMClaims.Tenant)
+        // .WithRouteStrategy("{__tenant__}")
             .WithHeaderStrategy(TenantConstants.Identifier)
             .WithDistributedCacheStore(TimeSpan.FromMinutes(60))
             .WithEFCoreStore<TenantDbContext, TMTenantInfo>();
