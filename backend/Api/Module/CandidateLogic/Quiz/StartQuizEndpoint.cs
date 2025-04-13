@@ -27,7 +27,7 @@ namespace TalentMesh.Module.Quizzes.Api.Endpoints // Or your preferred namespace
                     var command = new Application.QuizAttempts.Start.StartQuizCommand(request.UserId);
                     return await mediator.Send(command);
                 })
-                .WithTags("QuizAttempts")
+                .WithTags("QuizView")
                 .WithName("StartQuizAttempt")
                 .Produces<object>(StatusCodes.Status200OK, contentType: "application/json") // Returns { AttemptId: "guid" }
                 .Produces(StatusCodes.Status400BadRequest)
