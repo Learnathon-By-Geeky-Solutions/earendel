@@ -46,7 +46,7 @@ namespace TalentMesh.Module.CandidateLogic.JobApplicationView // Or your preferr
                 .WithTags("CandidateLogic") // Group in Swagger UI
                 .WithName("GetFilteredJobApplications") // Unique name for the endpoint
                 .Produces<List<JobApplication>>(StatusCodes.Status200OK) // Specify the expected success response
-                .RequirePermission("Permissions.CandidateLogic.View")
+                //.RequirePermission("Permissions.CandidateLogic.View")
                 .Produces(StatusCodes.Status400BadRequest) // Example error response
                 .Produces(StatusCodes.Status500InternalServerError); // Example error response
         }
