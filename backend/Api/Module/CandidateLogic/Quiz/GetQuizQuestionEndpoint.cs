@@ -20,7 +20,7 @@ namespace TalentMesh.Module.Quizzes.Api.Endpoints
                     var query = new GetRandomQuizQuestionQuery(attemptId);
                     return await mediator.Send(query);
                 })
-                .WithTags("QuizAttempts")
+                .WithTags("QuizView")
                 .WithName("GetQuizQuestionForAttempt")
                 .Produces<QuizQuestionDto>(StatusCodes.Status200OK) 
                 .Produces<object>(StatusCodes.Status200OK) 

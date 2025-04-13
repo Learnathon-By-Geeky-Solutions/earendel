@@ -33,7 +33,7 @@ namespace TalentMesh.Module.Quizzes.Api.Endpoints // Or your preferred namespace
                     );
                     return await mediator.Send(command);
                 })
-                .WithTags("QuizAttempts")
+                .WithTags("QuizView")
                 .WithName("SubmitQuizAnswer")
                 .Produces<object>(StatusCodes.Status200OK) // Returns { IsCorrect: bool, NewScore: decimal }
                 .Produces(StatusCodes.Status400BadRequest)
