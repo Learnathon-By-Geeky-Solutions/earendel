@@ -215,16 +215,15 @@ namespace TalentMesh.Framework.Infrastructure.Identity.Users.Services
         {
             // Build URL with required parameters
             var queryParams = new Dictionary<string, string?>
-            {
-                { "val_id", valId },
-                { "store_id", _sslCommerzStoreId },
-                { "store_passwd", _sslCommerzStorePass },
-                { "v", "1" },
-                { "format", "json" }
-            };
+    {
+        { "val_id", valId },
+        { "store_id", _sslCommerzStoreId },
+        { "store_passwd", _sslCommerzStorePass },
+        { "v", "1" },
+        { "format", "json" }
+    };
 
             var url = QueryHelpers.AddQueryString(_sslCommerzValidationUrl, queryParams);
-
 
             _logger.LogInformation("Validating SSLCommerz payment with val_id: {ValId}", valId);
 
@@ -237,8 +236,8 @@ namespace TalentMesh.Framework.Infrastructure.Identity.Users.Services
                 throw new HttpRequestException($"SSLCommerz Validation API error: {response.StatusCode}");
             }
 
-            // Parse the response using JsonDocument
             using var jsonDoc = JsonDocument.Parse(responseContent);
+
             if (jsonDoc.RootElement.TryGetProperty("status", out JsonElement gatewayPageUrlElement))
             {
                 string? status = gatewayPageUrlElement.GetString();
@@ -249,15 +248,16 @@ namespace TalentMesh.Framework.Infrastructure.Identity.Users.Services
                 else
                 {
                     _logger.LogWarning("Status property is null or empty.");
+                    throw new InvalidOperationException("Validation succeeded but 'status' is null or empty.");
                 }
             }
             else
             {
-                _logger.LogError("Failed to extract GatewayPageURL from the response.");
-                throw new InvalidOperationException("Invalid SSLCommerz validation response: Missing Status.");
+                _logger.LogError("Failed to extract status from the response.");
+                throw new InvalidOperationException("Invalid SSLCommerz validation response: Missing status.");
             }
-
         }
+
 
     }
 }

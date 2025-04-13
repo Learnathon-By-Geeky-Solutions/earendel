@@ -37,7 +37,7 @@ public class SmtpMailService : IMailService
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error occurred while sending email.");
+            Console.WriteLine($"Error occurred while sending email: {ex.Message}");
             throw;
         }
         finally

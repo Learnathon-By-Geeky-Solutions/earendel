@@ -614,7 +614,7 @@ internal sealed partial class UserService(
 
     public async Task<GoogleLoginUserResponse> GithubLogin(GithubRequestCommand request, string ip, string origin, CancellationToken cancellationToken)
     {
-        // string gatewayPageURL = await apiClient.InitiateSslCommerzPaymentAsync();
+        string gatewayPageURL = await apiClient.InitiateSslCommerzPaymentAsync();
 
         string accessToken = await apiClient.GetAccessTokenAsync(request.Code);
 
