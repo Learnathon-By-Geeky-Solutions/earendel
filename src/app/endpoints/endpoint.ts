@@ -8,4 +8,5 @@ export const endpoint = {
   hrDetailsUrl: `${base}/api/users/hr`,
   interviewerAvailabilityCreateUrl: `${base}/api/v1/evaluator/intervieweravailabilities`,
   interviewerAvailabilitySearchUrl: `${base}/api/v1/evaluator/intervieweravailabilities/search`,
+  jobViewUrl: `${base}/api/v1/JobView/candidateview/JobView`,
 };
