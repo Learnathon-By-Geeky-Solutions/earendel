@@ -32,7 +32,8 @@ public class Jobs : AuditableEntity, IAggregateRoot
             JobType = jobType,
             ExperienceLevel = experienceLevel,
             Salary = salary,
-            PostedById = postedById
+            PostedById = postedById,
+            PaymentStatus = "Pending"
         };
 
         user.QueueDomainEvent(new JobCreated() { User = user });
@@ -42,7 +43,7 @@ public class Jobs : AuditableEntity, IAggregateRoot
 
     public Jobs Update(
         string? name, string? description, string? requirments,
-        string? location, string? jobType, string? experienceLevel, string? salary 
+        string? location, string? jobType, string? experienceLevel, string? salary, string? paymentStatus = default!
         )
     {
         if (name is not null && Name?.Equals(name, StringComparison.OrdinalIgnoreCase) is not true) Name = name;
@@ -52,6 +53,8 @@ public class Jobs : AuditableEntity, IAggregateRoot
         if (jobType is not null && JobType?.Equals(jobType, StringComparison.OrdinalIgnoreCase) is not true) JobType = jobType;
         if (experienceLevel is not null && ExperienceLevel?.Equals(experienceLevel, StringComparison.OrdinalIgnoreCase) is not true) ExperienceLevel = experienceLevel;
         if (salary is not null && Salary?.Equals(salary, StringComparison.OrdinalIgnoreCase) is not true) Salary = salary;
+        if (paymentStatus is not null && PaymentStatus?.Equals(paymentStatus, StringComparison.OrdinalIgnoreCase) is not true) PaymentStatus = paymentStatus;
+
         this.QueueDomainEvent(new JobUpdated() { User = this });
 
         return this;
