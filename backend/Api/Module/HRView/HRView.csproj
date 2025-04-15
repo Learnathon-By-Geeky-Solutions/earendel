@@ -15,4 +15,8 @@
     <ProjectReference Include="..\Quizzes\Quizzes.Infrastructure\Quizzes.Infrastructure.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="HRView\" />
+  </ItemGroup>
+
 </Project>
