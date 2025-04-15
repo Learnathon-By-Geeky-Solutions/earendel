@@ -13,7 +13,7 @@ public sealed class CreateJobApplicationHandler(
     public async Task<CreateJobResponse> Handle(CreateJobCommand request, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(request);
-        var user = Job.Domain.Jobs.Create(request.Name!, request.Description, request.Requirments!, request.Location!,request.JobType!,request.ExperienceLevel!);
+        var user = Job.Domain.Jobs.Create(request.Name!, request.Description, request.Requirments!, request.Location!,request.JobType!,request.ExperienceLevel!, request.Salary!);
         await repository.AddAsync(user, cancellationToken);
         logger.LogInformation("user created {UserId}", user.Id);
         return new CreateJobResponse(user.Id);

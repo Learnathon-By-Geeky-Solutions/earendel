@@ -12,6 +12,6 @@ public class CreateJobCommandValidator : AbstractValidator<CreateJobCommand>
         RuleFor(b => b.Location).NotEmpty().MinimumLength(2).MaximumLength(100);
         RuleFor(b => b.JobType).NotEmpty().MinimumLength(2).MaximumLength(100);
         RuleFor(b => b.ExperienceLevel).NotEmpty().MinimumLength(2).MaximumLength(100);
-
+        RuleFor(b => b.Salary).NotEmpty().MinimumLength(2).MaximumLength(100);
     }
 }
