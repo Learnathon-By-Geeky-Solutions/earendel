@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace HRView
+﻿namespace TalentMesh.Module.HRView;
+public static class HRViewMetadata
 {
-    internal class HRViewMetadata
-    {
-    }
+    public static string Name { get; } = "HRViewMetadata";
 }
+

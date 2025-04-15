@@ -10,6 +10,8 @@ using TalentMesh.Module.CandidateLogic.JobView;
 using TalentMesh.Module.Job.Domain;
 using TalentMesh.Module.Job.Infrastructure.Persistence;
 using TalentMesh.Module.Quizzes.Api.Endpoints;
+using TalentMesh.Module.Quizzes.Infrastructure.Persistence;
+
 
 namespace TalentMesh.Module.CandidateLogic
 {
@@ -36,7 +38,7 @@ namespace TalentMesh.Module.CandidateLogic
         {
             ArgumentNullException.ThrowIfNull(builder);
             builder.Services.BindDbContext<JobDbContext>();
-
+            builder.Services.BindDbContext<QuizzesDbContext>();
             // Register repositories for Jobs
             builder.Services.AddKeyedScoped<IReadRepository<Jobs>, JobRepository<Jobs>>("jobs:jobReadOnly");
             builder.Services.AddKeyedScoped<IReadRepository<JobApplication>, JobRepository<JobApplication>>("jobApplication:jobApplicationReadOnly");

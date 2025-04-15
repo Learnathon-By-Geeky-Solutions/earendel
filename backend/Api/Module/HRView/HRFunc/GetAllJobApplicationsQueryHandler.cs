@@ -39,7 +39,7 @@ namespace TalentMesh.Module.HRView.HRFunc // Or your preferred namespace
                     ApplicationDate = app.ApplicationDate,
                     Status = app.Status,
                     CoverLetter = app.CoverLetter,
-                    CreatedOn = app.CreatedOn,
+                    CreatedOn = app.Created,
                     JobName = app.Job != null ? app.Job.Name : null
                 })
                 .ToListAsync(cancellationToken);
