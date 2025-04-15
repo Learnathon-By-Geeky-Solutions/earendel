@@ -16,41 +16,38 @@ namespace TalentMesh.Module.HRView.HRFunc // Or your preferred namespace
 
         public async Task<IResult> Handle(GetAllJobApplicationsQuery request, CancellationToken cancellationToken)
         {
-            // Basic validation for pagination parameters
             int pageNumber = request.PageNumber > 0 ? request.PageNumber : 1;
-            int pageSize = request.PageSize > 0 ? request.PageSize : 20; // Set a max limit if desired
+            int pageSize = request.PageSize > 0 ? request.PageSize : 20;
 
             var query = _context.JobApplications
-                              .AsNoTracking()
-                              // Include Job details if JobName is needed in DTO
-                              .Include(app => app.Job)
-                              .OrderByDescending(app => app.ApplicationDate); // Example ordering
+                .AsNoTracking()
+                .Include(app => app.Job) // Essential for filtering by Job.PostedById
+                                         // *** Add filter for jobs posted by the requesting user ***
+                .Where(app => app.Job != null && app.Job.PostedById == request.RequestingUserId) // Assuming Jobs.PostedById exists
+                .OrderByDescending(app => app.ApplicationDate); // Example ordering
 
-            // Get total count for pagination metadata (optional but good practice)
             var totalCount = await query.CountAsync(cancellationToken);
 
-            // Apply pagination
             var applications = await query
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)
-                .Select(app => new JobApplicationDto // Map to DTO
+                .Select(app => new JobApplicationDto
                 {
                     Id = app.Id,
                     JobId = app.JobId,
                     CandidateId = app.CandidateId,
                     ApplicationDate = app.ApplicationDate,
                     Status = app.Status,
-                    CoverLetter = app.CoverLetter, // Include if needed
-                    CreatedOn = app.Created,
-                    JobName = app.Job != null ? app.Job.Name : null // Safely access included Job Name
+                    CoverLetter = app.CoverLetter,
+                    CreatedOn = app.CreatedOn,
+                    JobName = app.Job != null ? app.Job.Name : null
                 })
                 .ToListAsync(cancellationToken);
 
-            // paginated response object:
+            // Optional: Return structured paginated result
             // var paginatedResult = new PaginatedResult<JobApplicationDto>(applications, totalCount, pageNumber, pageSize);
             // return Results.Ok(paginatedResult);
 
-            // For simplicity, returning the list directly:
             return Results.Ok(applications);
         }
     }

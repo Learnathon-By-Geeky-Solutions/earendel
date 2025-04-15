@@ -8,4 +8,6 @@ public sealed record UpdateJobCommand(
     string? Requirments = null,
     string? Location = null,
     string? JobType = null,
-    string? ExperienceLevel=null) : IRequest<UpdateJobResponse>;
+    string? ExperienceLevel=null,
+    string? Salary = null
+    ) : IRequest<UpdateJobResponse>;

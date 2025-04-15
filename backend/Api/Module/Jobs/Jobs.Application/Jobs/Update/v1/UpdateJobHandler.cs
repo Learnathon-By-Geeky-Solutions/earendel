@@ -29,7 +29,8 @@ public sealed class UpdateJobHandler(
             request.Requirments,
             request.Location,
             request.JobType,
-            request.ExperienceLevel
+            request.ExperienceLevel,
+            request.Salary
             );
 
         await repository.UpdateAsync(updatedBrand, cancellationToken);

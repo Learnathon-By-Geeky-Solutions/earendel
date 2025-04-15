@@ -14,9 +14,11 @@ public class Jobs : AuditableEntity, IAggregateRoot
     public string JobType { get;  set; } = default!;
     public string ExperienceLevel { get; private set; } = default!;
     public string Salary { get; private set; } = default!;
+    public Guid PostedById { get; private set; }
+
     public static Jobs Create(
         string name, string? description, string requirments, 
-        string location, string jobType, string experienceLevel, string salary = default!
+        string location, string jobType, string experienceLevel, Guid postedById, string salary = default!
         )
     {
         var user = new Jobs
@@ -27,7 +29,8 @@ public class Jobs : AuditableEntity, IAggregateRoot
             Location = location,
             JobType = jobType,
             ExperienceLevel = experienceLevel,
-            Salary = salary
+            Salary = salary,
+            PostedById = postedById
         };
 
         user.QueueDomainEvent(new JobCreated() { User = user });
@@ -37,7 +40,7 @@ public class Jobs : AuditableEntity, IAggregateRoot
 
     public Jobs Update(
         string? name, string? description, string? requirments,
-        string? location, string? jobType, string? experienceLevel, string? salary = default! 
+        string? location, string? jobType, string? experienceLevel, string? salary 
         )
     {
         if (name is not null && Name?.Equals(name, StringComparison.OrdinalIgnoreCase) is not true) Name = name;
