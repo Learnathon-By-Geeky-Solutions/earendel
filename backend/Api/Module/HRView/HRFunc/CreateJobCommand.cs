@@ -15,6 +15,7 @@ namespace TalentMesh.Module.HRView.HRFunc// Or your preferred namespace
         string ExperienceLevel,
         string? Salary, // Use string? if Salary is optional
         Guid PostedBy,
+        int NumberOfInterviews,
         // Associated Skill and Subskill IDs
         List<Guid> RequiredSkillIds,
         List<Guid> RequiredSubskillIds

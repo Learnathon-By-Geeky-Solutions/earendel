@@ -17,6 +17,7 @@ namespace TalentMesh.Module.HRView.HRFunc
         public string ExperienceLevel { get; set; } = default!;
         public string? Salary { get; set; }
         public Guid PostedBy { get; set; } 
+        public int NumberOfInterviews { get; set; }
         public List<Guid>? RequiredSkillIds { get; set; } = new List<Guid>();
         public List<Guid>? RequiredSubskillIds { get; set; } = new List<Guid>();
     }
@@ -41,6 +42,7 @@ namespace TalentMesh.Module.HRView.HRFunc
                         ExperienceLevel: request.ExperienceLevel,
                         Salary: request.Salary,
                         PostedBy: request.PostedBy,
+                        NumberOfInterviews: request.NumberOfInterviews,
                         RequiredSkillIds: request.RequiredSkillIds ?? new List<Guid>(),
                         RequiredSubskillIds: request.RequiredSubskillIds ?? new List<Guid>()
                     );

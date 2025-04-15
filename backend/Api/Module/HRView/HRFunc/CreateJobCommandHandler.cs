@@ -1,5 +1,7 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Http;
+using TalentMesh.Framework.Core.Identity.Users.Abstractions;
+using TalentMesh.Framework.Infrastructure.Identity.Users.Services;
 using TalentMesh.Module.Job.Domain;
 using TalentMesh.Module.Job.Infrastructure.Persistence; // For IResult and Results
 
@@ -8,7 +10,7 @@ namespace TalentMesh.Module.HRView.HRFunc // Or your preferred namespace
     public class CreateJobCommandHandler : IRequestHandler<CreateJobCommand, IResult>
     {
         private readonly JobDbContext _context;
-
+        //private readonly IExternalApiClient apiClient = identityServices.ApiClient;
         public CreateJobCommandHandler(JobDbContext context)
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
@@ -57,6 +59,11 @@ namespace TalentMesh.Module.HRView.HRFunc // Or your preferred namespace
             // 5. Save the associated skills and subskills (if not saved in step 2)
             // If Job was saved in step 2, this saves the Skills/Subskills
             await _context.SaveChangesAsync(cancellationToken);
+
+            // Job ID For SSLCommerz Payment, amount = Number of Interviews * 1000
+            //string gatewayPageURL = await apiClient.InitiateSslCommerzPaymentAsync();
+            //return Results.Ok(new { Message = gatewayPageURL });
+
 
             // 6. Return the ID of the newly created job
             // Consider returning StatusCodes.Status201Created with the location header

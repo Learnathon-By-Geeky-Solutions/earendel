@@ -16,6 +16,8 @@ public class Jobs : AuditableEntity, IAggregateRoot
     public string Salary { get; private set; } = default!;
     public Guid PostedById { get; private set; }
 
+    public string PaymentStatus { get; set; } = default!;
+
     public static Jobs Create(
         string name, string? description, string requirments, 
         string location, string jobType, string experienceLevel, Guid postedById, string salary = default!
