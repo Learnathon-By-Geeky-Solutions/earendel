@@ -24,7 +24,8 @@ namespace TalentMesh.Module.HRView.HRFunc // Or your preferred namespace
                 location: request.Location,
                 jobType: request.JobType,
                 experienceLevel: request.ExperienceLevel,
-                salary: request.Salary ?? string.Empty // Provide default if null
+                salary: request.Salary ?? string.Empty ,// Provide default if null
+                postedById: request.PostedBy // Assuming this is a Guid
             );
 
             // 2. Add the Job to the context BUT DON'T SAVE YET if generating ID client-side

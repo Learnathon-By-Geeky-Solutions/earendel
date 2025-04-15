@@ -34,7 +34,7 @@ namespace TalentMesh.Module.HRView.HRFunc // Or your preferred namespace
                     return await mediator.Send(query);
                 })
                 .RequireAuthorization() // Ensure the user is authenticated
-                .WithTags("JobApplications")
+                .WithTags("HRView")
                 .WithName("GetMyJobApplications") // More specific name
                 .Produces<List<JobApplicationDto>>(StatusCodes.Status200OK)
                 .Produces(StatusCodes.Status401Unauthorized) // Added Unauthorized response

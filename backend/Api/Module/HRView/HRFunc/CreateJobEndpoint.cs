@@ -16,7 +16,7 @@ namespace TalentMesh.Module.HRView.HRFunc
         public string JobType { get; set; } = default!;
         public string ExperienceLevel { get; set; } = default!;
         public string? Salary { get; set; }
-
+        public Guid PostedBy { get; set; } 
         public List<Guid>? RequiredSkillIds { get; set; } = new List<Guid>();
         public List<Guid>? RequiredSubskillIds { get; set; } = new List<Guid>();
     }
@@ -40,13 +40,14 @@ namespace TalentMesh.Module.HRView.HRFunc
                         JobType: request.JobType,
                         ExperienceLevel: request.ExperienceLevel,
                         Salary: request.Salary,
+                        PostedBy: request.PostedBy,
                         RequiredSkillIds: request.RequiredSkillIds ?? new List<Guid>(),
                         RequiredSubskillIds: request.RequiredSubskillIds ?? new List<Guid>()
                     );
 
                     return await mediator.Send(command);
                 })
-                .WithTags("Jobs") // Group in Swagger
+                .WithTags("HRView") // Group in Swagger
                 .WithName("CreateJob")
                 .Produces<object>(StatusCodes.Status201Created) // Returns { JobId: "guid" } in body and Location header
                 .ProducesValidationProblem() // For potential validation errors

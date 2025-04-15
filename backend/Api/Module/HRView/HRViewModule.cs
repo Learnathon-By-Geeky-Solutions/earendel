@@ -20,7 +20,7 @@ public static class HRViewModule
         public override void AddRoutes(IEndpointRouteBuilder app)
         {
             // Endpoints for Jobs
-            var hrView = app.MapGroup("candidateview").WithTags("JobViewCandidate");
+            var hrView = app.MapGroup("HR").WithTags("HRView");
             hrView.MapCreateJobEndpoint();
             hrView.MapGetAllJobApplicationsEndpoint();
 
