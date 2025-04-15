@@ -42,6 +42,9 @@ namespace TalentMesh.Module.CandidateLogic.JobView // Or your preferred namespac
             if (!string.IsNullOrWhiteSpace(request.ExperienceLevel))
                 jobQuery = jobQuery.Where(j => j.ExperienceLevel.Contains(request.ExperienceLevel));
 
+
+            jobQuery = jobQuery.Where(j => j.PaymentStatus.Contains("Completed"));
+
             var filteredJobs = await jobQuery
                 .Select(j => new // Project to anonymous type initially to reduce data transfer
                 {
@@ -52,7 +55,10 @@ namespace TalentMesh.Module.CandidateLogic.JobView // Or your preferred namespac
                     j.Location,
                     j.JobType,
                     j.ExperienceLevel,
-                    j.Created 
+                    j.Created,
+                    j.Salary,
+                    j.PostedById,
+                    j.PaymentStatus,
                 })
                 .ToListAsync(cancellationToken);
 
@@ -91,8 +97,9 @@ namespace TalentMesh.Module.CandidateLogic.JobView // Or your preferred namespac
                 JobType = job.JobType,
                 ExperienceLevel = job.ExperienceLevel,
                 CreatedOn = job.Created,
-
-
+                PaymentStatus = job.PaymentStatus,
+                Salary = job.Salary,
+                PostedById = job.PostedById,    
                 RequiredSkillIds = skillsByJobId.Contains(job.Id) ? skillsByJobId[job.Id].ToList() : new List<Guid>(),
                 RequiredSubskillIds = subskillsByJobId.Contains(job.Id) ? subskillsByJobId[job.Id].ToList() : new List<Guid>()
             }).ToList();
