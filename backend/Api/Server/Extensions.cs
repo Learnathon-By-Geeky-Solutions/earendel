@@ -17,6 +17,7 @@ using TalentMesh.Module.Interviews.Infrastructure;
 using TalentMesh.Module.Evaluator.Application;
 using System.Diagnostics.CodeAnalysis;
 using TalentMesh.Module.CandidateLogic;
+using TalentMesh.Module.HRView;
 
 namespace TalentMesh.WebApi.Host;
 
@@ -39,6 +40,7 @@ public static class Extensions
             typeof(InterviewsMetadata).Assembly,
             typeof(EvaluatorMetadata).Assembly,
             typeof(CandidateLogicMetadata).Assembly,
+            typeof(HRViewMetadata).Assembly,
         };
 
         //register validators
@@ -59,7 +61,7 @@ public static class Extensions
         builder.RegisterInterviewsServices();
         builder.RegisterEvaluatorServices();
         builder.RegisterCandidateLogicServices();
-
+        builder.RegisterHRViewServices();
         //add carter endpoint modules
         builder.Services.AddCarter(configurator: config =>
         {
@@ -71,7 +73,7 @@ public static class Extensions
             config.WithModule<InterviewsModule.Endpoints>();
             config.WithModule<EvaluatorModule.Endpoints>();
             config.WithModule<CandidateLogicModule.Endpoints>();
-
+            config.WithModule<HRViewModule.Endpoints>();
         });
 
         return builder;
@@ -90,7 +92,7 @@ public static class Extensions
         app.UseEvaluatorModule();
         app.UseCandidateModule();
         app.UseCandidateLogicModule();
-
+        app.UseHRViewModule();
 
         //register api versions
         var versions = app.NewApiVersionSet()

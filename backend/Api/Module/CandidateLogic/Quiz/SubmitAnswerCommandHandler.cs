@@ -86,8 +86,6 @@ namespace TalentMesh.Module.Quizzes.Application.QuizAttempts.SubmitAnswer // Or 
             {
                 AttemptId = request.AttemptId,
                 QuestionId = request.QuestionId,
-                IsCorrect = isCorrect,
-                NewScore = newScore
             });
         }
     }

@@ -21,7 +21,7 @@ public sealed class GetJobHandler(
                 var brandItem = await repository.GetByIdAsync(request.Id, cancellationToken);
                 if (brandItem == null) throw new JobNotFoundException(request.Id);
                 return new JobResponse(brandItem.Id, brandItem.Name, brandItem.Description, 
-                    brandItem.Requirments, brandItem.Location, brandItem.JobType, brandItem.ExperienceLevel
+                    brandItem.Requirments, brandItem.Location, brandItem.JobType, brandItem.ExperienceLevel, brandItem.Salary,brandItem.PostedById
                     );
             },
             cancellationToken: cancellationToken);

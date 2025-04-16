@@ -10,8 +10,8 @@ public class QuizAttemptAnswer : AuditableEntity, IAggregateRoot
     public int SelectedOption { get; private set; }
     public bool IsCorrect { get; private set; }
 
-    public virtual QuizAttempt QuizAttempt { get; private set; } = default!;
-    public virtual QuizQuestion QuizQuestion { get; private set; } = default!;
+    //public virtual QuizAttempt QuizAttempt { get; private set; } = default!;
+    //public virtual QuizQuestion QuizQuestion { get; private set; } = default!;
 
     // Create a new QuizAttemptAnswer
     public static QuizAttemptAnswer Create(Guid attemptId, Guid questionId, int selectedOption, bool isCorrect)

@@ -8,7 +8,9 @@ public sealed record CreateJobCommand(
     [property: DefaultValue("Requirments")] string? Requirments = null,
     [property: DefaultValue("Location")] string? Location = null,
     [property: DefaultValue("JobType")] string? JobType = null,
-    [property: DefaultValue("ExperienceLevel")] string? ExperienceLevel = null
+    [property: DefaultValue("ExperienceLevel")] string? ExperienceLevel = null,
+    [property: DefaultValue("Salarys")] string? Salary = null,
+    [property: DefaultValue("PostedById")] Guid PostedById = default(Guid)
     ) : IRequest<CreateJobResponse>;
 
     

@@ -13,10 +13,14 @@ public class Jobs : AuditableEntity, IAggregateRoot
     public string Location { get;  set; } = default!;
     public string JobType { get;  set; } = default!;
     public string ExperienceLevel { get; private set; } = default!;
+    public string? Salary { get; private set; } = default!;
+    public Guid PostedById { get; private set; }
+
+    public string PaymentStatus { get; set; } = default!;
 
     public static Jobs Create(
         string name, string? description, string requirments, 
-        string location, string jobType, string experienceLevel
+        string location, string jobType, string experienceLevel, Guid postedById, string salary = default!
         )
     {
         var user = new Jobs
@@ -26,8 +30,10 @@ public class Jobs : AuditableEntity, IAggregateRoot
             Requirments = requirments,
             Location = location,
             JobType = jobType,
-            ExperienceLevel = experienceLevel
-
+            ExperienceLevel = experienceLevel,
+            Salary = salary,
+            PostedById = postedById,
+            PaymentStatus = "Pending"
         };
 
         user.QueueDomainEvent(new JobCreated() { User = user });
@@ -37,7 +43,7 @@ public class Jobs : AuditableEntity, IAggregateRoot
 
     public Jobs Update(
         string? name, string? description, string? requirments,
-        string? location, string? jobType, string? experienceLevel
+        string? location, string? jobType, string? experienceLevel, string? salary, string? paymentStatus = default!
         )
     {
         if (name is not null && Name?.Equals(name, StringComparison.OrdinalIgnoreCase) is not true) Name = name;
@@ -46,6 +52,8 @@ public class Jobs : AuditableEntity, IAggregateRoot
         if (location is not null && Location?.Equals(location, StringComparison.OrdinalIgnoreCase) is not true) Location = location;
         if (jobType is not null && JobType?.Equals(jobType, StringComparison.OrdinalIgnoreCase) is not true) JobType = jobType;
         if (experienceLevel is not null && ExperienceLevel?.Equals(experienceLevel, StringComparison.OrdinalIgnoreCase) is not true) ExperienceLevel = experienceLevel;
+        if (salary is not null && Salary?.Equals(salary, StringComparison.OrdinalIgnoreCase) is not true) Salary = salary;
+        if (paymentStatus is not null && PaymentStatus?.Equals(paymentStatus, StringComparison.OrdinalIgnoreCase) is not true) PaymentStatus = paymentStatus;
 
         this.QueueDomainEvent(new JobUpdated() { User = this });
 

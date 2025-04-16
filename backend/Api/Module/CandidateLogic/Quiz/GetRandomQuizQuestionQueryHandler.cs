@@ -55,7 +55,7 @@ namespace TalentMesh.Module.Quizzes.Application.QuizQuestions.Get
             if (randomUnansweredQuestion == null)
             {
                 // Handle case where no unanswered questions are left
-                return Results.Ok(new { Message = "No more questions available for this attempt." }); // Or NotFound()
+                return Results.Ok(new { Message = "Finished The Quiz" }); // Or NotFound()
             }
 
             return Results.Ok(randomUnansweredQuestion);
