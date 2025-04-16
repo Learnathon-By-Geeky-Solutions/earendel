@@ -1,4 +1,5 @@
-﻿using System.Collections.ObjectModel;
+﻿using Npgsql;
+using System.Collections.ObjectModel;
 using System.Security.Claims;
 using System.Text;
 using System.Net;
@@ -614,7 +615,7 @@ internal sealed partial class UserService(
 
     public async Task<GoogleLoginUserResponse> GithubLogin(GithubRequestCommand request, string ip, string origin, CancellationToken cancellationToken)
     {
-        string gatewayPageURL = await apiClient.InitiateSslCommerzPaymentAsync();
+        // string gatewayPageURL = await apiClient.InitiateSslCommerzPaymentAsync();
 
         string accessToken = await apiClient.GetAccessTokenAsync(request.Code);
 
@@ -625,6 +626,7 @@ internal sealed partial class UserService(
 
             // Check if user already exists
             var existingUser = await userManager.FindByEmailAsync(Email);
+
             if (existingUser != null)
             {
                 // Check if user is an external login

@@ -22,37 +22,12 @@ namespace TalentMesh.Module.Experties.Application.Skills.Search.v1
         {
             ArgumentNullException.ThrowIfNull(request);
 
-            // Create specification that already includes related entities.
             var spec = new SearchSkillSpecs(request);
 
             var items = await repository.ListAsync(spec, cancellationToken).ConfigureAwait(false);
             var totalCount = await repository.CountAsync(spec, cancellationToken).ConfigureAwait(false);
 
-            var responses = items.Select(skill => new SkillResponse(
-                skill.Id,
-                skill.Name,
-                skill.Description,
-                skill.SubSkills.Select(sub => new SubSkillResponse(
-                    sub.Id,
-                    sub.Name,
-                    sub.Description,
-                    sub.SkillId
-                )).ToList(),
-
-                skill.SeniorityLevelJunctions.Select(j => new SeniorityLevelJunctionResponse(
-                    j.Id,
-                    j.Seniority.Id,
-                    j.SkillId,
-                    new SeniorityResponse(
-                        j.Seniority.Id,
-                        j.Seniority.Name,
-                        j.Seniority.Description
-                    )
-                )).ToList()
-
-            )).ToList();
-
-            return new PagedList<SkillResponse>(responses, request.PageNumber, request.PageSize, totalCount);
+            return new PagedList<SkillResponse>(items, request.PageNumber, request.PageSize, totalCount);
         }
     }
 }
