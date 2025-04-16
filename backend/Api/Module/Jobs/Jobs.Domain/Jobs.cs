@@ -13,7 +13,7 @@ public class Jobs : AuditableEntity, IAggregateRoot
     public string Location { get;  set; } = default!;
     public string JobType { get;  set; } = default!;
     public string ExperienceLevel { get; private set; } = default!;
-    public string Salary { get; private set; } = default!;
+    public string? Salary { get; private set; } = default!;
     public Guid PostedById { get; private set; }
 
     public string PaymentStatus { get; set; } = default!;
