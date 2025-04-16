@@ -42,11 +42,24 @@ jobs:
           script_timeout: 1800
           script: |
             cd /root/Learnathon/earendel
+            echo "Switching to main branch and pulling latest changes..."
             git checkout main
             git pull origin main
+            echo "Switching to migrations branch and pulling latest changes..."
+            git checkout migrations
+            git pull origin migrations
+            echo "Backing up migration files..."
+            mkdir -p /tmp/migration-backup
+            cp -r Migrations/* /tmp/migration-backup/
+            echo "Switching back to main branch..."
+            git checkout main
+            echo "Updating migrations folder in backend..."
+            cp -r /tmp/migration-backup/* backend/Api/Migrations/PGSql/
+            rm -rf /tmp/migration-backup
+            echo "Building and restarting Docker containers..."
             cd backend
-            docker-compose down --timeout 300
-            docker-compose up --build -d --timeout 600
+            docker-compose down
+            docker-compose up --build -d
 
   build-and-analyze:
     runs-on: ubuntu-latest
