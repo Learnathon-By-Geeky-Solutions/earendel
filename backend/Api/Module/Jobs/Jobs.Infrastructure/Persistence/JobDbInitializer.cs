@@ -31,7 +31,7 @@ internal sealed class JobDbInitializer(
         Guid Postedby = Guid.NewGuid();
         if (await context.Jobs.FirstOrDefaultAsync(t => t.Name == Name, cancellationToken).ConfigureAwait(false) is null)
         {
-            var product = Job.Domain.Jobs.Create(Name, Description,Requirments,Location,JobType,ExperienceLevel, Postedby);
+            var product = Job.Domain.Jobs.Create(Name, Description,Requirments,Location,JobType,ExperienceLevel, Postedby, "10000");
             await context.Jobs.AddAsync(product, cancellationToken);
             await context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
             logger.LogInformation("[{Tenant}] seeding default catalog data", context.TenantInfo!.Identifier);
