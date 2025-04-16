@@ -21,7 +21,7 @@ namespace TalentMesh.Module.Job.Domain
                 JobId = jobId,
                 CandidateId = candidateId,
                 ApplicationDate = DateTime.UtcNow,
-                Status = "applied",
+                Status = "Applied",
                 CoverLetter = coverLetter
             };
 
