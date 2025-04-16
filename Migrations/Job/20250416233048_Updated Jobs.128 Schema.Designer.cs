@@ -12,8 +12,8 @@ using TalentMesh.Module.Job.Infrastructure.Persistence;
 namespace TalentMesh.Migrations.PGSql.Job
 {
     [DbContext(typeof(JobDbContext))]
-    [Migration("20250416191019_Updated Jobs.126 Schema")]
-    partial class UpdatedJobs126Schema
+    [Migration("20250416233048_Updated Jobs.128 Schema")]
+    partial class UpdatedJobs128Schema
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

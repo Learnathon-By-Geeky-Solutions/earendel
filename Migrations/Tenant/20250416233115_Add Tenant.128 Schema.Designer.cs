@@ -12,8 +12,8 @@ using TalentMesh.Framework.Infrastructure.Tenant.Persistence;
 namespace TalentMesh.Migrations.PGSql.Tenant
 {
     [DbContext(typeof(TenantDbContext))]
-    [Migration("20250416191048_Add Tenant.126 Schema")]
-    partial class AddTenant126Schema
+    [Migration("20250416233115_Add Tenant.128 Schema")]
+    partial class AddTenant128Schema
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

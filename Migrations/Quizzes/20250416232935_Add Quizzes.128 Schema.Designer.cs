@@ -12,8 +12,8 @@ using TalentMesh.Module.Quizzes.Infrastructure.Persistence;
 namespace TalentMesh.Migrations.PGSql.Quizzes
 {
     [DbContext(typeof(QuizzesDbContext))]
-    [Migration("20250416190831_Add Quizzes.126 Schema")]
-    partial class AddQuizzes126Schema
+    [Migration("20250416232935_Add Quizzes.128 Schema")]
+    partial class AddQuizzes128Schema
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

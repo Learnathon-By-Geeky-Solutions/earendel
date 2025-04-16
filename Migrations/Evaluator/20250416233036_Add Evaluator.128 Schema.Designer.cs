@@ -12,8 +12,8 @@ using TalentMesh.Module.Evaluator.Infrastructure.Persistence;
 namespace TalentMesh.Migrations.PGSql.Evaluator
 {
     [DbContext(typeof(EvaluatorDbContext))]
-    [Migration("20250416191004_Add Evaluator.126 Schema")]
-    partial class AddEvaluator126Schema
+    [Migration("20250416233036_Add Evaluator.128 Schema")]
+    partial class AddEvaluator128Schema
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
