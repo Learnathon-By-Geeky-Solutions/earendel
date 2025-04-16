@@ -188,10 +188,20 @@ namespace TalentMesh.Migrations.PGSql.Job
                         .HasMaxLength(100)
                         .HasColumnType("character varying(100)");
 
+                    b.Property<string>("PaymentStatus")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<Guid>("PostedById")
+                        .HasColumnType("uuid");
+
                     b.Property<string>("Requirments")
                         .IsRequired()
                         .HasMaxLength(1000)
                         .HasColumnType("character varying(1000)");
+
+                    b.Property<string>("Salary")
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 

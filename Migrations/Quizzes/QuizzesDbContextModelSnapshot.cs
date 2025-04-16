@@ -98,20 +98,10 @@ namespace TalentMesh.Migrations.PGSql.Quizzes
                     b.Property<Guid>("QuestionId")
                         .HasColumnType("uuid");
 
-                    b.Property<Guid>("QuizAttemptId")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("QuizQuestionId")
-                        .HasColumnType("uuid");
-
                     b.Property<int>("SelectedOption")
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("QuizAttemptId");
-
-                    b.HasIndex("QuizQuestionId");
 
                     b.ToTable("QuizAttemptAnswers", "quizzes");
                 });
@@ -171,25 +161,6 @@ namespace TalentMesh.Migrations.PGSql.Quizzes
                     b.HasKey("Id");
 
                     b.ToTable("QuizQuestions", "quizzes");
-                });
-
-            modelBuilder.Entity("TalentMesh.Module.Quizzes.Domain.QuizAttemptAnswer", b =>
-                {
-                    b.HasOne("TalentMesh.Module.Quizzes.Domain.QuizAttempt", "QuizAttempt")
-                        .WithMany()
-                        .HasForeignKey("QuizAttemptId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("TalentMesh.Module.Quizzes.Domain.QuizQuestion", "QuizQuestion")
-                        .WithMany()
-                        .HasForeignKey("QuizQuestionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("QuizAttempt");
-
-                    b.Navigation("QuizQuestion");
                 });
 #pragma warning restore 612, 618
         }

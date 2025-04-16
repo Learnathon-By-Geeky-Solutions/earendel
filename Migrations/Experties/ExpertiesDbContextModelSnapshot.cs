@@ -261,7 +261,7 @@ namespace TalentMesh.Migrations.PGSql.Experties
                         .IsRequired();
 
                     b.HasOne("TalentMesh.Module.Experties.Domain.Skill", "Skill")
-                        .WithMany()
+                        .WithMany("SeniorityLevelJunctions")
                         .HasForeignKey("SkillId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
@@ -274,10 +274,17 @@ namespace TalentMesh.Migrations.PGSql.Experties
             modelBuilder.Entity("TalentMesh.Module.Experties.Domain.SubSkill", b =>
                 {
                     b.HasOne("TalentMesh.Module.Experties.Domain.Skill", "Skill")
-                        .WithMany()
+                        .WithMany("SubSkills")
                         .HasForeignKey("SkillId");
 
                     b.Navigation("Skill");
+                });
+
+            modelBuilder.Entity("TalentMesh.Module.Experties.Domain.Skill", b =>
+                {
+                    b.Navigation("SeniorityLevelJunctions");
+
+                    b.Navigation("SubSkills");
                 });
 #pragma warning restore 612, 618
         }
