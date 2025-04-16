@@ -12,8 +12,8 @@ using TalentMesh.Module.Candidate.Infrastructure.Persistence;
 namespace TalentMesh.Migrations.PGSql.Candidates
 {
     [DbContext(typeof(CandidateDbContext))]
-    [Migration("20250416165555_Add Candidates.99 Schema")]
-    partial class AddCandidates99Schema
+    [Migration("20250416190858_Add Candidates.126 Schema")]
+    partial class AddCandidates126Schema
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

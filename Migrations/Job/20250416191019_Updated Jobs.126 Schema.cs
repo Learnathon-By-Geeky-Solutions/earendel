@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace TalentMesh.Migrations.PGSql.Job
 {
     /// <inheritdoc />
-    public partial class UpdatedJobs99Schema : Migration
+    public partial class UpdatedJobs126Schema : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -66,7 +66,7 @@ namespace TalentMesh.Migrations.PGSql.Job
                     Location = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
                     JobType = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
                     ExperienceLevel = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
-                    Salary = table.Column<string>(type: "text", nullable: false),
+                    Salary = table.Column<string>(type: "text", nullable: true),
                     PostedById = table.Column<Guid>(type: "uuid", nullable: false),
                     PaymentStatus = table.Column<string>(type: "text", nullable: false),
                     Created = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),

@@ -12,8 +12,8 @@ using TalentMesh.Module.Notifications.Infrastructure.Persistence;
 namespace TalentMesh.Migrations.PGSql.Notifications
 {
     [DbContext(typeof(NotificationsDbContext))]
-    [Migration("20250416165618_Add Notification.99 Schema")]
-    partial class AddNotification99Schema
+    [Migration("20250416190926_Add Notification.126 Schema")]
+    partial class AddNotification126Schema
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace TalentMesh.Migrations.PGSql.Experties
 {
     /// <inheritdoc />
-    public partial class AddExperties99Schema : Migration
+    public partial class AddExperties126Schema : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

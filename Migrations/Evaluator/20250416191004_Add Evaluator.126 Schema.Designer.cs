@@ -5,32 +5,39 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
-using TalentMesh.Module.Quizzes.Infrastructure.Persistence;
+using TalentMesh.Module.Evaluator.Infrastructure.Persistence;
 
 #nullable disable
 
-namespace TalentMesh.Migrations.PGSql.Quizzes
+namespace TalentMesh.Migrations.PGSql.Evaluator
 {
-    [DbContext(typeof(QuizzesDbContext))]
-    [Migration("20250416165541_Add Quizzes.99 Schema")]
-    partial class AddQuizzes99Schema
+    [DbContext(typeof(EvaluatorDbContext))]
+    [Migration("20250416191004_Add Evaluator.126 Schema")]
+    partial class AddEvaluator126Schema
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasDefaultSchema("quizzes")
+                .HasDefaultSchema("evaluator")
                 .HasAnnotation("ProductVersion", "9.0.2")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("TalentMesh.Module.Quizzes.Domain.QuizAttempt", b =>
+            modelBuilder.Entity("TalentMesh.Module.Evaluator.Domain.InterviewerApplication", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
+
+                    b.Property<DateTime>("AppliedDate")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Comments")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
 
                     b.Property<DateTimeOffset>("Created")
                         .HasColumnType("timestamp with time zone");
@@ -42,6 +49,12 @@ namespace TalentMesh.Migrations.PGSql.Quizzes
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<Guid?>("DeletedBy")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("InterviewerId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("JobId")
                         .HasColumnType("uuid");
 
                     b.Property<DateTimeOffset>("LastModified")
@@ -50,31 +63,20 @@ namespace TalentMesh.Migrations.PGSql.Quizzes
                     b.Property<Guid?>("LastModifiedBy")
                         .HasColumnType("uuid");
 
-                    b.Property<decimal>("Score")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("numeric")
-                        .HasDefaultValue(0.0m);
-
-                    b.Property<int>("TotalQuestions")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasDefaultValue(0);
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uuid");
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
 
                     b.HasKey("Id");
 
-                    b.ToTable("QuizAttempts", "quizzes");
+                    b.ToTable("InterviewerApplications", "evaluator");
                 });
 
-            modelBuilder.Entity("TalentMesh.Module.Quizzes.Domain.QuizAttemptAnswer", b =>
+            modelBuilder.Entity("TalentMesh.Module.Evaluator.Domain.InterviewerAvailability", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("AttemptId")
                         .HasColumnType("uuid");
 
                     b.Property<DateTimeOffset>("Created")
@@ -89,7 +91,13 @@ namespace TalentMesh.Migrations.PGSql.Quizzes
                     b.Property<Guid?>("DeletedBy")
                         .HasColumnType("uuid");
 
-                    b.Property<bool>("IsCorrect")
+                    b.Property<DateTime>("EndTime")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("InterviewerId")
+                        .HasColumnType("uuid");
+
+                    b.Property<bool>("IsAvailable")
                         .HasColumnType("boolean");
 
                     b.Property<DateTimeOffset>("LastModified")
@@ -98,25 +106,23 @@ namespace TalentMesh.Migrations.PGSql.Quizzes
                     b.Property<Guid?>("LastModifiedBy")
                         .HasColumnType("uuid");
 
-                    b.Property<Guid>("QuestionId")
-                        .HasColumnType("uuid");
-
-                    b.Property<int>("SelectedOption")
-                        .HasColumnType("integer");
+                    b.Property<DateTime>("StartTime")
+                        .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
 
-                    b.ToTable("QuizAttemptAnswers", "quizzes");
+                    b.ToTable("InterviewerAvailabilities", "evaluator");
                 });
 
-            modelBuilder.Entity("TalentMesh.Module.Quizzes.Domain.QuizQuestion", b =>
+            modelBuilder.Entity("TalentMesh.Module.Evaluator.Domain.InterviewerEntryForm", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<int>("CorrectOption")
-                        .HasColumnType("integer");
+                    b.Property<string>("AdditionalInfo")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
 
                     b.Property<DateTimeOffset>("Created")
                         .HasColumnType("timestamp with time zone");
@@ -136,34 +142,17 @@ namespace TalentMesh.Migrations.PGSql.Quizzes
                     b.Property<Guid?>("LastModifiedBy")
                         .HasColumnType("uuid");
 
-                    b.Property<string>("Option1")
+                    b.Property<string>("Status")
                         .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("character varying(255)");
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)");
 
-                    b.Property<string>("Option2")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("character varying(255)");
-
-                    b.Property<string>("Option3")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("character varying(255)");
-
-                    b.Property<string>("Option4")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("character varying(255)");
-
-                    b.Property<string>("QuestionText")
-                        .IsRequired()
-                        .HasMaxLength(1000)
-                        .HasColumnType("character varying(1000)");
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid");
 
                     b.HasKey("Id");
 
-                    b.ToTable("QuizQuestions", "quizzes");
+                    b.ToTable("InterviewerEntryForms", "evaluator");
                 });
 #pragma warning restore 612, 618
         }

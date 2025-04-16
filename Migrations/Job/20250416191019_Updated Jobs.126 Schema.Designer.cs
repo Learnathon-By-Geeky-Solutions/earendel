@@ -12,8 +12,8 @@ using TalentMesh.Module.Job.Infrastructure.Persistence;
 namespace TalentMesh.Migrations.PGSql.Job
 {
     [DbContext(typeof(JobDbContext))]
-    [Migration("20250416165651_Updated Jobs.99 Schema")]
-    partial class UpdatedJobs99Schema
+    [Migration("20250416191019_Updated Jobs.126 Schema")]
+    partial class UpdatedJobs126Schema
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -204,7 +204,6 @@ namespace TalentMesh.Migrations.PGSql.Job
                         .HasColumnType("character varying(1000)");
 
                     b.Property<string>("Salary")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.HasKey("Id");

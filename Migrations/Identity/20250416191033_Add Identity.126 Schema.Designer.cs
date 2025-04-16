@@ -12,8 +12,8 @@ using TalentMesh.Framework.Infrastructure.Identity.Persistence;
 namespace TalentMesh.Migrations.PGSql.Identity
 {
     [DbContext(typeof(IdentityDbContext))]
-    [Migration("20250416165702_Add Identity.99 Schema")]
-    partial class AddIdentity99Schema
+    [Migration("20250416191033_Add Identity.126 Schema")]
+    partial class AddIdentity126Schema
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

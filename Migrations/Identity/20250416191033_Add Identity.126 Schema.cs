@@ -7,7 +7,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace TalentMesh.Migrations.PGSql.Identity
 {
     /// <inheritdoc />
-    public partial class AddIdentity99Schema : Migration
+    public partial class AddIdentity126Schema : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
