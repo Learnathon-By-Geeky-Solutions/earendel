@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace TalentMesh.Migrations.PGSql.Evaluator
 {
     /// <inheritdoc />
-    public partial class AddEvaluator128Schema : Migration
+    public partial class AddEvaluator129Schema : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

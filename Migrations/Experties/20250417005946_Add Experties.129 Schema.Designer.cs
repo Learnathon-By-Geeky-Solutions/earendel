@@ -12,8 +12,8 @@ using TalentMesh.Module.Experties.Infrastructure.Persistence;
 namespace TalentMesh.Migrations.PGSql.Experties
 {
     [DbContext(typeof(ExpertiesDbContext))]
-    [Migration("20250416233002_Add Experties.128 Schema")]
-    partial class AddExperties128Schema
+    [Migration("20250417005946_Add Experties.129 Schema")]
+    partial class AddExperties129Schema
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

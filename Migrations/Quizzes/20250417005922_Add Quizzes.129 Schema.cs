@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace TalentMesh.Migrations.PGSql.Quizzes
 {
     /// <inheritdoc />
-    public partial class AddQuizzes128Schema : Migration
+    public partial class AddQuizzes129Schema : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

@@ -5,28 +5,28 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
-using TalentMesh.Module.Notifications.Infrastructure.Persistence;
+using TalentMesh.Module.Candidate.Infrastructure.Persistence;
 
 #nullable disable
 
-namespace TalentMesh.Migrations.PGSql.Notifications
+namespace TalentMesh.Migrations.PGSql.Candidates
 {
-    [DbContext(typeof(NotificationsDbContext))]
-    [Migration("20250416233014_Add Notification.128 Schema")]
-    partial class AddNotification128Schema
+    [DbContext(typeof(CandidateDbContext))]
+    [Migration("20250417005934_Add Candidates.129 Schema")]
+    partial class AddCandidates129Schema
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasDefaultSchema("notifications")
+                .HasDefaultSchema("candidate")
                 .HasAnnotation("ProductVersion", "9.0.2")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("TalentMesh.Module.Notifications.Domain.Notification", b =>
+            modelBuilder.Entity("TalentMesh.Module.Candidate.Domain.CandidateProfile", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -44,13 +44,13 @@ namespace TalentMesh.Migrations.PGSql.Notifications
                     b.Property<Guid?>("DeletedBy")
                         .HasColumnType("uuid");
 
-                    b.Property<string>("Entity")
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
+                    b.Property<string>("Education")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
 
-                    b.Property<string>("EntityType")
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)");
+                    b.Property<string>("Experience")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
 
                     b.Property<DateTimeOffset>("LastModified")
                         .HasColumnType("timestamp with time zone");
@@ -58,7 +58,11 @@ namespace TalentMesh.Migrations.PGSql.Notifications
                     b.Property<Guid?>("LastModifiedBy")
                         .HasColumnType("uuid");
 
-                    b.Property<string>("Message")
+                    b.Property<string>("Resume")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)");
+
+                    b.Property<string>("Skills")
                         .HasMaxLength(1000)
                         .HasColumnType("character varying(1000)");
 
@@ -67,7 +71,7 @@ namespace TalentMesh.Migrations.PGSql.Notifications
 
                     b.HasKey("Id");
 
-                    b.ToTable("Notifications", "notifications");
+                    b.ToTable("CandidateProfiles", "candidate");
                 });
 #pragma warning restore 612, 618
         }

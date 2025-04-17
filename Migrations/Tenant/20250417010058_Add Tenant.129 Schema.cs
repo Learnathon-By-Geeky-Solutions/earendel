@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace TalentMesh.Migrations.PGSql.Tenant
 {
     /// <inheritdoc />
-    public partial class AddTenant128Schema : Migration
+    public partial class AddTenant129Schema : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
