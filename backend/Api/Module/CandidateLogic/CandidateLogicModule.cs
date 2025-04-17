@@ -30,6 +30,7 @@ namespace TalentMesh.Module.CandidateLogic
                 jobView.MapStartQuizEndpoint();
                 jobView.MapGetQuizQuestionEndpoint();
                 jobView.MapSubmitAnswerEndpoint();
+                jobView.MapGetUserQuizAttemptsEndpoint();
 
             }
         }
@@ -39,6 +40,7 @@ namespace TalentMesh.Module.CandidateLogic
             ArgumentNullException.ThrowIfNull(builder);
             builder.Services.BindDbContext<JobDbContext>();
             builder.Services.BindDbContext<QuizzesDbContext>();
+           
             // Register repositories for Jobs
             builder.Services.AddKeyedScoped<IReadRepository<Jobs>, JobRepository<Jobs>>("jobs:jobReadOnly");
             builder.Services.AddKeyedScoped<IReadRepository<JobApplication>, JobRepository<JobApplication>>("jobApplication:jobApplicationReadOnly");
