@@ -9,7 +9,6 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { QuizService, QuizQuestion, QuizSubmission } from '../services/quiz.service';
-import { MockQuizService } from '../services/mock-quiz.service';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -313,8 +312,6 @@ export class QuizInterfaceComponent implements OnInit, OnDestroy {
   timer: any;
   // Store the quiz attempt ID from sessionStorage
   attemptId = '';
-  // Flag to use mock API for testing
-  useMockApi = false;
 
   // Computed property for question options
   get questionOptions(): string[] {
@@ -330,7 +327,6 @@ export class QuizInterfaceComponent implements OnInit, OnDestroy {
   constructor(
     private router: Router,
     private quizService: QuizService,
-    private mockQuizService: MockQuizService,
     private cdr: ChangeDetectorRef,
     private snackBar: MatSnackBar
   ) {}
@@ -338,12 +334,8 @@ export class QuizInterfaceComponent implements OnInit, OnDestroy {
   // Anti-cheating: Detect tab/window switching
   @HostListener('window:blur', ['$event'])
   onWindowBlur() {
-    if (!this.useMockApi) { // Only apply anti-cheating in real mode
-      // Delete attemptId from sessionStorage to invalidate the quiz attempt
-      this.invalidateQuiz('You switched to another tab or window. The quiz has been terminated.');
-    } else {
-      console.log('Tab/window switch detected (Mock mode: ignoring)');
-    }
+    // Delete attemptId from sessionStorage to invalidate the quiz attempt
+    this.invalidateQuiz('You switched to another tab or window. The quiz has been terminated.');
   }
 
   // Anti-cheating: Prevent copy-paste
@@ -358,10 +350,6 @@ export class QuizInterfaceComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    // Check if mock API should be used from sessionStorage
-    const mockApiStr = sessionStorage.getItem('useMockApi');
-    this.useMockApi = mockApiStr === 'true';
-    
     // Get quiz attempt ID from sessionStorage
     this.attemptId = sessionStorage.getItem('quizAttemptId') || '';
     
@@ -421,10 +409,7 @@ export class QuizInterfaceComponent implements OnInit, OnDestroy {
     this.loading = true;
     this.selectedOption = 0;
     
-    // Use mock service for testing if useMockApi is true
-    const quizService = this.useMockApi ? this.mockQuizService : this.quizService;
-    
-    quizService.getQuizQuestion(this.attemptId).subscribe({
+    this.quizService.getQuizQuestion(this.attemptId).subscribe({
       next: (response) => {
         // Check if quiz is finished
         if ('message' in response && response.message === 'Finished The Quiz') {
@@ -433,13 +418,11 @@ export class QuizInterfaceComponent implements OnInit, OnDestroy {
           this.currentQuestion = null; // Clear current question when finished
           // Delete attemptId from sessionStorage
           sessionStorage.removeItem('quizAttemptId');
-          sessionStorage.removeItem('useMockApi');
           return;
         }
         
         // Store current question
         this.currentQuestion = response as QuizQuestion;
-        this.currentQuestionIndex++;
         this.timeLeft = this.questionTimeLimit;
         this.loading = false;
         
@@ -468,11 +451,10 @@ export class QuizInterfaceComponent implements OnInit, OnDestroy {
       selectedOption: this.selectedOption
     };
     
-    // Use mock service for testing if useMockApi is true
-    const quizService = this.useMockApi ? this.mockQuizService : this.quizService;
-    
-    quizService.submitQuizAnswer(this.attemptId, submission).subscribe({
+    this.quizService.submitQuizAnswer(this.attemptId, submission).subscribe({
       next: () => {
+        // Increment question index before fetching next question
+        this.currentQuestionIndex++;
         this.fetchQuestion();
       },
       error: (error) => {
@@ -499,7 +481,6 @@ export class QuizInterfaceComponent implements OnInit, OnDestroy {
   private invalidateQuiz(message: string) {
     // Clear quiz attempt from sessionStorage
     sessionStorage.removeItem('quizAttemptId');
-    sessionStorage.removeItem('useMockApi');
     
     // Show message
     this.snackBar.open(message, 'Close', {

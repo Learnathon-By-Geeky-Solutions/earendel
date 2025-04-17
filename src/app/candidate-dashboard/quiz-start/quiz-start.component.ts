@@ -2,7 +2,6 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { QuizService } from '../services/quiz.service';
-import { MockQuizService } from '../services/mock-quiz.service';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { environment } from '../../../environments/environment';
@@ -77,16 +76,6 @@ import { environment } from '../../../environments/environment';
         
         <div *ngIf="!isUserLoggedIn" class="login-warning">
           <p>You must be logged in to take the quiz. Please log in first.</p>
-        </div>
-        
-        <div *ngIf="devMode" class="debug-info">
-          <p>Using {{ useMockApi ? 'mock' : 'real' }} API for testing.</p>
-          <div>
-            <button class="debug-btn" (click)="createTestUser()">Create Test User</button>
-            <button class="debug-btn" (click)="toggleApiMode()">
-              {{ useMockApi ? 'Use Real API' : 'Use Mock API' }}
-            </button>
-          </div>
         </div>
       </div>
     </div>
@@ -241,44 +230,6 @@ import { environment } from '../../../environments/environment';
         border-radius: 8px;
         font-size: 14px;
       }
-      
-      .debug-info {
-        margin-top: 24px;
-        text-align: center;
-        padding: 16px;
-        background: #e6f4fa;
-        color: #055160;
-        border-radius: 8px;
-        font-size: 14px;
-        
-        .debug-btn {
-          margin: 8px 4px 0;
-          padding: 8px 16px;
-          background: #0dcaf0;
-          color: white;
-          border: none;
-          border-radius: 4px;
-          cursor: pointer;
-          
-          &:hover {
-            background: #0ba8c1;
-          }
-        }
-      }
-
-      @media (max-width: 768px) {
-        .quiz-start-container {
-          padding: 16px;
-        }
-
-        .quiz-notice {
-          padding: 24px;
-        }
-
-        h1 {
-          font-size: 20px;
-        }
-      }
     `,
   ],
 })
@@ -286,15 +237,10 @@ export class QuizStartComponent implements OnInit {
   isStarting = false;
   errorMessage = '';
   isUserLoggedIn = false;
-  // Flag to use mock API for testing
-  useMockApi = false; // Set to false by default to use real API
-  // Flag to show debug UI in development 
-  devMode = true; // Set to false in production
 
   constructor(
     private router: Router,
     private quizService: QuizService,
-    private mockQuizService: MockQuizService,
     private snackBar: MatSnackBar
   ) {}
   
@@ -319,7 +265,7 @@ export class QuizStartComponent implements OnInit {
   }
 
   startQuiz() {
-    if (!this.isUserLoggedIn && !this.useMockApi) {
+    if (!this.isUserLoggedIn) {
       this.errorMessage = 'You must be logged in to take the quiz. Please log in first.';
       this.snackBar.open('You must be logged in to take the quiz.', 'Close', {
         duration: 5000,
@@ -330,16 +276,11 @@ export class QuizStartComponent implements OnInit {
     this.isStarting = true;
     this.errorMessage = '';
     
-    // Use mock service for testing if useMockApi is true
-    const quizService = this.useMockApi ? this.mockQuizService : this.quizService;
-    
-    quizService.startQuiz().subscribe({
+    this.quizService.startQuiz().subscribe({
       next: (response) => {
         console.log('Quiz started successfully:', response);
         // Store attemptId in sessionStorage for future API calls
         sessionStorage.setItem('quizAttemptId', response.attemptId);
-        // Store API mode in sessionStorage for quiz interface
-        sessionStorage.setItem('useMockApi', this.useMockApi.toString());
         this.router.navigate(['/candidate-dashboard/quiz/interface']);
       },
       error: (error) => {
@@ -359,31 +300,6 @@ export class QuizStartComponent implements OnInit {
           duration: 5000,
         });
       }
-    });
-  }
-  
-  // Toggle between mock API and real API
-  toggleApiMode() {
-    this.useMockApi = !this.useMockApi;
-    this.snackBar.open(`Now using ${this.useMockApi ? 'mock' : 'real'} API`, 'Close', {
-      duration: 2000,
-    });
-  }
-  
-  // For testing purposes - creates a mock user in sessionStorage
-  createTestUser() {
-    const testUser = {
-      id: '12345',
-      userId: '12345',
-      name: 'Test User',
-      email: 'test@example.com',
-      token: 'mock-jwt-token'
-    };
-    
-    sessionStorage.setItem('loggedInUser', JSON.stringify(testUser));
-    this.isUserLoggedIn = true;
-    this.snackBar.open('Test user created successfully!', 'Close', {
-      duration: 3000,
     });
   }
 }

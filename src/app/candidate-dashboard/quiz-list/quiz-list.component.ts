@@ -303,9 +303,6 @@ export class QuizListComponent implements OnInit {
   currentPage = 1;
   pageSize = 10;
   totalPages = 1;
-  
-  // Flag to show development options
-  devMode = false; // Set to false in production
 
   constructor(
     private router: Router,
@@ -353,7 +350,7 @@ export class QuizListComponent implements OnInit {
     this.updatePagination();
   }
 
-  startNewQuiz(useMockApi?: boolean) {
+  startNewQuiz() {
     // Check if there's an existing quiz attempt
     if (sessionStorage.getItem('quizAttemptId')) {
       this.snackBar.open('You have an active quiz session. Do you want to continue?', 'Continue', {
@@ -362,11 +359,6 @@ export class QuizListComponent implements OnInit {
         this.router.navigate(['/candidate-dashboard/quiz/interface']);
       });
     } else {
-      // If useMockApi is explicitly set, store it in sessionStorage
-      if (useMockApi !== undefined) {
-        sessionStorage.setItem('useMockApi', useMockApi.toString());
-      }
-      
       // Start new quiz
       this.router.navigate(['/candidate-dashboard/quiz/start']);
     }
