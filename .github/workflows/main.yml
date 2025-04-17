@@ -48,18 +48,29 @@ jobs:
             echo "Switching to migrations branch and pulling latest changes..."
             git checkout migrations
             git pull origin migrations
-            echo "Backing up migration files..."
+            echo "Backing up migration folders from migrations branch..."
+            rm -rf /tmp/migration-backup
             mkdir -p /tmp/migration-backup
             cp -r Migrations/* /tmp/migration-backup/
+
             echo "Switching back to main branch..."
             git checkout main
-            echo "Updating migrations folder in backend..."
+
+            echo "Cleaning old migration folders inside PGSql (excluding obj, bin, PGSql.csproj)..."
+            cd backend/Api/Migrations/PGSql
+            for folder in Candidates Tenant Identity Job Notifications Experties Evaluator Interviews Quizzes; do
+            rm -rf "$folder"
+            done
+            cd -
+            echo "Copying new migration folders into PGSql..."
             cp -r /tmp/migration-backup/* backend/Api/Migrations/PGSql/
+            echo "Cleaning up..."
             rm -rf /tmp/migration-backup
-            echo "Building and restarting Docker containers..."
+            echo "Rebuilding and restarting Docker containers..."
             cd backend
-            docker-compose down
-            docker-compose up --build -d
+            docker-compose down 
+            docker-compose up --build
+
 
   build-and-analyze:
     runs-on: ubuntu-latest
