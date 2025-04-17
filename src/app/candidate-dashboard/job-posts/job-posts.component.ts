@@ -360,6 +360,7 @@ export class JobPostsComponent implements OnInit, OnDestroy {
   allDataLoaded = false;
   private destroy$ = new Subject<void>();
   private searchSubject = new Subject<string>();
+  private previousJobIds = new Set<string>(); // Track previously loaded job IDs
 
   // For infinite scrolling
   @ViewChild('jobsList') jobsList!: ElementRef;
@@ -465,6 +466,7 @@ export class JobPostsComponent implements OnInit, OnDestroy {
     this.currentPage = 1;
     this.jobs = [];
     this.allDataLoaded = false;
+    this.previousJobIds.clear(); // Clear tracked IDs when resetting
     this.fetchJobs();
   }
 
@@ -501,13 +503,34 @@ export class JobPostsComponent implements OnInit, OnDestroy {
       )
       .subscribe({
         next: (newJobs) => {
+          // Check if we received duplicate jobs (indicating we've reached the end)
+          const newJobIds = new Set(newJobs.map(job => job.id));
+          const duplicateFound = Array.from(newJobIds).some(id => this.previousJobIds.has(id));
+          
+          if (newJobs.length === 0 || duplicateFound) {
+            // No new jobs or we got duplicates, set allDataLoaded to true
+            this.allDataLoaded = true;
+            this.loading = false;
+            
+            if (this.currentPage > 1 && duplicateFound) {
+              // Show a message only if we've loaded at least one page and found duplicates
+              this.snackBar.open('All available jobs have been loaded', 'Close', {
+                duration: 3000,
+              });
+            }
+            return;
+          }
+          
+          // Add new job IDs to the tracking set
+          newJobs.forEach(job => this.previousJobIds.add(job.id));
+          
           // Append new jobs to existing jobs
           this.jobs = [...this.jobs, ...newJobs];
           this.loading = false;
           this.updateLocations();
           
-          // Set allDataLoaded flag if no new jobs were returned or only one job total
-          if (newJobs.length === 0 || (this.jobs.length === 1 && this.currentPage === 1)) {
+          // Set allDataLoaded flag if only one job was returned in the first page
+          if (this.jobs.length === 1 && this.currentPage === 1) {
             this.allDataLoaded = true;
           } else {
             // Only setup infinite scroll if we have more than 1 job and more jobs might be coming
