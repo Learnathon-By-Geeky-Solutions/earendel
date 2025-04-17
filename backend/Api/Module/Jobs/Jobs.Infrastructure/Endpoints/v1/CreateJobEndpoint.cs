@@ -23,7 +23,7 @@ public static class CreateJobEndpoint
             .WithSummary("Creates a Job")
             .WithDescription("Creates a Job")
             .Produces<CreateJobResponse>()
-            .RequirePermission("Permissions.Job.Create")
+            .RequirePermission("Permissions.Jobs.Create")
             .MapToApiVersion(1);
     }
 }
