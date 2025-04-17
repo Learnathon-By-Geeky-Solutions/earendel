@@ -26,7 +26,7 @@ public static class SearchJobApplicationsEndpoint
             .WithSummary("Gets a list of job applications")
             .WithDescription("Gets a list of job applications with pagination and filtering support")
             .Produces<PagedList<JobApplicationResponse>>()
-            .RequirePermission("Permissions.JobApplications.View")
+            .RequirePermission("Permissions.Jobs.View")
             .MapToApiVersion(1);
     }
 }
