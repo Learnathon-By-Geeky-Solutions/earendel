@@ -12,7 +12,7 @@ import { MatChipsModule } from '@angular/material/chips';
 import { JobDetailsModalComponent } from '../job-details/job-details.component';
 import { JobService, Job, JobFilter } from '../services/job.service';
 import { Subject, debounceTime, distinctUntilChanged, takeUntil, of } from 'rxjs';
-import { catchError } from 'rxjs/operators';
+import { catchError, shareReplay } from 'rxjs/operators';
 
 @Component({
   selector: 'app-job-posts',
@@ -118,7 +118,7 @@ import { catchError } from 'rxjs/operators';
 
       <!-- STEP 3: Setup Infinite Scrolling with Jobs List -->
       <div class="jobs-list" #jobsList>
-        <div *ngFor="let job of jobs" class="job-card">
+        <div *ngFor="let job of jobs; trackBy: trackByJobId" class="job-card">
           <div class="card-header">
             <h3>{{ job.name }}</h3>
           </div>
@@ -361,6 +361,8 @@ export class JobPostsComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>();
   private searchSubject = new Subject<string>();
   private previousJobIds = new Set<string>(); // Track previously loaded job IDs
+  private activeObserver: IntersectionObserver | null = null; // Store active observer for cleanup
+  private jobsCache = new Map<string, Job[]>(); // Cache for job data
 
   // For infinite scrolling
   @ViewChild('jobsList') jobsList!: ElementRef;
@@ -386,6 +388,16 @@ export class JobPostsComponent implements OnInit, OnDestroy {
   ngOnDestroy() {
     this.destroy$.next();
     this.destroy$.complete();
+    // Clean up IntersectionObserver
+    if (this.activeObserver) {
+      this.activeObserver.disconnect();
+      this.activeObserver = null;
+    }
+  }
+
+  // Optimize rendering with trackBy
+  trackByJobId(index: number, job: Job): string {
+    return job.id;
   }
 
   // STEP 3: Setup Infinite Scrolling - modified to not setup for single job post
@@ -396,13 +408,18 @@ export class JobPostsComponent implements OnInit, OnDestroy {
       return;
     }
     
+    // Disconnect previous observer if exists
+    if (this.activeObserver) {
+      this.activeObserver.disconnect();
+    }
+    
     const options = {
       root: null,
       rootMargin: '100px',
       threshold: 0.1
     };
 
-    const observer = new IntersectionObserver((entries) => {
+    this.activeObserver = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
         if (entry.isIntersecting && !this.loading && !this.allDataLoaded) {
           this.loadMore();
@@ -412,7 +429,9 @@ export class JobPostsComponent implements OnInit, OnDestroy {
 
     // Start observing the last element with a delay to ensure DOM is ready
     setTimeout(() => {
-      this.observeLastElement(observer);
+      if (this.activeObserver) {
+        this.observeLastElement(this.activeObserver);
+      }
     }, 1000);
   }
 
@@ -432,8 +451,15 @@ export class JobPostsComponent implements OnInit, OnDestroy {
     this.resetAndFetch();
   }
 
+  // Memoized version of hasActiveFilters for performance
+  private _hasActiveFiltersCache: { value: boolean, dirty: boolean } = { value: false, dirty: true };
+  
   hasActiveFilters(): boolean {
-    return !!(this.searchTerm || this.selectedExperience || this.selectedJobType || this.selectedLocation);
+    if (this._hasActiveFiltersCache.dirty) {
+      this._hasActiveFiltersCache.value = !!(this.searchTerm || this.selectedExperience || this.selectedJobType || this.selectedLocation);
+      this._hasActiveFiltersCache.dirty = false;
+    }
+    return this._hasActiveFiltersCache.value;
   }
 
   removeFilter(filterType: string) {
@@ -451,6 +477,7 @@ export class JobPostsComponent implements OnInit, OnDestroy {
         this.selectedLocation = '';
         break;
     }
+    this._hasActiveFiltersCache.dirty = true;
     this.resetAndFetch();
   }
 
@@ -459,6 +486,7 @@ export class JobPostsComponent implements OnInit, OnDestroy {
     this.selectedExperience = '';
     this.selectedJobType = '';
     this.selectedLocation = '';
+    this._hasActiveFiltersCache.dirty = true;
     this.resetAndFetch();
   }
 
@@ -468,6 +496,11 @@ export class JobPostsComponent implements OnInit, OnDestroy {
     this.allDataLoaded = false;
     this.previousJobIds.clear(); // Clear tracked IDs when resetting
     this.fetchJobs();
+  }
+
+  // Create a cache key based on filters
+  private getCacheKey(filters: JobFilter, page: number): string {
+    return `${filters.name || ''}-${filters.experienceLevel || ''}-${filters.jobType || ''}-${filters.location || ''}-${page}`;
   }
 
   // STEP 1: Integrate the Job List API with the UI - modified to handle single job case
@@ -486,9 +519,18 @@ export class JobPostsComponent implements OnInit, OnDestroy {
       page: this.currentPage
     };
 
+    // Check if we have cached data for this filter+page combination
+    const cacheKey = this.getCacheKey(filters, this.currentPage);
+    if (this.jobsCache.has(cacheKey)) {
+      const cachedJobs = this.jobsCache.get(cacheKey) || [];
+      this.handleNewJobs(cachedJobs);
+      return;
+    }
+
     this.jobService.getJobs(filters)
       .pipe(
         takeUntil(this.destroy$),
+        shareReplay(1), // Cache the response for multiple subscribers
         catchError(error => {
           console.error('Error fetching jobs:', error);
           
@@ -503,39 +545,9 @@ export class JobPostsComponent implements OnInit, OnDestroy {
       )
       .subscribe({
         next: (newJobs) => {
-          // Check if we received duplicate jobs (indicating we've reached the end)
-          const newJobIds = new Set(newJobs.map(job => job.id));
-          const duplicateFound = Array.from(newJobIds).some(id => this.previousJobIds.has(id));
-          
-          if (newJobs.length === 0 || duplicateFound) {
-            // No new jobs or we got duplicates, set allDataLoaded to true
-            this.allDataLoaded = true;
-            this.loading = false;
-            
-            if (this.currentPage > 1 && duplicateFound) {
-              // Show a message only if we've loaded at least one page and found duplicates
-              this.snackBar.open('All available jobs have been loaded', 'Close', {
-                duration: 3000,
-              });
-            }
-            return;
-          }
-          
-          // Add new job IDs to the tracking set
-          newJobs.forEach(job => this.previousJobIds.add(job.id));
-          
-          // Append new jobs to existing jobs
-          this.jobs = [...this.jobs, ...newJobs];
-          this.loading = false;
-          this.updateLocations();
-          
-          // Set allDataLoaded flag if only one job was returned in the first page
-          if (this.jobs.length === 1 && this.currentPage === 1) {
-            this.allDataLoaded = true;
-          } else {
-            // Only setup infinite scroll if we have more than 1 job and more jobs might be coming
-            this.setupInfiniteScroll();
-          }
+          // Cache the results
+          this.jobsCache.set(cacheKey, newJobs);
+          this.handleNewJobs(newJobs);
         },
         error: () => {
           // Error is already handled by catchError
@@ -543,11 +555,50 @@ export class JobPostsComponent implements OnInit, OnDestroy {
         }
       });
   }
+  
+  // Extract job handling logic to avoid code duplication
+  private handleNewJobs(newJobs: Job[]) {
+    // Check if we received duplicate jobs (indicating we've reached the end)
+    const newJobIds = new Set(newJobs.map(job => job.id));
+    const duplicateFound = Array.from(newJobIds).some(id => this.previousJobIds.has(id));
+    
+    if (newJobs.length === 0 || duplicateFound) {
+      // No new jobs or we got duplicates, set allDataLoaded to true
+      this.allDataLoaded = true;
+      this.loading = false;
+      
+      if (this.currentPage > 1 && duplicateFound) {
+        // Show a message only if we've loaded at least one page and found duplicates
+        this.snackBar.open('All available jobs have been loaded', 'Close', {
+          duration: 3000,
+        });
+      }
+      return;
+    }
+    
+    // Add new job IDs to the tracking set
+    newJobs.forEach(job => this.previousJobIds.add(job.id));
+    
+    // Append new jobs to existing jobs
+    this.jobs = [...this.jobs, ...newJobs];
+    this.loading = false;
+    this.updateLocations();
+    
+    // Set allDataLoaded flag if only one job was returned in the first page
+    if (this.jobs.length === 1 && this.currentPage === 1) {
+      this.allDataLoaded = true;
+    } else {
+      // Only setup infinite scroll if we have more than 1 job and more jobs might be coming
+      this.setupInfiniteScroll();
+    }
+  }
 
   private updateLocations() {
-    // Extract unique locations from job data for the location filter
-    const uniqueLocations = new Set(this.jobs.map(job => job.location));
-    this.locations = Array.from(uniqueLocations);
+    // Extract unique locations from job data for the filter - this is a costly operation, run once
+    if (this.locations.length === 0 || this.currentPage === 1) {
+      const uniqueLocations = new Set(this.jobs.map(job => job.location));
+      this.locations = Array.from(uniqueLocations);
+    }
   }
 
   // STEP 3: Setup Infinite Scrolling
