@@ -1,12 +1,13 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-quiz-list',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, MatSnackBarModule],
   template: `
     <div class="quiz-container">
       <div class="header-actions">
@@ -66,7 +67,12 @@ import { Router } from '@angular/router';
         </table>
       </div>
 
-      <div class="pagination">
+      <div *ngIf="paginatedQuizzes.length === 0" class="no-results">
+        <p>No quiz records found.</p>
+        <button class="primary-btn" (click)="startNewQuiz()">Take Your First Quiz</button>
+      </div>
+
+      <div class="pagination" *ngIf="paginatedQuizzes.length > 0">
         <button
           (click)="changePage(-1)"
           [disabled]="currentPage === 1"
@@ -202,6 +208,35 @@ import { Router } from '@angular/router';
         color: #dc3545;
       }
 
+      .no-results {
+        background: white;
+        border-radius: 12px;
+        padding: 32px;
+        text-align: center;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        margin-bottom: 24px;
+        
+        p {
+          color: #666;
+          margin-bottom: 16px;
+        }
+      }
+
+      .primary-btn {
+        padding: 10px 24px;
+        background: #0066ff;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 14px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+
+        &:hover {
+          background: #0052cc;
+        }
+      }
+
       .pagination {
         display: flex;
         justify-content: center;
@@ -227,64 +262,38 @@ import { Router } from '@angular/router';
           cursor: not-allowed;
         }
       }
-
-      @media (max-width: 768px) {
-        .quiz-container {
-          padding: 16px;
-        }
-
-        .header-actions {
-          flex-direction: column;
-          align-items: stretch;
-          gap: 16px;
-        }
-
-        .filters {
-          flex-direction: column;
-        }
-
-        .table-container {
-          margin: 0 -16px;
-          border-radius: 0;
-        }
-
-        th,
-        td {
-          padding: 12px;
-        }
-      }
     `,
   ],
 })
-export class QuizListComponent {
+export class QuizListComponent implements OnInit {
   quizzes: any[] = [
     {
-      id: '1',
-      quizName: 'JavaScript Fundamentals',
-      date: '2024-01-20',
-      score: 85,
-      totalQuestions: 100,
-      duration: '45 minutes',
+      id: 1,
+      quizName: 'Frontend Developer Quiz',
+      date: '2023-03-15',
+      score: 8,
+      totalQuestions: 10,
+      duration: '12 min 30 sec',
       status: 'completed',
     },
     {
-      id: '2',
-      quizName: 'React Advanced Concepts',
-      date: '2024-01-15',
-      score: 45,
-      totalQuestions: 100,
-      duration: '60 minutes',
-      status: 'failed',
+      id: 2,
+      quizName: 'Backend Developer Quiz',
+      date: '2023-02-22',
+      score: 6,
+      totalQuestions: 10,
+      duration: '15 min 45 sec',
+      status: 'completed',
     },
     {
-      id: '3',
-      quizName: 'System Design Principles',
-      date: '2024-01-10',
-      score: 0,
-      totalQuestions: 100,
-      duration: '30 minutes',
-      status: 'disqualified',
-    },
+      id: 3,
+      quizName: 'Mobile Developer Quiz',
+      date: '2023-01-10',
+      score: 4,
+      totalQuestions: 10,
+      duration: '11 min 20 sec',
+      status: 'failed',
+    }
   ];
 
   filteredQuizzes: any[] = [];
@@ -294,8 +303,14 @@ export class QuizListComponent {
   currentPage = 1;
   pageSize = 10;
   totalPages = 1;
+  
+  // Flag to show development options
+  devMode = false; // Set to false in production
 
-  constructor(private router: Router) {}
+  constructor(
+    private router: Router,
+    private snackBar: MatSnackBar
+  ) {}
 
   ngOnInit() {
     this.filteredQuizzes = [...this.quizzes];
@@ -303,25 +318,33 @@ export class QuizListComponent {
   }
 
   search() {
-    this.filter();
+    this.filter(); // This will handle searching and filtering
   }
 
   filter() {
-    this.filteredQuizzes = this.quizzes.filter(
-      (quiz) =>
-        quiz.quizName.toLowerCase().includes(this.searchTerm.toLowerCase()) &&
-        (this.selectedStatus === '' || quiz.status === this.selectedStatus)
-    );
-    this.currentPage = 1;
+    this.filteredQuizzes = this.quizzes.filter((quiz) => {
+      const matchesSearch = this.searchTerm
+        ? quiz.quizName
+            .toLowerCase()
+            .includes(this.searchTerm.toLowerCase())
+        : true;
+      const matchesStatus = this.selectedStatus
+        ? quiz.status === this.selectedStatus
+        : true;
+      return matchesSearch && matchesStatus;
+    });
+    
+    this.currentPage = 1; // Reset to first page when filter changes
     this.updatePagination();
   }
 
   updatePagination() {
-    this.totalPages = Math.ceil(this.filteredQuizzes.length / this.pageSize);
     const startIndex = (this.currentPage - 1) * this.pageSize;
-    this.paginatedQuizzes = this.filteredQuizzes.slice(
-      startIndex,
-      startIndex + this.pageSize
+    const endIndex = startIndex + this.pageSize;
+    this.paginatedQuizzes = this.filteredQuizzes.slice(startIndex, endIndex);
+    this.totalPages = Math.max(
+      1,
+      Math.ceil(this.filteredQuizzes.length / this.pageSize)
     );
   }
 
@@ -330,7 +353,22 @@ export class QuizListComponent {
     this.updatePagination();
   }
 
-  startNewQuiz() {
-    this.router.navigate(['/candidate-dashboard/quiz/start']);
+  startNewQuiz(useMockApi?: boolean) {
+    // Check if there's an existing quiz attempt
+    if (sessionStorage.getItem('quizAttemptId')) {
+      this.snackBar.open('You have an active quiz session. Do you want to continue?', 'Continue', {
+        duration: 5000
+      }).onAction().subscribe(() => {
+        this.router.navigate(['/candidate-dashboard/quiz/interface']);
+      });
+    } else {
+      // If useMockApi is explicitly set, store it in sessionStorage
+      if (useMockApi !== undefined) {
+        sessionStorage.setItem('useMockApi', useMockApi.toString());
+      }
+      
+      // Start new quiz
+      this.router.navigate(['/candidate-dashboard/quiz/start']);
+    }
   }
 }
