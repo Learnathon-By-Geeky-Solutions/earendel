@@ -43,7 +43,7 @@ namespace TalentMesh.Module.CandidateLogic.JobView // Or your preferred namespac
                 jobQuery = jobQuery.Where(j => j.ExperienceLevel.Contains(request.ExperienceLevel));
 
 
-            jobQuery = jobQuery.Where(j => j.PaymentStatus.Contains("Completed"));
+            //jobQuery = jobQuery.Where(j => j.PaymentStatus.Contains("Completed"));
 
             var filteredJobs = await jobQuery
                 .Select(j => new // Project to anonymous type initially to reduce data transfer
