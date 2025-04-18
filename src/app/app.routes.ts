@@ -63,7 +63,7 @@ export const routes: Routes = [
       { path: 'quiz', component: QuizListComponent },
       { path: 'quiz/start', component: QuizStartComponent },
       { path: 'quiz/interface', component: QuizInterfaceComponent },
-      { path: 'quiz/results', component: QuizResultsComponent },
+      { path: 'quiz/results/:attemptId', component: QuizResultsComponent },
       { path: 'profile', component: CandidateProfileComponent },
       { path: 'notifications', component: CandidateNotificationsComponent },
       { path: 'interview-setup', component: InterviewSetupComponent },

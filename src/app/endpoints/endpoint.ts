@@ -14,4 +14,5 @@ export const endpoint = {
   quizStartUrl: `${quizBase}/start`,
   quizQuestionUrl: quizBase,
   quizSubmitUrl: quizBase,
+  quizAttemptsUrl: `${base}/api/v1/JobView/candidateview/users`,
 };

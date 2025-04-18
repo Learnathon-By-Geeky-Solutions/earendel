@@ -416,8 +416,16 @@ export class QuizInterfaceComponent implements OnInit, OnDestroy {
           this.finished = true;
           this.loading = false;
           this.currentQuestion = null; // Clear current question when finished
+          
+          // Store attemptId temporarily for results page navigation
+          const currentAttemptId = this.attemptId;
+          
           // Delete attemptId from sessionStorage
           sessionStorage.removeItem('quizAttemptId');
+          
+          // Set the attemptId for results navigation
+          this.attemptId = currentAttemptId;
+          
           return;
         }
         
@@ -474,7 +482,20 @@ export class QuizInterfaceComponent implements OnInit, OnDestroy {
 
   // Navigate to results
   navigateToResults() {
-    this.router.navigate(['/candidate-dashboard/quiz']);
+    console.log('Navigating to results with attemptId:', this.attemptId);
+    
+    if (this.attemptId) {
+      // Navigate to results with the attemptId as a route parameter
+      this.router.navigate(['/candidate-dashboard/quiz/results', this.attemptId]);
+    } else {
+      // Try to fetch the latest attempt if no attemptId is available
+      this.snackBar.open('Quiz session not found. Redirecting to quiz dashboard.', 'Close', {
+        duration: 3000,
+      });
+      
+      // Fallback to quiz dashboard if no attemptId is available
+      this.router.navigate(['/candidate-dashboard/quiz']);
+    }
   }
 
   // Invalidate quiz (for anti-cheating)
