@@ -11,8 +11,30 @@ namespace TalentMesh.Module.Experties.Application.Rubrics.Search.v1;
 public class SearchRubricSpecs : EntitiesByPaginationFilterSpec<Experties.Domain.Rubric, RubricResponse>
 {
     public SearchRubricSpecs(SearchRubricsCommand command)
-        : base(command) =>
-        Query
-            .OrderBy(c => c.Title, !command.HasOrderBy())
-            .Where(b => b.Title.Contains(command.Keyword), !string.IsNullOrEmpty(command.Keyword));
+        : base(command)
+    {
+        // Only fetch rubrics that are not deleted
+        Query.Where(r => r.DeletedBy == null);
+
+        // Filter by keyword in title
+        if (!string.IsNullOrEmpty(command.Keyword))
+        {
+            Query.Where(r => r.Title.Contains(command.Keyword));
+        }
+
+        // Filter by SubSkillId
+        if (command.SubSkillId.HasValue)
+        {
+            Query.Where(r => r.SubSkillId == command.SubSkillId);
+        }
+
+        // Filter by SeniorityId
+        if (command.SeniorityId.HasValue)
+        {
+            Query.Where(r => r.SeniorityId == command.SeniorityId);
+        }
+
+        // Default ordering
+        Query.OrderBy(r => r.Title, !command.HasOrderBy());
+    }
 }

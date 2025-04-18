@@ -597,7 +597,7 @@ namespace TalentMesh.Module.Experties.Tests
             await _updateHandler.Handle(request, CancellationToken.None);
 
             // Assert
-            Assert.Equal(newSeniorityLevelId, existingRubric.SeniorityLevelId);
+            Assert.Equal(newSeniorityLevelId, existingRubric.SeniorityId);
         }
 
         // 2. New seniorityLevelId is non-null but same as current → no update.
@@ -625,7 +625,7 @@ namespace TalentMesh.Module.Experties.Tests
             await _updateHandler.Handle(request, CancellationToken.None);
 
             // Assert
-            Assert.Equal(seniorityLevelId, existingRubric.SeniorityLevelId);
+            Assert.Equal(seniorityLevelId, existingRubric.SeniorityId);
         }
 
         // 3. New seniorityLevelId is null → update block skipped.
@@ -653,7 +653,7 @@ namespace TalentMesh.Module.Experties.Tests
             await _updateHandler.Handle(request, CancellationToken.None);
 
             // Assert
-            Assert.Equal(existingSeniorityLevelId, existingRubric.SeniorityLevelId);
+            Assert.Equal(existingSeniorityLevelId, existingRubric.SeniorityId);
         }
 
         [Fact]
@@ -680,7 +680,7 @@ namespace TalentMesh.Module.Experties.Tests
             await _updateHandler.Handle(request, CancellationToken.None);
 
             // Assert
-            Assert.Equal(existingSeniorityLevelId, existingRubric.SeniorityLevelId);
+            Assert.Equal(existingSeniorityLevelId, existingRubric.SeniorityId);
         }
 
         // =======================

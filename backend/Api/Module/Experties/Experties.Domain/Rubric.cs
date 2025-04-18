@@ -10,7 +10,7 @@ namespace TalentMesh.Module.Experties.Domain
         public string Title { get; private set; } = default!;
         public string? RubricDescription { get; private set; }
         public Guid? SubSkillId { get; private set; }
-        public Guid? SeniorityLevelId { get; private set; }
+        public Guid? SeniorityId { get; private set; }
         public decimal Weight { get; private set; }
         public virtual Seniority Seniority { get; private set; } = default!;
         public virtual SubSkill SubSkill { get; private set; } = default!;
@@ -22,7 +22,7 @@ namespace TalentMesh.Module.Experties.Domain
                 Title = title,
                 RubricDescription = rubricDescription,
                 SubSkillId = subSkillId,
-                SeniorityLevelId = seniorityLevelId,
+                SeniorityId = seniorityLevelId,
                 Weight = weight
             };
 
@@ -46,7 +46,7 @@ namespace TalentMesh.Module.Experties.Domain
 
             if (seniorityLevelId is not null && seniorityLevelId.HasValue)
             {
-                SeniorityLevelId = seniorityLevelId.Value;
+                SeniorityId = seniorityLevelId.Value;
             }
 
             if (weight is not null && weight.HasValue && weight.Value > 0 && Weight != weight.Value)
