@@ -31,10 +31,13 @@ internal sealed partial class UserService
         token = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(token));
 
         var resetPasswordUri = $"{origin}/reset-password?token={token}&email={request.Email}";
-        var mailRequest = new MailRequest(new Collection<string> { user.Email }, "Reset Password")
-                      .WithBody($"Please reset your password using the following link: {resetPasswordUri}");
 
-        jobService.Enqueue(() => mailService.SendAsync(mailRequest, CancellationToken.None));
+        var mailRequest = new MailRequest(
+            new Collection<string> { user.Email },
+            "Reset Password",
+            $"Please reset your password using the following link: {resetPasswordUri}");
+
+        jobService.Enqueue(() => mailService.SendEmail(mailRequest));
     }
 
     public async Task ResetPasswordAsync(ResetPasswordCommand request, CancellationToken cancellationToken)
