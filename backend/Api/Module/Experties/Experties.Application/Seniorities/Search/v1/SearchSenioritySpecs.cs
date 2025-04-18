@@ -11,8 +11,18 @@ namespace TalentMesh.Module.Experties.Application.Seniorities.Search.v1;
 public class SearchSenioritySpecs : EntitiesByPaginationFilterSpec<Experties.Domain.Seniority, SeniorityResponse>
 {
     public SearchSenioritySpecs(SearchSenioritiesCommand command)
-        : base(command) =>
-        Query
-            .OrderBy(c => c.Name, !command.HasOrderBy())
-            .Where(b => b.Name.Contains(command.Keyword), !string.IsNullOrEmpty(command.Keyword));
+        : base(command)
+    {
+        // Filter out deleted records
+        Query.Where(b => b.DeletedBy == null);
+
+        // Filter by keyword in name
+        if (!string.IsNullOrEmpty(command.Keyword))
+        {
+            Query.Where(b => b.Name.Contains(command.Keyword));
+        }
+
+        // Apply default ordering if no custom order is specified
+        Query.OrderBy(c => c.Name, !command.HasOrderBy());
+    }
 }
