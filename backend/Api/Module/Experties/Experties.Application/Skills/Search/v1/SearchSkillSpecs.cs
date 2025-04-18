@@ -16,16 +16,16 @@ namespace TalentMesh.Module.Experties.Application.Skills.Search.v1
     {
         public SearchSkillSpecs(SearchSkillsCommand command)
         {
-            // Only get non-deleted Skills
+            // Filter: Only get non-deleted Skills
             Query.Where(skill => skill.DeletedBy == null);
 
-            // Filter by keyword if provided
+            // Filter: By keyword if provided
             if (!string.IsNullOrEmpty(command.Keyword))
             {
                 Query.Where(skill => skill.Name.Contains(command.Keyword));
             }
 
-            // Apply default ordering
+            // Apply default ordering if none provided
             if (!command.HasOrderBy())
             {
                 Query.OrderBy(skill => skill.Name);
@@ -33,13 +33,11 @@ namespace TalentMesh.Module.Experties.Application.Skills.Search.v1
 
             Query.AsSplitQuery();
 
-            // Projection with deleted filters at all levels
+            // Projection with filters for soft-deleted sub-entities
             Query.Select(skill => new SkillResponse(
                 skill.Id,
                 skill.Name,
                 skill.Description,
-
-                // Only include non-deleted SubSkills
                 skill.SubSkills
                     .Where(sub => sub.DeletedBy == null)
                     .Select(sub => new SubSkillResponse(
@@ -48,8 +46,6 @@ namespace TalentMesh.Module.Experties.Application.Skills.Search.v1
                         sub.Description,
                         sub.SkillId
                     )).ToList(),
-
-                // Only include non-deleted SeniorityLevelJunctions and Seniorities
                 skill.SeniorityLevelJunctions
                     .Where(j => j.DeletedBy == null && j.Seniority.DeletedBy == null)
                     .Select(j => new SeniorityLevelJunctionResponse(
