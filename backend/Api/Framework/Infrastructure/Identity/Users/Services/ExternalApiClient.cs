@@ -27,6 +27,16 @@ namespace TalentMesh.Framework.Infrastructure.Identity.Users.Services
         private readonly string _requestAccessTokenUrl;
         private readonly string _requestUserInfoUrl;
 
+        // SSLCommerz configuration
+        private readonly string _sslCommerzStoreId;
+        private readonly string _sslCommerzStorePass;
+        private readonly string _sslCommerzInitiateUrl;
+        private readonly string _sslCommerzValidationUrl;
+        private readonly string _sslCommerzSuccessUrl;
+        private readonly string _sslCommerzFailUrl;
+        private readonly string _sslCommerzCancelUrl;
+
+
         public ExternalApiClient(HttpClient httpClient, ILogger<ExternalApiClient> logger, IConfiguration configuration)
         {
             _clientId = configuration["GithubCredentials:ClientId"]
@@ -40,6 +50,30 @@ namespace TalentMesh.Framework.Infrastructure.Identity.Users.Services
 
             _requestUserInfoUrl = configuration["GithubCredentials:RequestUserInfoUrl"]
                 ?? throw new ArgumentNullException(nameof(configuration), "GithubCredentials:RequestUserInfoUrl is missing in configuration");
+
+
+            _sslCommerzStoreId = configuration["SslCommerz:StoreId"]
+                ?? throw new ArgumentNullException(nameof(configuration), "SslCommerz:StoreId is missing in configuration");
+
+            _sslCommerzStorePass = configuration["SslCommerz:StorePass"]
+                ?? throw new ArgumentNullException(nameof(configuration), "SslCommerz:StorePass is missing in configuration");
+
+
+            _sslCommerzInitiateUrl = configuration["SslCommerz:InitiateUrl"]
+                ?? throw new ArgumentNullException(nameof(configuration), "SslCommerz:InitiateUrl is missing in configuration");
+
+            _sslCommerzValidationUrl = configuration["SslCommerz:ValidationUrl"]
+                ?? throw new ArgumentNullException(nameof(configuration), "SslCommerz:ValidationUrl is missing in configuration");
+
+            _sslCommerzSuccessUrl = configuration["SslCommerz:SuccessUrl"]
+                ?? throw new ArgumentNullException(nameof(configuration), "SslCommerz:SuccessUrl is missing in configuration");
+
+            _sslCommerzFailUrl = configuration["SslCommerz:FailUrl"]
+                ?? throw new ArgumentNullException(nameof(configuration), "SslCommerz:FailUrl is missing in configuration");
+
+            _sslCommerzCancelUrl = configuration["SslCommerz:CancelUrl"]
+                ?? throw new ArgumentNullException(nameof(configuration), "SslCommerz:CancelUrl is missing in configuration");
+
 
             _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -119,5 +153,111 @@ namespace TalentMesh.Framework.Infrastructure.Identity.Users.Services
             _logger.LogError("Missing access_token in response: {Response}", responseContent);
             throw new InvalidOperationException("No access token found in GitHub response");
         }
+
+        public async Task<string> InitiateSslCommerzPaymentAsync()
+        {
+            var tranId = Guid.NewGuid().ToString();
+            var parameters = new Dictionary<string, string>
+            {
+                { "store_id", _sslCommerzStoreId },
+                { "store_passwd", _sslCommerzStorePass },
+                { "total_amount", "100" },
+                { "currency", "BDT" },
+                { "tran_id", tranId },
+                { "success_url", _sslCommerzSuccessUrl },
+                { "fail_url", _sslCommerzFailUrl },
+                { "cancel_url", _sslCommerzCancelUrl },
+                { "cus_name", "Nafi" },
+                { "cus_email", "nafi@gmail.com" },
+                { "cus_phone", "01944799532" },
+                { "product_name", "Watch" },
+                { "product_category", "Watch" },
+                { "product_profile", "Watch" },
+                { "shipping_method", "No" },
+                { "cus_add1", "Mirpur" },
+                { "cus_city", "Dhaka" },
+                { "cus_country", "BD" }
+            };
+
+            using var content = new FormUrlEncodedContent(parameters);
+            var response = await _httpClient.PostAsync(_sslCommerzInitiateUrl, content).ConfigureAwait(false);
+            string responseContent = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+            _logger.LogInformation("SSLCommerz Initiation Response: {Response}", responseContent);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                _logger.LogError("Failed to initiate SSLCommerz payment. Status: {StatusCode}", response.StatusCode);
+                throw new HttpRequestException($"SSLCommerz API error: {response.StatusCode}");
+            }
+
+            // Parse the response using JsonDocument
+            using var jsonDoc = JsonDocument.Parse(responseContent);
+            if (jsonDoc.RootElement.TryGetProperty("GatewayPageURL", out JsonElement gatewayPageUrlElement))
+            {
+                string? gatewayPageUrl = gatewayPageUrlElement.GetString();
+
+                if (string.IsNullOrEmpty(gatewayPageUrl))
+                {
+                    throw new InvalidOperationException("GatewayPageURL is null or empty.");
+                }
+
+                _logger.LogInformation("Successfully extracted GatewayPageURL: {GatewayPageURL}", gatewayPageUrl);
+                return gatewayPageUrl;
+            }
+            else
+            {
+                _logger.LogError("Failed to extract GatewayPageURL from the response.");
+                throw new InvalidOperationException("Invalid SSLCommerz initiation response: Missing GatewayPageURL.");
+            }
+        }
+
+        public async Task<string> ValidateSslCommerzPaymentAsync(string valId)
+        {
+            // Build URL with required parameters
+            var queryParams = new Dictionary<string, string?>
+    {
+        { "val_id", valId },
+        { "store_id", _sslCommerzStoreId },
+        { "store_passwd", _sslCommerzStorePass },
+        { "v", "1" },
+        { "format", "json" }
+    };
+
+            var url = QueryHelpers.AddQueryString(_sslCommerzValidationUrl, queryParams);
+
+            _logger.LogInformation("Validating SSLCommerz payment with val_id: {ValId}", valId);
+
+            var response = await _httpClient.GetAsync(url).ConfigureAwait(false);
+            string responseContent = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                _logger.LogError("Failed to validate SSLCommerz payment. Status: {StatusCode}", response.StatusCode);
+                throw new HttpRequestException($"SSLCommerz Validation API error: {response.StatusCode}");
+            }
+
+            using var jsonDoc = JsonDocument.Parse(responseContent);
+
+            if (jsonDoc.RootElement.TryGetProperty("status", out JsonElement gatewayPageUrlElement))
+            {
+                string? status = gatewayPageUrlElement.GetString();
+                if (!string.IsNullOrEmpty(status))
+                {
+                    return status;
+                }
+                else
+                {
+                    _logger.LogWarning("Status property is null or empty.");
+                    throw new InvalidOperationException("Validation succeeded but 'status' is null or empty.");
+                }
+            }
+            else
+            {
+                _logger.LogError("Failed to extract status from the response.");
+                throw new InvalidOperationException("Invalid SSLCommerz validation response: Missing status.");
+            }
+        }
+
+
     }
 }

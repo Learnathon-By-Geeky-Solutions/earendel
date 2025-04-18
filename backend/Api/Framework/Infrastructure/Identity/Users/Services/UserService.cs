@@ -1,6 +1,9 @@
-﻿using System.Collections.ObjectModel;
+﻿using Npgsql;
+using System.Collections.ObjectModel;
 using System.Security.Claims;
 using System.Text;
+using System.Net;
+using Finbuckle.MultiTenant;
 using Finbuckle.MultiTenant.Abstractions;
 using TalentMesh.Framework.Core.Caching;
 using TalentMesh.Framework.Core.Exceptions;
@@ -131,9 +134,59 @@ internal sealed partial class UserService(
         }
     }
 
-    public Task<string> ConfirmEmailAsync(string userId, string code, string tenant, CancellationToken cancellationToken)
+    public async Task<string> ConfirmEmailAsync(
+    string userId,
+    string code,
+    string tenacy,
+    CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        if (string.IsNullOrEmpty(userId))
+            return "User ID is required.";
+        if (string.IsNullOrEmpty(code))
+            return "Confirmation code is required.";
+        if (string.IsNullOrEmpty(tenacy))
+            return "Tenant is required.";
+
+        // Find the user by ID. (Make sure userManager is properly injected.)
+        var user = await userManager.FindByIdAsync(userId);
+        if (user == null)
+        {
+            return "User not found.";
+        }
+
+        // Check tenant - if you have tenant logic, verify tenant is correct.
+        if (user.TenantId != tenacy)
+        {
+            return "Invalid tenant.";
+        }
+
+        // Check if the email is already confirmed.
+        if (user.EmailConfirmed)
+        {
+            return "Email already confirmed.";
+        }
+
+        // Decode the token (it was encoded with Base64UrlEncode)
+        string decodedCode;
+        try
+        {
+            var codeBytes = WebEncoders.Base64UrlDecode(code);
+            decodedCode = Encoding.UTF8.GetString(codeBytes);
+        }
+        catch (Exception)
+        {
+            return "Invalid confirmation code format.";
+        }
+
+
+        // Confirm the email using the Identity API.
+        var result = await userManager.ConfirmEmailAsync(user, decodedCode);
+        if (!result.Succeeded)
+        {
+            return string.Join(", ", result.Errors.Select(e => e.Description));
+        }
+
+        return "Email confirmed successfully!";
     }
 
     public Task<string> ConfirmPhoneNumberAsync(string userId, string code)
@@ -453,7 +506,7 @@ internal sealed partial class UserService(
             UserName = request.UserName,
             // PhoneNumber = request.PhoneNumber,
             IsActive = true,
-            EmailConfirmed = true
+            EmailConfirmed = false
         };
 
         // register user
@@ -470,10 +523,12 @@ internal sealed partial class UserService(
         if (!string.IsNullOrEmpty(user.Email))
         {
             string emailVerificationUri = await GetEmailVerificationUriAsync(user, origin);
-            var mailRequest = new MailRequest(new Collection<string> { user.Email }, "Confirm Registration")
-                      .WithBody(emailVerificationUri);
 
-            jobService.Enqueue("email", () => mailService.SendAsync(mailRequest, CancellationToken.None));
+            var mailRequest = new MailRequest(
+                new Collection<string> { user.Email },
+                "Confirm Registration",
+                emailVerificationUri);
+            jobService.Enqueue("email", () => mailService.SendEmail(mailRequest));
         }
 
         return new RegisterUserResponse(user.Id);
@@ -494,7 +549,7 @@ internal sealed partial class UserService(
             {
                 // Check if user is an external login
                 var logins = await userManager.GetLoginsAsync(existingUser);
-                if (logins.Any(l => l.LoginProvider == AuthProviders.Google || l.LoginProvider == AuthProviders.GitHub))
+                if (logins.Any(l => l.LoginProvider == AuthProviders.Google))
                 {
                     var tokenGenerationCommandForExistingUser = new TokenGenerationCommand(email, null); // Pass email and password
 
@@ -560,25 +615,23 @@ internal sealed partial class UserService(
 
     public async Task<GoogleLoginUserResponse> GithubLogin(GithubRequestCommand request, string ip, string origin, CancellationToken cancellationToken)
     {
+        // string gatewayPageURL = await apiClient.InitiateSslCommerzPaymentAsync();
+
         string accessToken = await apiClient.GetAccessTokenAsync(request.Code);
 
         var (Login, Email, Avatar, ProviderKey) = await apiClient.GetUserInfoAsync(accessToken);
-
-        Console.WriteLine(Login);
-        Console.WriteLine(Email);
-        Console.WriteLine(Avatar);
-        Console.WriteLine(ProviderKey);
 
         try
         {
 
             // Check if user already exists
             var existingUser = await userManager.FindByEmailAsync(Email);
+
             if (existingUser != null)
             {
                 // Check if user is an external login
                 var logins = await userManager.GetLoginsAsync(existingUser);
-                if (logins.Any(l => l.LoginProvider == AuthProviders.Google || l.LoginProvider == AuthProviders.GitHub))
+                if (logins.Any(l => l.LoginProvider == AuthProviders.GitHub))
                 {
                     var tokenGenerationCommandForExistingUser = new TokenGenerationCommand(Email, null); // Pass email and password
 
@@ -718,10 +771,11 @@ internal sealed partial class UserService(
         string verificationUri = QueryHelpers.AddQueryString(endpointUri.ToString(), QueryStringKeys.UserId, user.Id);
         verificationUri = QueryHelpers.AddQueryString(verificationUri, QueryStringKeys.Code, code);
         verificationUri = QueryHelpers.AddQueryString(verificationUri,
-            TenantConstants.Identifier,
+            "tenacy",
             multiTenantContextAccessor?.MultiTenantContext?.TenantInfo?.Id!);
         return verificationUri;
     }
+
 
     public async Task<string> AssignRolesAsync(string userId, AssignUserRoleCommand request, CancellationToken cancellationToken)
     {

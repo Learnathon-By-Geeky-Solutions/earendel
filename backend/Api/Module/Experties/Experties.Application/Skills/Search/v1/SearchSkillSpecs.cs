@@ -2,8 +2,12 @@
 using TalentMesh.Framework.Core.Paging;
 using TalentMesh.Framework.Core.Specifications;
 using TalentMesh.Module.Experties.Application.Skills.Get.v1;
+using TalentMesh.Module.Experties.Application.SubSkills.Get.v1;
+using TalentMesh.Module.Experties.Application.Seniorities.Get.v1;
+using TalentMesh.Module.Experties.Application.SeniorityLevelJunctions.Get.v1;
 using TalentMesh.Module.Experties.Domain;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 
 namespace TalentMesh.Module.Experties.Application.Skills.Search.v1
 {
@@ -12,25 +16,53 @@ namespace TalentMesh.Module.Experties.Application.Skills.Search.v1
     {
         public SearchSkillSpecs(SearchSkillsCommand command)
         {
-            // Filter by keyword on skill name if provided.
+            // Only get non-deleted Skills
+            Query.Where(skill => skill.DeletedBy == null);
+
+            // Filter by keyword if provided
             if (!string.IsNullOrEmpty(command.Keyword))
             {
-                Query.Where(b => b.Name.Contains(command.Keyword));
+                Query.Where(skill => skill.Name.Contains(command.Keyword));
             }
 
-            // Include related SubSkills.
-            Query.Include(x => x.SubSkills);
-
-            Query.Include(x => x.SeniorityLevelJunctions)
-                 .ThenInclude(j => j.Seniority);
-
-            // Apply ordering if no explicit order is provided.
+            // Apply default ordering
             if (!command.HasOrderBy())
             {
-                Query.OrderBy(c => c.Name);
+                Query.OrderBy(skill => skill.Name);
             }
+
             Query.AsSplitQuery();
 
+            // Projection with deleted filters at all levels
+            Query.Select(skill => new SkillResponse(
+                skill.Id,
+                skill.Name,
+                skill.Description,
+
+                // Only include non-deleted SubSkills
+                skill.SubSkills
+                    .Where(sub => sub.DeletedBy == null)
+                    .Select(sub => new SubSkillResponse(
+                        sub.Id,
+                        sub.Name,
+                        sub.Description,
+                        sub.SkillId
+                    )).ToList(),
+
+                // Only include non-deleted SeniorityLevelJunctions and Seniorities
+                skill.SeniorityLevelJunctions
+                    .Where(j => j.DeletedBy == null && j.Seniority.DeletedBy == null)
+                    .Select(j => new SeniorityLevelJunctionResponse(
+                        j.Id,
+                        j.Seniority.Id,
+                        j.SkillId,
+                        new SeniorityResponse(
+                            j.Seniority.Id,
+                            j.Seniority.Name,
+                            j.Seniority.Description
+                        )
+                    )).ToList()
+            ));
         }
     }
 }

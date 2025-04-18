@@ -22,6 +22,7 @@ internal static class Extensions
         app.MapGetMeEndpoint();
         app.MapGetUserEndpoint();
         app.MapGetHrsEndpoint();
+        app.MapConfirmUserEmailEndpoint();
         app.MapGetAdminsEndpoint();
         app.MapGetInterviewersEndpoint();
         app.MapGetInterviewerDetailEndpoint();
@@ -30,6 +31,11 @@ internal static class Extensions
         app.MapAssignRolesToUserEndpoint();
         app.MapGetUserRolesEndpoint();
         app.MapGetUserAuditTrailEndpoint();
+        return app;
+    }
+    public static IEndpointRouteBuilder MapSSLCommerzEndpoints(this IEndpointRouteBuilder app)
+    {
+        app.MapSslCommerzSuccessEndpoint();
         return app;
     }
 }
