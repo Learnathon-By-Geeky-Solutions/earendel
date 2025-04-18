@@ -3,6 +3,7 @@ using TalentMesh.Framework.Infrastructure.Logging.Serilog;
 using TalentMesh.WebApi.Host;
 using Serilog;
 using System.Diagnostics.CodeAnalysis;
+using TalentMesh.Module.Evaluator.Infrastructure.Endpoints;
 
 StaticLogger.EnsureInitialized();
 Log.Information("Server booting up...");
@@ -17,6 +18,7 @@ try
 
     app.UseFshFramework();
     app.UseModules();
+    //app.MapUploadCv();
     await app.RunAsync();
 }
 catch (Exception ex) when (!ex.GetType().Name.Equals("HostAbortedException", StringComparison.Ordinal))
