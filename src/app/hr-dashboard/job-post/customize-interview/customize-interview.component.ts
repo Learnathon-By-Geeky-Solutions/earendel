@@ -530,7 +530,7 @@ export class CustomizedInterviewComponent implements OnInit {
 
   goBack() {
     const { domain, tech } = this.route.snapshot.params;
-    this.router.navigate(['/hr-dashboard/seniority', domain, tech]);
+    this.router.navigate(['/hr-dashboard/job-post/seniority-selection']);
   }
 
   toggleRubric(rubric: any) {
