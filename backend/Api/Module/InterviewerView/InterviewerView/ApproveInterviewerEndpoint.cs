@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using TalentMesh.Module.Evaluator.Application.Interviewer;
 
-namespace TalentMesh.Module.Evaluator.Infrastructure.Endpoints
+namespace TalentMesh.Module.Evaluator.Application.Interviewer
 {
     public static class ApproveInterviewerEndpoint
     {
