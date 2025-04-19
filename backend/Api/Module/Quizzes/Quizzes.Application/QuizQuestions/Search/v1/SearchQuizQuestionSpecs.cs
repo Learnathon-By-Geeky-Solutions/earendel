@@ -13,6 +13,8 @@ public class SearchQuizQuestionSpecs : EntitiesByPaginationFilterSpec<Quizzes.Do
     public SearchQuizQuestionSpecs(SearchQuizQuestionsCommand command)
         : base(command)
     {
+        Query.Where(b => b.DeletedBy == null);
+
         Query.OrderBy(c => c.QuestionText, !command.HasOrderBy());
 
         if (!string.IsNullOrEmpty(command.QuestionText))

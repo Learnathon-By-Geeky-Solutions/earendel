@@ -19,7 +19,7 @@ public sealed class UpdateRubricHandler(
         {
             throw new RubricNotFoundException(request.Id);
         }
-        var updatedSkill = skill.Update(request.Title, request.RubricDescription, request.SubSkillId, request.SeniorityLevelId, request.Weight);
+        var updatedSkill = skill.Update(request.Title, request.RubricDescription, request.SubSkillId, request.SeniorityId, request.Weight);
         await repository.UpdateAsync(updatedSkill, cancellationToken);
         logger.LogInformation("Rubric with id : {Rubric} updated.", skill.Id);
         return new UpdateRubricResponse(skill.Id);
