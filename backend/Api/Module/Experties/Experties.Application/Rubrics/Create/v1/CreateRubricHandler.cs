@@ -13,7 +13,7 @@ public sealed class CreateRubricHandler(
     public async Task<CreateRubricResponse> Handle(CreateRubricCommand request, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(request);
-        var rubric = Experties.Domain.Rubric.Create(request.Title, request.RubricDescription, request.SubSkillId, request.SeniorityLevelId, request.Weight);
+        var rubric = Experties.Domain.Rubric.Create(request.Title, request.RubricDescription, request.SubSkillId, request.SeniorityId, request.Weight);
         await repository.AddAsync(rubric, cancellationToken);
         logger.LogInformation("rubric created {RubricId}", rubric.Id);
         return new CreateRubricResponse(rubric.Id);
