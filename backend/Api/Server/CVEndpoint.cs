@@ -37,6 +37,21 @@ namespace TalentMesh.Endpoints
                .ProducesProblem(StatusCodes.Status404NotFound)
                .ProducesProblem(StatusCodes.Status500InternalServerError);
 
+
+
+            app.MapGet(
+                    "/api/v{version:apiVersion}/interviewers/{id:guid}/download-cv",
+                    HandleCvDownloadAsync
+                )
+               .WithApiVersionSet(versionSet)
+               .MapToApiVersion(1.0)
+               .WithName("DownloadInterviewerCv")
+               .WithTags("RakibMagi")
+               .Produces(StatusCodes.Status200OK)
+               .ProducesProblem(StatusCodes.Status404NotFound);
+
+
+
             return app;
         }
 
@@ -69,6 +84,26 @@ namespace TalentMesh.Endpoints
             await repo.UpdateAsync(form, ct);
 
             return Results.Ok(form);
+        }
+        private static async Task<IResult> HandleCvDownloadAsync(
+            Guid id,
+            IWebHostEnvironment env,
+            IRepository<InterviewerEntryForm> repo,
+            CancellationToken ct)
+        {
+            var form = await repo.GetByIdAsync(id, ct);
+            if (form is null || string.IsNullOrEmpty(form.CV))
+                return Results.NotFound();
+
+            // Convert the stored relative path to physical path
+            var relative = form.CV.TrimStart('/').Replace('/', Path.DirectorySeparatorChar);
+            var filePath = Path.Combine(env.WebRootPath ?? string.Empty, relative);
+            if (!File.Exists(filePath))
+                return Results.NotFound();
+
+            var fileName = Path.GetFileName(filePath);
+            var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read);
+            return Results.File(stream, "application/pdf", fileName);
         }
     }
 }
