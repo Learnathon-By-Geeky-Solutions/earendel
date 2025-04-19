@@ -1,56 +1,36 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, throwError } from 'rxjs';
+import { tap, catchError } from 'rxjs/operators';
 import { endpoint } from '../../endpoints/endpoint';
 
-// Interfaces for API response
-export interface SubSkill {
-  id: string;
-  name: string;
-  description: string;
-  skillId: string;
+export interface Skill { 
+  id: string; 
+  name: string; 
+  description?: string;
+  subSkills?: any[];
+  seniorityLevelJunctions?: any[];
 }
 
-export interface Seniority {
-  id: string;
-  name: string;
-  description: string;
-}
+export interface SkillSearchResponse { items: Skill[]; /* … */ }
 
-export interface SeniorityLevelJunction {
-  id: string;
-  seniorityLevelId: string;
-  skillId: string;
-  seniority: Seniority;
-}
-
-export interface Skill {
-  id: string;
-  name: string;
-  description: string;
-  subSkills: SubSkill[];
-  seniorityLevelJunctions: SeniorityLevelJunction[];
-}
-
-export interface SkillSearchResponse {
-  items: Skill[];
-  pageNumber: number;
-  pageSize: number;
-  totalCount: number;
-  totalPages: number;
-  hasPrevious: boolean;
-  hasNext: boolean;
-}
-
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable({ providedIn: 'root' })
 export class JobService {
-
   constructor(private http: HttpClient) {}
 
-  fetchSkills(pageNumber: number = 1, pageSize: number = 100): Observable<SkillSearchResponse> {
+  fetchSkills(pageNumber = 1, pageSize = 100): Observable<SkillSearchResponse> {
     const body = { pageNumber, pageSize };
-    return this.http.post<SkillSearchResponse>(endpoint.skillSearchUrl, body);
+
+    return this.http
+      .post<SkillSearchResponse>(endpoint.skillSearchUrl, body)
+      .pipe(
+        // 2) Log the raw HTTP response
+        tap(response => console.log('[JobService] ← success response:', response)),
+        // 3) Log any error
+        catchError(err => {
+          console.error('[JobService] !! HTTP error:', err);
+          return throwError(() => err);
+        })
+      );
   }
 }
