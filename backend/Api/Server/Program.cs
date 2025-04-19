@@ -1,9 +1,14 @@
-using TalentMesh.Framework.Infrastructure;
+﻿using TalentMesh.Framework.Infrastructure;
 using TalentMesh.Framework.Infrastructure.Logging.Serilog;
 using TalentMesh.WebApi.Host;
 using Serilog;
 using System.Diagnostics.CodeAnalysis;
 using TalentMesh.Module.Evaluator.Infrastructure.Endpoints;
+using TalentMesh.Endpoints;
+using Asp.Versioning;
+using TalentMesh.Framework.Core.Persistence;
+using TalentMesh.Module.Evaluator.Domain;
+using Asp.Versioning.Conventions;
 
 StaticLogger.EnsureInitialized();
 Log.Information("Server booting up...");
@@ -18,7 +23,11 @@ try
 
     app.UseFshFramework();
     app.UseModules();
-    //app.MapUploadCv();
+
+
+    app.MapInterviewerEndpoints();
+
+
     await app.RunAsync();
 }
 catch (Exception ex) when (!ex.GetType().Name.Equals("HostAbortedException", StringComparison.Ordinal))
@@ -32,3 +41,6 @@ finally
     Log.Information("Server shutting down...");
     await Log.CloseAndFlushAsync();
 }
+
+
+
