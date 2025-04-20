@@ -7,6 +7,7 @@ using TalentMesh.Module.Job.Domain.Events;
 namespace TalentMesh.Module.Job.Domain;
 public class Jobs : AuditableEntity, IAggregateRoot
 {
+    // Add properties for the job entity
     public string Name { get;  set; } = default!;
     public string? Description { get;  set; }
     public string Requirments { get;  set; } = default!;
