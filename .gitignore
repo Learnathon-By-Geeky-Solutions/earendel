@@ -20,3 +20,4 @@ backend/Api/Migrations/PGSql/Interviews
 /backend/Api/Migrations/PGSql/Evaluator
 /backend/Api/Migrations/PGSql/Notification
 /backend/Api/Migrations/PGSql/Candidate
+/backend/Api/Server/uploads/cvs

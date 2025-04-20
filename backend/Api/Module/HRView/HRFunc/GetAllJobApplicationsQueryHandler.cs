@@ -19,12 +19,18 @@ namespace TalentMesh.Module.HRView.HRFunc // Or your preferred namespace
             int pageNumber = request.PageNumber > 0 ? request.PageNumber : 1;
             int pageSize = request.PageSize > 0 ? request.PageSize : 20;
 
+
+            var postedJobIds = _context.Jobs
+            .AsNoTracking()
+            .Where(j => j.PostedById == request.RequestingUserId)
+            .Select(j => j.Id);
+
+            // 2) filter applications by JobId FK
             var query = _context.JobApplications
                 .AsNoTracking()
-                .Include(app => app.Job) // Essential for filtering by Job.PostedById
-                                         // *** Add filter for jobs posted by the requesting user ***
-                .Where(app => app.Job != null && app.Job.PostedById == request.RequestingUserId) // Assuming Jobs.PostedById exists
-                .OrderByDescending(app => app.ApplicationDate); // Example ordering
+                .Where(app => postedJobIds.Contains(app.JobId))
+                .OrderByDescending(app => app.ApplicationDate);
+
 
             var totalCount = await query.CountAsync(cancellationToken);
 

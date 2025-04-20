@@ -26,7 +26,7 @@ public static class UpdateJobApplicationEndpoint
             .WithSummary("Updates a job application")
             .WithDescription("Updates a job application by its identifier")
             .Produces<UpdateJobApplicationResponse>()
-            .RequirePermission("Permissions.JobApplication.Update")
+            .RequirePermission("Permissions.Jobs.Update")
             .MapToApiVersion(1);
     }
 }

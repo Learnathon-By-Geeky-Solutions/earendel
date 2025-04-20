@@ -27,7 +27,7 @@ namespace TalentMesh.Module.Job.Infrastructure.Endpoints.v1
                 .WithSummary("Updates a Job Required Subskill")
                 .WithDescription("Updates a Job Required Subskill association by its identifier")
                 .Produces<UpdateJobRequiredSubskillResponse>()
-                .RequirePermission("Permissions.JobRequiredSubskill.Update")
+                .RequirePermission("Permissions.Jobs.Update")
                 .MapToApiVersion(1);
         }
     }
