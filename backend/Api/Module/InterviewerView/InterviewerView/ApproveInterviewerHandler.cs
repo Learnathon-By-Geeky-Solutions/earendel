@@ -12,7 +12,7 @@ using TalentMesh.Module.Evaluator.Domain;
 using TalentMesh.Framework.Core.Persistence;
 using TalentMesh.Shared.Authorization;
 
-namespace TalentMesh.Module.Evaluator.Application.Interviewer
+namespace TalentMesh.Module.InterviewerView
 {
     public class ApproveInterviewerHandler : IRequestHandler<ApproveInterviewerCommand, Unit>
     {

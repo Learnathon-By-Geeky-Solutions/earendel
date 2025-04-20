@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using TalentMesh.Module.Evaluator.Domain;
 using TalentMesh.Module.Evaluator.Infrastructure.Persistence;
 
-namespace TalentMesh.Module.Evaluator.Application.Interviewer
+namespace TalentMesh.Module.InterviewerView
 {
 
     // Response DTO for interviewer requests

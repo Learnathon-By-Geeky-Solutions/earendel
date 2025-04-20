@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using TalentMesh.Module.Evaluator.Application.Interviewer;
 
+namespace TalentMesh.Module.InterviewerView;
 public class RequestInterviewerCommand : IRequest<RequestInterviewerResult>
 {
     public Guid UserId { get; }

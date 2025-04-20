@@ -12,8 +12,9 @@ using TalentMesh.Module.Job.Domain;
 using TalentMesh.Module.Job.Infrastructure.Persistence;
 using TalentMesh.Module.Quizzes.Infrastructure.Persistence;
 using Carter.OpenApi;
+using TalentMesh.Module.Interviews.Application;
 
-namespace TalentMesh.Module.HRView // Corrected namespace based on file context
+namespace TalentMesh.Module.InterviewerView// Corrected namespace based on file context
 {
     public static class InterviewerViewModule
     {
@@ -28,7 +29,9 @@ namespace TalentMesh.Module.HRView // Corrected namespace based on file context
                 var interviewerViewGroup = app.MapGroup("Interviewer").WithTags("View");
                 interviewerViewGroup.MapApproveInterviewer(); // Assuming these exist
                 interviewerViewGroup.MapRequestInterviewer(); // Assuming these exist
-
+                interviewerViewGroup.MapInterviewQuestion();
+                interviewerViewGroup.MapInterviewFeedback();
+                interviewerViewGroup.MapUpcomingInterviews();
                 // Register the UploadCv endpoint directly on the app builder
                 // This respects the absolute path defined within MapUploadCv
                 //app.MapUploadCv();
