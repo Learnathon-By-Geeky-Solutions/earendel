@@ -18,6 +18,7 @@ using TalentMesh.Module.Evaluator.Application;
 using System.Diagnostics.CodeAnalysis;
 using TalentMesh.Module.CandidateLogic;
 using TalentMesh.Module.HRView;
+using TalentMesh.Module.InterviewerView;
 
 
 namespace TalentMesh.WebApi.Host;
