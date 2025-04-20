@@ -15,6 +15,7 @@ COPY Api/Migrations/PGSql/ Api/Migrations/PGSql/
 COPY Api/Module/Candidate/ Api/Module/Candidate/
 COPY Api/Module/HRView/ Api/Module/HRView/
 COPY Api/Module/InterviewerView/ Api/Module/InterviewerView/
+COPY Api/Module/CandidateLogic/ Api/Module/CandidateLogic/
 COPY Api/Module/Experties/ Api/Module/Experties/
 COPY Api/Module/Interviews/ Api/Module/Interviews/
 COPY Api/Module/Jobs/ Api/Module/Jobs/

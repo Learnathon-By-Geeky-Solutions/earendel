@@ -272,10 +272,6 @@ Core Architecture:
   - Principles: SOLID, DDD
 
 Modules:
-  Interview Engine:
-    - Real-time Code Execution
-    - Assessment Management
-    - Scoring Engine
   User Management:
     - Identity & Access Control
     - Profile Management
