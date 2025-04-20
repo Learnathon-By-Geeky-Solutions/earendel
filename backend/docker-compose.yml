@@ -3,7 +3,7 @@ version: "3.3"
 services:
   backend:
     container_name: backend-container
-    image: backend-image:v1.0
+    image: backend-image:v3.0
     build:
       context: ./
       dockerfile: ./Dockerfile
@@ -19,7 +19,7 @@ services:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:8000
       - DOTNET_DASHBOARD_URL=http://aspire:18888
-      - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=TalentMesh;Username=postgres;Password=postgres
+      - ConnectionStrings__DefaultConnection=Host=postgres;Port=5432;Database=TalentMesh2;Username=postgres;Password=postgres
       - Redis__Host=redis
       - Redis__Port=6379
       - RabbitMQ__Host=rabbitmq
@@ -40,7 +40,7 @@ services:
     container_name: postgres_db
     restart: always
     environment:
-      POSTGRES_DB: TalentMesh
+      POSTGRES_DB: TalentMesh2
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
     ports:
@@ -50,7 +50,7 @@ services:
     networks:
       - aspire_network
     healthcheck:
-      test: ["CMD", "pg_isready", "-U", "postgres", "-d", "TalentMesh"]
+      test: ["CMD", "pg_isready", "-U", "postgres", "-d", "TalentMesh2"]
       interval: 10s
       retries: 5
   redis:

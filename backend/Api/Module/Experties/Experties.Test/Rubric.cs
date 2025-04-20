@@ -284,7 +284,7 @@ namespace TalentMesh.Module.Experties.Tests
             await _updateHandler.Handle(request, CancellationToken.None);
 
             // Assert
-            Assert.Equal("Old Title", existingRubric.Title);
+            Assert.Equal("old title", existingRubric.Title);
         }
 
         // 3. New title is null → update block skipped.
@@ -395,7 +395,7 @@ namespace TalentMesh.Module.Experties.Tests
             await _updateHandler.Handle(request, CancellationToken.None);
 
             // Assert
-            Assert.Equal("Old Desc", existingRubric.RubricDescription);
+            Assert.Equal("old desc", existingRubric.RubricDescription);
         }
 
         // 3. New description is null → update block skipped.
@@ -597,7 +597,7 @@ namespace TalentMesh.Module.Experties.Tests
             await _updateHandler.Handle(request, CancellationToken.None);
 
             // Assert
-            Assert.Equal(newSeniorityLevelId, existingRubric.SeniorityLevelId);
+            Assert.Equal(newSeniorityLevelId, existingRubric.SeniorityId);
         }
 
         // 2. New seniorityLevelId is non-null but same as current → no update.
@@ -625,7 +625,7 @@ namespace TalentMesh.Module.Experties.Tests
             await _updateHandler.Handle(request, CancellationToken.None);
 
             // Assert
-            Assert.Equal(seniorityLevelId, existingRubric.SeniorityLevelId);
+            Assert.Equal(seniorityLevelId, existingRubric.SeniorityId);
         }
 
         // 3. New seniorityLevelId is null → update block skipped.
@@ -653,7 +653,7 @@ namespace TalentMesh.Module.Experties.Tests
             await _updateHandler.Handle(request, CancellationToken.None);
 
             // Assert
-            Assert.Equal(existingSeniorityLevelId, existingRubric.SeniorityLevelId);
+            Assert.Equal(existingSeniorityLevelId, existingRubric.SeniorityId);
         }
 
         [Fact]
@@ -680,7 +680,7 @@ namespace TalentMesh.Module.Experties.Tests
             await _updateHandler.Handle(request, CancellationToken.None);
 
             // Assert
-            Assert.Equal(existingSeniorityLevelId, existingRubric.SeniorityLevelId);
+            Assert.Equal(existingSeniorityLevelId, existingRubric.SeniorityId);
         }
 
         // =======================
