@@ -22,7 +22,7 @@ namespace TalentMesh.Module.InterviewerView
                 return Results.Ok(dtos);
             })
             .WithName("GetAllInterviewFeedback")
-            .WithTags("BaalErImterview")
+            .WithTags("InterViewerRRRRRR")
             .Produces<List<InterviewFeedbackDto>>(StatusCodes.Status200OK);
 
             // POST new feedback
@@ -40,7 +40,7 @@ namespace TalentMesh.Module.InterviewerView
                 return Results.Created($"/api/feedbacks/{dto.Id}", dto);
             })
             .WithName("CreateInterviewFeedback")
-            .WithTags("BaalErImterview")
+            .WithTags("InterViewerRRRRRR")
             .Produces<InterviewFeedbackDto>(StatusCodes.Status201Created)
             .ProducesValidationProblem()
             .Produces(StatusCodes.Status500InternalServerError);
@@ -52,7 +52,7 @@ namespace TalentMesh.Module.InterviewerView
                 return Results.Ok(report);
             })
             .WithName("GetInterviewFeedbackReport")
-            .WithTags("BaalErImterview")
+            .WithTags("InterViewerRRRRRR")
             .Produces<List<InterviewFeedbackReportDto>>(StatusCodes.Status200OK);
 
             return app;
@@ -128,7 +128,7 @@ namespace TalentMesh.Module.InterviewerView
                 return Results.Ok(dtos);
             })
             .WithName("GetAllInterviewQuestions")
-            .WithTags("BaalErImterview")
+            .WithTags("InterViewerRRRRRR")
             .Produces<List<InterviewQuestionDto>>(StatusCodes.Status200OK);
 
             // POST new question
@@ -145,7 +145,7 @@ namespace TalentMesh.Module.InterviewerView
                 return Results.Created($"/api/questions/{dto.Id}", dto);
             })
             .WithName("CreateInterviewQuestion")
-            .WithTags("BaalErImterview")
+            .WithTags("InterViewerRRRRRR")
             .Produces<InterviewQuestionDto>(StatusCodes.Status201Created)
             .ProducesValidationProblem()
             .Produces(StatusCodes.Status500InternalServerError);
