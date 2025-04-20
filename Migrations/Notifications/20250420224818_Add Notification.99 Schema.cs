@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace TalentMesh.Migrations.PGSql.Notifications
 {
     /// <inheritdoc />
-    public partial class AddNotification129Schema : Migration
+    public partial class AddNotification99Schema : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

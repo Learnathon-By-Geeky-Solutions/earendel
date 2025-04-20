@@ -12,8 +12,8 @@ using TalentMesh.Module.Interviews.Infrastructure.Persistence;
 namespace TalentMesh.Migrations.PGSql.Interviews
 {
     [DbContext(typeof(InterviewsDbContext))]
-    [Migration("20250417010010_Add Interview.129 Schema")]
-    partial class AddInterview129Schema
+    [Migration("20250420224829_Add Interview.99 Schema")]
+    partial class AddInterview99Schema
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

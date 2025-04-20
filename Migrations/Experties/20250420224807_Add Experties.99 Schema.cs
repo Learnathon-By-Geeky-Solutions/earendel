@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace TalentMesh.Migrations.PGSql.Experties
 {
     /// <inheritdoc />
-    public partial class AddExperties131Schema : Migration
+    public partial class AddExperties99Schema : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -124,8 +124,9 @@ namespace TalentMesh.Migrations.PGSql.Experties
                     Title = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
                     RubricDescription = table.Column<string>(type: "character varying(1000)", maxLength: 1000, nullable: true),
                     SubSkillId = table.Column<Guid>(type: "uuid", nullable: true),
-                    SeniorityId = table.Column<Guid>(type: "uuid", nullable: true),
+                    SeniorityLevelId = table.Column<Guid>(type: "uuid", nullable: true),
                     Weight = table.Column<decimal>(type: "numeric", nullable: false),
+                    SeniorityId = table.Column<Guid>(type: "uuid", nullable: false),
                     Created = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
                     CreatedBy = table.Column<Guid>(type: "uuid", nullable: false),
                     LastModified = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
@@ -141,7 +142,8 @@ namespace TalentMesh.Migrations.PGSql.Experties
                         column: x => x.SeniorityId,
                         principalSchema: "experties",
                         principalTable: "Seniorities",
-                        principalColumn: "Id");
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_Rubrics_SubSkills_SubSkillId",
                         column: x => x.SubSkillId,

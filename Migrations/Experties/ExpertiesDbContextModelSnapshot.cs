@@ -51,7 +51,10 @@ namespace TalentMesh.Migrations.PGSql.Experties
                         .HasMaxLength(1000)
                         .HasColumnType("character varying(1000)");
 
-                    b.Property<Guid?>("SeniorityId")
+                    b.Property<Guid>("SeniorityId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("SeniorityLevelId")
                         .HasColumnType("uuid");
 
                     b.Property<Guid?>("SubSkillId")
@@ -236,7 +239,9 @@ namespace TalentMesh.Migrations.PGSql.Experties
                 {
                     b.HasOne("TalentMesh.Module.Experties.Domain.Seniority", "Seniority")
                         .WithMany()
-                        .HasForeignKey("SeniorityId");
+                        .HasForeignKey("SeniorityId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("TalentMesh.Module.Experties.Domain.SubSkill", "SubSkill")
                         .WithMany()

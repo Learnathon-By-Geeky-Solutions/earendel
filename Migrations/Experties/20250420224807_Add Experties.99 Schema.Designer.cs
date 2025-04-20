@@ -12,8 +12,8 @@ using TalentMesh.Module.Experties.Infrastructure.Persistence;
 namespace TalentMesh.Migrations.PGSql.Experties
 {
     [DbContext(typeof(ExpertiesDbContext))]
-    [Migration("20250418112206_Add Experties.131 Schema")]
-    partial class AddExperties131Schema
+    [Migration("20250420224807_Add Experties.99 Schema")]
+    partial class AddExperties99Schema
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -54,7 +54,10 @@ namespace TalentMesh.Migrations.PGSql.Experties
                         .HasMaxLength(1000)
                         .HasColumnType("character varying(1000)");
 
-                    b.Property<Guid?>("SeniorityId")
+                    b.Property<Guid>("SeniorityId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid?>("SeniorityLevelId")
                         .HasColumnType("uuid");
 
                     b.Property<Guid?>("SubSkillId")
@@ -239,7 +242,9 @@ namespace TalentMesh.Migrations.PGSql.Experties
                 {
                     b.HasOne("TalentMesh.Module.Experties.Domain.Seniority", "Seniority")
                         .WithMany()
-                        .HasForeignKey("SeniorityId");
+                        .HasForeignKey("SeniorityId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.HasOne("TalentMesh.Module.Experties.Domain.SubSkill", "SubSkill")
                         .WithMany()

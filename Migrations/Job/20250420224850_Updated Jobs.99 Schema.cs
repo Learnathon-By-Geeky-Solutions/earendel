@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace TalentMesh.Migrations.PGSql.Job
 {
     /// <inheritdoc />
-    public partial class UpdatedJobs129Schema : Migration
+    public partial class UpdatedJobs99Schema : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
