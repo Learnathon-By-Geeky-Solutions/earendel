@@ -7,7 +7,7 @@ import { JobService, Skill, SubSkill } from '../../services/job.service';
 @Component({
   selector: 'app-technology-selection',
   standalone: true,
-  imports: [CommonModule, SidebarComponent],
+  imports: [CommonModule],
   template: `
     <div class="container">
       <header class="header">

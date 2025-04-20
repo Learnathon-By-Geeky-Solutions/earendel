@@ -7,7 +7,7 @@ import { SidebarComponent } from '../../sidebar/sidebar.component';
 @Component({
   selector: 'app-seniority-selection',
   standalone: true,
-  imports: [CommonModule, SidebarComponent],
+  imports: [CommonModule],
   template: `
     <div class="container">
       <header class="header">
