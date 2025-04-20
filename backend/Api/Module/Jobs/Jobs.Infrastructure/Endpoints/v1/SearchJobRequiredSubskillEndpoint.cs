@@ -27,7 +27,7 @@ namespace TalentMesh.Module.Job.Infrastructure.Endpoints.v1
                 .WithSummary("Gets a list of Job Required Subskills")
                 .WithDescription("Gets a list of Job Required Subskills with pagination and filtering support")
                 .Produces<PagedList<JobRequiredSubskillResponse>>()
-                .RequirePermission("Permissions.JobRequiredSubskill.View")
+                .RequirePermission("Permissions.Jobs.View")
                 .MapToApiVersion(1);
         }
     }

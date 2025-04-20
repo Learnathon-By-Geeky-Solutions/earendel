@@ -24,7 +24,7 @@ namespace TalentMesh.Module.Job.Infrastructure.Endpoints.v1
                 .WithSummary("Creates a Job Required Skill")
                 .WithDescription("Creates a Job Required Skill association for a job")
                 .Produces<CreateJobRequiredSkillResponse>()
-                .RequirePermission("Permissions.JobRequiredSkill.Create")
+                .RequirePermission("Permissions.Jobs.Create")
                 .MapToApiVersion(1);
         }
     }

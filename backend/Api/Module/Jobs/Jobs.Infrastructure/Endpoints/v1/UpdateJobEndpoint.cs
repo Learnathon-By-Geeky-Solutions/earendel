@@ -24,7 +24,7 @@ public static class UpdateJobEndpoint
             .WithSummary("update a product")
             .WithDescription("update a product")
             .Produces<UpdateJobResponse>()
-            .RequirePermission("Permissions.Job.Update")
+            .RequirePermission("Permissions.Jobs.Update")
             .MapToApiVersion(1);
     }
 }

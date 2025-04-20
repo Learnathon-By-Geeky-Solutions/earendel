@@ -9,14 +9,15 @@ namespace TalentMesh.Module.Evaluator.Domain
         public Guid UserId { get; private set; }
         public string? AdditionalInfo { get; private set; }
         public string Status { get; private set; } = default!;  // e.g., "pending", "approved", "rejected"
-
-        public static InterviewerEntryForm Create(Guid userId, string? additionalInfo)
+        public string? CV { get; private set; } = default!; // URL or path to the CV file
+        public static InterviewerEntryForm Create(Guid userId, string? additionalInfo, string? cv = default)
         {
             var entryForm = new InterviewerEntryForm
             {
                 UserId = userId,
                 AdditionalInfo = additionalInfo,
-                Status = "pending" // default status
+                Status = "pending" ,// default status
+                CV = cv
             };
 
             entryForm.QueueDomainEvent(new InterviewerEntryFormCreated { InterviewerEntryForm = entryForm });
@@ -33,6 +34,19 @@ namespace TalentMesh.Module.Evaluator.Domain
 
             this.QueueDomainEvent(new InterviewerEntryFormUpdated { InterviewerEntryForm = this });
             return this;
+        }
+
+        public InterviewerEntryForm UploadCv(string cvPath)
+        {
+            CV = cvPath;
+            this.QueueDomainEvent(new InterviewerEntryFormUpdated { InterviewerEntryForm = this });
+            return this;
+        }
+
+        public void Approve()
+        {
+            Status = "approved";
+            this.QueueDomainEvent(new InterviewerEntryFormUpdated { InterviewerEntryForm = this });
         }
     }
 }
