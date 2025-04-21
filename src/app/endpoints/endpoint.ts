@@ -20,4 +20,28 @@ export const endpoint = {
   quizSubmitUrl: quizBase,
   quizAttemptsUrl: `${base}/api/v1/JobView/candidateview/users`,
 
+  skillDetailsUrl: `${base}/api/v1/experties/skills/search`,
+  skillCreatedUrl: `${base}/api/v1/experties/skills`,
+  skillUpdatedUrl: `${base}/api/v1/experties/skills`,
+  skillDeletedUrl: `${base}/api/v1/experties/skills`,
+
+  subskillCreatedUrl: `${base}/api/v1/experties/subskills`,
+  subskillUpdatedUrl: `${base}/api/v1/experties/subskills`,
+  subskillDeletedUrl: `${base}/api/v1/experties/subskills`,
+
+  seniorityDetailsUrl: `${base}/api/v1/experties/seniorities/search`,
+  seniorityCreatedUrl: `${base}/api/v1/experties/seniorities`,
+  seniorityUpdatedsUrl: `${base}/api/v1/experties/seniorities`,
+  seniorityDeletedUrl: `${base}/api/v1/experties/seniorities`,
+
+  searchRubricUrl: `${base}/api/v1/experties/rubrics/search`,
+  rubricCreatedUrl: `${base}/api/v1/experties/rubrics`,
+  rubricUpdatedUrl: `${base}/api/v1/experties/rubrics`,
+  rubricDeletedUrl: `${base}/api/v1/experties/rubrics`,
+
+  quizQuestionDetailsUrl: `${base}/api/v1/quizzes/quizquestions/search`,
+  quizQuestionCreatedUrl: `${base}/api/v1/quizzes/quizquestions`,
+  quizQuestionUpdatedUrl: `${base}/api/v1/quizzes/quizquestions`,
+  quizQuestionDeletedUrl: `${base}/api/v1/quizzes/quizquestions`,
+
 };
