@@ -46,6 +46,9 @@ import { AdminProfileComponent } from './admin-dashboard/profile/profile.compone
 import { InterviewerRegistrationComponent } from './candidate-dashboard/interviewer-registration/interviewer-registration.component';
 import { AuthGuardService } from './shared/services/auth-guard.service';
 import { GithubcallbackComponent } from './githubcallback/githubcallback.component';
+import { HiringRubricsComponent } from './admin-dashboard/hiring-rubrics/hiring-rubrics.component';
+import { SenioritiesComponent } from './admin-dashboard/seniorities/seniorities.component';
+import { QuizzesComponent } from './admin-dashboard/quizzes/quizzes.component';
 
 export const routes: Routes = [
   { path: '', component: LandingComponent },
@@ -139,7 +142,10 @@ export const routes: Routes = [
       { path: 'candidates', component: CandidatesComponent },
       { path: 'hr', component: HrComponent },
       { path: 'interviewers', component: InterviewersComponent },
+      { path: 'seniorities', component: SenioritiesComponent },
+      { path: 'quizzes', component: QuizzesComponent },
       { path: 'skills', component: SkillsComponent },
+      { path: 'rubrics', component: HiringRubricsComponent },
       { path: 'jobs', component: JobsComponent },
       { path: 'payments', component: PaymentsComponent },
       { path: 'notifications', component: NotificationsComponent },

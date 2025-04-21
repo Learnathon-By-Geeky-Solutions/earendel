@@ -1,28 +1,66 @@
-import { Component, HostListener } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { SidebarComponent } from '../sidebar/sidebar.component';
+import { PaginationComponent } from '../pagination/pagination.component';
+import { SkillService } from '../services/skill.service';
+import { Subscription } from 'rxjs';
 
-interface Skill {
-  id: number;
+// Interfaces
+interface Seniority {
+  id: string;
   name: string;
-  description?: string;
-  icon: string;
-  subSkills: SubSkill[];
-  expanded?: boolean;
+  description: string;
+}
+
+interface SeniorityApiResponse {
+  items: Seniority[];
+  pageNumber: number;
+  pageSize: number;
+  totalCount: number;
+  totalPages: number;
+  hasPrevious: boolean;
+  hasNext: boolean;
+}
+
+interface SeniorityLevelJunction {
+  id: string;
+  seniorityLevelId: string;
+  skillId: string;
+  seniority: Seniority;
 }
 
 interface SubSkill {
-  id: number;
+  id: string;
   name: string;
-  description?: string;
-  level?: 'Beginner' | 'Intermediate' | 'Advanced';
+  description: string;
+  skillId: string;
+}
+
+interface Skill {
+  id: string;
+  name: string;
+  description: string;
+  subSkills: SubSkill[];
+  seniorityLevelJunctions: SeniorityLevelJunction[];
+  expanded?: boolean;
+  selectedSeniorityIds?: string[];
+}
+
+interface SkillApiResponse {
+  items: Skill[];
+  pageNumber: number;
+  pageSize: number;
+  totalCount: number;
+  totalPages: number;
+  hasPrevious: boolean;
+  hasNext: boolean;
 }
 
 @Component({
   selector: 'app-skills',
   standalone: true,
-  imports: [CommonModule, FormsModule, SidebarComponent],
+  imports: [CommonModule, FormsModule, SidebarComponent, PaginationComponent],
   template: `
     <div class="d-flex">
       <app-sidebar></app-sidebar>
@@ -43,44 +81,24 @@ interface SubSkill {
             </button>
           </div>
 
-          <!-- Search and Filter -->
-          <div class="card border-0 shadow-sm mb-4">
-            <div class="card-body">
-              <div class="row g-3">
-                <div class="col-md-8">
-                  <input
-                    type="text"
-                    class="form-control"
-                    placeholder="Search skills..."
-                    [(ngModel)]="searchQuery"
-                  />
-                </div>
-                <div class="col-md-4">
-                  <select class="form-select" [(ngModel)]="filterCategory">
-                    <option value="">All Categories</option>
-                    <option *ngFor="let skill of skills" [value]="skill.name">
-                      {{ skill.name }}
-                    </option>
-                  </select>
-                </div>
-              </div>
-            </div>
-          </div>
-
           <!-- Skills List -->
-          <div class="skills-container" #skillsContainer>
-            <div *ngFor="let skill of filteredSkills" class="skill-card">
+          <div class="skills-container">
+            <div *ngFor="let skill of skills" class="skill-card">
               <!-- Main Skill -->
               <div class="skill-header" (click)="toggleSkill(skill)">
                 <div class="d-flex align-items-center gap-3">
-                  <div class="skill-icon">
-                    <i [class]="'bi ' + skill.icon"></i>
-                  </div>
                   <div>
                     <h3 class="skill-title">{{ skill.name }}</h3>
-                    <p class="skill-description" *ngIf="skill.description">
-                      {{ skill.description }}
-                    </p>
+                    <p class="skill-description">{{ skill.description }}</p>
+                    <span
+                      *ngFor="let junction of skill.seniorityLevelJunctions"
+                      class="badge me-1"
+                      [ngClass]="
+                        getSeniorityBadgeClass(junction.seniority.name)
+                      "
+                    >
+                      {{ junction.seniority.name }}
+                    </span>
                   </div>
                 </div>
                 <div class="skill-actions">
@@ -118,44 +136,48 @@ interface SubSkill {
 
               <!-- Sub Skills -->
               <div class="sub-skills" *ngIf="skill.expanded">
-                <div
-                  *ngFor="let subSkill of skill.subSkills"
-                  class="sub-skill-item"
-                >
+                <div *ngIf="skill.subSkills.length > 0; else noSubSkills">
                   <div
-                    class="d-flex justify-content-between align-items-center"
+                    *ngFor="let subSkill of skill.subSkills"
+                    class="sub-skill-item"
                   >
-                    <div>
-                      <h4 class="sub-skill-title">{{ subSkill.name }}</h4>
-                      <p
-                        class="sub-skill-description"
-                        *ngIf="subSkill.description"
-                      >
-                        {{ subSkill.description }}
-                      </p>
-                      <span
-                        class="badge"
-                        [ngClass]="getLevelBadgeClass(subSkill.level)"
-                      >
-                        {{ subSkill.level }}
-                      </span>
-                    </div>
-                    <div class="sub-skill-actions">
-                      <button
-                        class="btn btn-light btn-sm me-2"
-                        (click)="openEditSubSkillModal(skill, subSkill)"
-                      >
-                        <i class="bi bi-pencil"></i>
-                      </button>
-                      <button
-                        class="btn btn-light btn-sm"
-                        (click)="openDeleteSubSkillModal(skill, subSkill)"
-                      >
-                        <i class="bi bi-trash"></i>
-                      </button>
+                    <div
+                      class="d-flex justify-content-between align-items-center"
+                    >
+                      <div>
+                        <h4 class="sub-skill-title">{{ subSkill.name }}</h4>
+                        <p class="sub-skill-description">
+                          {{ subSkill.description }}
+                        </p>
+                      </div>
+                      <div class="sub-skill-actions">
+                        <button
+                          class="btn btn-light btn-sm me-2"
+                          (click)="
+                            openEditSubSkillModal(skill, subSkill);
+                            $event.stopPropagation()
+                          "
+                        >
+                          <i class="bi bi-pencil"></i>
+                        </button>
+                        <button
+                          class="btn btn-light btn-sm"
+                          (click)="
+                            openDeleteSubSkillModal(skill, subSkill);
+                            $event.stopPropagation()
+                          "
+                        >
+                          <i class="bi bi-trash"></i>
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
+                <ng-template #noSubSkills>
+                  <div class="text-center py-3 text-muted">
+                    No Sub-position exists
+                  </div>
+                </ng-template>
               </div>
             </div>
 
@@ -165,6 +187,14 @@ interface SubSkill {
                 <span class="visually-hidden">Loading...</span>
               </div>
             </div>
+
+            <!-- Pagination -->
+            <app-pagination
+              [currentPage]="currentPage"
+              [pageSize]="pageSize"
+              [totalItems]="totalCount"
+              (pageChange)="onPageChange($event)"
+            ></app-pagination>
           </div>
         </div>
       </main>
@@ -194,7 +224,6 @@ interface SubSkill {
                   [(ngModel)]="newSkill.name"
                 />
               </div>
-
               <div class="mb-3">
                 <label class="form-label">Description</label>
                 <textarea
@@ -203,16 +232,19 @@ interface SubSkill {
                   [(ngModel)]="newSkill.description"
                 ></textarea>
               </div>
-
               <div class="mb-3">
-                <label class="form-label">Icon</label>
-                <select class="form-select" [(ngModel)]="newSkill.icon">
-                  <option value="bi-code-square">Code</option>
-                  <option value="bi-database">Database</option>
-                  <option value="bi-cpu">System</option>
-                  <option value="bi-braces">Frontend</option>
-                  <option value="bi-server">Backend</option>
-                  <option value="bi-diagram-3">Architecture</option>
+                <label class="form-label">Seniority Levels</label>
+                <select
+                  class="form-select"
+                  multiple
+                  [(ngModel)]="newSkill.selectedSeniorityIds"
+                >
+                  <option
+                    *ngFor="let seniority of seniorities"
+                    [value]="seniority.id"
+                  >
+                    {{ seniority.name }} ({{ seniority.description }})
+                  </option>
                 </select>
               </div>
             </div>
@@ -231,71 +263,6 @@ interface SubSkill {
                 (click)="addSkill()"
               >
                 Add Skill
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Add Sub-Skill Modal -->
-      <div
-        class="modal"
-        [class.show]="showAddSubSkillModal"
-        [style.display]="showAddSubSkillModal ? 'block' : 'none'"
-      >
-        <div class="modal-dialog modal-dialog-centered">
-          <div class="modal-content border-0">
-            <div class="modal-header border-0">
-              <h5 class="modal-title">Add New Sub-Skill</h5>
-              <button
-                type="button"
-                class="btn-close"
-                (click)="closeAddSubSkillModal()"
-              ></button>
-            </div>
-            <div class="modal-body">
-              <div class="mb-3">
-                <label class="form-label">Name</label>
-                <input
-                  type="text"
-                  class="form-control"
-                  [(ngModel)]="newSubSkill.name"
-                />
-              </div>
-
-              <div class="mb-3">
-                <label class="form-label">Description</label>
-                <textarea
-                  class="form-control"
-                  rows="3"
-                  [(ngModel)]="newSubSkill.description"
-                ></textarea>
-              </div>
-
-              <div class="mb-3">
-                <label class="form-label">Level</label>
-                <select class="form-select" [(ngModel)]="newSubSkill.level">
-                  <option value="Beginner">Beginner</option>
-                  <option value="Intermediate">Intermediate</option>
-                  <option value="Advanced">Advanced</option>
-                </select>
-              </div>
-            </div>
-            <div class="modal-footer border-0">
-              <button
-                type="button"
-                class="btn btn-link text-dark"
-                (click)="closeAddSubSkillModal()"
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                class="btn btn-dark"
-                [disabled]="!isValidSubSkill(newSubSkill)"
-                (click)="addSubSkill()"
-              >
-                Add Sub-Skill
               </button>
             </div>
           </div>
@@ -327,7 +294,6 @@ interface SubSkill {
                   [(ngModel)]="editingSkill.name"
                 />
               </div>
-
               <div class="mb-3">
                 <label class="form-label">Description</label>
                 <textarea
@@ -336,16 +302,22 @@ interface SubSkill {
                   [(ngModel)]="editingSkill.description"
                 ></textarea>
               </div>
-
               <div class="mb-3">
-                <label class="form-label">Icon</label>
-                <select class="form-select" [(ngModel)]="editingSkill.icon">
-                  <option value="bi-code-square">Code</option>
-                  <option value="bi-database">Database</option>
-                  <option value="bi-cpu">System</option>
-                  <option value="bi-braces">Frontend</option>
-                  <option value="bi-server">Backend</option>
-                  <option value="bi-diagram-3">Architecture</option>
+                <label class="form-label">Seniority Levels</label>
+                <select
+                  class="form-select"
+                  multiple
+                  [(ngModel)]="editingSkill.selectedSeniorityIds"
+                >
+                  <option
+                    *ngFor="let seniority of seniorities"
+                    [value]="seniority.id"
+                    [selected]="
+                      editingSkill.selectedSeniorityIds?.includes(seniority.id)
+                    "
+                  >
+                    {{ seniority.name }} ({{ seniority.description }})
+                  </option>
                 </select>
               </div>
             </div>
@@ -370,7 +342,107 @@ interface SubSkill {
         </div>
       </div>
 
-      <!-- Edit Sub-Skill Modal -->
+      <!-- Delete Skill Modal -->
+      <div
+        class="modal"
+        [class.show]="showDeleteSkillModal"
+        [style.display]="showDeleteSkillModal ? 'block' : 'none'"
+      >
+        <div class="modal-dialog modal-dialog-centered">
+          <div class="modal-content border-0">
+            <div class="modal-header border-0">
+              <h5 class="modal-title">Delete Skill</h5>
+              <button
+                type="button"
+                class="btn-close"
+                (click)="closeDeleteSkillModal()"
+              ></button>
+            </div>
+            <div class="modal-body">
+              <p>
+                Are you sure you want to delete
+                <strong>{{ deletingSkill?.name }}</strong
+                >? This action cannot be undone.
+              </p>
+            </div>
+            <div class="modal-footer border-0">
+              <button
+                type="button"
+                class="btn btn-link text-dark"
+                (click)="closeDeleteSkillModal()"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                class="btn btn-danger"
+                (click)="confirmDeleteSkill()"
+              >
+                Delete Skill
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Add Sub Skill Modal -->
+      <div
+        class="modal"
+        [class.show]="showAddSubSkillModal"
+        [style.display]="showAddSubSkillModal ? 'block' : 'none'"
+      >
+        <div class="modal-dialog modal-dialog-centered">
+          <div class="modal-content border-0">
+            <div class="modal-header border-0">
+              <h5 class="modal-title">
+                Add Sub-Skill to {{ selectedSkill?.name }}
+              </h5>
+              <button
+                type="button"
+                class="btn-close"
+                (click)="closeAddSubSkillModal()"
+              ></button>
+            </div>
+            <div class="modal-body">
+              <div class="mb-3">
+                <label class="form-label">Name</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  [(ngModel)]="newSubSkill.name"
+                />
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Description</label>
+                <textarea
+                  class="form-control"
+                  rows="3"
+                  [(ngModel)]="newSubSkill.description"
+                ></textarea>
+              </div>
+            </div>
+            <div class="modal-footer border-0">
+              <button
+                type="button"
+                class="btn btn-link text-dark"
+                (click)="closeAddSubSkillModal()"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                class="btn btn-dark"
+                [disabled]="!isValidSubSkill(newSubSkill)"
+                (click)="addSubSkill()"
+              >
+                Add Sub-Skill
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Edit Sub Skill Modal -->
       <div
         class="modal"
         [class.show]="showEditSubSkillModal"
@@ -395,7 +467,6 @@ interface SubSkill {
                   [(ngModel)]="editingSubSkill.name"
                 />
               </div>
-
               <div class="mb-3">
                 <label class="form-label">Description</label>
                 <textarea
@@ -403,15 +474,6 @@ interface SubSkill {
                   rows="3"
                   [(ngModel)]="editingSubSkill.description"
                 ></textarea>
-              </div>
-
-              <div class="mb-3">
-                <label class="form-label">Level</label>
-                <select class="form-select" [(ngModel)]="editingSubSkill.level">
-                  <option value="Beginner">Beginner</option>
-                  <option value="Intermediate">Intermediate</option>
-                  <option value="Advanced">Advanced</option>
-                </select>
               </div>
             </div>
             <div class="modal-footer border-0">
@@ -435,51 +497,7 @@ interface SubSkill {
         </div>
       </div>
 
-      <!-- Delete Skill Modal -->
-      <div
-        class="modal"
-        [class.show]="showDeleteSkillModal"
-        [style.display]="showDeleteSkillModal ? 'block' : 'none'"
-      >
-        <div class="modal-dialog modal-dialog-centered">
-          <div class="modal-content border-0">
-            <div class="modal-header border-0">
-              <h5 class="modal-title">Delete Skill</h5>
-              <button
-                type="button"
-                class="btn-close"
-                (click)="closeDeleteSkillModal()"
-              ></button>
-            </div>
-            <div class="modal-body">
-              <p>
-                Are you sure you want to delete the skill "{{
-                  deletingSkill?.name
-                }}"?
-              </p>
-              <p class="text-muted">This action cannot be undone.</p>
-            </div>
-            <div class="modal-footer border-0">
-              <button
-                type="button"
-                class="btn btn-link text-dark"
-                (click)="closeDeleteSkillModal()"
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                class="btn btn-danger"
-                (click)="deleteSkill()"
-              >
-                Delete Skill
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Delete Sub-Skill Modal -->
+      <!-- Delete Sub Skill Modal -->
       <div
         class="modal"
         [class.show]="showDeleteSubSkillModal"
@@ -497,11 +515,10 @@ interface SubSkill {
             </div>
             <div class="modal-body">
               <p>
-                Are you sure you want to delete the sub-skill "{{
-                  deletingSubSkill?.name
-                }}"?
+                Are you sure you want to delete
+                <strong>{{ deletingSubSkill?.name }}</strong
+                >? This action cannot be undone.
               </p>
-              <p class="text-muted">This action cannot be undone.</p>
             </div>
             <div class="modal-footer border-0">
               <button
@@ -514,7 +531,7 @@ interface SubSkill {
               <button
                 type="button"
                 class="btn btn-danger"
-                (click)="deleteSubSkill()"
+                (click)="confirmDeleteSubSkill()"
               >
                 Delete Sub-Skill
               </button>
@@ -528,10 +545,10 @@ interface SubSkill {
         class="modal-backdrop fade show"
         *ngIf="
           showAddSkillModal ||
-          showAddSubSkillModal ||
           showEditSkillModal ||
-          showEditSubSkillModal ||
           showDeleteSkillModal ||
+          showAddSubSkillModal ||
+          showEditSubSkillModal ||
           showDeleteSubSkillModal
         "
         (click)="closeAllModals()"
@@ -545,293 +562,292 @@ interface SubSkill {
         min-height: 100vh;
         background-color: #f9fafb;
       }
-
       .main-content {
         margin-left: 240px;
         width: calc(100% - 240px);
         min-height: 100vh;
       }
-
       .skills-container {
         max-height: calc(100vh - 240px);
         overflow-y: auto;
         padding-right: 1rem;
       }
-
       .skill-card {
         background: white;
-        border-radius: 8px;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-        margin-bottom: 1rem;
+        border-radius: 12px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0, 0, 0, 0.1);
+        margin-bottom: 1.5rem;
       }
-
       .skill-header {
         padding: 1.5rem;
         cursor: pointer;
         display: flex;
         justify-content: space-between;
         align-items: center;
-        transition: background-color 0.2s;
       }
-
-      .skill-header:hover {
-        background-color: #f9fafb;
-      }
-
-      .skill-icon {
-        width: 48px;
-        height: 48px;
-        background: #f3f4f6;
-        border-radius: 8px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.5rem;
-      }
-
       .skill-title {
         font-size: 1.125rem;
         font-weight: 600;
         margin: 0;
       }
-
       .skill-description {
         color: #6b7280;
         font-size: 0.875rem;
         margin: 0.25rem 0 0;
       }
-
-      .skill-actions {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
+      .badge {
+        font-size: 0.75rem;
+        padding: 0.35rem 0.65rem;
+        border-radius: 6px;
+        margin-right: 0.5rem;
       }
-
+      .badge-beginner {
+        background-color: #fef3c7;
+        color: #d97706;
+      }
+      .badge-intermediate {
+        background-color: #e0e7ff;
+        color: #4f46e5;
+      }
+      .badge-advanced {
+        background-color: #ecfdf5;
+        color: #059669;
+      }
       .sub-skills {
-        padding: 0 1.5rem 1.5rem;
+        padding: 1.5rem;
         background: #f9fafb;
-        border-bottom-left-radius: 8px;
-        border-bottom-right-radius: 8px;
+        border-bottom-left-radius: 12px;
+        border-bottom-right-radius: 12px;
       }
 
       .sub-skill-item {
         padding: 1rem;
         background: white;
-        border-radius: 6px;
-        margin-bottom: 0.5rem;
+        border-radius: 8px;
+        margin-bottom: 0.75rem;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
       }
 
-      .sub-skill-item:last-child {
-        margin-bottom: 0;
-      }
-
-      .sub-skill-title {
-        font-size: 1rem;
-        font-weight: 500;
-        margin: 0;
-      }
-
-      .sub-skill-description {
+      /* Empty state message styling */
+      .text-muted {
         color: #6b7280;
-        font-size: 0.875rem;
-        margin: 0.25rem 0;
       }
-
-      .badge {
-        font-size: 0.75rem;
-        padding: 0.25rem 0.5rem;
-        border-radius: 4px;
+      .sub-skill-item {
+        padding: 1rem;
+        background: white;
+        border-radius: 8px;
+        margin-bottom: 0.75rem;
       }
-
-      .badge-beginner {
-        background-color: #fef3c7;
-        color: #d97706;
-      }
-
-      .badge-intermediate {
-        background-color: #e0e7ff;
-        color: #4f46e5;
-      }
-
-      .badge-advanced {
-        background-color: #ecfdf5;
-        color: #059669;
-      }
-
-      .sub-skill-actions {
-        display: flex;
-        gap: 0.5rem;
-      }
-
       @media (max-width: 991.98px) {
         .main-content {
           margin-left: 0;
           width: 100%;
         }
       }
+      .modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+      }
+      .modal-content {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 8px;
+        max-width: 500px;
+        width: 100%;
+      }
+      .modal-backdrop {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 999;
+      }
     `,
   ],
 })
-export class SkillsComponent {
-  searchQuery = '';
-  filterCategory = '';
+export class SkillsComponent implements OnInit, OnDestroy {
+  skills: Skill[] = [];
+  seniorities: Seniority[] = [];
+  currentPage = 1;
+  pageSize = 10;
+  totalCount = 0;
   isLoading = false;
-  page = 1;
 
   // Modal states
   showAddSkillModal = false;
-  showAddSubSkillModal = false;
   showEditSkillModal = false;
-  showEditSubSkillModal = false;
   showDeleteSkillModal = false;
+  showAddSubSkillModal = false;
+  showEditSubSkillModal = false;
   showDeleteSubSkillModal = false;
 
   // Form data
-  newSkill: Partial<Skill> = {};
-  newSubSkill: Partial<SubSkill> = {};
-  editingSkill: Partial<Skill> = {};
-  editingSubSkill: Partial<SubSkill> = {};
+  newSkill: Partial<Skill> = { selectedSeniorityIds: [] };
+  editingSkill: Partial<Skill> = { selectedSeniorityIds: [] };
   deletingSkill: Skill | null = null;
-  deletingSubSkill: SubSkill | null = null;
   selectedSkill: Skill | null = null;
+  newSubSkill: Partial<SubSkill> = {};
+  editingSubSkill: Partial<SubSkill> = {};
+  deletingSubSkill: SubSkill | null = null;
 
-  skills: Skill[] = [
-    {
-      id: 1,
-      name: 'Backend Development',
-      description: 'Server-side programming and architecture',
-      icon: 'bi-server',
-      expanded: false,
-      subSkills: [
-        {
-          id: 1,
-          name: 'Python',
-          description: 'Python programming with Django/Flask',
-          level: 'Advanced',
-        },
-        {
-          id: 2,
-          name: 'Java',
-          description: 'Java with Spring Boot',
-          level: 'Intermediate',
-        },
-        {
-          id: 3,
-          name: 'Node.js',
-          description: 'Server-side JavaScript',
-          level: 'Advanced',
-        },
-      ],
-    },
-    {
-      id: 2,
-      name: 'Frontend Development',
-      description: 'Client-side programming and UI/UX',
-      icon: 'bi-braces',
-      expanded: false,
-      subSkills: [
-        {
-          id: 4,
-          name: 'React',
-          description: 'Modern React with Hooks',
-          level: 'Advanced',
-        },
-        {
-          id: 5,
-          name: 'Angular',
-          description: 'Enterprise Angular applications',
-          level: 'Intermediate',
-        },
-      ],
-    },
-    {
-      id: 3,
-      name: 'System Design',
-      description: 'Architecture and scalability',
-      icon: 'bi-diagram-3',
-      expanded: false,
-      subSkills: [
-        {
-          id: 6,
-          name: 'Distributed Systems',
-          description: 'Scalable distributed architecture',
-          level: 'Advanced',
-        },
-        {
-          id: 7,
-          name: 'Microservices',
-          description: 'Microservices architecture patterns',
-          level: 'Intermediate',
-        },
-      ],
-    },
-  ];
+  private subscriptions: Subscription[] = [];
 
-  get filteredSkills(): Skill[] {
-    return this.skills.filter((skill) => {
-      const matchesSearch =
-        skill.name.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
-        skill.description
-          ?.toLowerCase()
-          .includes(this.searchQuery.toLowerCase()) ||
-        skill.subSkills.some(
-          (sub) =>
-            sub.name.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
-            sub.description
-              ?.toLowerCase()
-              .includes(this.searchQuery.toLowerCase())
-        );
+  constructor(private skillService: SkillService) {}
 
-      const matchesCategory =
-        !this.filterCategory || skill.name === this.filterCategory;
-
-      return matchesSearch && matchesCategory;
-    });
+  ngOnInit() {
+    this.loadSkills();
+    this.loadSeniorities();
   }
 
-  @HostListener('scroll', ['$event'])
-  onScroll(event: any) {
-    const element = event.target;
-    if (element.scrollHeight - element.scrollTop === element.clientHeight) {
-      this.loadMore();
+  ngOnDestroy() {
+    this.subscriptions.forEach((sub) => sub.unsubscribe());
+  }
+
+  loadSkills() {
+    this.isLoading = true;
+    const sub = this.skillService
+      .skillDetailsData({
+        pageNumber: this.currentPage,
+        pageSize: this.pageSize,
+      })
+      .subscribe({
+        next: (response: SkillApiResponse) => {
+          this.skills = response.items.map((skill) => ({
+            ...skill,
+            expanded: false,
+            selectedSeniorityIds: skill.seniorityLevelJunctions.map(
+              (j) => j.seniorityLevelId
+            ),
+          }));
+          this.totalCount = response.totalCount;
+          this.isLoading = false;
+        },
+        error: (error) => {
+          console.error('Error loading skills:', error);
+          this.isLoading = false;
+        },
+      });
+    this.subscriptions.push(sub);
+  }
+  // Add this method to the SkillsComponent class
+  onPageChange(page: number): void {
+    this.currentPage = page;
+    this.loadSkills();
+  }
+
+  getSeniorityBadgeClass(seniorityName: string): string {
+    switch (seniorityName) {
+      case 'Internship':
+        return 'badge-beginner';
+      case '0-1 yr experience':
+        return 'badge-intermediate';
+      case '2 yrs of experience':
+        return 'badge-advanced';
+      default:
+        return 'badge-beginner';
     }
   }
 
-  loadMore() {
-    if (!this.isLoading) {
-      this.isLoading = true;
-      // Simulate API call
-      setTimeout(() => {
-        this.page++;
-        this.isLoading = false;
-      }, 1000);
-    }
+  // Sub-skill modal handlers
+  openAddSubSkillModal(skill: Skill): void {
+    this.selectedSkill = skill;
+    this.newSubSkill = {};
+    this.showAddSubSkillModal = true;
+  }
+
+  // Skill modal handlers
+  openDeleteSkillModal(skill: Skill): void {
+    this.deletingSkill = skill;
+    this.showDeleteSkillModal = true;
   }
 
   toggleSkill(skill: Skill) {
     skill.expanded = !skill.expanded;
   }
 
-  getLevelBadgeClass(level?: string): string {
-    if (!level) return '';
-    return `badge-${level.toLowerCase()}`;
+  loadSeniorities() {
+    const sub = this.skillService
+      .seniorityDetailsData({
+        pageNumber: 1,
+        pageSize: 100, // Adjust based on expected maximum seniority levels
+      })
+      .subscribe({
+        next: (response: SeniorityApiResponse) => {
+          this.seniorities = response.items;
+        },
+        error: (error: any) => {
+          console.error('Error loading seniorities:', error);
+        },
+      });
+    this.subscriptions.push(sub);
   }
 
-  // Modal handlers
-  openAddSkillModal() {
+  // Updated addSkill method
+  addSkill() {
+    if (this.isValidSkill(this.newSkill)) {
+      this.isLoading = true;
+
+      const skillData = {
+        name: this.newSkill.name!,
+        description: this.newSkill.description!,
+        seniorityLevels: this.newSkill.selectedSeniorityIds || [],
+      };
+
+      const sub = this.skillService.skillCreatedData(skillData).subscribe({
+        next: () => {
+          this.loadSkills();
+          this.closeAddSkillModal();
+          this.isLoading = false;
+        },
+        error: (error) => {
+          console.error('Error creating skill:', error);
+          this.isLoading = false;
+        },
+      });
+      this.subscriptions.push(sub);
+    }
+  }
+
+  // Updated updateSkill method
+  updateSkill(): void {
+    if (this.isValidSkill(this.editingSkill)) {
+      this.isLoading = true;
+
+      const skillData = {
+        id: this.editingSkill.id!,
+        name: this.editingSkill.name!,
+        description: this.editingSkill.description!,
+        seniorityLevelIds: this.editingSkill.selectedSeniorityIds || [],
+      };
+
+      const sub = this.skillService.skillUpdatedData(skillData).subscribe({
+        next: () => {
+          this.loadSkills(); // Refresh the skills list
+          this.closeEditSkillModal();
+          this.isLoading = false;
+        },
+        error: (error) => {
+          console.error('Error updating skill:', error);
+          this.isLoading = false;
+          // Optionally show error message to user
+        },
+      });
+      this.subscriptions.push(sub);
+    }
+  }
+  closeAddSkillModal() {
+    this.showAddSkillModal = false;
     this.newSkill = {};
-    this.showAddSkillModal = true;
-  }
-
-  openAddSubSkillModal(skill: Skill) {
-    this.selectedSkill = skill;
-    this.newSubSkill = {};
-    this.showAddSubSkillModal = true;
-  }
-
-  openEditSkillModal(skill: Skill) {
-    this.editingSkill = { ...skill };
-    this.showEditSkillModal = true;
   }
 
   openEditSubSkillModal(skill: Skill, subSkill: SubSkill) {
@@ -840,20 +856,34 @@ export class SkillsComponent {
     this.showEditSubSkillModal = true;
   }
 
-  openDeleteSkillModal(skill: Skill) {
-    this.deletingSkill = skill;
-    this.showDeleteSkillModal = true;
+  // Updated validation
+  isValidSkill(skill: Partial<Skill>): boolean {
+    return (
+      !!skill.name &&
+      !!skill.description &&
+      (skill.selectedSeniorityIds?.length || 0) > 0
+    );
   }
 
+  // Updated modal open methods
+  openAddSkillModal() {
+    this.newSkill = { selectedSeniorityIds: [] };
+    this.showAddSkillModal = true;
+  }
+
+  openEditSkillModal(skill: Skill) {
+    this.editingSkill = {
+      ...skill,
+      selectedSeniorityIds: skill.seniorityLevelJunctions.map(
+        (j) => j.seniorityLevelId
+      ),
+    };
+    this.showEditSkillModal = true;
+  }
   openDeleteSubSkillModal(skill: Skill, subSkill: SubSkill) {
     this.selectedSkill = skill;
     this.deletingSubSkill = subSkill;
     this.showDeleteSubSkillModal = true;
-  }
-
-  closeAddSkillModal() {
-    this.showAddSkillModal = false;
-    this.newSkill = {};
   }
 
   closeAddSubSkillModal() {
@@ -862,20 +892,10 @@ export class SkillsComponent {
     this.selectedSkill = null;
   }
 
-  closeEditSkillModal() {
-    this.showEditSkillModal = false;
-    this.editingSkill = {};
-  }
-
   closeEditSubSkillModal() {
     this.showEditSubSkillModal = false;
     this.editingSubSkill = {};
     this.selectedSkill = null;
-  }
-
-  closeDeleteSkillModal() {
-    this.showDeleteSkillModal = false;
-    this.deletingSkill = null;
   }
 
   closeDeleteSubSkillModal() {
@@ -886,100 +906,100 @@ export class SkillsComponent {
 
   closeAllModals() {
     this.closeAddSkillModal();
-    this.closeAddSubSkillModal();
     this.closeEditSkillModal();
-    this.closeEditSubSkillModal();
     this.closeDeleteSkillModal();
+    this.closeAddSubSkillModal();
+    this.closeEditSubSkillModal();
     this.closeDeleteSubSkillModal();
   }
 
-  // CRUD operations
-  addSkill() {
-    if (this.isValidSkill(this.newSkill)) {
-      const newId = Math.max(...this.skills.map((s) => s.id)) + 1;
-      const skill: Skill = {
-        id: newId,
-        name: this.newSkill.name!,
-        description: this.newSkill.description,
-        icon: this.newSkill.icon!,
-        subSkills: [],
-        expanded: false,
-      };
-      this.skills.push(skill);
-      this.closeAddSkillModal();
+  closeDeleteSkillModal() {
+    this.showDeleteSkillModal = false;
+    this.deletingSkill = null;
+  }
+
+  closeEditSkillModal() {
+    this.showEditSkillModal = false;
+    this.editingSkill = {};
+  }
+
+  confirmDeleteSkill() {
+    if (this.deletingSkill) {
+      this.isLoading = true;
+      const sub = this.skillService
+        .skillDeletedData(this.deletingSkill.id)
+        .subscribe({
+          next: () => {
+            this.loadSkills();
+            this.closeDeleteSkillModal();
+          },
+          error: (error: any) => {
+            console.error('Error deleting skill:', error);
+            this.isLoading = false;
+          },
+        });
+      this.subscriptions.push(sub);
     }
   }
 
   addSubSkill() {
     if (this.selectedSkill && this.isValidSubSkill(this.newSubSkill)) {
-      const newId =
-        Math.max(...this.selectedSkill.subSkills.map((s) => s.id), 0) + 1;
-      const subSkill: SubSkill = {
-        id: newId,
-        name: this.newSubSkill.name!,
-        description: this.newSubSkill.description,
-        level: this.newSubSkill.level,
-      };
-      this.selectedSkill.subSkills.push(subSkill);
-      this.closeAddSubSkillModal();
-    }
-  }
-
-  updateSkill() {
-    if (this.isValidSkill(this.editingSkill)) {
-      const index = this.skills.findIndex((s) => s.id === this.editingSkill.id);
-      if (index !== -1) {
-        this.skills[index] = { ...this.skills[index], ...this.editingSkill };
-        this.closeEditSkillModal();
-      }
+      this.isLoading = true;
+      const sub = this.skillService
+        .subskillCreatedData(this.selectedSkill.id, this.newSubSkill)
+        .subscribe({
+          next: () => {
+            this.loadSkills();
+            this.closeAddSubSkillModal();
+          },
+          error: (error: any) => {
+            console.error('Error creating sub-skill:', error);
+            this.isLoading = false;
+          },
+        });
+      this.subscriptions.push(sub);
     }
   }
 
   updateSubSkill() {
     if (this.selectedSkill && this.isValidSubSkill(this.editingSubSkill)) {
-      const skillIndex = this.skills.findIndex(
-        (s) => s.id === this.selectedSkill!.id
-      );
-      if (skillIndex !== -1) {
-        const subSkillIndex = this.skills[skillIndex].subSkills.findIndex(
-          (s) => s.id === this.editingSubSkill.id
-        );
-        if (subSkillIndex !== -1) {
-          this.skills[skillIndex].subSkills[subSkillIndex] = {
-            ...(this.editingSubSkill as SubSkill),
-          };
-          this.closeEditSubSkillModal();
-        }
-      }
+      this.isLoading = true;
+      const sub = this.skillService
+        .subskillUpdatedData(this.editingSubSkill.id, this.editingSubSkill)
+        .subscribe({
+          next: () => {
+            this.loadSkills();
+            this.closeEditSubSkillModal();
+          },
+          error: (error) => {
+            console.error('Error updating sub-skill:', error);
+            this.isLoading = false;
+          },
+        });
+      this.subscriptions.push(sub);
     }
   }
 
-  deleteSkill() {
-    if (this.deletingSkill) {
-      this.skills = this.skills.filter((s) => s.id !== this.deletingSkill!.id);
-      this.closeDeleteSkillModal();
-    }
-  }
-
-  deleteSubSkill() {
+  confirmDeleteSubSkill() {
     if (this.selectedSkill && this.deletingSubSkill) {
-      const skillIndex = this.skills.findIndex(
-        (s) => s.id === this.selectedSkill!.id
-      );
-      if (skillIndex !== -1) {
-        this.skills[skillIndex].subSkills = this.skills[
-          skillIndex
-        ].subSkills.filter((s) => s.id !== this.deletingSubSkill!.id);
-        this.closeDeleteSubSkillModal();
-      }
+      this.isLoading = true;
+      const sub = this.skillService
+        .subskillDeletedData(this.deletingSubSkill.id)
+        .subscribe({
+          next: () => {
+            this.loadSkills();
+            this.closeDeleteSubSkillModal();
+          },
+          error: (error) => {
+            console.error('Error deleting sub-skill:', error);
+            this.isLoading = false;
+          },
+        });
+      this.subscriptions.push(sub);
     }
   }
 
-  public isValidSkill(skill: Partial<Skill>): boolean {
-    return !!(skill.name && skill.icon);
-  }
-
-  public isValidSubSkill(subSkill: Partial<SubSkill>): boolean {
-    return !!(subSkill.name && subSkill.level);
+  isValidSubSkill(subSkill: Partial<SubSkill>): boolean {
+    return !!subSkill.name && !!subSkill.description;
   }
 }
