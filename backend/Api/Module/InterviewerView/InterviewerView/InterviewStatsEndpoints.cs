@@ -22,7 +22,7 @@ namespace TalentMesh.Module.InterviewerView
                 return Results.Ok(dtos);
             })
             .WithName("GetAllInterviewFeedback")
-            .WithTags("InterViewerRRRRRR")
+            .WithTags("InterviewerReportGenerator")
             .Produces<List<InterviewFeedbackDto>>(StatusCodes.Status200OK);
 
             // POST new feedback
@@ -40,7 +40,7 @@ namespace TalentMesh.Module.InterviewerView
                 return Results.Created($"/api/feedbacks/{dto.Id}", dto);
             })
             .WithName("CreateInterviewFeedback")
-            .WithTags("InterViewerRRRRRR")
+            .WithTags("InterviewerReportGenerator")
             .Produces<InterviewFeedbackDto>(StatusCodes.Status201Created)
             .ProducesValidationProblem()
             .Produces(StatusCodes.Status500InternalServerError);
@@ -52,7 +52,7 @@ namespace TalentMesh.Module.InterviewerView
                 return Results.Ok(report);
             })
             .WithName("GetInterviewFeedbackReport")
-            .WithTags("InterViewerRRRRRR")
+            .WithTags("InterviewerReportGenerator")
             .Produces<List<InterviewFeedbackReportDto>>(StatusCodes.Status200OK);
 
             return app;
@@ -128,7 +128,7 @@ namespace TalentMesh.Module.InterviewerView
                 return Results.Ok(dtos);
             })
             .WithName("GetAllInterviewQuestions")
-            .WithTags("InterViewerRRRRRR")
+            .WithTags("InterviewerReportGenerator")
             .Produces<List<InterviewQuestionDto>>(StatusCodes.Status200OK);
 
             // POST new question
@@ -145,7 +145,7 @@ namespace TalentMesh.Module.InterviewerView
                 return Results.Created($"/api/questions/{dto.Id}", dto);
             })
             .WithName("CreateInterviewQuestion")
-            .WithTags("InterViewerRRRRRR")
+            .WithTags("InterviewerReportGenerator")
             .Produces<InterviewQuestionDto>(StatusCodes.Status201Created)
             .ProducesValidationProblem()
             .Produces(StatusCodes.Status500InternalServerError);

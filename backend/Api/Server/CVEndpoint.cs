@@ -31,7 +31,7 @@ namespace TalentMesh.Endpoints
                .MapToApiVersion(1.0)
                .DisableAntiforgery()    // <- declare this endpoint is v1.0
                .WithName("UploadInterviewerCv")
-               .WithTags("RakibMagi")
+               .WithTags("InterviewerFileHandler")
                .Produces<InterviewerEntryForm>(StatusCodes.Status200OK)
                .ProducesProblem(StatusCodes.Status400BadRequest)
                .ProducesProblem(StatusCodes.Status404NotFound)
@@ -46,7 +46,7 @@ namespace TalentMesh.Endpoints
                .WithApiVersionSet(versionSet)
                .MapToApiVersion(1.0)
                .WithName("DownloadInterviewerCv")
-               .WithTags("RakibMagi")
+               .WithTags("InterviewerFileHandler")
                .Produces(StatusCodes.Status200OK)
                .ProducesProblem(StatusCodes.Status404NotFound);
 
