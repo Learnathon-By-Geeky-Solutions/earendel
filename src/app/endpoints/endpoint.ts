@@ -1,4 +1,4 @@
-const base = 'https://talentmesh.genericsolution.net/';
+const base = 'https://talentmesh.genericsolution.net';
 
 export const endpoint = {
   googleLoginUrl: `${base}/api/users/google-login`,
@@ -10,6 +10,7 @@ export const endpoint = {
   interviewerAvailabilitySearchUrl: `${base}/api/v1/evaluator/intervieweravailabilities/search`,
   skillSearchUrl: `${base}/api/v1/experties/skills/search`,
   rubricsSearchUrl: `${base}/api/v1/experties/rubrics/search`,
+  jobPostingUrl: `${base}/api/v1/HR/HR/jobs`,
 };
 
 
