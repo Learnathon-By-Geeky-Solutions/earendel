@@ -1,7 +1,8 @@
 import { Component, type OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import  { Router, ActivatedRoute } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { SidebarComponent } from '../../sidebar/sidebar.component';
+import { JobService, Skill, SubSkill, SeniorityLevel, Rubric } from '../../services/job.service';
 
 @Component({
   selector: 'app-customized-interview',
@@ -16,19 +17,19 @@ import { SidebarComponent } from '../../sidebar/sidebar.component';
             Customize
           </button>
           <div class="selected-tech">
-            <span>Frontend</span>
+            <span>{{ getSelectedDomain() }}</span>
             <button class="edit-btn">Edit</button>
           </div>
         </header>
 
         <div class="content">
           <div class="javascript-section">
-            <h2>JavaScript</h2>
+            <h2>{{ getSelectedSkill()?.name || 'Select a Skill' }}</h2>
             <p class="subtitle">Choose to have skills</p>
 
             <div class="experience-level">
               <div class="level-info">
-                <h3>Senior (5-8 years)</h3>
+                <h3>{{ getSelectedSeniority()?.name || 'Select Seniority' }}</h3>
                 <span class="level-tag">Medium</span>
               </div>
             </div>
@@ -89,45 +90,6 @@ import { SidebarComponent } from '../../sidebar/sidebar.component';
         </div>
       </div>
 
-      <div class="rubrics-panel">
-        <div class="panel-header">
-          <h2>Configure rubrics</h2>
-          <p>
-            Adjust depth on each skill to be tested & overall round duration
-            here
-          </p>
-        </div>
-
-        <div class="duration-wrapper">
-          <div class="duration-control">
-            <div class="duration-label">
-              <i class="bi bi-clock"></i>
-              Duration
-            </div>
-            <div class="duration-value">
-              <span>1 hr</span>
-              <i class="bi bi-chevron-down"></i>
-            </div>
-          </div>
-        </div>
-
-        <div class="must-have-section">
-          <h3>Must have rubrics</h3>
-
-          <div class="rubric-details">
-            <div class="rubric-item" *ngFor="let rubric of selectedRubrics">
-              <div class="rubric-header">
-                <i class="bi bi-check-circle-fill"></i>
-                <span>{{ rubric.title }}</span>
-                <button class="expand-btn">
-                  <i class="bi bi-chevron-down"></i>
-                </button>
-              </div>
-              <p>{{ rubric.description }}</p>
-            </div>
-          </div>
-        </div>
-      </div>
     </div>
   `,
   styles: [
@@ -362,105 +324,6 @@ import { SidebarComponent } from '../../sidebar/sidebar.component';
         background: #fafafa;
         border-left: 1px solid #e0e0e0;
         padding: 24px;
-
-        .panel-header {
-          margin-bottom: 32px;
-
-          h2 {
-            font-size: 20px;
-            margin: 0 0 8px;
-          }
-
-          p {
-            color: #666;
-            font-size: 14px;
-            margin: 0;
-            line-height: 1.5;
-          }
-        }
-      }
-
-      .duration-wrapper {
-        margin-bottom: 32px;
-      }
-
-      .duration-control {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 16px;
-        background: white;
-        border-radius: 8px;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-
-        .duration-label {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          color: #666;
-          font-size: 14px;
-        }
-
-        .duration-value {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          font-size: 14px;
-          color: #111;
-        }
-      }
-
-      .must-have-section {
-        h3 {
-          font-size: 14px;
-          color: #666;
-          margin: 0 0 16px;
-        }
-      }
-
-      .rubric-details {
-        display: flex;
-        flex-direction: column;
-        gap: 16px;
-
-        .rubric-item {
-          background: white;
-          border-radius: 8px;
-          padding: 16px;
-          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-
-          .rubric-header {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-bottom: 8px;
-
-            i {
-              color: #0066ff;
-            }
-
-            span {
-              flex: 1;
-              font-size: 14px;
-              font-weight: 500;
-            }
-
-            .expand-btn {
-              background: none;
-              border: none;
-              padding: 4px;
-              color: #666;
-              cursor: pointer;
-            }
-          }
-
-          p {
-            color: #666;
-            font-size: 14px;
-            margin: 0;
-            line-height: 1.5;
-          }
-        }
       }
 
       @media (max-width: 1200px) {
@@ -487,41 +350,88 @@ import { SidebarComponent } from '../../sidebar/sidebar.component';
   ],
 })
 export class CustomizedInterviewComponent implements OnInit {
-  rubrics: any[] = [
-    {
-      id: 'async',
-      title: 'Asynchronous programming',
-      description:
-        'Promises, Async/await, Callbacks, Observables, Generators etc.',
-      isSelected: true,
-    },
-    {
-      id: 'redux',
-      title: 'Redux',
-      description: 'Understanding of redux fundamentals',
-      isSelected: true,
-    },
-    {
-      id: 'browser',
-      title: 'Browser Documents, Events and Interfaces',
-      description:
-        'Browser APIs, Events & event loop, DOM manipulation & tree, Forms',
-      isSelected: true,
-    },
-    {
-      id: 'fundamentals',
-      title: 'Javascript fundamentals',
-      description:
-        'Operators, Objects, Data types, Advanced working with functions, Variable scope, closures, hoisting, polyfills, Currying, ES7/8/9 etc.',
-      isSelected: true,
-    },
-  ];
+  // Store rubrics loaded from API
+  rubrics: {
+    id: string;
+    title: string;
+    description: string;
+    isSelected: boolean;
+    weight?: number;
+    subSkillId?: string;
+    seniorityId?: string;
+  }[] = [];
+  
+  // Store domain for display
+  private domain: string = 'Frontend';
 
-  constructor(private router: Router, private route: ActivatedRoute) {}
+  constructor(
+    private router: Router, 
+    private route: ActivatedRoute,
+    private jobService: JobService
+  ) {}
 
   ngOnInit() {
-    // Initialize component with route params
-    const { domain, tech, seniority } = this.route.snapshot.params;
+    // Extract route parameters to set skill and seniority if not set
+    const domain = this.route.snapshot.paramMap.get('domain');
+    const tech = this.route.snapshot.paramMap.get('tech');
+    const seniority = this.route.snapshot.paramMap.get('seniority');
+    
+    if (domain) {
+      this.domain = domain;
+    }
+    
+    console.log('Route params:', { domain, tech, seniority });
+
+    // Log the current selections from JobService
+    console.log('Current skill:', this.jobService.getSelectedSkill());
+    console.log('Current subskill:', this.jobService.getSelectedSubSkill());
+    console.log('Current seniority:', this.jobService.getSelectedSeniority());
+    
+    // Load rubrics data based on current selections
+    this.loadRubrics();
+  }
+
+  loadRubrics(): void {
+    this.jobService.getFilteredRubrics().subscribe({
+      next: (rubrics) => {
+        // If we get rubrics from the API, update our local array with that data
+        if (rubrics && rubrics.length > 0) {
+          this.rubrics = rubrics.map(r => ({
+            id: r.id,
+            title: r.title,
+            description: r.rubricDescription,
+            weight: r.weight,
+            isSelected: true, // Default to selected
+            subSkillId: r.subSkillId,
+            seniorityId: r.seniorityId
+          }));
+          console.log('Updated rubrics from API:', this.rubrics);
+        } else {
+          console.log('No rubrics returned from API');
+          this.rubrics = [];
+        }
+      },
+      error: (err) => {
+        console.error('Error loading rubrics:', err);
+        this.rubrics = [];
+      }
+    });
+  }
+
+  getSelectedSkill(): Skill | null {
+    return this.jobService.getSelectedSkill();
+  }
+  
+  getSelectedSubSkill(): SubSkill | null {
+    return this.jobService.getSelectedSubSkill();
+  }
+  
+  getSelectedSeniority(): SeniorityLevel | null {
+    return this.jobService.getSelectedSeniority();
+  }
+  
+  getSelectedDomain(): string {
+    return this.domain;
   }
 
   get selectedRubrics() {
@@ -529,8 +439,7 @@ export class CustomizedInterviewComponent implements OnInit {
   }
 
   goBack() {
-    const { domain, tech } = this.route.snapshot.params;
-    this.router.navigate(['/hr-dashboard/job-post/seniority-selection']);
+    this.router.navigateByUrl('/hr-dashboard/job-post');
   }
 
   toggleRubric(rubric: any) {
