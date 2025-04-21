@@ -439,7 +439,7 @@ export class CustomizedInterviewComponent implements OnInit {
   }
 
   goBack() {
-    this.router.navigateByUrl('/hr-dashboard/job-post');
+    this.router.navigateByUrl('/hr-dashboard/job-post/seniority-selection');
   }
 
   toggleRubric(rubric: any) {
