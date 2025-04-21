@@ -15,7 +15,7 @@ public static class JobViewEndpoint
 {
     public static RouteHandlerBuilder MapJobViewEndpoints(this IEndpointRouteBuilder app)
     {
-        return app.MapGet("JobView", 
+        return app.MapGet("JobView",
             async (
                 IMediator mediator,
                 [FromQuery] string? name,
@@ -35,7 +35,7 @@ public static class JobViewEndpoint
 
             return await mediator.Send(query);
         })
-            .WithTags("CandidateLogic")
+            .WithTags("CandidateJobView")
             .WithName("GetAllJobsForCandidates")
             .Produces<List<Jobs>>(StatusCodes.Status200OK)
             //.RequirePermission("Permissions.CandidateLogic.View")

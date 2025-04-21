@@ -29,7 +29,7 @@ namespace TalentMesh.Module.InterviewerView
                     var newId = await mediator.Send(cmd);
                     return Results.Created($"/api/interviewers/{newId}", new { id = newId });
                 })
-               .WithTags("RequestFORInter")
+               .WithTags("InterviewerFileHandler")
                .WithName("RequestInterviewer")
                .Produces<Guid>(StatusCodes.Status201Created)
                .ProducesValidationProblem()
