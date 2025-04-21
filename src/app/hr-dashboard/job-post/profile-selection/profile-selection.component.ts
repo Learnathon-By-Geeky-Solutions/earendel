@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 import { Router, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
-import { SidebarComponent } from '../../sidebar/sidebar.component';
 import { JobService } from '../../services/job.service';
 
 @Component({
