@@ -8,14 +8,21 @@ import { Observable } from 'rxjs';
   providedIn: 'root',
 })
 export class HrService {
-  hrDetailsUrl = `${endpoint.hrDetailsUrl}?pageNumber=1&pageSize=10`;
+  hrDetailsUrl = `${endpoint.hrDetailsUrl}`;
 
   constructor(
     private readonly http: HttpClient,
     private readonly apiService: ApiService
   ) {}
 
-  hrDetailsData(): Observable<any> {
-    return this.apiService.get(this.hrDetailsUrl);
+  hrDetailsData(
+    pageNumber = 1,
+    pageSize = 10,
+    search = '',
+    sortBy = null,
+    sortDirection = null
+  ): Observable<any> {
+    const fetchUrl = `${this.hrDetailsUrl}?search=${search}&sortBy=${sortBy}&sortDirection=${sortDirection}&pageNumber=${pageNumber}&pageSize=${pageSize}`;
+    return this.apiService.get(fetchUrl);
   }
 }

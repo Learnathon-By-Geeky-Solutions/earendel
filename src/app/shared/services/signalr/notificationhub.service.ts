@@ -9,6 +9,7 @@ export class NotificationhubService {
   private hubConnection!: signalR.HubConnection;
   private readonly baseUrl =
     'http://173.249.54.173/notifications?access_token=';
+    // 'https://talentmesh.genericsolution.net/notifications?access_token=';
   // 'http://localhost:51027/notifications?access_token=';
 
   public userNotifications$ = new BehaviorSubject<string | null>(null);
