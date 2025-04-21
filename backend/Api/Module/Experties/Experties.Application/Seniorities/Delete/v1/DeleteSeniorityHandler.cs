@@ -14,8 +14,10 @@ public sealed class DeleteSeniorityHandler(
     public async Task Handle(DeleteSeniorityCommand request, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(request);
-        var seniority = await repository.GetByIdAsync(request.Id, cancellationToken);
-        if (seniority == null) throw new SeniorityNotFoundException(request.Id);
+        
+        var seniority = await repository.GetByIdAsync(request.Id, cancellationToken)
+                     ?? throw new SeniorityNotFoundException(request.Id);
+
         await repository.DeleteAsync(seniority, cancellationToken);
         logger.LogInformation("Seniority with id : {SeniorityId} deleted", seniority.Id);
     }

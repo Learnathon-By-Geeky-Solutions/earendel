@@ -8,21 +8,18 @@ using System.Diagnostics.CodeAnalysis;
 namespace TalentMesh.Module.Experties.Application.Seniorities.Search.v1;
 
 [ExcludeFromCodeCoverage]
-public class SearchSenioritySpecs : EntitiesByPaginationFilterSpec<Experties.Domain.Seniority, SeniorityResponse>
+public class SearchSenioritySpecs : EntitiesByPaginationFilterSpec<Seniority, SeniorityResponse>
 {
     public SearchSenioritySpecs(SearchSenioritiesCommand command)
         : base(command)
     {
-        // Filter out deleted records
-        Query.Where(b => b.DeletedBy == null);
+        // Combined filter to eliminate branching and achieve Cognitive Complexity = 0
+        Query.Where(b =>
+            b.DeletedBy == null
+            && (string.IsNullOrEmpty(command.Keyword) || b.Name.Contains(command.Keyword))
+        );
 
-        // Filter by keyword in name
-        if (!string.IsNullOrEmpty(command.Keyword))
-        {
-            Query.Where(b => b.Name.Contains(command.Keyword));
-        }
-
-        // Apply default ordering if no custom order is specified
+        // Apply default ordering without conditional statements
         Query.OrderBy(c => c.Name, !command.HasOrderBy());
     }
 }

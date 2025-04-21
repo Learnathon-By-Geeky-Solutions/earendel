@@ -16,7 +16,6 @@ public static class UpdateSkillEndpoint
         return endpoints
             .MapPut("/{id:guid}", async (Guid id, UpdateSkillCommand request, ISender mediator) =>
             {
-                if (id != request.Id) return Results.BadRequest();
                 var response = await mediator.Send(request);
                 return Results.Ok(response);
             })

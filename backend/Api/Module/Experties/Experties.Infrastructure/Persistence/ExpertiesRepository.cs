@@ -4,11 +4,12 @@ using TalentMesh.Framework.Core.Domain.Contracts;
 using TalentMesh.Framework.Core.Persistence;
 using Mapster;
 using System.Diagnostics.CodeAnalysis;
+using TalentMesh.Framework.Core.Specifications;
 
 namespace TalentMesh.Module.Experties.Infrastructure.Persistence;
 
 [ExcludeFromCodeCoverage]
-internal sealed class  ExpertiesRepository<T> : RepositoryBase<T>, IReadRepository<T>, IRepository<T>
+internal sealed class ExpertiesRepository<T> : RepositoryBase<T>, IReadRepository<T>, IRepository<T>
     where T : class, IAggregateRoot
 {
     public ExpertiesRepository(ExpertiesDbContext context)
@@ -16,12 +17,11 @@ internal sealed class  ExpertiesRepository<T> : RepositoryBase<T>, IReadReposito
     {
     }
 
-    // We override the default behavior when mapping to a dto.
-    // We're using Mapster's ProjectToType here to immediately map the result from the database.
-    // This is only done when no Selector is defined, so regular specifications with a selector also still work.
-    protected override IQueryable<TResult> ApplySpecification<TResult>(ISpecification<T, TResult> specification) =>
-        specification.Selector is not null
+    protected override IQueryable<TResult> ApplySpecification<TResult>(ISpecification<T, TResult> specification)
+    {
+        return specification.HasSelector()
             ? base.ApplySpecification(specification)
-            : ApplySpecification(specification, false)
-                .ProjectToType<TResult>();
+            : ApplySpecification(specification, false).ProjectToType<TResult>();
+    }
 }
+

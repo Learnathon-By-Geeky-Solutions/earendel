@@ -8,33 +8,20 @@ using System.Diagnostics.CodeAnalysis;
 namespace TalentMesh.Module.Experties.Application.Rubrics.Search.v1;
 
 [ExcludeFromCodeCoverage]
-public class SearchRubricSpecs : EntitiesByPaginationFilterSpec<Experties.Domain.Rubric, RubricResponse>
+public class SearchRubricSpecs : EntitiesByPaginationFilterSpec<Rubric, RubricResponse>
 {
     public SearchRubricSpecs(SearchRubricsCommand command)
         : base(command)
     {
-        // Only fetch rubrics that are not deleted
-        Query.Where(r => r.DeletedBy == null);
+        // Combined filters into a single expression to eliminate branching
+        Query.Where(r =>
+            r.DeletedBy == null
+            && (string.IsNullOrEmpty(command.Keyword) || r.Title.Contains(command.Keyword))
+            && (!command.SubSkillId.HasValue || r.SubSkillId == command.SubSkillId)
+            && (!command.SeniorityId.HasValue || r.SeniorityId == command.SeniorityId)
+        );
 
-        // Filter by keyword in title
-        if (!string.IsNullOrEmpty(command.Keyword))
-        {
-            Query.Where(r => r.Title.Contains(command.Keyword));
-        }
-
-        // Filter by SubSkillId
-        if (command.SubSkillId.HasValue)
-        {
-            Query.Where(r => r.SubSkillId == command.SubSkillId);
-        }
-
-        // Filter by SeniorityId
-        if (command.SeniorityId.HasValue)
-        {
-            Query.Where(r => r.SeniorityId == command.SeniorityId);
-        }
-
-        // Default ordering
+        // Default ordering without conditional statements
         Query.OrderBy(r => r.Title, !command.HasOrderBy());
     }
 }

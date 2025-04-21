@@ -1,4 +1,5 @@
-﻿using TalentMesh.Framework.Core.Caching;
+﻿using System.Security.Claims;  
+using TalentMesh.Framework.Core.Caching;
 using TalentMesh.Framework.Core.Exceptions;
 using TalentMesh.Shared.Authorization;
 using Microsoft.EntityFrameworkCore;
@@ -34,6 +35,39 @@ internal sealed partial class UserService
             cancellationToken: cancellationToken);
 
         return permissions;
+    }
+
+    public async Task SeedRolePermissionsAsync(CancellationToken cancellationToken = default)
+    {
+        foreach (var role in TMRoles.DefaultRoles)
+        {
+            var roleEntity = await roleManager.FindByNameAsync(role);
+            if (roleEntity == null) continue;
+
+            // Get existing claims for this role
+            var existingClaims = await roleManager.GetClaimsAsync(roleEntity);
+
+            // Get permissions for this role from our TMPermissions class
+            var rolePermissions = TMPermissions.GetPermissionsForRole(role);
+
+            // Remove claims that are no longer valid
+            foreach (var claim in existingClaims.Where(c => c.Type == TMClaims.Permission))
+            {
+                if (!rolePermissions.Any(p => p.Name == claim.Value))
+                {
+                    await roleManager.RemoveClaimAsync(roleEntity, claim);
+                }
+            }
+
+            // Add new claims
+            foreach (var permission in rolePermissions)
+            {
+                if (!existingClaims.Any(c => c.Type == TMClaims.Permission && c.Value == permission.Name))
+                {
+                    await roleManager.AddClaimAsync(roleEntity, new Claim(TMClaims.Permission, permission.Name));
+                }
+            }
+        }
     }
 
     public static string GetPermissionCacheKey(string userId)

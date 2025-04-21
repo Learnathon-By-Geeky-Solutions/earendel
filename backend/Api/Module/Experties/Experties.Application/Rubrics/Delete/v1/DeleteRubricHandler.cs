@@ -14,8 +14,8 @@ public sealed class DeleteRubricHandler(
     public async Task Handle(DeleteRubricCommand request, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(request);
-        var rubric = await repository.GetByIdAsync(request.Id, cancellationToken);
-        if (rubric == null) throw new RubricNotFoundException(request.Id);
+        var rubric = await repository.GetByIdAsync(request.Id, cancellationToken)
+                     ?? throw new RubricNotFoundException(request.Id);
         await repository.DeleteAsync(rubric, cancellationToken);
         logger.LogInformation("rubric with id : {RubricId} deleted", rubric.Id);
     }

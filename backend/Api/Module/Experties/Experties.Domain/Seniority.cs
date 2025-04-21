@@ -24,10 +24,8 @@ public class Seniority : AuditableEntity, IAggregateRoot
     }
     public Seniority Update(string? name, string? description)
     {
-        if (name is not null && Name?.Equals(name, StringComparison.OrdinalIgnoreCase) is not true)
-        Name = name;
-        if (description is not null && Description?.Equals(description, StringComparison.OrdinalIgnoreCase) is not true) 
-        Description = description;
+        Name = name ?? Name;
+        Description = description ?? Description;
 
         this.QueueDomainEvent(new SeniorityUpdated() { Seniority = this });
 
