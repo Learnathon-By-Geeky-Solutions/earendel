@@ -20,7 +20,7 @@ namespace TalentMesh.Module.InterviewerView
                     await mediator.Send(new ApproveInterviewerCommand(id));
                     return Results.NoContent();
                 })
-               .WithTags("InterViewerRRRRRR")
+               .WithTags("InterviewerFileHandler")
                .WithName("ApproveInterviewer")
                .Produces(StatusCodes.Status204NoContent)
                .Produces(StatusCodes.Status404NotFound)
