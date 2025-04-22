@@ -41,7 +41,7 @@ export const endpoint = {
   getInterviewerEntryFormList: `${base}/api/v1/evaluator/interviewerentryforms/search`,
   downloadInterviewerEntryFormPdf: `${base}/api/v1/interviewers`,
   approveInterviewerEntryForm: `${base}/api/v1/InterviewerView/Interviewer/api/interviewers`,
-  rejectInterviewerEntryForm: `${base}/api/v1/interviewers`,
+  rejectInterviewerEntryForm: `${base}/api/v1/InterviewerView/Interviewer/api/interviewers`,
 
   userProfile: `${base}/api/users`,
 };

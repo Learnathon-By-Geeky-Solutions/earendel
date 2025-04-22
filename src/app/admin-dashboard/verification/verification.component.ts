@@ -525,7 +525,7 @@ import { PaginationComponent } from '../pagination/pagination.component';
                       }}
                     </td>
                     <td class="px-4 py-3">
-                      {{ interviewer.Created || 'N/A' }}
+                      {{ formatDate(interviewer.created) }}
                     </td>
                     <td class="px-4 py-3">
                       <span [class]="getDocumentStatusClass(interviewer.cv)">
@@ -631,8 +631,8 @@ import { PaginationComponent } from '../pagination/pagination.component';
                 ></textarea>
               </div>
 
-              <div class="row mb-4">
-                <div class="col-md-4 mb-3">
+              <div class="row mb-6">
+                <div class="col-md-6 mb-6">
                   <label class="form-label">CV</label>
                   <div class="d-grid">
                     <button
@@ -644,30 +644,7 @@ import { PaginationComponent } from '../pagination/pagination.component';
                     </button>
                   </div>
                 </div>
-                <div class="col-md-4 mb-3">
-                  <label class="form-label">ID Card</label>
-                  <div class="d-grid">
-                    <button
-                      class="btn btn-outline-secondary"
-                      (click)="viewDocument(null, 'ID Card')"
-                    >
-                      <i class="bi bi-card-image me-2"></i>
-                      View ID Card
-                    </button>
-                  </div>
-                </div>
-                <div class="col-md-4 mb-3">
-                  <label class="form-label">Work Permit</label>
-                  <div class="d-grid">
-                    <button
-                      class="btn btn-outline-secondary"
-                      (click)="viewDocument(null, 'Work Permit')"
-                    >
-                      <i class="bi bi-file-earmark-text me-2"></i>
-                      View Work Permit
-                    </button>
-                  </div>
-                </div>
+               
               </div>
 
               <div class="mb-3">
@@ -723,27 +700,7 @@ import { PaginationComponent } from '../pagination/pagination.component';
                 (click)="closeRejectModal()"
               ></button>
             </div>
-            <div class="modal-body pt-2">
-              <p class="text-muted small mb-4">
-                Please provide a reason for rejecting this application. This
-                information will be shared with the applicant.
-              </p>
 
-              <div class="mb-3">
-                <label class="form-label"
-                  >Rejection Reason <span class="text-danger">*</span></label
-                >
-                <textarea
-                  class="form-control"
-                  rows="4"
-                  [(ngModel)]="rejectionReason"
-                  placeholder="Enter rejection reason"
-                ></textarea>
-                <div *ngIf="showRejectionError" class="text-danger mt-1 small">
-                  Please provide a reason for rejection.
-                </div>
-              </div>
-            </div>
             <div class="modal-footer border-0">
               <button
                 type="button"
@@ -1034,6 +991,14 @@ export class VerificationComponent implements OnInit {
     this.loadInterviewers();
   }
 
+  formatDate(date: any) {
+    if (!date) return 'N/A';
+    return new Date(date).toLocaleString('en-US', {
+      dateStyle: 'medium',
+      timeStyle: 'short',
+    });
+  }
+
   // Update the loadInterviewers method to fetch user details for each interviewer
   loadInterviewers(): void {
     this.isLoading = true;
@@ -1092,7 +1057,6 @@ export class VerificationComponent implements OnInit {
               this.interviewers = enrichedInterviewers;
               this.filteredInterviewers = [...this.interviewers];
               this.paginatedInterviewers = [...this.filteredInterviewers];
-              console.log(this.paginatedInterviewers)
             },
             error: (error) => {
               console.error('Error processing interviewer profiles:', error);
@@ -1228,42 +1192,36 @@ export class VerificationComponent implements OnInit {
   }
 
   confirmReject(): void {
-    // if (!this.selectedInterviewer) return;
-
+    if (!this.selectedInterviewer) return;
     // if (!this.rejectionReason.trim()) {
     //   this.showRejectionError = true;
     //   return;
     // }
-
-    // const interviewerId = this.selectedInterviewer.id;
-
-    // this.verificationService
-    //   .rejectVerification(interviewerId, {
-    //     reason: this.rejectionReason,
-    //   })
-    //   .subscribe({
-    //     next: (response) => {
-    //       // Update the interviewer in the local array
-    //       const index = this.interviewers.findIndex(
-    //         (i) => i.id === interviewerId
-    //       );
-    //       if (index !== -1) {
-    //         this.interviewers[index] = {
-    //           ...this.interviewers[index],
-    //           ...response,
-    //         };
-    //       }
-
-    //       // Reload the interviewers to reflect the changes
-    //       this.loadInterviewers();
-    //       this.closeRejectModal();
-    //     },
-    //     error: (error) => {
-    //       console.error('Error rejecting interviewer:', error);
-    //       // Show error message to user
-    //       alert('Failed to reject interviewer. Please try again.');
-    //     },
-    //   });
+    const interviewerId = this.selectedInterviewer.id;
+    this.verificationService
+      .rejectVerification(interviewerId)
+      .subscribe({
+        next: (response) => {
+          // Update the interviewer in the local array
+          const index = this.interviewers.findIndex(
+            (i) => i.id === interviewerId
+          );
+          if (index !== -1) {
+            this.interviewers[index] = {
+              ...this.interviewers[index],
+              ...response,
+            };
+          }
+          // Reload the interviewers to reflect the changes
+          this.loadInterviewers();
+          this.closeRejectModal();
+        },
+        error: (error) => {
+          console.error('Error rejecting interviewer:', error);
+          // Show error message to user
+          alert('Failed to reject interviewer. Please try again.');
+        },
+      });
   }
 
   // Update the viewDocument method to ignore the document path and just use the interviewer ID and document type

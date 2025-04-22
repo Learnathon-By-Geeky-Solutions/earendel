@@ -35,7 +35,7 @@ export class VerificationService {
   // Verification endpoints
   getInterviewerEntryFormList = `${endpoint.getInterviewerEntryFormList}`;
   approveInterviewerEntryForm = `${endpoint.approveInterviewerEntryForm}`;
-  // verificationRejectUrl = `${endpoint.verificationRejectUrl}`;
+  rejectInterviewerEntryForm = `${endpoint.rejectInterviewerEntryForm}`;
   downloadInterviewerEntryFormPdf = `${endpoint.downloadInterviewerEntryFormPdf}`;
   userProfile = `${endpoint.userProfile}`;
 
@@ -62,6 +62,13 @@ export class VerificationService {
   approveVerification(id: string): Observable<any> {
     return this.http.post<any>(
       `${this.approveInterviewerEntryForm.trim()}/${id}/approve`,
+      {}
+    );
+  }
+
+  rejectVerification(id: string): Observable<any> {
+    return this.http.post<any>(
+      `${this.rejectInterviewerEntryForm.trim()}/${id}/reject`,
       {}
     );
   }
