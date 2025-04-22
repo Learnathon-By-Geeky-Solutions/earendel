@@ -7,6 +7,7 @@ export const endpoint = {
   githubLoginUrl: `${base}/api/users/github-login`,
   userRegistrationUrl: `${base}/api/users/self-register`,
   userLoginUrl: `${base}/api/token`,
+  refreshTokenUrl: `${base}/api/token/refresh`,
   hrDetailsUrl: `${base}/api/users/hr`,
 
   interviewerAvailabilityCreateUrl: `${base}/api/v1/evaluator/intervieweravailabilities`,
