@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { endpoint } from '../../endpoints/endpoint';
-import {  HttpClient, HttpParams } from '@angular/common/http';
-import  { ApiService } from '../../core/service/api.service';
-import  { Observable } from 'rxjs';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { ApiService } from '../../core/service/api.service';
+import { Observable } from 'rxjs';
 
 export interface InterviewerVerification {
   id: string;
@@ -36,7 +36,12 @@ export class VerificationService {
   getInterviewerEntryFormList = `${endpoint.getInterviewerEntryFormList}`;
   approveInterviewerEntryForm = `${endpoint.approveInterviewerEntryForm}`;
   rejectInterviewerEntryForm = `${endpoint.rejectInterviewerEntryForm}`;
+
+  requestInterviewerEntryFormData = `${endpoint.requestInterviewerEntryFormData}`;
+
   downloadInterviewerEntryFormPdf = `${endpoint.downloadInterviewerEntryFormPdf}`;
+  uploadInterviewerEntryFormPdf = `${endpoint.uploadInterviewerEntryFormPdf}`;
+
   userProfile = `${endpoint.userProfile}`;
 
   constructor(
@@ -44,14 +49,8 @@ export class VerificationService {
     private readonly apiService: ApiService
   ) {}
 
-  getVerificationList(params: {
-    pageNumber: number;
-    pageSize: number;
-  }): Observable<any> {
-    return this.http.post(this.getInterviewerEntryFormList.trim(), {
-      pageNumber: params.pageNumber,
-      pageSize: params.pageSize,
-    });
+  getVerificationList(params: any): Observable<any> {
+    return this.http.post(this.getInterviewerEntryFormList.trim(), params);
   }
 
   getUserProfile(id: string): Observable<any> {
@@ -73,16 +72,6 @@ export class VerificationService {
     );
   }
 
-  // rejectVerification(
-  //   id: string,
-  //   data: { reason: string }
-  // ): Observable<InterviewerVerification> {
-  //   return this.http.put<InterviewerVerification>(
-  //     `${this.verificationRejectUrl.trim()}/${id}/reject`,
-  //     data
-  //   );
-  // }
-
   getVerificationDocument(id: string, documentType = 'cv'): Observable<Blob> {
     // Use the correct endpoint for downloading documents
     return this.http.get(
@@ -101,5 +90,28 @@ export class VerificationService {
 
     // Default to CV
     return 'cv';
+  }
+
+  submitVerificationApplication(formData: any): Observable<any> {
+    return this.http.post<any>(
+      `${this.requestInterviewerEntryFormData}`,
+      formData
+    );
+  }
+
+  uploadFile(
+    applicationId: string,
+    documentType: string,
+    formData: FormData
+  ): Observable<any> {
+    console.log(applicationId)
+    return this.http.post(
+      `${this.uploadInterviewerEntryFormPdf}/${applicationId}/upload-cv`,
+      formData,
+      {
+        reportProgress: true,
+        observe: 'events',
+      }
+    );
   }
 }
