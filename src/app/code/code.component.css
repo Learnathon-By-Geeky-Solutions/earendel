@@ -1,0 +1,161 @@
+.editor-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  padding: 10px;
+}
+
+.controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  padding: 10px;
+  background-color: #1e1e1e;
+  border-radius: 5px;
+}
+
+.language-dropdown {
+  padding: 8px 12px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 14px;
+  background-color: #2d2d2d;
+  color: white;
+  outline: none;
+}
+
+.run-button {
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: bold;
+  color: white;
+  background-color: #007acc;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.run-button:hover {
+  background-color: #005a9e;
+}
+
+.editor-output {
+  display: flex;
+  flex-wrap: wrap;  /* Allow items to wrap to new lines */
+  gap: 10px;
+  height: 100%; /* Full height */
+  padding-top: 10px;
+}
+
+.editor {
+  flex: 3 1 60%; /* The editor takes more space on larger screens */
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.output {
+  flex: 1 1 35%; /* The output takes less space on larger screens */
+  display: flex;
+  flex-direction: column;
+  background-color: #1e1e1e;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  color: white;
+  padding: 10px;
+  overflow-y: auto;
+}
+
+.input-section,
+.output-section {
+  flex: 1;
+  margin-bottom: 10px;
+}
+
+.input-section h3,
+.output-section h3 {
+  color: #dcdcdc;
+  font-size: 16px;
+}
+
+.input-field {
+  width: 100%;
+  padding: 10px;
+  margin: 5px 0;
+  background-color: #2d2d2d;
+  color: white;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  outline: none;
+  resize: vertical;
+}
+
+pre {
+  background-color: #2d2d2d;
+  padding: 10px;
+  border-radius: 5px;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  font-size: 14px;
+  overflow-x: auto;
+}
+
+@media screen and (max-width: 768px) {
+  .editor-container {
+    padding: 5px;
+  }
+
+  .controls {
+    flex-direction: column; /* Stack controls on top of each other */
+    gap: 10px;
+    align-items: stretch;
+  }
+
+  .editor-output {
+    flex-direction: column; /* Stack the editor and output vertically */
+    gap: 15px;
+  }
+
+  .editor {
+    flex: 1 1 100%; /* Full width on small screens */
+    height: 250px; /* Limit the editor height */
+  }
+
+  .output {
+    flex: 1 1 100%; /* Full width on small screens */
+    height: 200px; /* Limit the output height */
+  }
+
+  .input-field {
+    font-size: 13px; /* Smaller font on mobile */
+    padding: 8px;
+  }
+
+  .run-button {
+    font-size: 13px; /* Smaller button on mobile */
+    padding: 8px 15px;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .controls {
+    font-size: 12px; /* Smaller font for very small screens */
+  }
+
+  .run-button {
+    font-size: 12px; /* Smaller button text */
+    padding: 6px 12px;
+  }
+
+  .input-field {
+    font-size: 12px; /* Smaller font for input */
+  }
+
+  pre {
+    font-size: 12px; /* Smaller output font */
+  }
+}

@@ -35,4 +35,6 @@ export const endpoint = {
   quizQuestionCreatedUrl: `${base}/api/v1/quizzes/quizquestions`,
   quizQuestionUpdatedUrl: `${base}/api/v1/quizzes/quizquestions`,
   quizQuestionDeletedUrl: `${base}/api/v1/quizzes/quizquestions`,
+
+  getZoomSignatureUrl: `${base}/api/v1/interviews/interviews/signature`,
 };

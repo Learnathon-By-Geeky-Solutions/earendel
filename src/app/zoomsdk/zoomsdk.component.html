@@ -1,0 +1,34 @@
+<!-- zoomsdk.component.html
+<main class="layout">
+  <div class="zoom-container">
+    <div id="zmmtg-root" class="zoom-meeting-view"></div>
+    <div class="controls">
+      <button (click)="getSignature()" [disabled]="isJoining">
+        {{ isJoining ? "Joining..." : "Join Meeting" }}
+      </button>
+    </div>
+  </div>
+
+  <aside class="sidebar">
+    <app-monaco-editor></app-monaco-editor> 
+  </aside>
+</main> -->
+
+<main class="main-container">
+  <div class="video-editor-wrapper">
+    <!-- Zoom Meeting Container -->
+    <div class="zoom-container">
+      <h1>Zoom Meeting</h1>
+      <div id="zmmtg-root"></div>
+
+      <button (click)="getSignature()" *ngIf="!isMeetingJoined">
+        Join Meeting
+      </button>
+    </div>
+
+    <!-- Code Editor Container -->
+    <div class="editor-container">
+      <app-monaco-editor></app-monaco-editor>
+    </div>
+  </div>
+</main>
