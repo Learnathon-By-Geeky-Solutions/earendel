@@ -1,12 +1,11 @@
 import { Component, type OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import  { Router, ActivatedRoute } from '@angular/router';
-import { SidebarComponent } from '../../sidebar/sidebar.component';
 
 @Component({
   selector: 'app-customized-interview',
   standalone: true,
-  imports: [CommonModule, SidebarComponent],
+  imports: [CommonModule],
   template: `
     <div class="container">
       <div class="main-section">
