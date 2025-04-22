@@ -164,8 +164,8 @@ namespace TalentMesh.Module.Evaluator.Tests
 
             var InterviewerEntryForms = new List<InterviewerEntryFormResponse>
             {
-                new InterviewerEntryFormResponse(Guid.NewGuid(), Guid.NewGuid(), "string", "pending" ),
-                new InterviewerEntryFormResponse(Guid.NewGuid(), Guid.NewGuid(), "string1", "approved" )
+                new InterviewerEntryFormResponse(Guid.NewGuid(), Guid.NewGuid(), "cvv", "string", "pending" ),
+                new InterviewerEntryFormResponse(Guid.NewGuid(), Guid.NewGuid(), "cvv", "string1", "approved" )
             };
             var totalCount = InterviewerEntryForms.Count;
 
