@@ -37,4 +37,11 @@ export const endpoint = {
   quizQuestionDeletedUrl: `${base}/api/v1/quizzes/quizquestions`,
 
   getZoomSignatureUrl: `${base}/api/v1/interviews/interviews/signature`,
+
+  getInterviewerEntryFormList: `${base}/api/v1/evaluator/interviewerentryforms/search`,
+  downloadInterviewerEntryFormPdf: `${base}/api/v1/interviewers`,
+  approveInterviewerEntryForm: `${base}/api/v1/InterviewerView/Interviewer/api/interviewers`,
+  rejectInterviewerEntryForm: `${base}/api/v1/interviewers`,
+
+  userProfile: `${base}/api/users`,
 };
