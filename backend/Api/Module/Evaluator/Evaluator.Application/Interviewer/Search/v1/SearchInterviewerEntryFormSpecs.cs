@@ -27,6 +27,14 @@ namespace TalentMesh.Module.Evaluator.Application.Interviewer.Search.v1
             {
                 Query.Where(x => x.Status.Contains(command.Status));
             }
+
+            Query.Select(x => new InterviewerEntryFormResponse(
+                x.Id,
+                x.UserId,
+                x.CV,              // ← now included
+                x.AdditionalInfo,
+                x.Status
+            ));
         }
     }
 }
