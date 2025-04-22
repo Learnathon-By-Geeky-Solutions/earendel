@@ -7,6 +7,7 @@ namespace Evaluator.Application.Interviewer.Get.v1
         Guid UserId,
         string? CV,
         string? AdditionalInfo,
-        string Status
+        string Status,
+        DateTimeOffset Created
     );
 }

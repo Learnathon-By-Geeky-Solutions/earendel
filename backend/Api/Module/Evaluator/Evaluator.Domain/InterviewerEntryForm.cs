@@ -48,5 +48,10 @@ namespace TalentMesh.Module.Evaluator.Domain
             Status = "approved";
             this.QueueDomainEvent(new InterviewerEntryFormUpdated { InterviewerEntryForm = this });
         }
+        public void Reject()
+        {
+            Status = "rejected";
+            this.QueueDomainEvent(new InterviewerEntryFormUpdated { InterviewerEntryForm = this });
+        }
     }
 }

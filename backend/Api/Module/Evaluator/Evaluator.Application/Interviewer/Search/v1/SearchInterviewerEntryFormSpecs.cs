@@ -16,6 +16,11 @@ namespace TalentMesh.Module.Evaluator.Application.Interviewer.Search.v1
             // Order by CreatedDate (assumed from AuditableEntity) if no specific order is provided.
             Query.OrderBy(x => x.Created, !command.HasOrderBy());
 
+            if (command.UserId.HasValue)
+            {
+                Query.Where(x => x.UserId == command.UserId.Value);
+            }
+
             // Filter by AdditionalInfo if provided.
             if (!string.IsNullOrEmpty(command.AdditionalInfo))
             {
@@ -31,9 +36,10 @@ namespace TalentMesh.Module.Evaluator.Application.Interviewer.Search.v1
             Query.Select(x => new InterviewerEntryFormResponse(
                 x.Id,
                 x.UserId,
-                x.CV,              // ← now included
+                x.CV,
                 x.AdditionalInfo,
-                x.Status
+                x.Status,
+                x.Created
             ));
         }
     }

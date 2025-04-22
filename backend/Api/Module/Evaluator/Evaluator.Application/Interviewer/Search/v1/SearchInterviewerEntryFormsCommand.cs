@@ -10,7 +10,7 @@ namespace TalentMesh.Module.Evaluator.Application.Interviewer.Search.v1
     [ExcludeFromCodeCoverage]
     public class SearchInterviewerEntryFormsCommand : PaginationFilter, IRequest<PagedList<InterviewerEntryFormResponse>>
     {
-        // Optional filters: search by AdditionalInfo and/or Status.
+        public Guid? UserId { get; set; } 
         public string? AdditionalInfo { get; set; }
         public string? Status { get; set; }
     }
