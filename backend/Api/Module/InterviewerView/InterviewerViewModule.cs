@@ -28,6 +28,7 @@ namespace TalentMesh.Module.InterviewerView// Corrected namespace based on file 
                 // Keep endpoints specific to the Interviewer View under this group
                 var interviewerViewGroup = app.MapGroup("Interviewer").WithTags("View");
                 interviewerViewGroup.MapApproveInterviewer(); // Assuming these exist
+                interviewerViewGroup.MapRejectInterviewer(); // Assuming these exist
                 interviewerViewGroup.MapRequestInterviewer(); // Assuming these exist
                 interviewerViewGroup.MapInterviewQuestion();
                 interviewerViewGroup.MapInterviewFeedback();
