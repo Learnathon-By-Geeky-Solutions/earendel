@@ -1,81 +1,166 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatChipsModule } from '@angular/material/chips';
 import { JobDetailsModalComponent } from '../job-details/job-details.component';
+import { JobService, Job, JobFilter } from '../services/job.service';
+import { Subject, debounceTime, distinctUntilChanged, takeUntil, of } from 'rxjs';
+import { catchError, shareReplay } from 'rxjs/operators';
 
 @Component({
   selector: 'app-job-posts',
   standalone: true,
-  imports: [CommonModule, FormsModule, JobDetailsModalComponent],
+  imports: [
+    CommonModule,
+    FormsModule,
+    MatInputModule,
+    MatSelectModule,
+    MatButtonModule,
+    MatIconModule,
+    MatProgressSpinnerModule,
+    MatSnackBarModule,
+    MatChipsModule,
+    MatTooltipModule,
+    JobDetailsModalComponent
+  ],
   template: `
     <div class="jobs-container">
       <h2>Job Posts</h2>
+      
+      <!-- STEP 2: Implement Filtering UI -->
       <div class="search-filter-container">
-        <input
-          type="text"
-          [(ngModel)]="searchTerm"
-          (ngModelChange)="search()"
-          placeholder="Search jobs..."
-          class="search-input"
-        />
-        <select
-          [(ngModel)]="selectedExperience"
-          (ngModelChange)="filter()"
-          class="filter-select"
-        >
-          <option value="">All Experience</option>
-          <option value="0-2">0-2 years</option>
-          <option value="3-5">3-5 years</option>
-          <option value="5+">5+ years</option>
-        </select>
-        <select
-          [(ngModel)]="selectedStatus"
-          (ngModelChange)="filter()"
-          class="filter-select"
-        >
-          <option value="">All Status</option>
-          <option value="active">Active</option>
-          <option value="closed">Closed</option>
-        </select>
+        <mat-form-field appearance="outline" class="search-field">
+          <mat-label>Search jobs</mat-label>
+          <input
+            matInput
+            [(ngModel)]="searchTerm"
+            (ngModelChange)="onSearchChange($event)"
+            placeholder="Search by title or keywords"
+          />
+          <mat-icon matSuffix>search</mat-icon>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="filter-field">
+          <mat-label>Experience Level</mat-label>
+          <mat-select [(ngModel)]="selectedExperience" (selectionChange)="onFilterChange()">
+            <mat-option value="">All Experience Levels</mat-option>
+            <mat-option value="Entry Level">Entry Level</mat-option>
+            <mat-option value="Mid Level">Mid Level</mat-option>
+            <mat-option value="Senior Level">Senior Level</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="filter-field">
+          <mat-label>Job Type</mat-label>
+          <mat-select [(ngModel)]="selectedJobType" (selectionChange)="onFilterChange()">
+            <mat-option value="">All Job Types</mat-option>
+            <mat-option value="Full-time">Full-time</mat-option>
+            <mat-option value="Part-time">Part-time</mat-option>
+            <mat-option value="Contract">Contract</mat-option>
+            <mat-option value="Driver">Driver</mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="filter-field">
+          <mat-label>Location</mat-label>
+          <mat-select [(ngModel)]="selectedLocation" (selectionChange)="onFilterChange()">
+            <mat-option value="">All Locations</mat-option>
+            <mat-option *ngFor="let location of locations" [value]="location">
+              {{ location }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
       </div>
-      <div class="jobs-list">
-        <div *ngFor="let job of paginatedJobs" class="job-card">
+
+      <!-- Active Filters as Chips -->
+      <div class="active-filters" *ngIf="hasActiveFilters()">
+        <span class="filters-label">Active Filters:</span>
+        <mat-chip-listbox>
+          <mat-chip *ngIf="searchTerm" (removed)="removeFilter('search')">
+            Search: {{ searchTerm }}
+            <button matChipRemove>
+              <mat-icon>cancel</mat-icon>
+            </button>
+          </mat-chip>
+          <mat-chip *ngIf="selectedExperience" (removed)="removeFilter('experience')">
+            Experience: {{ selectedExperience }}
+            <button matChipRemove>
+              <mat-icon>cancel</mat-icon>
+            </button>
+          </mat-chip>
+          <mat-chip *ngIf="selectedJobType" (removed)="removeFilter('jobType')">
+            Type: {{ selectedJobType }}
+            <button matChipRemove>
+              <mat-icon>cancel</mat-icon>
+            </button>
+          </mat-chip>
+          <mat-chip *ngIf="selectedLocation" (removed)="removeFilter('location')">
+            Location: {{ selectedLocation }}
+            <button matChipRemove>
+              <mat-icon>cancel</mat-icon>
+            </button>
+          </mat-chip>
+        </mat-chip-listbox>
+        <button mat-button color="primary" (click)="clearAllFilters()">Clear All</button>
+      </div>
+
+      <div *ngIf="jobs.length === 1 && !loading && !hasActiveFilters()" class="info-banner" matTooltip="Currently only one job post is available">
+        <mat-icon>info</mat-icon>
+        <span>Currently only one job post is available</span>
+      </div>
+
+      <!-- STEP 3: Setup Infinite Scrolling with Jobs List -->
+      <div class="jobs-list" #jobsList>
+        <div *ngFor="let job of jobs; trackBy: trackByJobId" class="job-card">
           <div class="card-header">
-            <h3>{{ job.position }}</h3>
-            <span [class]="'status-badge ' + job.status">
-              {{ job.status }}
-            </span>
+            <h3>{{ job.name }}</h3>
           </div>
           <div class="card-content">
             <div class="company-info">
-              <h4>{{ job.companyName }}</h4>
-              <span class="posted-date">Posted {{ job.posted }}</span>
+              <span class="posted-date">Posted {{ job.createdOn | date }}</span>
             </div>
             <div class="detail-row">
-              <i class="bi bi-briefcase"></i>
-              <span>{{ job.experience }} years experience</span>
+              <mat-icon>work</mat-icon>
+              <span>{{ job.experienceLevel }}</span>
             </div>
             <div class="detail-row">
-              <i class="bi bi-currency-dollar"></i>
-              <span>{{ job.salary }}</span>
+              <mat-icon>location_on</mat-icon>
+              <span>{{ job.location }}</span>
+            </div>
+            <div class="detail-row">
+              <mat-icon>business</mat-icon>
+              <span>{{ job.jobType }}</span>
             </div>
             <div class="skills-list">
-              <span *ngFor="let skill of job.skills" class="skill-tag">
-                {{ skill }}
-              </span>
+              <span class="skill-tag">{{ job.requirments }}</span>
             </div>
           </div>
           <div class="card-actions">
-            <button
-              class="view-details-btn"
-              [disabled]="job.status === 'closed'"
-              (click)="viewJobDetails(job)"
-            >
+            <button mat-raised-button color="primary" (click)="viewJobDetails(job)">
               View Details
             </button>
           </div>
         </div>
       </div>
+
+      <!-- STEP 4: Handle Empty States and Errors -->
+      <div *ngIf="loading" class="loading-spinner">
+        <mat-spinner diameter="40"></mat-spinner>
+      </div>
+
+      <div *ngIf="!loading && jobs.length === 0" class="no-jobs">
+        <mat-icon>search_off</mat-icon>
+        <p>No jobs found. Try adjusting your filters.</p>
+      </div>
+
+      <!-- Job Details Modal -->
       <app-job-details-modal
         *ngIf="selectedJob"
         [isOpen]="isModalOpen"
@@ -83,429 +168,463 @@ import { JobDetailsModalComponent } from '../job-details/job-details.component';
         (closeModal)="closeModal()"
         (applyForJob)="applyForJob($event)"
       ></app-job-details-modal>
-      <div class="view-more-btn-container">
-        <button
-          *ngIf="!allJobsLoaded"
-          (click)="loadMoreJobs()"
-          class="view-more-btn"
-        >
-          View More
-        </button>
-        <button
-          *ngIf="allJobsLoaded"
-          (click)="hideJobs()"
-          class="view-more-btn"
-        >
-          Hide Jobs
-        </button>
-      </div>
     </div>
   `,
-  styles: [
-    `
-      .jobs-container {
-        padding: 24px;
-      }
+  styles: [`
+    /* STEP 5: Final Polish & UX Considerations */
+    .jobs-container {
+      padding: 24px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
 
-      h2 {
-        font-size: 24px;
-        font-weight: 600;
-        margin-bottom: 24px;
-      }
+    h2 {
+      font-size: 24px;
+      font-weight: 600;
+      margin-bottom: 24px;
+      color: #333;
+    }
 
+    .search-filter-container {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 16px;
+      position: sticky;
+      top: 0;
+      background: white;
+      z-index: 10;
+      padding: 12px 0;
+    }
+
+    .search-field {
+      width: 100%;
+    }
+
+    .filter-field {
+      width: 100%;
+    }
+
+    .active-filters {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 24px;
+    }
+
+    .filters-label {
+      font-size: 14px;
+      color: #666;
+    }
+    
+    .info-banner {
+      display: flex;
+      align-items: center;
+      background-color: #e3f2fd;
+      border-radius: 8px;
+      padding: 12px 16px;
+      margin-bottom: 24px;
+      color: #0277bd;
+    }
+    
+    .info-banner mat-icon {
+      margin-right: 8px;
+    }
+
+    .jobs-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 24px;
+    }
+
+    .job-card {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .job-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .card-header {
+      margin-bottom: 16px;
+    }
+
+    .card-header h3 {
+      font-size: 18px;
+      font-weight: 600;
+      margin: 0;
+      color: #333;
+      line-height: 1.4;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      min-height: 50px;
+    }
+
+    .card-content {
+      flex-grow: 1;
+    }
+
+    .company-info {
+      margin-bottom: 16px;
+    }
+
+    .posted-date {
+      font-size: 12px;
+      color: #666;
+    }
+
+    .detail-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+      color: #666;
+    }
+
+    .detail-row mat-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+      color: #999;
+    }
+
+    .skills-list {
+      margin: 16px 0;
+      min-height: 40px;
+    }
+
+    .skill-tag {
+      display: inline-block;
+      padding: 4px 12px;
+      background: #f5f5f5;
+      border-radius: 16px;
+      font-size: 12px;
+      color: #666;
+      margin: 4px;
+    }
+
+    .card-actions {
+      margin-top: auto;
+      padding-top: 16px;
+    }
+
+    .loading-spinner {
+      display: flex;
+      justify-content: center;
+      padding: 40px;
+    }
+
+    .no-jobs {
+      text-align: center;
+      padding: 40px;
+      color: #666;
+    }
+
+    .no-jobs mat-icon {
+      font-size: 48px;
+      width: 48px;
+      height: 48px;
+      margin-bottom: 16px;
+    }
+
+    @media (max-width: 768px) {
       .search-filter-container {
-        display: flex;
-        gap: 16px;
-        margin-bottom: 24px;
+        grid-template-columns: 1fr;
       }
-
-      .search-input {
-        flex: 1;
-        padding: 10px;
-        border: 1px solid #dee2e6;
-        border-radius: 8px;
-        font-size: 14px;
-      }
-
-      .filter-select {
-        padding: 10px;
-        border: 1px solid #dee2e6;
-        border-radius: 8px;
-        font-size: 14px;
-        background-color: white;
-      }
-
-      .jobs-list {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-        gap: 24px;
-      }
-
-      .job-card {
-        background: white;
-        border-radius: 12px;
-        padding: 20px;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-        display: flex;
-        flex-direction: column;
-        height: 100%;
-      }
-
-      .card-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-start;
-        margin-bottom: 16px;
-
-        h3 {
-          font-size: 18px;
-          font-weight: 600;
-          margin: 0;
-          color: #333;
-          flex: 1;
-          min-height: 54px; /* Approximately 3 lines of text */
-          display: -webkit-box;
-          -webkit-line-clamp: 3;
-          -webkit-box-orient: vertical;
-          overflow: hidden;
-        }
-      }
-
-      .status-badge {
-        padding: 4px 12px;
-        border-radius: 20px;
-        font-size: 12px;
-        font-weight: 500;
-        white-space: nowrap;
-        margin-left: 8px;
-      }
-
-      .active {
-        background: #e6f4ea;
-        color: #1e7e34;
-      }
-
-      .closed {
-        background: #feeeee;
-        color: #dc3545;
-      }
-
-      .card-content {
-        flex-grow: 1;
-        display: flex;
-        flex-direction: column;
-      }
-
-      .company-info {
-        margin-bottom: 16px;
-
-        h4 {
-          font-size: 16px;
-          font-weight: 500;
-          margin: 0 0 4px;
-          color: #333;
-          white-space: nowrap;
-          overflow: hidden;
-          text-overflow: ellipsis;
-        }
-
-        .posted-date {
-          font-size: 12px;
-          color: #666;
-        }
-      }
-
-      .detail-row {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        color: #666;
-        font-size: 14px;
-        margin-bottom: 8px;
-
-        i {
-          font-size: 16px;
-          color: #999;
-          flex-shrink: 0;
-        }
-
-        span {
-          white-space: nowrap;
-          overflow: hidden;
-          text-overflow: ellipsis;
-        }
-      }
-
-      .skills-list {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 8px;
-        margin: 16px 0;
-        min-height: 60px; /* Ensure space for at least two rows of skills */
-      }
-
-      .skill-tag {
-        padding: 4px 12px;
-        background: #f8f9fa;
-        border-radius: 16px;
-        font-size: 12px;
-        color: #666;
-      }
-
-      .card-actions {
-        margin-top: auto;
-        padding-top: 20px;
-      }
-
-      .view-details-btn {
-        width: 100%;
-        padding: 10px;
-        background: #f8f9fa;
-        color: #666;
-        border: 1px solid #dee2e6;
-        border-radius: 8px;
-        font-size: 14px;
-        cursor: pointer;
-        transition: all 0.2s ease;
-
-        &:hover:not(:disabled) {
-          background: #e9ecef;
-        }
-
-        &:disabled {
-          background: #e9ecef;
-          color: #666;
-          cursor: not-allowed;
-        }
-      }
-
-      .view-more-btn-container {
-        text-align: center;
-        margin-top: 24px;
-      }
-
-      .view-more-btn {
-        padding: 10px 20px;
-        background: #007bff;
-        color: white;
-        border: none;
-        border-radius: 8px;
-        font-size: 16px;
-        cursor: pointer;
-        transition: all 0.2s ease;
-      }
-
-      .view-more-btn:hover {
-        background: #0056b3;
-      }
-
-      @media (max-width: 768px) {
-        .jobs-container {
-          padding: 16px;
-        }
-
-        .search-filter-container {
-          flex-direction: column;
-        }
-
-        .jobs-list {
-          grid-template-columns: 1fr;
-        }
-      }
-    `,
-  ],
+    }
+  `]
 })
-export class JobPostsComponent {
-  jobs: any[] = [
-    {
-      id: '1',
-      companyName: 'Tech Corp',
-      position: 'Senior Frontend Developer',
-      experience: '5+',
-      salary: '$120k - $150k',
-      skills: ['React', 'TypeScript', 'Node.js'],
-      posted: '2 days ago',
-      status: 'active',
-    },
-    {
-      id: '2',
-      companyName: 'Innovation Labs',
-      position: 'Full Stack Developer',
-      experience: '3-5',
-      salary: '$90k - $120k',
-      skills: ['Angular', 'Express.js', 'MongoDB'],
-      posted: '5 days ago',
-      status: 'active',
-    },
-    {
-      id: '3',
-      companyName: 'Future Enterprises',
-      position: 'Backend Engineer',
-      experience: '0-2',
-      salary: '$70k - $90k',
-      skills: ['Node.js', 'Python', 'SQL'],
-      posted: '1 week ago',
-      status: 'closed',
-    },
-    {
-      id: '2',
-      companyName: 'Innovation Labs',
-      position: 'Full Stack Developer',
-      experience: '3-5',
-      salary: '$90k - $120k',
-      skills: ['Angular', 'Express.js', 'MongoDB'],
-      posted: '5 days ago',
-      status: 'active',
-    },
-    {
-      id: '2',
-      companyName: 'Innovation Labs',
-      position: 'Full Stack Developer',
-      experience: '3-5',
-      salary: '$90k - $120k',
-      skills: ['Angular', 'Express.js', 'MongoDB'],
-      posted: '5 days ago',
-      status: 'active',
-    },
-    {
-      id: '2',
-      companyName: 'Innovation Labs',
-      position: 'Full Stack Developer',
-      experience: '3-5',
-      salary: '$90k - $120k',
-      skills: ['Angular', 'Express.js', 'MongoDB'],
-      posted: '5 days ago',
-      status: 'active',
-    },
-    {
-      id: '2',
-      companyName: 'Innovation Labs',
-      position: 'Full Stack Developer',
-      experience: '3-5',
-      salary: '$90k - $120k',
-      skills: ['Angular', 'Express.js', 'MongoDB'],
-      posted: '5 days ago',
-      status: 'active',
-    },
-    {
-      id: '2',
-      companyName: 'Innovation Labs',
-      position: 'Full Stack Developer',
-      experience: '3-5',
-      salary: '$90k - $120k',
-      skills: ['Angular', 'Express.js', 'MongoDB'],
-      posted: '5 days ago',
-      status: 'active',
-    },
-    {
-      id: '2',
-      companyName: 'Innovation Labs',
-      position: 'Full Stack Developer',
-      experience: '3-5',
-      salary: '$90k - $120k',
-      skills: ['Angular', 'Express.js', 'MongoDB'],
-      posted: '5 days ago',
-      status: 'active',
-    },
-    {
-      id: '2',
-      companyName: 'Innovation Labs',
-      position: 'Full Stack Developer',
-      experience: '3-5',
-      salary: '$90k - $120k',
-      skills: ['Angular', 'Express.js', 'MongoDB'],
-      posted: '5 days ago',
-      status: 'active',
-    },
-    {
-      id: '2',
-      companyName: 'Innovation Labs',
-      position: 'Full Stack Developer',
-      experience: '3-5',
-      salary: '$90k - $120k',
-      skills: ['Angular', 'Express.js', 'MongoDB'],
-      posted: '5 days ago',
-      status: 'active',
-    },
-  ];
-
-  paginatedJobs: any[] = [];
-  pageSize = 6; // Number of jobs to display per click
-  currentPage = 0;
-  allJobsLoaded = false;
+export class JobPostsComponent implements OnInit, OnDestroy {
+  // STEP 1: Integrate the Job List API with the UI
+  jobs: Job[] = [];
+  loading = false;
+  currentPage = 1;
   searchTerm = '';
   selectedExperience = '';
-  selectedStatus = '';
-  selectedJob: any = null;
+  selectedJobType = '';
+  selectedLocation = '';
+  selectedJob: Job | null = null;
   isModalOpen = false;
+  locations: string[] = [];
+  allDataLoaded = false;
+  private destroy$ = new Subject<void>();
+  private searchSubject = new Subject<string>();
+  private previousJobIds = new Set<string>(); // Track previously loaded job IDs
+  private activeObserver: IntersectionObserver | null = null; // Store active observer for cleanup
+  private jobsCache = new Map<string, Job[]>(); // Cache for job data
 
-  ngOnInit() {
-    this.loadMoreJobs();
-  }
+  // For infinite scrolling
+  @ViewChild('jobsList') jobsList!: ElementRef;
 
-  loadMoreJobs() {
-    const startIndex = this.currentPage * this.pageSize;
-    const endIndex = startIndex + this.pageSize;
-    const filteredJobs = this.filteredJobs();
-
-    this.paginatedJobs = [
-      ...this.paginatedJobs,
-      ...filteredJobs.slice(startIndex, endIndex),
-    ];
-
-    this.currentPage++;
-
-    if (filteredJobs.length <= this.paginatedJobs.length) {
-      this.allJobsLoaded = true;
-    }
-  }
-
-  hideJobs() {
-    this.paginatedJobs = this.filteredJobs().slice(0, this.pageSize);
-    this.allJobsLoaded = false;
-    this.currentPage = 1;
-  }
-
-  filteredJobs() {
-    return this.jobs.filter((job) => {
-      const matchesSearchTerm =
-        !this.searchTerm ||
-        job.position.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
-        job.companyName.toLowerCase().includes(this.searchTerm.toLowerCase());
-
-      const matchesExperience =
-        !this.selectedExperience || job.experience === this.selectedExperience;
-
-      const matchesStatus =
-        !this.selectedStatus || job.status === this.selectedStatus;
-
-      return matchesSearchTerm && matchesExperience && matchesStatus;
+  constructor(
+    private jobService: JobService,
+    private snackBar: MatSnackBar
+  ) {
+    // Debounce search input to reduce API calls
+    this.searchSubject.pipe(
+      debounceTime(300),
+      distinctUntilChanged(),
+      takeUntil(this.destroy$)
+    ).subscribe(() => {
+      this.resetAndFetch();
     });
   }
 
-  search() {
-    this.currentPage = 0;
-    this.paginatedJobs = [];
-    this.loadMoreJobs();
+  ngOnInit() {
+    this.fetchJobs();
   }
 
-  filter() {
-    this.currentPage = 0;
-    this.paginatedJobs = [];
-    this.loadMoreJobs();
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
+    // Clean up IntersectionObserver
+    if (this.activeObserver) {
+      this.activeObserver.disconnect();
+      this.activeObserver = null;
+    }
   }
 
-  viewJobDetails(job: any) {
+  // Optimize rendering with trackBy
+  trackByJobId(index: number, job: Job): string {
+    return job.id;
+  }
+
+  // STEP 3: Setup Infinite Scrolling - modified to not setup for single job post
+  private setupInfiniteScroll() {
+    // Don't set up infinite scroll if we have only one job
+    if (this.jobs.length <= 1) {
+      this.allDataLoaded = true;
+      return;
+    }
+    
+    // Disconnect previous observer if exists
+    if (this.activeObserver) {
+      this.activeObserver.disconnect();
+    }
+    
+    const options = {
+      root: null,
+      rootMargin: '100px',
+      threshold: 0.1
+    };
+
+    this.activeObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting && !this.loading && !this.allDataLoaded) {
+          this.loadMore();
+        }
+      });
+    }, options);
+
+    // Start observing the last element with a delay to ensure DOM is ready
+    setTimeout(() => {
+      if (this.activeObserver) {
+        this.observeLastElement(this.activeObserver);
+      }
+    }, 1000);
+  }
+
+  private observeLastElement(observer: IntersectionObserver) {
+    const elements = this.jobsList?.nativeElement?.children;
+    if (elements?.length) {
+      observer.observe(elements[elements.length - 1]);
+    }
+  }
+
+  // STEP 2: Implement Filtering UI
+  onSearchChange(value: string) {
+    this.searchSubject.next(value);
+  }
+
+  onFilterChange() {
+    this.resetAndFetch();
+  }
+
+  // Memoized version of hasActiveFilters for performance
+  private _hasActiveFiltersCache: { value: boolean, dirty: boolean } = { value: false, dirty: true };
+  
+  hasActiveFilters(): boolean {
+    if (this._hasActiveFiltersCache.dirty) {
+      this._hasActiveFiltersCache.value = !!(this.searchTerm || this.selectedExperience || this.selectedJobType || this.selectedLocation);
+      this._hasActiveFiltersCache.dirty = false;
+    }
+    return this._hasActiveFiltersCache.value;
+  }
+
+  removeFilter(filterType: string) {
+    switch (filterType) {
+      case 'search':
+        this.searchTerm = '';
+        break;
+      case 'experience':
+        this.selectedExperience = '';
+        break;
+      case 'jobType':
+        this.selectedJobType = '';
+        break;
+      case 'location':
+        this.selectedLocation = '';
+        break;
+    }
+    this._hasActiveFiltersCache.dirty = true;
+    this.resetAndFetch();
+  }
+
+  clearAllFilters() {
+    this.searchTerm = '';
+    this.selectedExperience = '';
+    this.selectedJobType = '';
+    this.selectedLocation = '';
+    this._hasActiveFiltersCache.dirty = true;
+    this.resetAndFetch();
+  }
+
+  private resetAndFetch() {
+    this.currentPage = 1;
+    this.jobs = [];
+    this.allDataLoaded = false;
+    this.previousJobIds.clear(); // Clear tracked IDs when resetting
+    this.fetchJobs();
+  }
+
+  // Create a cache key based on filters
+  private getCacheKey(filters: JobFilter, page: number): string {
+    return `${filters.name || ''}-${filters.experienceLevel || ''}-${filters.jobType || ''}-${filters.location || ''}-${page}`;
+  }
+
+  // STEP 1: Integrate the Job List API with the UI - modified to handle single job case
+  private fetchJobs() {
+    // Don't fetch if all data is already loaded (except when filtering)
+    if (this.allDataLoaded && this.currentPage > 1) {
+      return;
+    }
+    
+    this.loading = true;
+    const filters: JobFilter = {
+      name: this.searchTerm,
+      experienceLevel: this.selectedExperience,
+      jobType: this.selectedJobType,
+      location: this.selectedLocation,
+      page: this.currentPage
+    };
+
+    // Check if we have cached data for this filter+page combination
+    const cacheKey = this.getCacheKey(filters, this.currentPage);
+    if (this.jobsCache.has(cacheKey)) {
+      const cachedJobs = this.jobsCache.get(cacheKey) || [];
+      this.handleNewJobs(cachedJobs);
+      return;
+    }
+
+    this.jobService.getJobs(filters)
+      .pipe(
+        takeUntil(this.destroy$),
+        shareReplay(1), // Cache the response for multiple subscribers
+        catchError(error => {
+          console.error('Error fetching jobs:', error);
+          
+          // STEP 4: Handle Empty States and Errors
+          this.snackBar.open('Error loading jobs. Please try again.', 'Close', {
+            duration: 5000,
+            panelClass: ['snack-bar-error']
+          });
+          
+          return of([]);
+        })
+      )
+      .subscribe({
+        next: (newJobs) => {
+          // Cache the results
+          this.jobsCache.set(cacheKey, newJobs);
+          this.handleNewJobs(newJobs);
+        },
+        error: () => {
+          // Error is already handled by catchError
+          this.loading = false;
+        }
+      });
+  }
+  
+  // Extract job handling logic to avoid code duplication
+  private handleNewJobs(newJobs: Job[]) {
+    // Check if we received duplicate jobs (indicating we've reached the end)
+    const newJobIds = new Set(newJobs.map(job => job.id));
+    const duplicateFound = Array.from(newJobIds).some(id => this.previousJobIds.has(id));
+    
+    if (newJobs.length === 0 || duplicateFound) {
+      // No new jobs or we got duplicates, set allDataLoaded to true
+      this.allDataLoaded = true;
+      this.loading = false;
+      
+      if (this.currentPage > 1 && duplicateFound) {
+        // Show a message only if we've loaded at least one page and found duplicates
+        this.snackBar.open('All available jobs have been loaded', 'Close', {
+          duration: 3000,
+        });
+      }
+      return;
+    }
+    
+    // Add new job IDs to the tracking set
+    newJobs.forEach(job => this.previousJobIds.add(job.id));
+    
+    // Append new jobs to existing jobs
+    this.jobs = [...this.jobs, ...newJobs];
+    this.loading = false;
+    this.updateLocations();
+    
+    // Set allDataLoaded flag if only one job was returned in the first page
+    if (this.jobs.length === 1 && this.currentPage === 1) {
+      this.allDataLoaded = true;
+    } else {
+      // Only setup infinite scroll if we have more than 1 job and more jobs might be coming
+      this.setupInfiniteScroll();
+    }
+  }
+
+  private updateLocations() {
+    // Extract unique locations from job data for the filter - this is a costly operation, run once
+    if (this.locations.length === 0 || this.currentPage === 1) {
+      const uniqueLocations = new Set(this.jobs.map(job => job.location));
+      this.locations = Array.from(uniqueLocations);
+    }
+  }
+
+  // STEP 3: Setup Infinite Scrolling
+  loadMore() {
+    if (!this.loading && !this.allDataLoaded) {
+      this.currentPage++;
+      this.fetchJobs();
+    }
+  }
+
+  viewJobDetails(job: Job) {
     this.selectedJob = job;
     this.isModalOpen = true;
   }
 
   closeModal() {
     this.isModalOpen = false;
+    this.selectedJob = null;
   }
 
-  applyForJob(job: any) {
-    alert(`Applied for job: ${job.position}`);
+  applyForJob(job: Job) {
+    console.log('Applying for job:', job);
+    this.snackBar.open('Application submitted successfully!', 'Close', {
+      duration: 3000,
+      panelClass: ['snack-bar-success']
+    });
     this.closeModal();
   }
 }
