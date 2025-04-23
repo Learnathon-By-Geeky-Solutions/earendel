@@ -33,9 +33,6 @@ namespace TalentMesh.Module.CandidateLogic.JobApplicationView // Or your preferr
             if (!string.IsNullOrWhiteSpace(request.Status))
                 query = query.Where(app => app.Status.Equals(request.Status, StringComparison.OrdinalIgnoreCase));
 
-            // Include related Job data if needed (optional)
-            // query = query.Include(app => app.Job);
-
             var results = await query
                 // Add any sorting if required, e.g., .OrderByDescending(app => app.ApplicationDate)
                 .ToListAsync(cancellationToken);

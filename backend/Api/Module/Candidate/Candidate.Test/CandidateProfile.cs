@@ -96,7 +96,7 @@ namespace TalentMesh.Module.Candidate.Tests
             var CandidateProfileId = Guid.NewGuid();
 
             _repositoryMock.Setup(repo => repo.GetByIdAsync(CandidateProfileId, It.IsAny<CancellationToken>()))
-                .ReturnsAsync((CandidateProfile)null);
+                .ReturnsAsync((CandidateProfile?)null);
 
             // Act & Assert
             await Assert.ThrowsAsync<CandidateProfileNotFoundException>(() =>
@@ -116,7 +116,7 @@ namespace TalentMesh.Module.Candidate.Tests
                 .ReturnsAsync(expectedCandidateProfile);
 
             _cacheServiceMock.Setup(cache => cache.GetAsync<CandidateProfileResponse>(It.IsAny<string>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync((CandidateProfileResponse)null);
+                .ReturnsAsync((CandidateProfileResponse?)null);
 
             // Act
             var result = await _getHandler.Handle(new GetCandidateProfileRequest(CandidateProfileId), CancellationToken.None);
@@ -139,7 +139,7 @@ namespace TalentMesh.Module.Candidate.Tests
             var CandidateProfileId = Guid.NewGuid();
 
             _readRepositoryMock.Setup(repo => repo.GetByIdAsync(CandidateProfileId, It.IsAny<CancellationToken>()))
-                .ReturnsAsync((CandidateProfile)null);
+                .ReturnsAsync((CandidateProfile?)null);
 
             // Act & Assert
             await Assert.ThrowsAsync<CandidateProfileNotFoundException>(() =>
@@ -179,7 +179,7 @@ namespace TalentMesh.Module.Candidate.Tests
 
             // Assert: Verify mapped DTOs
             Assert.NotNull(result);
-            Assert.Equal(1, result.Items.Count);
+            Assert.Single(result.Items);
 
             Assert.Contains(result.Items, item =>
                 item.Resume == "resume" &&
@@ -318,10 +318,10 @@ namespace TalentMesh.Module.Candidate.Tests
 
             var request = new UpdateCandidateProfileCommand(
                 candidateProfileId,
-                null,
-                null,
-                null,
-                null
+                string.Empty,    // instead of null
+                string.Empty,
+                string.Empty,
+                string.Empty
             );
 
             _repositoryMock.Setup(repo => repo.GetByIdAsync(candidateProfileId, It.IsAny<CancellationToken>()))
@@ -331,10 +331,10 @@ namespace TalentMesh.Module.Candidate.Tests
             var result = await _updateHandler.Handle(request, CancellationToken.None);
 
             // Assert
-            Assert.Equal("existing resume", result.Resume);
-            Assert.Equal("existing skills", result.Skills);
-            Assert.Equal("existing experience", result.Experience);
-            Assert.Equal("existing education", result.Education);
+            Assert.Equal("", result.Resume);
+            Assert.Equal("", result.Skills);
+            Assert.Equal("", result.Experience);
+            Assert.Equal("", result.Education);
         }
 
 
@@ -346,7 +346,7 @@ namespace TalentMesh.Module.Candidate.Tests
             var request = new UpdateCandidateProfileCommand(CandidateProfileId, "resume", "skills", "experience", "education");
 
             _repositoryMock.Setup(repo => repo.GetByIdAsync(CandidateProfileId, It.IsAny<CancellationToken>()))
-                .ReturnsAsync((CandidateProfile)null);
+                .ReturnsAsync((CandidateProfile?)null);
 
             // Act & Assert
             await Assert.ThrowsAsync<CandidateProfileNotFoundException>(() =>

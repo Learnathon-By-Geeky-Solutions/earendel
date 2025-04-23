@@ -262,7 +262,12 @@ internal sealed partial class UserService(
                                     IsActive = g.Key.IsActive,
                                     EmailConfirmed = g.Key.EmailConfirmed,
                                     ImageUrl = g.Key.ImageUrl,
-                                    Roles = g.Select(r => r.Name).Where(r => r != null).Distinct().ToList()
+                                    Roles = g
+                                    .Select(r => r.Name)
+                                    .Where(name => name != null)
+                                    .Select(name => name!)  // null-forgiving, safe after filtering
+                                    .Distinct()
+                                    .ToList()
                                 })
                                 .AsNoTracking()
                                 .FirstOrDefaultAsync(cancellationToken);
@@ -334,11 +339,13 @@ internal sealed partial class UserService(
     {
         if (string.IsNullOrWhiteSpace(search)) return query;
 
-        var searchLower = search.ToLower();
         return query.Where(user =>
-            user.UserName.ToLower().Contains(searchLower) ||
-            user.Email.ToLower().Contains(searchLower)
+            (!string.IsNullOrWhiteSpace(user.UserName) &&
+                user.UserName.Contains(search, StringComparison.OrdinalIgnoreCase)) ||
+            (!string.IsNullOrWhiteSpace(user.Email) &&
+                user.Email.Contains(search, StringComparison.OrdinalIgnoreCase))
         );
+
     }
 
     private static IQueryable<UserDetail> ApplySorting(

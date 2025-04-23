@@ -27,7 +27,7 @@ namespace TalentMesh.Module.Experties.Application.Skills.Update.v1
             await repository.UpdateAsync(updatedSkill, cancellationToken);
             logger.LogInformation("Skill with ID: {SkillId} updated.", skill.Id);
             // If seniority levels are provided, update the junctions for this skill.
-            if (request.SeniorityLevelIds != null && request.SeniorityLevelIds.Any())
+            if (request.SeniorityLevelIds != null && request.SeniorityLevelIds.Count > 0)
             {
                 // This command should update the junction records for the given skill.
                 var updateJunctionCommand = new UpdateSeniorityLevelJunctionCommand(skill.Id, request.SeniorityLevelIds);

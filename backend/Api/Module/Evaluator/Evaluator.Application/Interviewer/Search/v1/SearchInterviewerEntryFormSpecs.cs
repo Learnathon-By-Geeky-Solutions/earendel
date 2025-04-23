@@ -24,7 +24,8 @@ namespace TalentMesh.Module.Evaluator.Application.Interviewer.Search.v1
             // Filter by AdditionalInfo if provided.
             if (!string.IsNullOrEmpty(command.AdditionalInfo))
             {
-                Query.Where(x => x.AdditionalInfo.Contains(command.AdditionalInfo));
+                Query.Where(x => !string.IsNullOrEmpty(x.AdditionalInfo) &&
+                                 x.AdditionalInfo.Contains(command.AdditionalInfo));
             }
 
             // Filter by Status if provided.

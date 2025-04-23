@@ -19,8 +19,8 @@ namespace TalentMesh.Module.Experties.Application.Skills.Update.v1
             When(x => x.SeniorityLevelIds != null, () =>
             {
                 RuleFor(x => x.SeniorityLevelIds)
-                    .Must(levels => levels.Count > 0)
-                    .WithMessage("At least one seniority level must be provided.");
+                .Must(levels => levels != null && levels.Count > 0)
+                .WithMessage("At least one seniority level must be provided.");
             });
         }
     }

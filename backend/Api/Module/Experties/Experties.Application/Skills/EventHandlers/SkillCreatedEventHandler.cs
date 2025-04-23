@@ -55,7 +55,7 @@ namespace TalentMesh.Module.Experties.Application.Skills.EventHandlers
             };
 
             await _messageBus.PublishAsync(skillMessage, "skill.events", "skill.created", cancellationToken);
-            await _hubContext.Clients.Group("admin").SendAsync("ReceiveMessage", skillId, skillName);
+            await _hubContext.Clients.Group("admin").SendAsync("ReceiveMessage", skillId, skillName, cancellationToken);
 
             _logger.LogInformation("Published SkillCreated message for {SkillName} (ID: {SkillId})", skillName, skillId);
         }

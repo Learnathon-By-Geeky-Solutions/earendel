@@ -55,7 +55,7 @@ namespace TalentMesh.Module.Experties.Application.Skills.Search.v1
                         new SeniorityResponse(
                             j.Seniority.Id,
                             j.Seniority.Name,
-                            j.Seniority.Description
+                            j.Seniority.Description ?? string.Empty
                         )
                     )).ToList()
             ));

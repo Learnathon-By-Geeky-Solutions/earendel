@@ -97,7 +97,7 @@ namespace TalentMesh.Module.Evaluator.Tests
             var InterviewerApplicationId = Guid.NewGuid();
 
             _repositoryMock.Setup(repo => repo.GetByIdAsync(InterviewerApplicationId, It.IsAny<CancellationToken>()))
-                .ReturnsAsync((InterviewerApplication)null);
+                .ReturnsAsync((InterviewerApplication?)null);
 
             // Act & Assert
             await Assert.ThrowsAsync<InterviewerApplicationNotFoundException>(() =>
@@ -117,7 +117,7 @@ namespace TalentMesh.Module.Evaluator.Tests
                 .ReturnsAsync(expectedInterviewerApplication);
 
             _cacheServiceMock.Setup(cache => cache.GetAsync<InterviewerApplicationResponse>(It.IsAny<string>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync((InterviewerApplicationResponse)null);
+                .ReturnsAsync((InterviewerApplicationResponse?)null);
 
             // Act
             var result = await _getHandler.Handle(new GetInterviewerApplicationRequest(InterviewerApplicationId), CancellationToken.None);
@@ -141,7 +141,7 @@ namespace TalentMesh.Module.Evaluator.Tests
             var InterviewerApplicationId = Guid.NewGuid();
 
             _readRepositoryMock.Setup(repo => repo.GetByIdAsync(InterviewerApplicationId, It.IsAny<CancellationToken>()))
-                .ReturnsAsync((InterviewerApplication)null);
+                .ReturnsAsync((InterviewerApplication?)null);
 
             // Act & Assert
             await Assert.ThrowsAsync<InterviewerApplicationNotFoundException>(() =>
@@ -243,7 +243,7 @@ namespace TalentMesh.Module.Evaluator.Tests
         {
             // Arrange: Create an initial InterviewerApplication with known values.
             // (Assuming InterviewerApplication.Create sets initial values.)
-            var initialStatus = "pending";
+
             var initialComments = "waiting for review";
             var app = InterviewerApplication.Create(Guid.NewGuid(), Guid.NewGuid(), initialComments);
             // For this example, assume the created application has Status "pending".
@@ -282,7 +282,6 @@ namespace TalentMesh.Module.Evaluator.Tests
         public async Task UpdateInterviewerApplication_UpdatesStatus_WhenChanged()
         {
             // Arrange
-            var originalStatus = "pending";
             var existing = InterviewerApplication.Create(Guid.NewGuid(), Guid.NewGuid(), "old comment");
             var request = new UpdateInterviewerApplicationCommand(
                 existing.Id,
@@ -370,7 +369,7 @@ namespace TalentMesh.Module.Evaluator.Tests
             var request = new UpdateInterviewerApplicationCommand(InterviewerApplicationId, Guid.NewGuid(), Guid.NewGuid(), "approved", "no comments");
 
             _repositoryMock.Setup(repo => repo.GetByIdAsync(InterviewerApplicationId, It.IsAny<CancellationToken>()))
-                .ReturnsAsync((InterviewerApplication)null);
+                .ReturnsAsync((InterviewerApplication?)null);
 
             // Act & Assert
             await Assert.ThrowsAsync<InterviewerApplicationNotFoundException>(() =>

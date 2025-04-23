@@ -58,8 +58,7 @@ namespace TalentMesh.Framework.Infrastructure.Identity.Users.Endpoints
                     // Call the validation API using the extracted val_id.
                     var response = await externalApiClient.ValidateSslCommerzPaymentAsync(valId);
 
-                    if (response != null &&
-                        response.ToUpperInvariant() == "VALID")
+                    if (string.Equals(response, "VALID", StringComparison.OrdinalIgnoreCase))
                     {
                         logger.LogInformation("Payment validation succeeded for TranId: {TranId}", tranId);
                         

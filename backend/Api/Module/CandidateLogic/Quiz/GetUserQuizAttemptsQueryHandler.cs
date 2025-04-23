@@ -31,9 +31,7 @@ namespace TalentMesh.Module.Quizzes.Application.QuizAttempts.GetUserAttempts // 
                 .Where(a => a.UserId == request.UserId) // Filter by UserId
                 .OrderByDescending(a => a.Created); // Example ordering
 
-            // Get total count for pagination
-            var totalCount = await attemptQuery.CountAsync(cancellationToken);
-
+            
             // Select necessary data for attempts and apply pagination
             var userAttempts = await attemptQuery
                 .Skip((pageNumber - 1) * pageSize)
@@ -48,7 +46,7 @@ namespace TalentMesh.Module.Quizzes.Application.QuizAttempts.GetUserAttempts // 
                 })
                 .ToListAsync(cancellationToken);
 
-            if (!userAttempts.Any())
+            if (userAttempts.Count == 0)
             {
                 return Results.Ok(new List<QuizAttemptDto>()); // Return empty list if no attempts found
             }
@@ -92,11 +90,6 @@ namespace TalentMesh.Module.Quizzes.Application.QuizAttempts.GetUserAttempts // 
                     }).ToList()
                     : new List<QuizAttemptAnswerDto>()
             }).ToList();
-
-
-            // For Pagincation: Return structured paginated result
-            // var paginatedResult = new PaginatedResult<QuizAttemptDto>(results, totalCount, pageNumber, pageSize);
-            // return Results.Ok(paginatedResult);
 
             return Results.Ok(results);
         }
