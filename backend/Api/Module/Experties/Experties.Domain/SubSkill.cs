@@ -28,14 +28,10 @@ public class SubSkill : AuditableEntity, IAggregateRoot
 
     public SubSkill Update(string? name, string? description, Guid? skillId)
     {
-        if (name is not null && Name?.Equals(name, StringComparison.OrdinalIgnoreCase) is not true) Name = name;
-        
-        if (description is not null && Description?.Equals(description, StringComparison.OrdinalIgnoreCase) is not true) Description = description;
-        
-        if (skillId is not null && skillId.HasValue)
-        {
-            SkillId = skillId.Value;
-        }
+        Name = name ?? Name;
+        Description = description ?? Description;
+        SkillId = skillId ?? SkillId;
+
         this.QueueDomainEvent(new SubSkillUpdated() { SubSkill = this });
 
         return this;

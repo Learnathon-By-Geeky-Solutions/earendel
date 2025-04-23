@@ -63,11 +63,11 @@ namespace TalentMesh.Module.HRView.HRFunc // Or your preferred namespace
             await _context.SaveChangesAsync(cancellationToken);
 
             // Job ID For SSLCommerz Payment, amount = Number of Interviews * 1000
-            string gatewayPageURL = await apiClient.InitiateSslCommerzPaymentAsync();
+            string gatewayPageURL = await apiClient.InitiateSslCommerzPaymentAsync(newJob.Id.ToString(), request.Salary, cancellationToken);
 
             // 6. Return the ID of the newly created job
             // Consider returning StatusCodes.Status201Created with the location header
-            return Results.Created($"/jobs/{newJob.Id}", new { JobId = newJob.Id , Payment = gatewayPageURL});
+            return Results.Created($"/jobs/{newJob.Id}", new { JobId = newJob.Id, Payment = gatewayPageURL });
         }
     }
 }

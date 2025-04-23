@@ -3,8 +3,10 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
+using System.Linq;
 using TalentMesh.Framework.Core.Persistence;
 using TalentMesh.Module.Interviews.Domain;
+using TalentMesh.Module.Job.Domain;
 
 namespace TalentMesh.Module.InterviewerView
 {
@@ -18,15 +20,42 @@ namespace TalentMesh.Module.InterviewerView
     // Handlers
     public class GetUpcomingForCandidateHandler : IRequestHandler<GetUpcomingInterviewsForCandidateQuery, List<InterviewDto>>
     {
-        private readonly IRepository<Interview> _repo;
-        public GetUpcomingForCandidateHandler(IRepository<Interview> repo) => _repo = repo;
+        private readonly IRepository<Interview> _interviewRepo;
+        private readonly IRepository<JobApplication> _jobAppRepo;
+
+        public GetUpcomingForCandidateHandler(
+            IRepository<Interview> interviewRepo,
+            IRepository<JobApplication> jobAppRepo)
+        {
+            _interviewRepo = interviewRepo;
+            _jobAppRepo = jobAppRepo;
+        }
+
         public async Task<List<InterviewDto>> Handle(GetUpcomingInterviewsForCandidateQuery req, CancellationToken ct)
         {
             var now = DateTime.UtcNow;
-            var list = await _repo.ListAsync(ct);
-            return list.Where(i => i.ApplicationId == req.CandidateId && i.InterviewDate >= now)
-                       .Select(i => new InterviewDto(i.Id, i.ApplicationId, i.InterviewerId, i.InterviewDate, i.Status, i.Notes, i.MeetingId))
-                       .ToList();
+
+            // Fetch all job applications for the candidate
+            var jobApps = await _jobAppRepo.ListAsync(ct);
+            var candidateJobAppIds = jobApps
+                .Where(ja => ja.CandidateId == req.CandidateId)
+                .Select(ja => ja.Id)
+                .ToList();
+
+            // Fetch interviews linked to those job applications and filter by date
+            var interviews = await _interviewRepo.ListAsync(ct);
+            return interviews
+                .Where(i => candidateJobAppIds.Contains(i.ApplicationId))
+                .Where(i => i.InterviewDate >= now)
+                .Select(i => new InterviewDto(
+                    i.Id,
+                    i.ApplicationId,
+                    i.InterviewerId,
+                    i.InterviewDate,
+                    i.Status,
+                    i.Notes,
+                    i.MeetingId))
+                .ToList();
         }
     }
 
@@ -34,13 +63,15 @@ namespace TalentMesh.Module.InterviewerView
     {
         private readonly IRepository<Interview> _repo;
         public GetUpcomingForInterviewerHandler(IRepository<Interview> repo) => _repo = repo;
+
         public async Task<List<InterviewDto>> Handle(GetUpcomingInterviewsForInterviewerQuery req, CancellationToken ct)
         {
             var now = DateTime.UtcNow;
             var list = await _repo.ListAsync(ct);
-            return list.Where(i => i.InterviewerId == req.InterviewerId && i.InterviewDate >= now)
-                       .Select(i => new InterviewDto(i.Id, i.ApplicationId, i.InterviewerId, i.InterviewDate, i.Status, i.Notes, i.MeetingId))
-                       .ToList();
+            return list
+                .Where(i => i.InterviewerId == req.InterviewerId && i.InterviewDate >= now)
+                .Select(i => new InterviewDto(i.Id, i.ApplicationId, i.InterviewerId, i.InterviewDate, i.Status, i.Notes, i.MeetingId))
+                .ToList();
         }
     }
 

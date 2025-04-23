@@ -45,9 +45,7 @@ namespace TalentMesh.Module.Experties.Domain
             RubricDescription = rubricDescription ?? RubricDescription;
             SubSkillId = subSkillId ?? SubSkillId;
             SeniorityId = seniorityId ?? SeniorityId;
-            Weight = (weight.HasValue && weight.Value > 0 && Weight != weight.Value)
-                ? weight.Value
-                : Weight;
+            Weight = weight ?? Weight;
 
             QueueDomainEvent(new RubricUpdated { Rubric = this });
             return this;

@@ -26,8 +26,10 @@ namespace Evaluator.Application.Interviewer.Get.v1
                     return new InterviewerEntryFormResponse(
                         entity.Id,
                         entity.UserId,
+                        entity.CV,
                         entity.AdditionalInfo,
-                        entity.Status
+                        entity.Status,
+                        entity.Created
                     );
                 },
                 cancellationToken: cancellationToken);
