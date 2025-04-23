@@ -22,7 +22,6 @@ namespace TalentMesh.Framework.Infrastructure.Identity.Users.Endpoints
                 [FromServices] IExternalApiClient externalApiClient,
                 [FromServices] IMessageBus _messageBus,
                 HttpContext context,
-                HttpContext context,
                 CancellationToken cancellationToken) =>
             {
                 // Ensure the request has a proper content type.

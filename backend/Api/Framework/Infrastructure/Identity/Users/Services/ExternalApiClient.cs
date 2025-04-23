@@ -157,7 +157,6 @@ namespace TalentMesh.Framework.Infrastructure.Identity.Users.Services
 
         public async Task<string> InitiateSslCommerzPaymentAsync(string jobId, string amount, CancellationToken cancellationToken)
         {
-            // var tranId = Guid.NewGuid().ToString();
             var parameters = new Dictionary<string, string>
             {
                 { "store_id", _sslCommerzStoreId },
