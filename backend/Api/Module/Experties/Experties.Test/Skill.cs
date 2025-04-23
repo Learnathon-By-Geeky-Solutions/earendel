@@ -165,7 +165,7 @@ namespace TalentMesh.Module.Experties.Tests
 
             // Mock repository response
             _readRepositoryMock.Setup(repo =>
-                repo.GetBySpecAsync(It.IsAny<GetSkillSpec>(), It.IsAny<CancellationToken>())
+                repo.FirstOrDefaultAsync(It.IsAny<GetSkillSpec>(), It.IsAny<CancellationToken>())
             ).ReturnsAsync(skill);
 
             // Act
