@@ -50,10 +50,6 @@ namespace TalentMesh.Module.HRView.HRFunc // Or your preferred namespace
                 })
                 .ToListAsync(cancellationToken);
 
-            // Optional: Return structured paginated result
-            // var paginatedResult = new PaginatedResult<JobApplicationDto>(applications, totalCount, pageNumber, pageSize);
-            // return Results.Ok(paginatedResult);
-
             return Results.Ok(applications);
         }
     }
