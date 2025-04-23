@@ -22,7 +22,7 @@ import { FormsModule } from '@angular/forms';
 
         <div class="content">
           <div class="skill-section">
-            <h2>{{ getSelectedSkill()?.name || 'Frontend Development' }}</h2>
+            <h2>{{ getSelectedSkill()?.name}}</h2>
             <p class="subtitle">Choose to have skills</p>
 
             <div class="experience-level">
@@ -51,7 +51,7 @@ import { FormsModule } from '@angular/forms';
 
             <!-- Job Posting Form -->
             <div class="job-posting-form">
-              <h3 class="form-title">Finish Details</h3>
+              <h3 class="form-title">Finish Job Posting</h3>
               <p class="form-subtitle">Fill in the details for this job posting</p>
               
               <div class="card">
@@ -82,14 +82,17 @@ import { FormsModule } from '@angular/forms';
                     <!-- Job Type -->
                     <div class="form-group">
                       <label for="jobType" class="form-label">Job Type</label>
-                      <select id="jobType" class="form-select" [(ngModel)]="formData.jobType">
-                        <option value="" disabled selected>Select job type</option>
-                        <option value="full-time">Full-time</option>
-                        <option value="part-time">Part-time</option>
-                        <option value="contract">Contract</option>
-                        <option value="freelance">Freelance</option>
-                        <option value="internship">Internship</option>
-                      </select>
+                      <div class="select-wrapper position-relative">
+                        <select id="jobType" class="form-select" [(ngModel)]="formData.jobType">
+                          <option value="" disabled selected>Select job type</option>
+                          <option value="full-time">Full-time</option>
+                          <option value="part-time">Part-time</option>
+                          <option value="contract">Contract</option>
+                          <option value="freelance">Freelance</option>
+                          <option value="internship">Internship</option>
+                        </select>
+                        <i class="bi bi-chevron-down position-absolute" style="right: 10px; top: 50%; transform: translateY(-50%);"></i>
+                      </div>
                     </div>
                     
                     <!-- Salary -->
@@ -158,22 +161,8 @@ import { FormsModule } from '@angular/forms';
                 (click)="submitJob()"
                 [disabled]="isSubmitting || !isFormValid()">
                 <div class="avatars">
-                  <div class="avatar-group">
-                    <img
-                      src="https://via.placeholder.com/32"
-                      alt="Interviewer 1"
-                    />
-                    <img
-                      src="https://via.placeholder.com/32"
-                      alt="Interviewer 2"
-                    />
-                    <img
-                      src="https://via.placeholder.com/32"
-                      alt="Interviewer 3"
-                    />
-                  </div>
                 </div>
-                <span *ngIf="!isSubmitting">Submit & add candidates</span>
+                <span *ngIf="!isSubmitting">Submit & Make Payment</span>
                 <span *ngIf="isSubmitting">Submitting...</span>
                 <div class="duration-select">
                   <span>1 hr</span>

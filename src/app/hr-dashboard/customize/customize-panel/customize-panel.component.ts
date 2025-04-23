@@ -36,9 +36,9 @@ import { CommonModule } from '@angular/common';
       <button class="btn submit-btn w-100">
         <div class="d-flex align-items-center justify-content-between">
           <div class="d-flex align-items-center">
-            <div class="avatar-group me-2">
+            <!-- <div class="avatar-group me-2">
               <span class="avatar">👤</span>
-            </div>
+            </div> -->
             <span>Submit & add candidates</span>
           </div>
           <div class="duration-selector d-flex align-items-center">

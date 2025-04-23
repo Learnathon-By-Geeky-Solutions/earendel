@@ -19,6 +19,54 @@ export interface JobPostingRequest {
   requiredSubskillIds: string[];
 }
 
+export interface JobPosting {
+  id: string;
+  name: string;
+  description: string;
+  requirements: string;
+  location: string;
+  jobType: string;
+  experienceLevel: string;
+  salary: string;
+  postedBy: string;
+  createdAt: string;
+  updatedAt: string;
+  status: string;
+  numberOfInterviews: number;
+  requiredSkillIds: string[];
+  requiredSubskillIds: string[];
+  candidates?: any[];
+}
+
+export interface PaginatedJobPostings {
+  content: JobPosting[];
+  pageNumber: number;
+  pageSize: number;
+  totalElements: number;
+  totalPages: number;
+}
+
+export interface JobApplication {
+  id: string;
+  jobId: string;
+  candidateId: string;
+  applicationDate: string;
+  status: string;
+  coverLetter: string;
+  createdOn: string;
+  jobName: string;
+}
+
+export interface UserDetails {
+  id: string;
+  userName: string;
+  email: string;
+  isActive: boolean;
+  emailConfirmed: boolean;
+  imageUrl: string;
+  roles: string[];
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -243,5 +291,87 @@ export class JobPostingService {
 
     console.warn('[JobPostingService] Could not retrieve user ID from any source');
     return '';
+  }
+
+  /**
+   * Get job postings with pagination
+   */
+  getJobPostings(pageNumber: number = 0, pageSize: number = 10): Observable<PaginatedJobPostings> {
+    const token = sessionStorage.getItem('token');
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json'
+    };
+    
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+
+    // The API expects parameters as pageNumber and pageSize
+    const url = `${endpoint.jobPostingUrl}/my-postings?pageNumber=${pageNumber}&pageSize=${pageSize}`;
+    
+    console.log('[JobPostingService] Fetching job postings with pagination:', { pageNumber, pageSize });
+    
+    return this.http.get<PaginatedJobPostings>(url, { headers })
+      .pipe(
+        tap(response => console.log('[JobPostingService] Job postings fetched successfully:', response)),
+        catchError(err => {
+          console.error('[JobPostingService] Error fetching job postings:', err);
+          return throwError(() => err);
+        })
+      );
+  }
+
+  /**
+   * Get job applications for the current HR user
+   */
+  getJobApplications(): Observable<JobApplication[]> {
+    const token = sessionStorage.getItem('token');
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json'
+    };
+    
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+
+    const url = `${endpoint.jobPostingUrl.replace('/jobs', '')}/job-applications/my-postings`;
+    
+    console.log('[JobPostingService] Fetching job applications');
+    
+    return this.http.get<JobApplication[]>(url, { headers })
+      .pipe(
+        tap(response => console.log('[JobPostingService] Job applications fetched successfully:', response)),
+        catchError(err => {
+          console.error('[JobPostingService] Error fetching job applications:', err);
+          return throwError(() => err);
+        })
+      );
+  }
+
+  /**
+   * Get user details by ID
+   */
+  getUserDetails(userId: string): Observable<UserDetails> {
+    const token = sessionStorage.getItem('token');
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json'
+    };
+    
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+
+    const url = `${endpoint.userDetailsUrl}/${userId}`;
+    
+    console.log('[JobPostingService] Fetching user details for ID:', userId);
+    
+    return this.http.get<UserDetails>(url, { headers })
+      .pipe(
+        tap(response => console.log('[JobPostingService] User details fetched successfully:', response)),
+        catchError(err => {
+          console.error('[JobPostingService] Error fetching user details:', err);
+          return throwError(() => err);
+        })
+      );
   }
 } 
