@@ -100,7 +100,7 @@ namespace TalentMesh.Module.Evaluator.Tests
             var InterviewerEntryFormId = Guid.NewGuid();
 
             _repositoryMock.Setup(repo => repo.GetByIdAsync(InterviewerEntryFormId, It.IsAny<CancellationToken>()))
-                .ReturnsAsync((InterviewerEntryForm)null);
+                .ReturnsAsync((InterviewerEntryForm?)null);
 
             // Act & Assert
             await Assert.ThrowsAsync<InterviewerEntryFormNotFoundException>(() =>
@@ -142,7 +142,7 @@ namespace TalentMesh.Module.Evaluator.Tests
             var InterviewerEntryFormId = Guid.NewGuid();
 
             _readRepositoryMock.Setup(repo => repo.GetByIdAsync(InterviewerEntryFormId, It.IsAny<CancellationToken>()))
-                .ReturnsAsync((InterviewerEntryForm)null);
+                .ReturnsAsync((InterviewerEntryForm?)null);
 
             // Act & Assert
             await Assert.ThrowsAsync<InterviewerEntryFormNotFoundException>(() =>
@@ -211,7 +211,6 @@ namespace TalentMesh.Module.Evaluator.Tests
         {
             // Arrange
             var initialAdditionalInfo = "initial comment";
-            var initialStatus = "pending"; // assume default status from Create or set it explicitly if needed
             var updatedAdditionalInfo = "updated comment";
             var updatedStatus = "approved";
 
@@ -287,7 +286,7 @@ namespace TalentMesh.Module.Evaluator.Tests
             var request = new UpdateInterviewerEntryFormCommand(InterviewerEntryFormId, Guid.NewGuid(), "string", "rejected");
 
             _repositoryMock.Setup(repo => repo.GetByIdAsync(InterviewerEntryFormId, It.IsAny<CancellationToken>()))
-                .ReturnsAsync((InterviewerEntryForm)null);
+                .ReturnsAsync((InterviewerEntryForm?)null);
 
             // Act & Assert
             await Assert.ThrowsAsync<InterviewerEntryFormNotFoundException>(() =>

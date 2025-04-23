@@ -47,36 +47,57 @@ namespace TalentMesh.Framework.Infrastructure.Messaging
 
         private async Task ProcessMessageAsync(BasicDeliverEventArgs ea, CancellationToken stoppingToken)
         {
+            _logger.LogInformation("Received event message.");
+
             try
             {
-                _logger.LogInformation("Received event message.");
                 var messageJson = Encoding.UTF8.GetString(ea.Body.ToArray());
                 var message = JsonHelper.Deserialize<TMessage>(messageJson);
-                
-                if (EqualityComparer<TMessage>.Default.Equals(message, default))
+
+                if (message is null)
                 {
-                    _logger.LogWarning("Failed to deserialize message.");
-                    _channel.BasicNack(ea.DeliveryTag, false, true);
+                    _logger.LogWarning("Failed to deserialize message or message was null.");
+                    if (_channel != null)
+                    {
+                        _channel.BasicNack(ea.DeliveryTag, false, true);
+                    }
                     return;
                 }
-
 
                 using var scope = _scopeFactory.CreateScope();
                 await ProcessDomainMessage(message, scope, stoppingToken);
 
-                // Build and send final response via SignalR.
+                // Build and send final response via SignalR
                 var finalResponse = CreateFinalResponse(message);
-                var finalJson = JsonHelper.Serialize(finalResponse);
-                _logger.LogInformation("Final Response: {Response}", finalJson);
-                await _hubContext.Clients.Group($"user:{GetRequestedBy(message)}")
-                    .SendAsync("ReceiveMessage", finalJson);
+                if (finalResponse is not null)
+                {
+                    var finalJson = JsonHelper.Serialize(finalResponse);
+                    _logger.LogInformation("Final Response: {Response}", finalJson);
 
-                _channel.BasicAck(ea.DeliveryTag, false);
+                    var requestedBy = GetRequestedBy(message);
+                    var requestedByStr = requestedBy.ToString();
+
+                    if (!string.IsNullOrEmpty(requestedByStr))
+                    {
+                        await _hubContext.Clients
+                            .Group($"user:{requestedByStr}")
+                            .SendAsync("ReceiveMessage", finalJson, cancellationToken: stoppingToken);
+                    }
+
+                }
+
+                if (_channel != null)
+                {
+                    _channel.BasicAck(ea.DeliveryTag, false);
+                }
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error processing message");
-                _channel.BasicNack(ea.DeliveryTag, false, true);
+                if (_channel != null)
+                {
+                    _channel.BasicNack(ea.DeliveryTag, false, true);
+                }
             }
         }
 

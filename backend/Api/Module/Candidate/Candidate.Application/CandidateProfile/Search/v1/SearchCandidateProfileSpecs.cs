@@ -12,24 +12,21 @@ public class SearchCandidateProfileSpecs : EntitiesByPaginationFilterSpec<Domain
     public SearchCandidateProfileSpecs(SearchCandidateProfileCommand command)
         : base(command)
     {
-        Query.OrderBy(c => c.UserId, !command.HasOrderBy());
+        // Combine pagination, ordering, and all filters without branching
+        Query
+            .Where(c =>
+                // Filter by UserId if provided
+                (command.UserId == null || c.UserId == command.UserId) &&
 
-        if (command.UserId != null)
-        {
-            Query.Where(b => b.UserId == command.UserId.Value);
-        }
+                // Filter by Id if provided
+                (!command.Id.HasValue || c.Id == command.Id.Value) &&
 
-        if (command.Id.HasValue)
-        {
-            // Compare just the date portion if needed.
-            Query.Where(b => b.UserId == command.Id.Value);
-        }
+                // Filter by Skills substring safely (guarding null)
+                (string.IsNullOrEmpty(command.Skills)
+                    || (c.Skills != null && c.Skills.Contains(command.Skills)))
+            )
+            .OrderBy(c => c.UserId, !command.HasOrderBy());
 
-        if (!string.IsNullOrEmpty(command.Skills))
-        {
-            Query.Where(b => b.Skills.Contains(command.Skills));
-        }
 
-        
     }
 }

@@ -15,8 +15,7 @@ using System.Threading.Tasks;
 namespace TalentMesh.Module.Experties.Application.Skills.Get.v1
 {
     public sealed class GetSkillHandler(
-        [FromKeyedServices("skills:skillReadOnly")] IReadRepository<Skill> repository,
-        ICacheService cache
+        [FromKeyedServices("skills:skillReadOnly")] IReadRepository<Skill> repository
     ) : IRequestHandler<GetSkillRequest, SkillResponse>
     {
         public async Task<SkillResponse> Handle(GetSkillRequest request, CancellationToken cancellationToken)
@@ -25,7 +24,7 @@ namespace TalentMesh.Module.Experties.Application.Skills.Get.v1
 
             // Use the specification to include related data
             var spec = new GetSkillSpec(request.Id);
-            var skillItem = await repository.GetBySpecAsync(spec, cancellationToken);
+            var skillItem = await repository.FirstOrDefaultAsync(spec, cancellationToken);
             if (skillItem == null)
             {
                 throw new SkillNotFoundException(request.Id);
@@ -47,7 +46,7 @@ namespace TalentMesh.Module.Experties.Application.Skills.Get.v1
                 new TalentMesh.Module.Experties.Application.Seniorities.Get.v1.SeniorityResponse(
                     j.Seniority.Id,
                     j.Seniority.Name,
-                    j.Seniority.Description
+                    j.Seniority.Description ?? string.Empty
                 )
             )).ToList();
 

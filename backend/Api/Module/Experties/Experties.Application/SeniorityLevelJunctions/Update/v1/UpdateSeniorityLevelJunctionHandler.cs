@@ -36,7 +36,7 @@ namespace TalentMesh.Module.Experties.Application.SeniorityLevelJunctions.Update
             var junctionsToRemove = existingJunctions.Where(j => j.SkillId == request.SkillId).ToList();
 
             // Check if there are any junctions to remove.
-            if (!junctionsToRemove.Any())
+            if (junctionsToRemove.Count == 0)
             {
                 throw new SeniorityLevelJunctionNotFoundException(request.SkillId);
             }

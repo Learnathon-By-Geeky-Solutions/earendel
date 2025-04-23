@@ -3,7 +3,6 @@ using MediatR;
 using System;
 using Evaluator.Application.Interviewer.Get.v1;
 using System.Diagnostics.CodeAnalysis;
-using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Module.Evaluator.Application.Interviewer.Search.v1
 {

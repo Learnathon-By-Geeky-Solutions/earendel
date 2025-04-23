@@ -36,7 +36,7 @@ namespace TalentMesh.Module.Experties.Application.Skills.Create.v1
             await messageBus.PublishAsync(skillMessage, "skill.events.user", "skill.created.user", cancellationToken);
 
             // **Trigger CreateSeniorityLevelJunctionHandler**
-            if (request.SeniorityLevels?.Any() == true)
+            if (request.SeniorityLevels?.Count > 0)
             {
                 var createJunctionCommand = new CreateSeniorityLevelJunctionCommand(skill.Id, request.SeniorityLevels);
                 await mediator.Send(createJunctionCommand, cancellationToken);

@@ -61,7 +61,14 @@ namespace TalentMesh.Framework.Infrastructure.Identity.Users.Services
             var userManager = scope.ServiceProvider.GetRequiredService<UserManager<TMUser>>();
 
             // Batch-fetch candidate details to avoid repeated DB calls
-            await PopulateCandidateDetails(interviewMessage.Interviews, userManager);
+            if (interviewMessage.Interviews is not null && interviewMessage.Interviews.Any())
+            {
+                await PopulateCandidateDetails(interviewMessage.Interviews, userManager);
+            }
+            else
+            {
+                LoggerHelper.LogWarning(_logger, "No interviews found in the message.");
+            }
 
             // Log and send the updated message
             var finalJson = JsonHelper.Serialize(interviewMessage);
@@ -70,11 +77,11 @@ namespace TalentMesh.Framework.Infrastructure.Identity.Users.Services
             _channel.BasicAck(ea.DeliveryTag, multiple: false);
         }
 
-        private async Task PopulateCandidateDetails(List<InterviewItem> interviews, UserManager<TMUser> userManager)
+        private static async Task PopulateCandidateDetails(List<InterviewItem> interviews, UserManager<TMUser> userManager)
         {
             var candidateIds = interviews
                 .Where(interview => interview.CandidateId.HasValue)
-                .Select(interview => interview.CandidateId.Value.ToString())
+                .Select(interview => interview.CandidateId!.Value.ToString())
                 .Distinct()
                 .ToList();
 
@@ -87,8 +94,9 @@ namespace TalentMesh.Framework.Infrastructure.Identity.Users.Services
             {
                 if (interview.CandidateId.HasValue && candidates.TryGetValue(interview.CandidateId.Value.ToString(), out var candidate))
                 {
-                    interview.CandidateName = candidate.UserName;
-                    interview.CandidateEmail = candidate.Email;
+                    interview.CandidateName = candidate.UserName ?? string.Empty;
+                    interview.CandidateEmail = candidate.Email ?? string.Empty;
+
                 }
             }
         }
@@ -112,7 +120,7 @@ namespace TalentMesh.Framework.Infrastructure.Identity.Users.Services
 
         public static void LogWarning(ILogger logger, string message)
         {
-            logger.LogWarning(message);
+            logger.LogWarning("Warning: {Message}", message);
         }
     }
 

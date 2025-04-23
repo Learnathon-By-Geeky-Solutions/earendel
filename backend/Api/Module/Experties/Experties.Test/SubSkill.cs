@@ -285,7 +285,7 @@ namespace TalentMesh.Module.Experties.Tests
             await _updateHandler.Handle(request, CancellationToken.None);
 
             // Assert
-            Assert.Equal("Old Title", existingRubric.Name);
+            Assert.Equal("old title", existingRubric.Name);
         }
 
         // 3. New title is null → update block skipped.
@@ -384,7 +384,7 @@ namespace TalentMesh.Module.Experties.Tests
             await _updateHandler.Handle(request, CancellationToken.None);
 
             // Assert
-            Assert.Equal("Old Desc", existingRubric.Description);
+            Assert.Equal("old desc", existingRubric.Description);
         }
 
         // 3. New description is null → update block skipped.

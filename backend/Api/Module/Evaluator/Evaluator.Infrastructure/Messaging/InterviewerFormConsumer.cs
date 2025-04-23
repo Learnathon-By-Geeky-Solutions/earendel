@@ -38,7 +38,7 @@ namespace TalentMesh.Module.Evaluator.Infrastructure.Messaging
                 {
                     Id = j.Id,
                     UserId = j.UserId,
-                    AdditionalInfo = j.AdditionalInfo,
+                    AdditionalInfo = j.AdditionalInfo ?? string.Empty,
                     Status = j.Status,
                     CreatedAt = j.Created.UtcDateTime,
                 })

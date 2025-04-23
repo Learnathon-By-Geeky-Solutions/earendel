@@ -21,16 +21,15 @@ namespace TalentMesh.Framework.Infrastructure.Messaging
 
         public Task PublishAsync<T>(T message, string exchange, string routingKey, CancellationToken cancellationToken = default)
         {
-            if (_disposed) throw new ObjectDisposedException(nameof(RabbitMQMessageBus));
+            ObjectDisposedException.ThrowIf(_disposed, nameof(RabbitMQMessageBus));
 
             var json = JsonSerializer.Serialize(message);
             var body = Encoding.UTF8.GetBytes(json);
-
             _channel.ExchangeDeclare(exchange: exchange, type: ExchangeType.Direct, durable: true);
             _channel.BasicPublish(exchange, routingKey, null, body);
-
             return Task.CompletedTask;
         }
+
 
         protected virtual void Dispose(bool disposing)
         {
