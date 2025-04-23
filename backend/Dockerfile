@@ -73,4 +73,5 @@ EXPOSE 18888
 ENV DOTNET_DASHBOARD_URL="http://aspire:18888"
 
 # Set the entrypoint command
+# ENTRYPOINT ["dotnet", "Server.dll"]
 ENTRYPOINT ["dotnet", "Server.dll"]

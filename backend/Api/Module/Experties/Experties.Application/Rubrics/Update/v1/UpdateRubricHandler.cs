@@ -14,14 +14,14 @@ public sealed class UpdateRubricHandler(
     public async Task<UpdateRubricResponse> Handle(UpdateRubricCommand request, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(request);
-        var skill = await repository.GetByIdAsync(request.Id, cancellationToken);
-        if (skill is null)
-        {
-            throw new RubricNotFoundException(request.Id);
-        }
-        var updatedSkill = skill.Update(request.Title, request.RubricDescription, request.SubSkillId, request.SeniorityId, request.Weight);
-        await repository.UpdateAsync(updatedSkill, cancellationToken);
-        logger.LogInformation("Rubric with id : {Rubric} updated.", skill.Id);
-        return new UpdateRubricResponse(skill.Id);
+
+        var rubric = await repository.GetByIdAsync(request.Id, cancellationToken)
+                     ?? throw new RubricNotFoundException(request.Id);
+
+        var updatedRubric = rubric.Update(request.Title, request.RubricDescription, request.SubSkillId, request.SeniorityId, request.Weight);
+
+        await repository.UpdateAsync(updatedRubric, cancellationToken);
+        logger.LogInformation("Rubric with id : {Rubric} updated.", rubric.Id);
+        return new UpdateRubricResponse(rubric.Id);
     }
 }
