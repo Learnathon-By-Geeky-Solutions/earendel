@@ -17,7 +17,7 @@ namespace TalentMesh.Module.HRView.HRFunc // Or your preferred namespace
         public async Task<IResult> Handle(GetAllJobApplicationsQuery request, CancellationToken cancellationToken)
         {
             int pageNumber = request.PageNumber > 0 ? request.PageNumber : 1;
-            int pageSize = request.PageSize > 0 ? request.PageSize : 20;
+            int pageSize = request.PageSize > 0 ? request.PageSize : 1000;
 
 
             var postedJobIds = _context.Jobs

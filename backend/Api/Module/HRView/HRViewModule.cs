@@ -23,6 +23,7 @@ public static class HRViewModule
             var hrView = app.MapGroup("HR").WithTags("HRView");
             hrView.MapCreateJobEndpoint();
             hrView.MapGetAllJobApplicationsEndpoint();
+            hrView.MapGetMyJobsEndpoint();
 
         }
     }
