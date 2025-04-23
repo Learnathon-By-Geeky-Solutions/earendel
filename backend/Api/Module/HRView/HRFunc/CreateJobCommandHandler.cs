@@ -10,10 +10,12 @@ namespace TalentMesh.Module.HRView.HRFunc // Or your preferred namespace
     public class CreateJobCommandHandler : IRequestHandler<CreateJobCommand, IResult>
     {
         private readonly JobDbContext _context;
-        //private readonly IExternalApiClient apiClient = identityServices.ApiClient;
-        public CreateJobCommandHandler(JobDbContext context)
+        private readonly IExternalApiClient apiClient;
+
+        public CreateJobCommandHandler(JobDbContext context, IdentityServices identityServices)
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
+            apiClient = identityServices.ApiClient ?? throw new ArgumentNullException(nameof(identityServices.ApiClient));
         }
 
         public async Task<IResult> Handle(CreateJobCommand request, CancellationToken cancellationToken)
@@ -26,7 +28,7 @@ namespace TalentMesh.Module.HRView.HRFunc // Or your preferred namespace
                 location: request.Location,
                 jobType: request.JobType,
                 experienceLevel: request.ExperienceLevel,
-                salary: request.Salary ?? string.Empty ,// Provide default if null
+                salary: request.Salary ?? string.Empty, // Provide default if null
                 postedById: request.PostedBy // Assuming this is a Guid
             );
 
@@ -61,13 +63,11 @@ namespace TalentMesh.Module.HRView.HRFunc // Or your preferred namespace
             await _context.SaveChangesAsync(cancellationToken);
 
             // Job ID For SSLCommerz Payment, amount = Number of Interviews * 1000
-            //string gatewayPageURL = await apiClient.InitiateSslCommerzPaymentAsync();
-            //return Results.Ok(new { Message = gatewayPageURL });
-
+            string gatewayPageURL = await apiClient.InitiateSslCommerzPaymentAsync();
 
             // 6. Return the ID of the newly created job
             // Consider returning StatusCodes.Status201Created with the location header
-            return Results.Created($"/jobs/{newJob.Id}", new { JobId = newJob.Id });
+            return Results.Created($"/jobs/{newJob.Id}", new { JobId = newJob.Id , Payment = gatewayPageURL});
         }
     }
 }

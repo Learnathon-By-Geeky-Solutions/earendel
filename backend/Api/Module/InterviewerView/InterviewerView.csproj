@@ -1,0 +1,20 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Framework\Infrastructure\Infrastructure.csproj" />
+    <ProjectReference Include="..\Candidate\Candidate.Infrastructure\Candidate.Infrastructure.csproj" />
+    <ProjectReference Include="..\Evaluator\Evaluator.Infrastructure\Evaluator.Infrastructure.csproj" />
+    <ProjectReference Include="..\Experties\Experties.Infrastructure\Experties.Infrastructure.csproj" />
+    <ProjectReference Include="..\Interviews\Interviews.Infrastructure\Interviews.Infrastructure.csproj" />
+    <ProjectReference Include="..\Jobs\Jobs.Infrastructure\Jobs.Infrastructure.csproj" />
+    <ProjectReference Include="..\Notifications\Notifications.Infrastructure\Notifications.Infrastructure.csproj" />
+    <ProjectReference Include="..\Quizzes\Quizzes.Infrastructure\Quizzes.Infrastructure.csproj" />
+  </ItemGroup>
+
+</Project>

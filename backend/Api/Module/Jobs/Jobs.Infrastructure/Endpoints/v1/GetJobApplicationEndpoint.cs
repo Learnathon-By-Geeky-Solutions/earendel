@@ -23,7 +23,7 @@ public static class GetJobApplicationEndpoint
             .WithSummary("Gets a job application by id")
             .WithDescription("Gets a job application by id")
             .Produces<JobApplicationResponse>()
-            .RequirePermission("Permissions.JobApplications.View")
+            .RequirePermission("Permissions.Jobs.View")
             .MapToApiVersion(1);
     }
 }

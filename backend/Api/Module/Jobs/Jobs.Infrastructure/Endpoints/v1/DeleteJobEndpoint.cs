@@ -23,7 +23,7 @@ public static class DeleteJobEndpoint
             .WithSummary("deletes job by id")
             .WithDescription("deletes job by id")
             .Produces(StatusCodes.Status204NoContent)
-            .RequirePermission("Permissions.Job.Delete")
+            .RequirePermission("Permissions.Jobs.Create")
             .MapToApiVersion(1);
     }
 }

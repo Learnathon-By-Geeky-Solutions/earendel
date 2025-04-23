@@ -8,7 +8,7 @@ using System.Diagnostics.CodeAnalysis;
 namespace TalentMesh.Module.Evaluator.Infrastructure.Persistence;
 
 [ExcludeFromCodeCoverage]
-internal sealed class EvaluatorRepository<T> : RepositoryBase<T>, IReadRepository<T>, IRepository<T>
+public sealed class EvaluatorRepository<T> : RepositoryBase<T>, IReadRepository<T>, IRepository<T>
     where T : class, IAggregateRoot
 {
     public EvaluatorRepository(EvaluatorDbContext context)
