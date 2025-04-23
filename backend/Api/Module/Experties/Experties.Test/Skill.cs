@@ -54,7 +54,7 @@ namespace TalentMesh.Module.Experties.Tests
 
             _createHandler = new CreateSkillHandler(_createLoggerMock.Object, _repositoryMock.Object, _messageBusMock.Object, _mediatorMock.Object);
             _deleteHandler = new DeleteSkillHandler(_deleteLoggerMock.Object, _repositoryMock.Object);
-            _getHandler = new GetSkillHandler(_readRepositoryMock.Object, _cacheServiceMock.Object); // Correct parameters
+            _getHandler = new GetSkillHandler(_readRepositoryMock.Object); // Correct parameters
             _searchHandler = new SearchSkillsHandler(_readRepositoryMock.Object);
             _updateHandler = new UpdateSkillHandler(_updateLoggerMock.Object, _repositoryMock.Object, _mediatorMock.Object);
         }
