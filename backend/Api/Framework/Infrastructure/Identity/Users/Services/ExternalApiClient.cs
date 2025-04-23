@@ -14,6 +14,7 @@ using Microsoft.IdentityModel.Tokens;
 using TalentMesh.Framework.Core.Identity.Users.Abstractions;
 using Microsoft.AspNetCore.WebUtilities;
 using System.Diagnostics.CodeAnalysis;
+using TalentMesh.Framework.Infrastructure.Messaging;
 
 namespace TalentMesh.Framework.Infrastructure.Identity.Users.Services
 {
@@ -37,42 +38,42 @@ namespace TalentMesh.Framework.Infrastructure.Identity.Users.Services
         private readonly string _sslCommerzCancelUrl;
 
 
-        public ExternalApiClient(HttpClient httpClient, ILogger<ExternalApiClient> logger, IConfiguration configuration)
+        public ExternalApiClient(HttpClient httpClient, ILogger<ExternalApiClient> logger, IMessageBus messageBus, IConfiguration configuration)
         {
             _clientId = configuration["GithubCredentials:ClientId"]
                 ?? throw new ArgumentNullException(nameof(configuration), "GithubCredentials:ClientId is missing in configuration");
 
             _clientSecret = configuration["GithubCredentials:ClientSecret"]
-                ?? throw new ArgumentNullException(nameof(configuration), "GithubCredentials:ClientSecret is missing in configuration");
+                    ?? throw new ArgumentNullException(nameof(configuration), "GithubCredentials:ClientSecret is missing in configuration");
 
             _requestAccessTokenUrl = configuration["GithubCredentials:RequestAccessTokenUrl"]
-                ?? throw new ArgumentNullException(nameof(configuration), "GithubCredentials:RequestAccessTokenUrl is missing in configuration");
+                    ?? throw new ArgumentNullException(nameof(configuration), "GithubCredentials:RequestAccessTokenUrl is missing in configuration");
 
             _requestUserInfoUrl = configuration["GithubCredentials:RequestUserInfoUrl"]
-                ?? throw new ArgumentNullException(nameof(configuration), "GithubCredentials:RequestUserInfoUrl is missing in configuration");
+                    ?? throw new ArgumentNullException(nameof(configuration), "GithubCredentials:RequestUserInfoUrl is missing in configuration");
 
 
             _sslCommerzStoreId = configuration["SslCommerz:StoreId"]
-                ?? throw new ArgumentNullException(nameof(configuration), "SslCommerz:StoreId is missing in configuration");
+                    ?? throw new ArgumentNullException(nameof(configuration), "SslCommerz:StoreId is missing in configuration");
 
             _sslCommerzStorePass = configuration["SslCommerz:StorePass"]
-                ?? throw new ArgumentNullException(nameof(configuration), "SslCommerz:StorePass is missing in configuration");
+                    ?? throw new ArgumentNullException(nameof(configuration), "SslCommerz:StorePass is missing in configuration");
 
 
             _sslCommerzInitiateUrl = configuration["SslCommerz:InitiateUrl"]
-                ?? throw new ArgumentNullException(nameof(configuration), "SslCommerz:InitiateUrl is missing in configuration");
+                    ?? throw new ArgumentNullException(nameof(configuration), "SslCommerz:InitiateUrl is missing in configuration");
 
             _sslCommerzValidationUrl = configuration["SslCommerz:ValidationUrl"]
-                ?? throw new ArgumentNullException(nameof(configuration), "SslCommerz:ValidationUrl is missing in configuration");
+                    ?? throw new ArgumentNullException(nameof(configuration), "SslCommerz:ValidationUrl is missing in configuration");
 
             _sslCommerzSuccessUrl = configuration["SslCommerz:SuccessUrl"]
-                ?? throw new ArgumentNullException(nameof(configuration), "SslCommerz:SuccessUrl is missing in configuration");
+                    ?? throw new ArgumentNullException(nameof(configuration), "SslCommerz:SuccessUrl is missing in configuration");
 
             _sslCommerzFailUrl = configuration["SslCommerz:FailUrl"]
-                ?? throw new ArgumentNullException(nameof(configuration), "SslCommerz:FailUrl is missing in configuration");
+                    ?? throw new ArgumentNullException(nameof(configuration), "SslCommerz:FailUrl is missing in configuration");
 
             _sslCommerzCancelUrl = configuration["SslCommerz:CancelUrl"]
-                ?? throw new ArgumentNullException(nameof(configuration), "SslCommerz:CancelUrl is missing in configuration");
+                    ?? throw new ArgumentNullException(nameof(configuration), "SslCommerz:CancelUrl is missing in configuration");
 
 
             _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
@@ -154,16 +155,15 @@ namespace TalentMesh.Framework.Infrastructure.Identity.Users.Services
             throw new InvalidOperationException("No access token found in GitHub response");
         }
 
-        public async Task<string> InitiateSslCommerzPaymentAsync()
+        public async Task<string> InitiateSslCommerzPaymentAsync(string jobId, string amount, CancellationToken cancellationToken)
         {
-            var tranId = Guid.NewGuid().ToString();
             var parameters = new Dictionary<string, string>
             {
                 { "store_id", _sslCommerzStoreId },
                 { "store_passwd", _sslCommerzStorePass },
-                { "total_amount", "100" },
+                { "total_amount", amount },
                 { "currency", "BDT" },
-                { "tran_id", tranId },
+                { "tran_id", jobId },
                 { "success_url", _sslCommerzSuccessUrl },
                 { "fail_url", _sslCommerzFailUrl },
                 { "cancel_url", _sslCommerzCancelUrl },
@@ -202,6 +202,7 @@ namespace TalentMesh.Framework.Infrastructure.Identity.Users.Services
                 }
 
                 _logger.LogInformation("Successfully extracted GatewayPageURL: {GatewayPageURL}", gatewayPageUrl);
+
                 return gatewayPageUrl;
             }
             else
@@ -215,13 +216,13 @@ namespace TalentMesh.Framework.Infrastructure.Identity.Users.Services
         {
             // Build URL with required parameters
             var queryParams = new Dictionary<string, string?>
-    {
-        { "val_id", valId },
-        { "store_id", _sslCommerzStoreId },
-        { "store_passwd", _sslCommerzStorePass },
-        { "v", "1" },
-        { "format", "json" }
-    };
+            {
+                { "val_id", valId },
+                { "store_id", _sslCommerzStoreId },
+                { "store_passwd", _sslCommerzStorePass },
+                { "v", "1" },
+                { "format", "json" }
+            };
 
             var url = QueryHelpers.AddQueryString(_sslCommerzValidationUrl, queryParams);
 

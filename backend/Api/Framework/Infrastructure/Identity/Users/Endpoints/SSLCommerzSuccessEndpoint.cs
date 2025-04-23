@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.WebUtilities;
 using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
+using TalentMesh.Framework.Infrastructure.Messaging;
 
 namespace TalentMesh.Framework.Infrastructure.Identity.Users.Endpoints
 {
@@ -19,7 +20,9 @@ namespace TalentMesh.Framework.Infrastructure.Identity.Users.Endpoints
             return endpoints.MapPost("/success", async (
                 [FromServices] ILogger<object> logger,
                 [FromServices] IExternalApiClient externalApiClient,
-                HttpContext context) =>
+                [FromServices] IMessageBus _messageBus,
+                HttpContext context,
+                CancellationToken cancellationToken) =>
             {
                 // Ensure the request has a proper content type.
                 if (!context.Request.HasFormContentType)
@@ -59,6 +62,16 @@ namespace TalentMesh.Framework.Infrastructure.Identity.Users.Endpoints
                         response.ToUpperInvariant() == "VALID")
                     {
                         logger.LogInformation("Payment validation succeeded for TranId: {TranId}", tranId);
+                        
+                        var publishMessage = new
+                        {
+                            JobId = tranId,
+                            Status = "Success",
+                            RequestedBy = "2b982b04-6d0e-4133-93ac-7dddff87c7f5"
+                        };
+
+                        await _messageBus.PublishAsync(publishMessage, "job.payment.update.events", "job.payment.update.fetched", cancellationToken);
+
                         return $"Payment validated successfully with val_id: {valId}";
                     }
                     else
