@@ -25,9 +25,9 @@ export class ApiService {
       .put(path, JSON.stringify(body), this.httpOptions)
       .pipe(catchError(this.formatErrors));
   }
-  post(path: string, body: Object = {}): Observable<any> {
+  post(path: string, body: Object = {}, options: any = {}): Observable<any> {
     return this.http
-      .post(path, JSON.stringify(body), this.httpOptions)
+      .post(path, JSON.stringify(body), options) // Pass the options object
       .pipe(catchError(this.formatErrors));
   }
   delete(path: string): Observable<any> {

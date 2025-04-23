@@ -49,6 +49,8 @@ import { GithubcallbackComponent } from './githubcallback/githubcallback.compone
 import { HiringRubricsComponent } from './admin-dashboard/hiring-rubrics/hiring-rubrics.component';
 import { SenioritiesComponent } from './admin-dashboard/seniorities/seniorities.component';
 import { QuizzesComponent } from './admin-dashboard/quizzes/quizzes.component';
+import { ZoomsdkComponent } from './zoomsdk/zoomsdk.component';
+import { CodeComponent } from './code/code.component';
 
 export const routes: Routes = [
   { path: '', component: LandingComponent },
@@ -77,6 +79,9 @@ export const routes: Routes = [
       { path: '', redirectTo: 'requested', pathMatch: 'full' },
     ],
   },
+
+  { path: 'coding-playground', component: CodeComponent },
+  { path: 'meeting', component: ZoomsdkComponent },
 
   {
     path: 'register',

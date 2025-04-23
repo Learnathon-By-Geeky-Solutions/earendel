@@ -1,0 +1,26 @@
+<div class="editor-container">
+  <div class="controls">
+    <select [(ngModel)]="selectedLanguage" (change)="changeLanguage()" class="language-dropdown">
+      <option *ngFor="let lang of supportedLanguages" [value]="lang.id">
+        {{ lang.name }}
+      </option>
+    </select>
+    <button class="run-button" (click)="runCode()">Run</button>
+  </div>
+
+  <div class="editor-output">
+    <div #editorContainer class="editor"></div>
+
+    <div class="output">
+      <div class="input-section">
+        <h3>Input:</h3>
+        <textarea [(ngModel)]="userInput" class="input-field" rows="4"></textarea>
+      </div>
+      
+      <div class="output-section">
+        <h3>Output:</h3>
+        <pre>{{ output }}</pre>
+      </div>
+    </div>
+  </div>
+</div>
