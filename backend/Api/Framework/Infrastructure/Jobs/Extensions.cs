@@ -14,6 +14,8 @@ namespace TalentMesh.Framework.Infrastructure.Jobs;
 
 internal static class Extensions
 {
+    private static readonly string[] Queues = new string[] { "default", "email" };
+
     internal static IServiceCollection ConfigureJobs(this IServiceCollection services, IConfiguration configuration)
     {
         var dbOptions = configuration.GetSection(nameof(DatabaseOptions)).Get<DatabaseOptions>() ??
@@ -22,7 +24,7 @@ internal static class Extensions
         services.AddHangfireServer(o =>
         {
             o.HeartbeatInterval = TimeSpan.FromSeconds(30);
-            o.Queues = new string[] { "default", "email" };
+            o.Queues = Queues;
             o.WorkerCount = 5;
             o.SchedulePollingInterval = TimeSpan.FromSeconds(30);
         });

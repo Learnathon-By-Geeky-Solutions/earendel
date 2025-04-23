@@ -233,7 +233,7 @@ namespace TalentMesh.Module.Evaluator.Tests
             var InterviewerAvailabilityId = Guid.NewGuid();
 
             _repositoryMock.Setup(repo => repo.GetByIdAsync(InterviewerAvailabilityId, It.IsAny<CancellationToken>()))
-                .ReturnsAsync((InterviewerAvailability)null);
+                .ReturnsAsync((InterviewerAvailability?)null);
 
             // Act & Assert
             await Assert.ThrowsAsync<InterviewerAvailabilityNotFoundException>(() =>
@@ -253,7 +253,7 @@ namespace TalentMesh.Module.Evaluator.Tests
                 .ReturnsAsync(expectedInterviewerAvailability);
 
             _cacheServiceMock.Setup(cache => cache.GetAsync<InterviewerAvailabilityResponse>(It.IsAny<string>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync((InterviewerAvailabilityResponse)null);
+                .ReturnsAsync((InterviewerAvailabilityResponse?)null);
 
             // Act
             var result = await _getHandler.Handle(new GetInterviewerAvailabilityRequest(InterviewerAvailabilityId), CancellationToken.None);
@@ -277,7 +277,7 @@ namespace TalentMesh.Module.Evaluator.Tests
             var InterviewerAvailabilityId = Guid.NewGuid();
 
             _readRepositoryMock.Setup(repo => repo.GetByIdAsync(InterviewerAvailabilityId, It.IsAny<CancellationToken>()))
-                .ReturnsAsync((InterviewerAvailability)null);
+                .ReturnsAsync((InterviewerAvailability?)null);
 
             // Act & Assert
             await Assert.ThrowsAsync<InterviewerAvailabilityNotFoundException>(() =>
@@ -400,7 +400,7 @@ namespace TalentMesh.Module.Evaluator.Tests
             var request = new UpdateInterviewerAvailabilityCommand(InterviewerAvailabilityId, Guid.NewGuid(), DateTime.UtcNow, DateTime.UtcNow.AddHours(1), true);
 
             _repositoryMock.Setup(repo => repo.GetByIdAsync(InterviewerAvailabilityId, It.IsAny<CancellationToken>()))
-                .ReturnsAsync((InterviewerAvailability)null);
+                .ReturnsAsync((InterviewerAvailability?)null);
 
             // Act & Assert
             await Assert.ThrowsAsync<InterviewerAvailabilityNotFoundException>(() =>

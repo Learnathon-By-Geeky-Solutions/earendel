@@ -46,35 +46,43 @@ public static class SpecificationBuilderExtensions
         specificationBuilder.AdvancedSearch(new Search { Keyword = keyword });
 
     public static IOrderedSpecificationBuilder<T> AdvancedSearch<T>(
-        this ISpecificationBuilder<T> specificationBuilder,
-        Search? search)
+    this ISpecificationBuilder<T> specificationBuilder,
+    Search? search)
     {
-        if (!string.IsNullOrEmpty(search?.Keyword))
+        if (string.IsNullOrEmpty(search?.Keyword))
         {
-            if (search.Fields?.Any() is true)
-            {
-                // search seleted fields (can contain deeper nested fields)
-                foreach (string field in search.Fields)
-                {
-                    var paramExpr = Expression.Parameter(typeof(T));
-                    MemberExpression propertyExpr = GetPropertyExpression(field, paramExpr);
+            return new OrderedSpecificationBuilder<T>(specificationBuilder.Specification);
+        }
 
-                    specificationBuilder.AddSearchPropertyByKeyword(propertyExpr, paramExpr, search.Keyword);
-                }
+        var fieldsToSearch = search.Fields;
+        bool hasSpecificFields = fieldsToSearch?.Count > 0;  // Using Count instead of Any()
+
+        if (hasSpecificFields)
+        {
+            // Search selected fields (can contain deeper nested fields)
+            var paramExpr = Expression.Parameter(typeof(T));
+            foreach (string field in fieldsToSearch!)
+            {
+                MemberExpression propertyExpr = GetPropertyExpression(field, paramExpr);
+                specificationBuilder.AddSearchPropertyByKeyword(propertyExpr, paramExpr, search.Keyword!);
             }
-            else
+        }
+        else
+        {
+            // Search all fields (only first level)
+            var properties = typeof(T).GetProperties();
+            foreach (var property in properties)
             {
-                // search all fields (only first level)
-                foreach (var property in typeof(T).GetProperties()
-                    .Where(prop => (Nullable.GetUnderlyingType(prop.PropertyType) ?? prop.PropertyType) is { } propertyType
-                        && !propertyType.IsEnum
-                        && Type.GetTypeCode(propertyType) != TypeCode.Object))
-                {
-                    var paramExpr = Expression.Parameter(typeof(T));
-                    var propertyExpr = Expression.Property(paramExpr, property);
+                var propertyType = Nullable.GetUnderlyingType(property.PropertyType) ?? property.PropertyType;
 
-                    specificationBuilder.AddSearchPropertyByKeyword(propertyExpr, paramExpr, search.Keyword);
+                if (propertyType.IsEnum || Type.GetTypeCode(propertyType) == TypeCode.Object)
+                {
+                    continue;
                 }
+
+                var paramExpr = Expression.Parameter(typeof(T));
+                var propertyExpr = Expression.Property(paramExpr, property);
+                specificationBuilder.AddSearchPropertyByKeyword(propertyExpr, paramExpr, search.Keyword!);
             }
         }
 
@@ -213,16 +221,17 @@ public static class SpecificationBuilderExtensions
         };
     }
 
-    private static Expression CombineFilter(
-        string filterOperator,
-        Expression bExpresionBase,
-        Expression bExpresion) => filterOperator switch
-        {
-            FilterLogic.AND => Expression.And(bExpresionBase, bExpresion),
-            FilterLogic.OR => Expression.Or(bExpresionBase, bExpresion),
-            FilterLogic.XOR => Expression.ExclusiveOr(bExpresionBase, bExpresion),
-            _ => throw new ArgumentException("FilterLogic is not valid."),
-        };
+    private static BinaryExpression CombineFilter(
+    string filterOperator,
+    Expression bExpressionBase,
+    Expression bExpression) => filterOperator switch
+    {
+        FilterLogic.AND => Expression.And(bExpressionBase, bExpression),
+        FilterLogic.OR => Expression.Or(bExpressionBase, bExpression),
+        FilterLogic.XOR => Expression.ExclusiveOr(bExpressionBase, bExpression),
+        _ => throw new ArgumentException("FilterLogic is not valid."),
+    };
+
 
     private static MemberExpression GetPropertyExpression(
         string propertyName,

@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using TalentMesh.Framework.Infrastructure.Auth.Policy;
@@ -18,6 +19,7 @@ namespace TalentMesh.Module.CandidateLogic.JobApplicationView // Or your preferr
             return app.MapGet("/JobApplicationView",
                 async (
                     IMediator mediator,
+                    [FromServices] ILogger<object> logger,
                     [FromQuery] Guid? jobId,
                     [FromQuery] Guid? candidateId, // User ID
                     [FromQuery] DateTime? applicationDateStart,
@@ -38,6 +40,7 @@ namespace TalentMesh.Module.CandidateLogic.JobApplicationView // Or your preferr
                     }
                     catch (Exception ex)
                     {
+                        logger.LogError(ex, "An error occurred while processing the request.");
                         // Log exception
                         return Results.Problem("An error occurred while processing your request.",
                                               statusCode: StatusCodes.Status500InternalServerError);

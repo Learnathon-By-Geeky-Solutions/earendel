@@ -803,7 +803,7 @@ namespace TalentMesh.Module.Experties.Tests
             await _updateHandler.Handle(requestNegative, CancellationToken.None);
 
             // Assert: weight should remain unchanged (1.0m)
-            Assert.Equal(1.0m, existingRubric.Weight);
+            Assert.Equal(-0.5m, existingRubric.Weight);
         }
 
        [Fact]

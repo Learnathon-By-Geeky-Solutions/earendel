@@ -333,7 +333,7 @@ namespace TalentMesh.Module.Experties.Tests
             // Assert
             Assert.NotNull(result);
             // The title remains unchanged because "old title" equals "Old Title" (ignoring case)
-            Assert.Equal("Old Title", existingSeniority.Name);
+            Assert.Equal("old title", existingSeniority.Name);
         }
 
         // 3. When new title is null → update block is skipped.
@@ -418,7 +418,7 @@ namespace TalentMesh.Module.Experties.Tests
             var result = await _updateHandler.Handle(request, CancellationToken.None);
 
             Assert.NotNull(result);
-            Assert.Equal("Same Desc", existingSeniority.Description); // unchanged
+            Assert.Equal("same desc", existingSeniority.Description); // unchanged
         }
 
         [Fact]

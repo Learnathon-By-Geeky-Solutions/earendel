@@ -13,5 +13,5 @@ public class SearchSubSkillSpecs : EntitiesByPaginationFilterSpec<Experties.Doma
         : base(command) =>
         Query
             .OrderBy(c => c.Name, !command.HasOrderBy())
-            .Where(b => b.Name.Contains(command.Keyword), !string.IsNullOrEmpty(command.Keyword));
+            .Where(b => b.Name != null && b.Name.Contains(command.Keyword), !string.IsNullOrEmpty(command.Keyword));
 }
