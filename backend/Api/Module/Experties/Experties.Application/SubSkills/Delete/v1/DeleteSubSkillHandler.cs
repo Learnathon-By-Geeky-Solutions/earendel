@@ -14,8 +14,10 @@ public sealed class DeleteSubSkillHandler(
     public async Task Handle(DeleteSubSkillCommand request, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(request);
-        var skill = await repository.GetByIdAsync(request.Id, cancellationToken);
-        if (skill == null) throw new SubSkillNotFoundException(request.Id);
+
+        var skill = await repository.GetByIdAsync(request.Id, cancellationToken)
+           ?? throw new SubSkillNotFoundException(request.Id);
+
         await repository.DeleteAsync(skill, cancellationToken);
         logger.LogInformation("sub-skill with id : {SkillId} deleted", skill.Id);
     }

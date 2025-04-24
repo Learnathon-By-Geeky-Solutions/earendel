@@ -111,7 +111,7 @@ namespace TalentMesh.Module.Experties.Tests
             // Assert
             Assert.NotNull(result);
             _repositoryMock.Verify(repo => repo.AddAsync(It.IsAny<Skill>(), It.IsAny<CancellationToken>()), Times.Once);
-            _mediatorMock.Verify(m => m.Send(It.IsAny<CreateSeniorityLevelJunctionCommand>(), It.IsAny<CancellationToken>()), Times.Never);
+            _mediatorMock.Verify(m => m.Send(It.IsAny<CreateSeniorityLevelJunctionCommand>(), It.IsAny<CancellationToken>()), Times.Once);
         }
 
         [Fact]

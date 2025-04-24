@@ -16,24 +16,18 @@ namespace TalentMesh.Module.Experties.Application.Skills.Search.v1
     {
         public SearchSkillSpecs(SearchSkillsCommand command)
         {
-            // Filter: Only get non-deleted Skills
-            Query.Where(skill => skill.DeletedBy == null);
+            // Filter: non-deleted and optional keyword
+            Query.Where(skill =>
+                skill.DeletedBy == null &&
+                (string.IsNullOrEmpty(command.Keyword) || skill.Name.Contains(command.Keyword))
+            );
 
-            // Filter: By keyword if provided
-            if (!string.IsNullOrEmpty(command.Keyword))
-            {
-                Query.Where(skill => skill.Name.Contains(command.Keyword));
-            }
-
-            // Apply default ordering if none provided
-            if (!command.HasOrderBy())
-            {
-                Query.OrderBy(skill => skill.Name);
-            }
+            // Apply default ordering flag directly
+            Query.OrderBy(skill => skill.Name, !command.HasOrderBy());
 
             Query.AsSplitQuery();
 
-            // Projection with filters for soft-deleted sub-entities
+            // Projection remains unchanged
             Query.Select(skill => new SkillResponse(
                 skill.Id,
                 skill.Name,

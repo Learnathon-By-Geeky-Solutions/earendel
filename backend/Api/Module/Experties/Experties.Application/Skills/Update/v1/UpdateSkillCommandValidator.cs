@@ -16,12 +16,10 @@ namespace TalentMesh.Module.Experties.Application.Skills.Update.v1
             RuleFor(b => b.Description)
                 .MaximumLength(1000).WithMessage("Description must be at most 1000 characters long.");
 
-            When(x => x.SeniorityLevelIds != null, () =>
-            {
-                RuleFor(x => x.SeniorityLevelIds)
-                .Must(levels => levels != null && levels.Count > 0)
-                .WithMessage("At least one seniority level must be provided.");
-            });
+            // Single rule without branching to validate seniority levels
+            RuleFor(x => x.SeniorityLevelIds)
+                .Must(levels => levels == null || levels.Count > 0)
+                .WithMessage("At least one seniority level must be provided when SeniorityLevelIds is not null.");
         }
     }
 }
