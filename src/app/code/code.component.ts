@@ -412,10 +412,6 @@ import { HomeService } from '../shared/services/home.service';
         padding: 0;
       }
 
-      // .editor-output {
-      //   height: calc(100% - 60px);
-      // }
-
       .editor-output {
         height: calc(100% - 60px);
         position: relative; /* Add this */
@@ -424,22 +420,8 @@ import { HomeService } from '../shared/services/home.service';
       .editor {
         height: 70% !important;
         position: relative !important;
-        // top: 0;
-        // left: 0;
-        // right: 0;
-        // bottom: 0;
         width: 100% !important;
       }
-
-      // .editor {
-      //   height: 60% !important;
-      // position: absolute !important; /* Add this */
-      // top: 0;
-      // left: 0;
-      // right: 0;
-      // bottom: 0;
-      // width: 100% !important;
-      // }
 
       .output {
         height: 40% !important;
@@ -673,6 +655,9 @@ export class CodeComponent implements AfterViewInit, OnInit, OnDestroy {
             glyphMargin: false,
             lineDecorationsWidth: 0,
             lineNumbersMinChars: 3,
+            cursorStyle: 'line', // 'block', 'underline', etc.
+            cursorBlinking: 'blink', // 'blink' | 'smooth' | 'phase' | 'expand' | 'solid'
+            cursorWidth: 2, // in pixels
           }
         );
 
