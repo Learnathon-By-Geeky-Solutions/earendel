@@ -547,6 +547,25 @@ import { HomeService } from '../shared/services/home.service';
           align-items: stretch;
         }
 
+        /* Force cursor visibility */
+        .monaco-editor .cursors-layer .cursor {
+          background-color: #ffffff !important;
+          border-color: #ffffff !important;
+          width: 2px !important;
+        }
+
+        /* Fix line number alignment */
+        .monaco-editor .line-numbers {
+          text-align: right !important;
+          padding-right: 8px !important;
+        }
+
+        /* Ensure editor content alignment */
+        .monaco-editor .view-lines {
+          direction: ltr !important;
+          unicode-bidi: isolate !important;
+        }
+          
         .editor {
           flex: 1 1 100%; /* Full width on small screens */
           height: 250px; /* Limit the editor height */
