@@ -431,6 +431,27 @@ import { HomeService } from '../shared/services/home.service';
         width: 100% !important;
       }
 
+      /* Add to global styles.css */
+      .monaco-editor {
+        direction: ltr !important;
+        text-align: left !important;
+
+        .view-lines {
+          unicode-bidi: isolate !important;
+        }
+
+        .cursor {
+          left: auto !important;
+          right: auto !important;
+        }
+      }
+
+      /* Component-specific CSS adjustments */
+      .editor {
+        direction: ltr !important;
+        unicode-bidi: isolate !important;
+      }
+
       // .editor {
       //   height: 60% !important;
       // position: absolute !important; /* Add this */
@@ -565,7 +586,7 @@ import { HomeService } from '../shared/services/home.service';
           direction: ltr !important;
           unicode-bidi: isolate !important;
         }
-          
+
         .editor {
           flex: 1 1 100%; /* Full width on small screens */
           height: 250px; /* Limit the editor height */
@@ -651,42 +672,42 @@ export class CodeComponent implements AfterViewInit, OnInit, OnDestroy {
     // });
   }
 
-  private initializeMonacoEditor() {
-    import('monaco-editor')
-      .then((monaco) => {
-        this.editorInstance = monaco.editor.create(
-          this.editorContainer.nativeElement,
-          {
-            value: `// Write your code here\nconsole.log('Hello, World!');`,
-            language: this.selectedLanguage,
-            theme: 'vs-dark',
-            automaticLayout: true,
-            lineNumbers: 'on',
-            roundedSelection: false,
-            scrollBeyondLastLine: false,
-            readOnly: false,
-            wordWrap: 'off',
-            wrappingIndent: 'none',
-            minimap: { enabled: false },
-            fixedOverflowWidgets: true,
-            // Force LTR settings
-            glyphMargin: false,
-            lineDecorationsWidth: 0,
-            lineNumbersMinChars: 3,
-          }
-        );
+  // private initializeMonacoEditor() {
+  //   import('monaco-editor')
+  //     .then((monaco) => {
+  //       this.editorInstance = monaco.editor.create(
+  //         this.editorContainer.nativeElement,
+  //         {
+  //           value: `// Write your code here\nconsole.log('Hello, World!');`,
+  //           language: this.selectedLanguage,
+  //           theme: 'vs-dark',
+  //           automaticLayout: true,
+  //           lineNumbers: 'on',
+  //           roundedSelection: false,
+  //           scrollBeyondLastLine: false,
+  //           readOnly: false,
+  //           wordWrap: 'off',
+  //           wrappingIndent: 'none',
+  //           minimap: { enabled: false },
+  //           fixedOverflowWidgets: true,
+  //           // Force LTR settings
+  //           glyphMargin: false,
+  //           lineDecorationsWidth: 0,
+  //           lineNumbersMinChars: 3,
+  //         }
+  //       );
 
-        this.editorInstance.onDidChangeModelContent(() => {
-          if (!this.isReceivingUpdate) {
-            const updatedCode = this.editorInstance.getValue();
-            // this.codeService.sendCodeUpdate(updatedCode, this.selectedLanguage);
-          }
-        });
-      })
-      .catch((err) => {
-        console.error('Error loading Monaco Editor:', err);
-      });
-  }
+  //       this.editorInstance.onDidChangeModelContent(() => {
+  //         if (!this.isReceivingUpdate) {
+  //           const updatedCode = this.editorInstance.getValue();
+  //           // this.codeService.sendCodeUpdate(updatedCode, this.selectedLanguage);
+  //         }
+  //       });
+  //     })
+  //     .catch((err) => {
+  //       console.error('Error loading Monaco Editor:', err);
+  //     });
+  // }
 
   // changeLanguage() {
   //   if (this.editorInstance) {
@@ -698,6 +719,59 @@ export class CodeComponent implements AfterViewInit, OnInit, OnDestroy {
   //     }
   //   }
   // }
+
+  // Update the Monaco editor initialization
+  private initializeMonacoEditor() {
+    import('monaco-editor').then((monaco) => {
+      // Configure base path for web workers
+      (window as any).MonacoEnvironment = {
+        getWorkerUrl: function (_moduleId: any, label: string) {
+          return `./assets/monaco-editor/vs/${label}/${label}.worker.js`;
+        },
+      };
+
+      // Create model with explicit LTR settings
+      const model = monaco.editor.createModel(
+        `// Write your code here\nconsole.log('Hello, World!');`,
+        this.selectedLanguage,
+        monaco.Uri.parse('file:///main.js') // Explicit file path
+      );
+
+      // Create editor instance with LTR enforcement
+      this.editorInstance = monaco.editor.create(
+        this.editorContainer.nativeElement,
+        {
+          model: model,
+          automaticLayout: true,
+          theme: 'vs-dark',
+          lineNumbers: 'on',
+          glyphMargin: false,
+          lineDecorationsWidth: 0,
+          lineNumbersMinChars: 3,
+          scrollBeyondLastLine: false,
+          minimap: { enabled: false },
+          wordWrap: 'on',
+          wrappingIndent: 'same',
+          fixedOverflowWidgets: true,
+          renderLineHighlight: 'all',
+          scrollbar: {
+            vertical: 'visible',
+            horizontal: 'visible',
+            useShadows: false,
+          },
+          // Force LTR layout
+          // Add explicit LTR layout configuration
+
+        }
+      );
+
+      // Force layout refresh
+      setTimeout(() => {
+        this.editorInstance.layout();
+        this.editorInstance.focus();
+      }, 100);
+    });
+  }
 
   changeLanguage() {
     if (this.editorInstance) {
