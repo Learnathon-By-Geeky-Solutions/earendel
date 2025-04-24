@@ -37,7 +37,7 @@ namespace TalentMesh.Module.Interviews.Infrastructure.Services
             _accountId = configuration["ZoomSettings:AccountId"]!;
             _zoomUserName = configuration["ZoomSettings:ZoomUserName"]!;
             _zoomPassword = configuration["ZoomSettings:ZoomPassword"]!;
-            _requestUrl = configuration["ZoomSettings:RequestUrl"]!;
+            _requestUrl = configuration["ZoomSettings:RequestAccessTokenUrl"]!;
             _httpClient = httpClient;
             _logger = logger;
         }
