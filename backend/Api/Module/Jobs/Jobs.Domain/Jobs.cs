@@ -5,41 +5,49 @@ using TalentMesh.Module.Job.Domain.Events;
 
 
 namespace TalentMesh.Module.Job.Domain;
+
+public class JobInfo
+{
+    public string Name { get; set; } = default!;
+    public string? Description { get; set; }
+    public string Requirments { get; set; } = default!;
+    public string Location { get; set; } = default!;
+    public string JobType { get; set; } = default!;
+    public string ExperienceLevel { get; set; } = default!;
+    public string? Salary { get; set; }
+    public Guid PostedById { get; set; }
+}
 public class Jobs : AuditableEntity, IAggregateRoot
 {
     // Add properties for the job entity
-    public string Name { get;  set; } = default!;
-    public string? Description { get;  set; }
-    public string Requirments { get;  set; } = default!;
-    public string Location { get;  set; } = default!;
-    public string JobType { get;  set; } = default!;
+    public string Name { get; set; } = default!;
+    public string? Description { get; set; }
+    public string Requirments { get; set; } = default!;
+    public string Location { get; set; } = default!;
+    public string JobType { get; set; } = default!;
     public string ExperienceLevel { get; private set; } = default!;
     public string? Salary { get; private set; } = default!;
     public Guid PostedById { get; private set; }
-
     public string PaymentStatus { get; set; } = default!;
-
-    public static Jobs Create(
-        string name, string? description, string requirments, 
-        string location, string jobType, string experienceLevel, Guid postedById, string salary = default!
-        )
+    public static Jobs Create(JobInfo info)
     {
-        var user = new Jobs
+
+        var job = new Jobs
         {
-            Name = name,
-            Description = description,
-            Requirments = requirments,
-            Location = location,
-            JobType = jobType,
-            ExperienceLevel = experienceLevel,
-            Salary = salary,
-            PostedById = postedById,
+            Name = info.Name,
+            Description = info.Description,
+            Requirments = info.Requirments,
+            Location = info.Location,
+            JobType = info.JobType,
+            ExperienceLevel = info.ExperienceLevel,
+            Salary = info.Salary ?? string.Empty,
+            PostedById = info.PostedById,
             PaymentStatus = "Pending"
         };
 
-        user.QueueDomainEvent(new JobCreated() { User = user });
+        job.QueueDomainEvent(new JobCreated() { User = job });
 
-        return user;
+        return job;
     }
 
     public Jobs Update(
@@ -60,7 +68,6 @@ public class Jobs : AuditableEntity, IAggregateRoot
 
         return this;
     }
-
 
 }
 
