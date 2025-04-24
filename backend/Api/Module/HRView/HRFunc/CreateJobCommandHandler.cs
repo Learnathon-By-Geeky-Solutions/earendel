@@ -22,17 +22,19 @@ namespace TalentMesh.Module.HRView.HRFunc // Or your preferred namespace
         public async Task<IResult> Handle(CreateJobCommand request, CancellationToken cancellationToken)
         {
             // 1. Create the Job entity
-            var newJob = Jobs.Create(
-                name: request.Name,
-                description: request.Description,
-                requirments: request.Requirments, // Correct spelling if needed
-                location: request.Location,
-                jobType: request.JobType,
-                experienceLevel: request.ExperienceLevel,
-                salary: request.Salary ?? string.Empty, // Provide default if null
-                postedById: request.PostedBy // Assuming this is a Guid
-            );
+            var jobInfo = new JobInfo
+            {
+                Name = request.Name,
+                Description = request.Description,
+                Requirments = request.Requirments,
+                Location = request.Location,
+                JobType = request.JobType,
+                ExperienceLevel = request.ExperienceLevel,
+                Salary = request.Salary ?? string.Empty,
+                PostedById = request.PostedBy
+            };
 
+            var newJob = Jobs.Create(jobInfo);
             // 2. Add the Job to the context BUT DON'T SAVE YET if generating ID client-side
             // If using database-generated IDs, you MUST save here to get the ID
             // Assuming database-generated Guid ID for Job:

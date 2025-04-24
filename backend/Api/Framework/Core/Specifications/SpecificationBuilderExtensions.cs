@@ -362,7 +362,4 @@ public static class SpecificationBuilderExtensions
             return new KeyValuePair<string, OrderTypeEnum>(field, orderBy);
         }));
 
-
-
-
 }

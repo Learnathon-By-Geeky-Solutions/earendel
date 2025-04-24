@@ -11,3 +11,4 @@ public static class SpecificationExtensions
         return specification.Selector is not null;
     }
 }
+

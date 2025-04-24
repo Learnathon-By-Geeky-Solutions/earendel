@@ -18,7 +18,7 @@ public class CreateSkillCommandValidator : AbstractValidator<CreateSkillCommand>
 
         RuleFor(b => b.SeniorityLevels)
             .NotNull().WithMessage("Seniority levels are required.")
-            .Must(levels => levels.Count > 0)
+            .Must(levels => levels?.Count > 0)
             .WithMessage("At least one seniority level must be provided.");
 
         RuleForEach(b => b.SeniorityLevels)
