@@ -412,17 +412,38 @@ import { HomeService } from '../shared/services/home.service';
         padding: 0;
       }
 
+      // .editor-output {
+      //   height: calc(100% - 60px);
+      // }
+
       .editor-output {
         height: calc(100% - 60px);
+        position: relative; /* Add this */
       }
 
       .editor {
-        height: 60% !important;
+        height: 70% !important;
+        position: relative !important;
+        // top: 0;
+        // left: 0;
+        // right: 0;
+        // bottom: 0;
+        width: 100% !important;
       }
+
+      // .editor {
+      //   height: 60% !important;
+      // position: absolute !important; /* Add this */
+      // top: 0;
+      // left: 0;
+      // right: 0;
+      // bottom: 0;
+      // width: 100% !important;
+      // }
 
       .output {
         height: 40% !important;
-        flex: 1 1 35%; /* The output takes less space on larger screens */
+        flex: 1 1 45%; /* The output takes less space on larger screens */
         display: flex;
         flex-direction: column;
         background-color: #1e1e1e;
@@ -503,6 +524,16 @@ import { HomeService } from '../shared/services/home.service';
         word-wrap: break-word;
         font-size: 14px;
         overflow-x: auto;
+      }
+
+      @media (max-width: 768px) {
+        .editor {
+          height: 50vh !important;
+          position: relative !important;
+        }
+        .output {
+          height: 30vh !important;
+        }
       }
 
       @media screen and (max-width: 768px) {
