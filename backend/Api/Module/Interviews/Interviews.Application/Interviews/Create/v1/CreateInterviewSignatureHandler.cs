@@ -10,8 +10,6 @@ namespace TalentMesh.Module.Interviews.Application.Interviews.Create.v1;
 
 [ExcludeFromCodeCoverage]
 public sealed class CreateInterviewSignatureHandler(
-    ILogger<CreateInterviewSignatureHandler> logger,
-    [FromKeyedServices("interviews:interview")] IRepository<Interview> repository,
     IZoomService zoomService)
     : IRequestHandler<CreateInterviewSignatureCommand, CreateInterviewSignatureResponse>
 {

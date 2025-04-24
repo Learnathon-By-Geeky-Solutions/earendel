@@ -23,8 +23,8 @@ namespace TalentMesh.Module.Job.Application.JobRequiredSkill.Delete.v1
             if (entity.IsDeletedOrNotFound())
                 throw new JobNotFoundException(request.Id); // Alternatively, create a specific exception like JobRequiredSkillNotFoundException
 
-            await repository.DeleteAsync(entity, cancellationToken);
-            logger.LogInformation("JobRequiredSkill with id {Id} deleted", entity.Id);
+            await repository.DeleteAsync(entity!, cancellationToken);
+            logger.LogInformation("JobRequiredSkill with id {Id} deleted", entity?.Id);
         }
     }
 }

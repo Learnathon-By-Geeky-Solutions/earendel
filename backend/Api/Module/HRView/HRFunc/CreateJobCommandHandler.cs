@@ -10,12 +10,13 @@ namespace TalentMesh.Module.HRView.HRFunc // Or your preferred namespace
     public class CreateJobCommandHandler : IRequestHandler<CreateJobCommand, IResult>
     {
         private readonly JobDbContext _context;
-        private readonly IExternalApiClient apiClient;
+        private readonly IExternalApiClient _apiClient;
 
-        public CreateJobCommandHandler(JobDbContext context, IdentityServices identityServices)
+        public CreateJobCommandHandler(JobDbContext context, IExternalApiClient apiClient)
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
-            apiClient = identityServices.ApiClient ?? throw new ArgumentNullException(nameof(identityServices.ApiClient));
+
+            _apiClient = apiClient ?? throw new ArgumentNullException(nameof(apiClient));
         }
 
         public async Task<IResult> Handle(CreateJobCommand request, CancellationToken cancellationToken)
@@ -39,7 +40,7 @@ namespace TalentMesh.Module.HRView.HRFunc // Or your preferred namespace
             await _context.SaveChangesAsync(cancellationToken); // Save to get the newJob.Id
 
             // 3. Create and add JobRequiredSkill entities
-            if (request.RequiredSkillIds != null && request.RequiredSkillIds.Any())
+            if (request.RequiredSkillIds != null && request.RequiredSkillIds.Count > 0)
             {
                 var skillsToAdd = request.RequiredSkillIds
                     .Distinct() // Avoid duplicates
@@ -49,7 +50,7 @@ namespace TalentMesh.Module.HRView.HRFunc // Or your preferred namespace
             }
 
             // 4. Create and add JobRequiredSubskill entities
-            if (request.RequiredSubskillIds != null && request.RequiredSubskillIds.Any())
+            if (request.RequiredSubskillIds != null && request.RequiredSubskillIds.Count > 0)
             {
                 var subskillsToAdd = request.RequiredSubskillIds
                     .Distinct() // Avoid duplicates
@@ -63,7 +64,7 @@ namespace TalentMesh.Module.HRView.HRFunc // Or your preferred namespace
             await _context.SaveChangesAsync(cancellationToken);
 
             // Job ID For SSLCommerz Payment, amount = Number of Interviews * 1000
-            string gatewayPageURL = await apiClient.InitiateSslCommerzPaymentAsync(newJob.Id.ToString(), request.Salary, cancellationToken);
+            string gatewayPageURL = await _apiClient.InitiateSslCommerzPaymentAsync(newJob.Id.ToString(), request.Salary!, cancellationToken);
 
             // 6. Return the ID of the newly created job
             // Consider returning StatusCodes.Status201Created with the location header

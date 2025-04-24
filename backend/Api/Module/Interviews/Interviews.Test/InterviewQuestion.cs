@@ -100,7 +100,7 @@ namespace TalentMesh.Module.Interviews.Tests
             var InterviewQuestionId = Guid.NewGuid();
 
             _repositoryMock.Setup(repo => repo.GetByIdAsync(InterviewQuestionId, It.IsAny<CancellationToken>()))
-                .ReturnsAsync((InterviewQuestion)null);
+                .ReturnsAsync((InterviewQuestion?)null);
 
             // Act & Assert
             await Assert.ThrowsAsync<InterviewQuestionNotFoundException>(() =>
@@ -120,7 +120,7 @@ namespace TalentMesh.Module.Interviews.Tests
                 .ReturnsAsync(expectedInterviewQuestion);
 
             _cacheServiceMock.Setup(cache => cache.GetAsync<InterviewQuestionResponse>(It.IsAny<string>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync((InterviewQuestionResponse)null);
+                .ReturnsAsync((InterviewQuestionResponse?)null);
 
             // Act
             var result = await _getHandler.Handle(new GetInterviewQuestionRequest(InterviewQuestionId), CancellationToken.None);
@@ -143,7 +143,7 @@ namespace TalentMesh.Module.Interviews.Tests
             var InterviewQuestionId = Guid.NewGuid();
 
             _readRepositoryMock.Setup(repo => repo.GetByIdAsync(InterviewQuestionId, It.IsAny<CancellationToken>()))
-                .ReturnsAsync((InterviewQuestion)null);
+                .ReturnsAsync((InterviewQuestion?)null);
 
             // Act & Assert
             await Assert.ThrowsAsync<InterviewQuestionNotFoundException>(() =>
@@ -243,7 +243,7 @@ namespace TalentMesh.Module.Interviews.Tests
             var request = new UpdateInterviewQuestionCommand(InterviewQuestionId, Guid.NewGuid(), Guid.NewGuid(), "Sync vs Async");
 
             _repositoryMock.Setup(repo => repo.GetByIdAsync(InterviewQuestionId, It.IsAny<CancellationToken>()))
-                .ReturnsAsync((InterviewQuestion)null);
+                .ReturnsAsync((InterviewQuestion?)null);
 
             // Act & Assert
             await Assert.ThrowsAsync<InterviewQuestionNotFoundException>(() =>

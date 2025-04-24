@@ -15,7 +15,6 @@ namespace TalentMesh.Module.Interviews.Application.Interviews.Get.v1
 {
     public sealed class GetInterviewByInterviewerHandler(
         [FromKeyedServices("interviews:interviewReadOnly")] IReadRepository<Interview> repository,
-        ICacheService cache,
         IMessageBus messageBus,
         IHttpContextAccessor httpContextAccessor)
         : IRequestHandler<GetInterviewByInterviewerRequest, bool>

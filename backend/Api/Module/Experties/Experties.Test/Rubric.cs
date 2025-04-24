@@ -94,7 +94,7 @@ namespace TalentMesh.Module.Experties.Tests
             var rubricId = Guid.NewGuid();
 
             _repositoryMock.Setup(repo => repo.GetByIdAsync(rubricId, It.IsAny<CancellationToken>()))
-                .ReturnsAsync((Rubric)null);
+                .ReturnsAsync((Rubric?)null);
 
             // Act & Assert
             await Assert.ThrowsAsync<RubricNotFoundException>(() =>
@@ -114,7 +114,7 @@ namespace TalentMesh.Module.Experties.Tests
                 .ReturnsAsync(expectedRubric);
 
             _cacheServiceMock.Setup(cache => cache.GetAsync<RubricResponse>(It.IsAny<string>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync((RubricResponse)null);
+                .ReturnsAsync((RubricResponse?)null);
 
             // Act
             var result = await _getHandler.Handle(new GetRubricRequest(rubricId), CancellationToken.None);
@@ -136,7 +136,7 @@ namespace TalentMesh.Module.Experties.Tests
             var rubricId = Guid.NewGuid();
 
             _readRepositoryMock.Setup(repo => repo.GetByIdAsync(rubricId, It.IsAny<CancellationToken>()))
-                .ReturnsAsync((Rubric)null);
+                .ReturnsAsync((Rubric?)null);
 
             // Act & Assert
             await Assert.ThrowsAsync<RubricNotFoundException>(() =>
@@ -318,7 +318,7 @@ namespace TalentMesh.Module.Experties.Tests
         public async Task UpdateRubric_WhenCurrentTitleIsNull_ShouldNotUpdateTitle()
         {
             // Arrange
-            var existingRubric = Rubric.Create(null, "Old Desc", Guid.NewGuid(), Guid.NewGuid(), 0.5m);
+            var existingRubric = Rubric.Create(string.Empty, "Old Desc", Guid.NewGuid(), Guid.NewGuid(), 0.5m);
             var rubricId = existingRubric.Id;
             var request = new UpdateRubricCommand(
                 rubricId,
@@ -814,7 +814,7 @@ namespace TalentMesh.Module.Experties.Tests
             var request = new UpdateRubricCommand(rubricId, Guid.NewGuid(), Guid.NewGuid(), 1.0m, "Title", "Desc");
 
             _repositoryMock.Setup(repo => repo.GetByIdAsync(rubricId, It.IsAny<CancellationToken>()))
-                .ReturnsAsync((Rubric)null);
+                .ReturnsAsync((Rubric?)null);
 
             // Act & Assert
             await Assert.ThrowsAsync<RubricNotFoundException>(() =>

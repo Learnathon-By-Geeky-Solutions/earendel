@@ -4,7 +4,6 @@ using TalentMesh.Framework.Core.Domain.Contracts;
 using TalentMesh.Framework.Core.Persistence;
 using Mapster;
 using System.Diagnostics.CodeAnalysis;
-using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Module.Notifications.Infrastructure.Persistence;
 

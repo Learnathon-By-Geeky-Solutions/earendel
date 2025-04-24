@@ -120,7 +120,7 @@ namespace TalentMesh.Module.Evaluator.Tests
                 .ReturnsAsync(expectedInterviewerEntryForm);
 
             _cacheServiceMock.Setup(cache => cache.GetAsync<InterviewerEntryFormResponse>(It.IsAny<string>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync((InterviewerEntryFormResponse)null);
+                .ReturnsAsync((InterviewerEntryFormResponse?)null);
 
             // Act
             var result = await _getHandler.Handle(new GetInterviewerEntryFormRequest(InterviewerEntryFormId), CancellationToken.None);

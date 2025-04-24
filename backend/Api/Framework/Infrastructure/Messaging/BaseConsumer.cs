@@ -105,7 +105,10 @@ namespace TalentMesh.Framework.Infrastructure.Messaging
         protected abstract Task ProcessDomainMessage(TMessage message, IServiceScope scope, CancellationToken stoppingToken);
 
         // Override to customize the final response object.
-        protected virtual object CreateFinalResponse(TMessage message) => message;
+        protected virtual object CreateFinalResponse(TMessage message)
+        {
+            return message ?? new object(); // or return a default response instance
+        }
 
         // Extract the requesting user's Id from the message.
         protected abstract Guid GetRequestedBy(TMessage message);
