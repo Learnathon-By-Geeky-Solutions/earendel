@@ -36,7 +36,7 @@ namespace TalentMesh.Module.Job.Infrastructure.Messaging
                 {
                     Id = j.Id,
                     Title = j.Name,
-                    Description = j.Description,
+                    Description = j.Description ?? string.Empty,
                     CreatedAt = j.Created.UtcDateTime,
                     PostedBy = j.CreatedBy
                 })

@@ -101,7 +101,7 @@ namespace TalentMesh.Module.Notifications.Tests
             var NotificationId = Guid.NewGuid();
 
             _repositoryMock.Setup(repo => repo.GetByIdAsync(NotificationId, It.IsAny<CancellationToken>()))
-                .ReturnsAsync((Notification)null);
+                .ReturnsAsync((Notification?)null);
 
             // Act & Assert
             await Assert.ThrowsAsync<NotificationNotFoundException>(() =>
@@ -121,7 +121,7 @@ namespace TalentMesh.Module.Notifications.Tests
                 .ReturnsAsync(expectedNotification);
 
             _cacheServiceMock.Setup(cache => cache.GetAsync<NotificationResponse>(It.IsAny<string>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync((NotificationResponse)null);
+                .ReturnsAsync((NotificationResponse?)null);
 
             // Act
             var result = await _getHandler.Handle(new GetNotificationRequest(NotificationId), CancellationToken.None);
@@ -144,7 +144,7 @@ namespace TalentMesh.Module.Notifications.Tests
             var NotificationId = Guid.NewGuid();
 
             _readRepositoryMock.Setup(repo => repo.GetByIdAsync(NotificationId, It.IsAny<CancellationToken>()))
-                .ReturnsAsync((Notification)null);
+                .ReturnsAsync((Notification?)null);
 
             // Act & Assert
             await Assert.ThrowsAsync<NotificationNotFoundException>(() =>
@@ -246,7 +246,7 @@ namespace TalentMesh.Module.Notifications.Tests
             var request = new UpdateNotificationCommand(NotificationId, Guid.NewGuid(), "interview", "interview", "interview notification");
 
             _repositoryMock.Setup(repo => repo.GetByIdAsync(NotificationId, It.IsAny<CancellationToken>()))
-                .ReturnsAsync((Notification)null);
+                .ReturnsAsync((Notification?)null);
 
             // Act & Assert
             await Assert.ThrowsAsync<NotificationNotFoundException>(() =>

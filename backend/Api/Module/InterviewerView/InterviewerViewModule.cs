@@ -35,7 +35,6 @@ namespace TalentMesh.Module.InterviewerView// Corrected namespace based on file 
                 interviewerViewGroup.MapUpcomingInterviews();
                 // Register the UploadCv endpoint directly on the app builder
                 // This respects the absolute path defined within MapUploadCv
-                //app.MapUploadCv();
                 // ^^^ MOVED HERE ^^^
             }
         }

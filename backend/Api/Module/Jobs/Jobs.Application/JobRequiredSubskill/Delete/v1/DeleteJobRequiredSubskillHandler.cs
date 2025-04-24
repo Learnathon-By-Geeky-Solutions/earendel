@@ -23,8 +23,8 @@ namespace TalentMesh.Module.Job.Application.JobRequiredSubskill.Delete.v1
             if (entity.IsDeletedOrNotFound())
                 throw new JobNotFoundException(request.Id); // Or use a more specific exception if available
 
-            await repository.DeleteAsync(entity, cancellationToken);
-            logger.LogInformation("JobRequiredSubskill with id {Id} deleted", entity.Id);
+            await repository.DeleteAsync(entity!, cancellationToken);
+            logger.LogInformation("JobRequiredSubskill with id {Id} deleted", entity?.Id);
         }
     }
 }

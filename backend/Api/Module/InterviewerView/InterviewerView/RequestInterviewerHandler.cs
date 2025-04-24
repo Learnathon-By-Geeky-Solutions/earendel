@@ -19,11 +19,11 @@ namespace TalentMesh.Module.InterviewerView
         public RequestInterviewerHandler(EvaluatorDbContext dbContext)
             => _dbContext = dbContext;
 
-        public async Task<RequestInterviewerResult> Handle(RequestInterviewerCommand req, CancellationToken ct)
+        public async Task<RequestInterviewerResult> Handle(RequestInterviewerCommand req, CancellationToken cancellationToken)
         {
             // Prevent multiple pending requests by the same user
             var existing = await _dbContext.InterviewerEntryForms
-                .FirstOrDefaultAsync(form => form.UserId == req.UserId && form.Status == "pending", ct);
+                .FirstOrDefaultAsync(form => form.UserId == req.UserId && form.Status == "pending", cancellationToken);
 
             if (existing is not null)
             {
@@ -33,7 +33,7 @@ namespace TalentMesh.Module.InterviewerView
             // Create and save new interviewer entry form
             var form = InterviewerEntryForm.Create(req.UserId, req.AdditionalInfo);
             _dbContext.InterviewerEntryForms.Add(form);
-            await _dbContext.SaveChangesAsync(ct);
+            await _dbContext.SaveChangesAsync(cancellationToken);
 
             return new RequestInterviewerResult(form.Id, form.Status);
         }

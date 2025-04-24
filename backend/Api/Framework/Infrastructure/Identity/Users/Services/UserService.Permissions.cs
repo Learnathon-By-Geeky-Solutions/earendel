@@ -59,14 +59,16 @@ internal sealed partial class UserService
                 }
             }
 
-            // Add new claims
-            foreach (var permission in rolePermissions)
+            var permissionNames = rolePermissions.Select(p => p.Name).ToList();
+
+            foreach (var permissionName in permissionNames)
             {
-                if (!existingClaims.Any(c => c.Type == TMClaims.Permission && c.Value == permission.Name))
+                if (!existingClaims.Any(c => c.Type == TMClaims.Permission && c.Value == permissionName))
                 {
-                    await roleManager.AddClaimAsync(roleEntity, new Claim(TMClaims.Permission, permission.Name));
+                    await roleManager.AddClaimAsync(roleEntity, new Claim(TMClaims.Permission, permissionName));
                 }
             }
+
         }
     }
 

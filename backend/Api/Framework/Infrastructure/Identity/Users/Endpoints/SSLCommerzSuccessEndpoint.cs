@@ -28,19 +28,19 @@ namespace TalentMesh.Framework.Infrastructure.Identity.Users.Endpoints
                 if (!context.Request.HasFormContentType)
                 {
                     context.Response.StatusCode = StatusCodes.Status400BadRequest;
-                    await context.Response.WriteAsync("Invalid request: form content required.");
+                    await context.Response.WriteAsync("Invalid request: form content required.", cancellationToken);
                     return "Invalid";
                 }
 
                 // Read the form values from the POST request.
-                var form = await context.Request.ReadFormAsync();
+                var form = await context.Request.ReadFormAsync(cancellationToken);
 
                 // Extract the val_id from the form. This is the key field used to validate the payment.
                 var valId = form["val_id"].ToString();
                 if (string.IsNullOrWhiteSpace(valId))
                 {
                     context.Response.StatusCode = StatusCodes.Status400BadRequest;
-                    await context.Response.WriteAsync("Parameter 'val_id' is missing.");
+                    await context.Response.WriteAsync("Parameter 'val_id' is missing.", cancellationToken);
                     return "Invalid";
                 }
 
@@ -83,7 +83,7 @@ namespace TalentMesh.Framework.Infrastructure.Identity.Users.Endpoints
                 {
                     logger.LogError(ex, "Failed to process SSLCommerz success callback for val_id: {ValId}", valId);
                     context.Response.StatusCode = StatusCodes.Status500InternalServerError;
-                    await context.Response.WriteAsync("Payment validation failed due to an internal error.");
+                    await context.Response.WriteAsync("Payment validation failed due to an internal error.", cancellationToken);
                     return "Invalid";
                 }
             })

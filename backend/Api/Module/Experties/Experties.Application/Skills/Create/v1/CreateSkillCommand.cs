@@ -8,7 +8,7 @@ namespace TalentMesh.Module.Experties.Application.Skills.Create.v1;
 public sealed record CreateSkillCommand(
     [property: DefaultValue("Sample User")] string Name,
     [property: DefaultValue("Descriptive Description")] string Description,
-    List<Guid> SeniorityLevels) : IRequest<CreateSkillResponse>
+    List<Guid>? SeniorityLevels) : IRequest<CreateSkillResponse>
 {
     public static readonly Guid[] SeniorityLevelDefaults =
     {

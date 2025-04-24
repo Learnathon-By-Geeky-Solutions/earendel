@@ -31,13 +31,13 @@ namespace TalentMesh.Module.Interviews.Infrastructure.Services
 
         public ZoomService(HttpClient httpClient, ILogger<ZoomService> logger, IConfiguration configuration)
         {
-            _sdkKey = configuration["ZoomSettings:SDKKey"];
-            _sdkSecret = configuration["ZoomSettings:SDKSecret"];
-            _grantType = configuration["ZoomSettings:GrantType"];
-            _accountId = configuration["ZoomSettings:AccountId"];
-            _zoomUserName = configuration["ZoomSettings:ZoomUserName"];
-            _zoomPassword = configuration["ZoomSettings:ZoomPassword"];
-            _requestUrl = configuration["ZoomSettings:RequestUrl"];
+            _sdkKey = configuration["ZoomSettings:SDKKey"]!;
+            _sdkSecret = configuration["ZoomSettings:SDKSecret"]!;
+            _grantType = configuration["ZoomSettings:GrantType"]!;
+            _accountId = configuration["ZoomSettings:AccountId"]!;
+            _zoomUserName = configuration["ZoomSettings:ZoomUserName"]!;
+            _zoomPassword = configuration["ZoomSettings:ZoomPassword"]!;
+            _requestUrl = configuration["ZoomSettings:RequestUrl"]!;
             _httpClient = httpClient;
             _logger = logger;
         }
@@ -155,7 +155,7 @@ namespace TalentMesh.Module.Interviews.Infrastructure.Services
             }
         }
 
-        private object CreateMeetingRequestBody(DateTime startTime)
+        private static object CreateMeetingRequestBody(DateTime startTime)
         {
             return new
             {
@@ -234,7 +234,7 @@ namespace TalentMesh.Module.Interviews.Infrastructure.Services
             }
         }
 
-        private IEnumerable<Claim> GenerateJwtClaims(string meetingNumber, int role, long iat, long exp)
+        private Claim[] GenerateJwtClaims(string meetingNumber, int role, long iat, long exp)
         {
             return new[]
             {

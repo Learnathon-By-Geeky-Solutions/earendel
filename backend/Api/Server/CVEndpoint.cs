@@ -24,7 +24,7 @@ namespace TalentMesh.Endpoints
 
             // map the POST and attach the version metadata
             app.MapPost(
-                    "/api/v{version:apiVersion}/interviewers/{id:guid}/upload-cv",
+                    "/api/v1/interviewers/{id:guid}/upload-cv",
                     HandleCvUploadAsync
                 )
                .WithApiVersionSet(versionSet)      // <- tie in the version set
@@ -40,7 +40,7 @@ namespace TalentMesh.Endpoints
 
 
             app.MapGet(
-                    "/api/v{version:apiVersion}/interviewers/{id:guid}/download-cv",
+                    "/api/v1/interviewers/{id:guid}/download-cv",
                     HandleCvDownloadAsync
                 )
                .WithApiVersionSet(versionSet)

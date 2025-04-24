@@ -32,7 +32,7 @@ namespace TalentMesh.Module.HRView.HRFunc
                     [FromBody] CreateJobRequest request, // Get data from request body
                     IMediator mediator) =>
                 {
-                    // TODO: Add input validation (e.g., using FluentValidation)
+                    // Add input validation (e.g., using FluentValidation)
                     var command = new CreateJobCommand(
                         Name: request.Name,
                         Description: request.Description,
