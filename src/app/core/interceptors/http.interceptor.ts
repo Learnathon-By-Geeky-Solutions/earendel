@@ -1,32 +1,72 @@
-import { HttpInterceptorFn } from '@angular/common/http';
+import {
+  HttpInterceptorFn,
+  HttpErrorResponse,
+  HttpClient,
+} from '@angular/common/http';
+import { inject } from '@angular/core';
+import { Router } from '@angular/router';
+import { catchError, switchMap, throwError } from 'rxjs';
+import { endpoint } from '../../endpoints/endpoint';
 
 export const HttpTokenInterceptor: HttpInterceptorFn = (req, next) => {
-  // Default headers
-  let headersConfig: any = {
-    Accept: 'application/json',
-  };
+  const http = inject(HttpClient);
+  const router = inject(Router);
 
-  // Fetch the token from localStorage
-  const sessionData = sessionStorage.getItem('loggedInUser');
-
-  // Parse JSON if sessionData is not null
-  const user = sessionData ? JSON.parse(sessionData) : null;
-
-  const token = user?.token;
-  // If token is present, add Authorization header
-  if (token) {
-    headersConfig['Authorization'] = `Bearer ${token}`;
+  // 1) Don’t intercept refresh‑token calls or login endpoints
+  if (
+    req.url.includes(endpoint.refreshTokenUrl) ||
+    req.url.includes('/login')
+  ) {
+    return next(req);
   }
 
-  // Add tenant header (this could be static or dynamic based on your logic)
-  const tenant = 'root'; // You can replace this with dynamic logic if needed (e.g., from sessionStorage or other sources)
-  headersConfig['tenant'] = tenant;
+  // 2) Build headers with the current access token
+  const sessionData = sessionStorage.getItem('loggedInUser');
+  const user = sessionData ? JSON.parse(sessionData) : null;
+  const accessToken = user?.token;
+  const refreshToken = user?.refreshToken;
+  let headersConfig: any = { Accept: 'application/json' };
 
-  // Clone the request with the new headers
-  const clonedRequest = req.clone({
-    setHeaders: headersConfig,
-  });
+  if (accessToken) {
+    headersConfig['Authorization'] = `Bearer ${accessToken}`;
+  }
+  headersConfig['tenant'] = 'root';
 
-  // Proceed with the modified request
-  return next(clonedRequest);
+  const authReq = req.clone({ setHeaders: headersConfig });
+
+  return next(authReq).pipe(
+    catchError((err: HttpErrorResponse) => {
+      // 3) If 401, try refreshing
+      if (err.status === 401 && refreshToken) {
+        return http
+          .post<any>(endpoint.refreshTokenUrl, {
+            token: accessToken,
+            refreshToken,
+          })
+          .pipe(
+            switchMap((newTokens) => {
+              // 4) Store new tokens
+              sessionStorage.setItem('loggedInUser', JSON.stringify(newTokens));
+
+              // 5) Retry original request with updated access token
+              const retryHeaders = {
+                ...headersConfig,
+                Authorization: `Bearer ${newTokens.token}`,
+              };
+              const retryReq = req.clone({ setHeaders: retryHeaders });
+              return next(retryReq);
+            }),
+            catchError((refreshErr) => {
+              // 6) Refresh failed: clear session and force login
+              sessionStorage.removeItem('loggedInUser');
+              router.navigate(['/login']);
+              return throwError(() => refreshErr);
+            })
+          );
+      }
+
+      // If not a 401 or no refreshToken, just rethrow
+      return throwError(() => err);
+    })
+  );
 };
