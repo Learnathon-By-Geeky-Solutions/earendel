@@ -64,10 +64,10 @@ namespace TalentMesh.Module.InterviewerView
         private readonly IRepository<Interview> _repo;
         public GetUpcomingForInterviewerHandler(IRepository<Interview> repo) => _repo = repo;
 
-        public async Task<List<InterviewDto>> Handle(GetUpcomingInterviewsForInterviewerQuery req, CancellationToken ct)
+        public async Task<List<InterviewDto>> Handle(GetUpcomingInterviewsForInterviewerQuery req, CancellationToken cancellationToken)
         {
             var now = DateTime.UtcNow;
-            var list = await _repo.ListAsync(ct);
+            var list = await _repo.ListAsync(cancellationToken);
             return list
                 .Where(i => i.InterviewerId == req.InterviewerId && i.InterviewDate >= now)
                 .Select(i => new InterviewDto(i.Id, i.ApplicationId, i.InterviewerId, i.InterviewDate, i.Status, i.Notes, i.MeetingId))
