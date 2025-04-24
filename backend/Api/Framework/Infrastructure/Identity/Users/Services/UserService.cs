@@ -493,9 +493,52 @@ internal sealed partial class UserService(
 
     public async Task<List<UserDetail>> GetListAsync(CancellationToken cancellationToken)
     {
-        var users = await userManager.Users.AsNoTracking().ToListAsync(cancellationToken);
-        return users.Adapt<List<UserDetail>>();
+        // var usersWithRoles = await userManager.Users
+        //     .Include(u => u.UserRoles!)              // bring in the join table
+        //         .ThenInclude(ur => ur.Role!)        // bring in each Role
+        //     .AsNoTracking()
+        //     .ToListAsync(cancellationToken);
+
+        // // Now Mapster will see the UserRoles.Role.Name and fill your DTO’s Roles
+        // return usersWithRoles.Adapt<List<UserDetail>>();
+
+
+        var userDetail = await (from user in userManager.Users
+                                join ur in db.UserRoles on user.Id equals ur.UserId into userRoles
+                                from ur in userRoles.DefaultIfEmpty()
+                                join r in db.Roles on ur.RoleId equals r.Id into roles
+                                from role in roles.DefaultIfEmpty()
+                                where role != null && role.Name == "Interviewer"
+                                group role by new
+                                {
+                                    user.Id,
+                                    user.UserName,
+                                    user.Email,
+                                    user.IsActive,
+                                    user.EmailConfirmed,
+                                    user.ImageUrl
+                                } into g
+                                select new UserDetail
+                                {
+                                    Id = Guid.Parse(g.Key.Id),
+                                    UserName = g.Key.UserName,
+                                    Email = g.Key.Email,
+                                    IsActive = g.Key.IsActive,
+                                    EmailConfirmed = g.Key.EmailConfirmed,
+                                    ImageUrl = g.Key.ImageUrl,
+                                    Roles = g
+                                    .Select(r => r.Name)
+                                    .Where(name => name != null)
+                                    .Select(name => name!)  // null-forgiving, safe after filtering
+                                    .Distinct()
+                                    .ToList()
+                                })
+                                .AsNoTracking()
+                                .ToListAsync(cancellationToken);
+
+        return userDetail;
     }
+
 
     public Task<string> GetOrCreateFromPrincipalAsync(ClaimsPrincipal principal)
     {
