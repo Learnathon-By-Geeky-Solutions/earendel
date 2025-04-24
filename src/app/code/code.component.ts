@@ -640,6 +640,26 @@ export class CodeComponent implements AfterViewInit, OnInit, OnDestroy {
             language: this.selectedLanguage,
             theme: 'vs-dark',
             automaticLayout: true,
+            scrollBeyondLastLine: false,
+            minimap: { enabled: false },
+            wordWrap: 'on',
+            wrappingIndent: 'indent',
+            // Add these new configurations
+            lineNumbers: 'on',
+            glyphMargin: false,
+            lineDecorationsWidth: 0,
+            lineNumbersMinChars: 3,
+            roundedSelection: false,
+            readOnly: false, // Ensure editor is writable
+            scrollbar: {
+              vertical: 'visible',
+              horizontal: 'visible',
+              useShadows: false,
+            },
+            renderLineHighlight: 'all',
+            fixedOverflowWidgets: true,
+            // Force LTR direction
+
           }
         );
 
