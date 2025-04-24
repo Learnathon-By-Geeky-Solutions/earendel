@@ -99,7 +99,7 @@ namespace TalentMesh.Module.Quizzes.Tests
             var QuizQuestionId = Guid.NewGuid();
 
             _repositoryMock.Setup(repo => repo.GetByIdAsync(QuizQuestionId, It.IsAny<CancellationToken>()))
-                .ReturnsAsync((QuizQuestion)null);
+                .ReturnsAsync((QuizQuestion?)null);
 
             // Act & Assert
             await Assert.ThrowsAsync<QuizQuestionNotFoundException>(() =>
@@ -119,7 +119,7 @@ namespace TalentMesh.Module.Quizzes.Tests
                 .ReturnsAsync(expectedQuizQuestion);
 
             _cacheServiceMock.Setup(cache => cache.GetAsync<QuizQuestionResponse>(It.IsAny<string>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync((QuizQuestionResponse)null);
+                .ReturnsAsync((QuizQuestionResponse?)null);
 
             // Act
             var result = await _getHandler.Handle(new GetQuizQuestionRequest(QuizQuestionId), CancellationToken.None);
@@ -141,7 +141,7 @@ namespace TalentMesh.Module.Quizzes.Tests
             var QuizQuestionId = Guid.NewGuid();
 
             _readRepositoryMock.Setup(repo => repo.GetByIdAsync(QuizQuestionId, It.IsAny<CancellationToken>()))
-                .ReturnsAsync((QuizQuestion)null);
+                .ReturnsAsync((QuizQuestion?)null);
 
             // Act & Assert
             await Assert.ThrowsAsync<QuizQuestionNotFoundException>(() =>
@@ -239,7 +239,7 @@ namespace TalentMesh.Module.Quizzes.Tests
             var request = new UpdateQuizQuestionCommand(QuizQuestionId, "Title", 3);
 
             _repositoryMock.Setup(repo => repo.GetByIdAsync(QuizQuestionId, It.IsAny<CancellationToken>()))
-                .ReturnsAsync((QuizQuestion)null);
+                .ReturnsAsync((QuizQuestion?)null);
 
             // Act & Assert
             await Assert.ThrowsAsync<QuizQuestionNotFoundException>(() =>

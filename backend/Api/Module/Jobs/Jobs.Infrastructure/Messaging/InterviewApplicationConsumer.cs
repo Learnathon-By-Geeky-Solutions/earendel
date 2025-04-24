@@ -59,16 +59,21 @@ namespace TalentMesh.Module.Job.Infrastructure.Messaging
             await PublishMessageAsync(interviewMessage);
 
             var finalJson = SerializeMessage(interviewMessage);
-            await _hubContext.Clients.Group($"user:{interviewMessage.UserId}").SendAsync("ReceiveMessage", finalJson);
+            await _hubContext.Clients.Group($"user:{interviewMessage.UserId}").SendAsync("ReceiveMessage", finalJson, stoppingToken);
 
-            _channel.BasicAck(ea.DeliveryTag, multiple: false);
+            _channel?.BasicAck(ea.DeliveryTag, multiple: false);
         }
+
+        private static readonly JsonSerializerOptions _jsonOptions = new JsonSerializerOptions
+        {
+            PropertyNameCaseInsensitive = true
+        };
 
         private InterviewMessage? DeserializeMessage(string messageJson)
         {
             try
             {
-                return JsonSerializer.Deserialize<InterviewMessage>(messageJson, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                return JsonSerializer.Deserialize<InterviewMessage>(messageJson, _jsonOptions);
             }
             catch (Exception ex)
             {
@@ -103,7 +108,7 @@ namespace TalentMesh.Module.Job.Infrastructure.Messaging
                     if (job != null)
                     {
                         interview.JobTitle = job.Name;
-                        interview.JobDescription = job.Description;
+                        interview.JobDescription = job.Description ?? string.Empty;
                     }
                 }
             }

@@ -43,7 +43,7 @@ public sealed class GetSeniorityLevelJunctionHandler(
                     new SeniorityResponse(
                         junction.Seniority.Id,
                         junction.Seniority.Name,
-                        junction.Seniority.Description)
+                        junction.Seniority.Description ?? string.Empty)
                 );
             },
             cancellationToken: cancellationToken);

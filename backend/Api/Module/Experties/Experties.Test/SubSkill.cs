@@ -106,7 +106,7 @@ namespace TalentMesh.Module.Experties.Tests
 
             _repositoryMock
                 .Setup(repo => repo.GetByIdAsync(subSkillId, It.IsAny<CancellationToken>()))
-                .ReturnsAsync((SubSkill)null); // Simulate sub-skill not found
+                .ReturnsAsync((SubSkill?)null); // Simulate sub-skill not found
 
             // Act & Assert
             await Assert.ThrowsAsync<SubSkillNotFoundException>(() =>
@@ -133,7 +133,7 @@ namespace TalentMesh.Module.Experties.Tests
             // Mock cache service to simulate a cache miss
             _cacheServiceMock
                 .Setup(cache => cache.GetAsync<SubSkillResponse>(It.IsAny<string>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync((SubSkillResponse)null);
+                .ReturnsAsync((SubSkillResponse?)null);
 
             // Mock cache service to store the retrieved subSkill
             _cacheServiceMock
@@ -163,7 +163,7 @@ namespace TalentMesh.Module.Experties.Tests
         public async Task GetSubSkill_ThrowsExceptionIfNotFound()
         {
             var subSkillId = Guid.NewGuid();
-            _repositoryMock.Setup(repo => repo.GetByIdAsync(subSkillId, It.IsAny<CancellationToken>())).ReturnsAsync((SubSkill)null);
+            _repositoryMock.Setup(repo => repo.GetByIdAsync(subSkillId, It.IsAny<CancellationToken>())).ReturnsAsync((SubSkill?)null);
 
             await Assert.ThrowsAsync<SubSkillNotFoundException>(() => _getHandler.Handle(new GetSubSkillRequest(subSkillId), CancellationToken.None));
         }
@@ -317,7 +317,7 @@ namespace TalentMesh.Module.Experties.Tests
         public async Task UpdateSubSkill_WhenCurrentTitleIsNull_ShouldNotUpdateTitle()
         {
             // Arrange
-            var existingRubric = SubSkill.Create(null, "Old Desc", Guid.NewGuid());
+            var existingRubric = SubSkill.Create(string.Empty, "Old Desc", Guid.NewGuid());
             var rubricId = existingRubric.Id;
             var request = new UpdateSubSkillCommand(
                 rubricId,
@@ -550,7 +550,7 @@ namespace TalentMesh.Module.Experties.Tests
 
             _repositoryMock
                 .Setup(repo => repo.GetByIdAsync(subSkillId, It.IsAny<CancellationToken>()))
-                .ReturnsAsync((SubSkill)null); // Simulate skill not found
+                .ReturnsAsync((SubSkill?)null); // Simulate skill not found
 
             // Act & Assert
             await Assert.ThrowsAsync<SubSkillNotFoundException>(() => _updateHandler.Handle(request, CancellationToken.None));

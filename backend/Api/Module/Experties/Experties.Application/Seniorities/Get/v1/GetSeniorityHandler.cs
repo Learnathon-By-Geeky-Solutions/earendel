@@ -26,7 +26,7 @@ public sealed class GetSeniorityHandler(
                 return new SeniorityResponse(
                     entity.Id,
                     entity.Name,
-                    entity.Description
+                    entity.Description ?? string.Empty
                 );
             },
             cancellationToken: cancellationToken

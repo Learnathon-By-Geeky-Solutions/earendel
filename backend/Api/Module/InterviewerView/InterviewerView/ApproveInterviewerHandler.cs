@@ -27,9 +27,9 @@ namespace TalentMesh.Module.InterviewerView
             _userManager = identityServices.UserManager;
         }
 
-        public async Task<Unit> Handle(ApproveInterviewerCommand req, CancellationToken ct)
+        public async Task<Unit> Handle(ApproveInterviewerCommand req, CancellationToken cancellationToken)
         {
-            var form = await _repo.GetByIdAsync(req.EntryFormId, ct)
+            var form = await _repo.GetByIdAsync(req.EntryFormId, cancellationToken)
                        ?? throw new KeyNotFoundException("Entry form not found.");
 
             // Mark as approved
@@ -48,12 +48,12 @@ namespace TalentMesh.Module.InterviewerView
                 if (!result.Succeeded)
                 {
                     var errors = string.Join(", ", result.Errors.Select(e => e.Description));
-                    throw new Exception($"Failed to assign role: {errors}");
+                    throw new InvalidOperationException($"Failed to assign role: {errors}");
                 }
             }
 
             // Remove the form from the DB
-            await _repo.DeleteAsync(form, ct);
+            await _repo.DeleteAsync(form, cancellationToken);
 
             return Unit.Value;
         }

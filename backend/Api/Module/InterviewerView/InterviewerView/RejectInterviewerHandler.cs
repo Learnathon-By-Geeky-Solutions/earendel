@@ -27,9 +27,9 @@ namespace TalentMesh.Module.InterviewerView
             _userManager = identityServices.UserManager;
         }
 
-        public async Task<Unit> Handle(RejectInterviewerCommand req, CancellationToken ct)
+        public async Task<Unit> Handle(RejectInterviewerCommand req, CancellationToken cancellationToken)
         {
-            var form = await _repo.GetByIdAsync(req.EntryFormId, ct)
+            var form = await _repo.GetByIdAsync(req.EntryFormId, cancellationToken)
                        ?? throw new KeyNotFoundException("Entry form not found.");
 
             // Mark as rejected
@@ -43,7 +43,7 @@ namespace TalentMesh.Module.InterviewerView
                 throw new KeyNotFoundException($"User with ID {userId} not found.");
 
             // Remove the form from the DB
-            await _repo.DeleteAsync(form, ct);
+            await _repo.DeleteAsync(form, cancellationToken);
 
             return Unit.Value;
         }

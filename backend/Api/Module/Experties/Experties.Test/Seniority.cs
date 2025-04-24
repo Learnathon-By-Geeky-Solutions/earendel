@@ -93,7 +93,7 @@ namespace TalentMesh.Module.Experties.Tests
             var seniorityId = Guid.NewGuid();
 
             _repositoryMock.Setup(repo => repo.GetByIdAsync(seniorityId, It.IsAny<CancellationToken>()))
-                .ReturnsAsync((Seniority)null);
+                .ReturnsAsync((Seniority?)null);
 
             // Act & Assert
             await Assert.ThrowsAsync<SeniorityNotFoundException>(() =>
@@ -112,7 +112,7 @@ namespace TalentMesh.Module.Experties.Tests
                 .ReturnsAsync(expectedSeniority);
 
             _cacheServiceMock.Setup(cache => cache.GetAsync<SeniorityResponse>(It.IsAny<string>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync((SeniorityResponse)null);
+                .ReturnsAsync((SeniorityResponse?)null);
 
             // Act
             var result = await _getHandler.Handle(new GetSeniorityRequest(seniorityId), CancellationToken.None);
@@ -133,7 +133,7 @@ namespace TalentMesh.Module.Experties.Tests
             var seniorityId = Guid.NewGuid();
 
             _readRepositoryMock.Setup(repo => repo.GetByIdAsync(seniorityId, It.IsAny<CancellationToken>()))
-                .ReturnsAsync((Seniority)null);
+                .ReturnsAsync((Seniority?)null);
 
             // Act & Assert
             await Assert.ThrowsAsync<SeniorityNotFoundException>(() =>
@@ -311,7 +311,7 @@ namespace TalentMesh.Module.Experties.Tests
         {
             // Arrange
             // Create a seniority with a non-null title then force the title to null for test purposes.
-            var existingSeniority = Seniority.Create(null, "Old Desc");
+            var existingSeniority = Seniority.Create(string.Empty, "Old Desc");
             // Forcing the Name to null (assuming Name has an accessible setter in test context)
             var seniorityId = existingSeniority.Id;
             var request = new UpdateSeniorityCommand(seniorityId, "New Title", "Old Desc");
@@ -409,7 +409,7 @@ namespace TalentMesh.Module.Experties.Tests
             var request = new UpdateSeniorityCommand(seniorityId, "Updated Internship", "Updated 0 Years of Experience");
 
             _repositoryMock.Setup(repo => repo.GetByIdAsync(seniorityId, It.IsAny<CancellationToken>()))
-                .ReturnsAsync((Seniority)null);
+                .ReturnsAsync((Seniority?)null);
 
             // Act & Assert
             await Assert.ThrowsAsync<SeniorityNotFoundException>(() =>

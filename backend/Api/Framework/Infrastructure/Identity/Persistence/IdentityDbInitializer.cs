@@ -57,20 +57,6 @@ internal sealed class IdentityDbInitializer(
             // Assign permissions to role
             await AssignPermissionsToRoleAsync(context, rolePermissions, role);
 
-            // // Assign permissions
-            // if (roleName == TMRoles.Basic)
-            // {
-            //     await AssignPermissionsToRoleAsync(context, TMPermissions.Basic, role);
-            // }
-            // else if (roleName == TMRoles.Admin)
-            // {
-            //     await AssignPermissionsToRoleAsync(context, TMPermissions.Admin, role);
-
-            //     if (multiTenantContextAccessor.MultiTenantContext.TenantInfo?.Id == TenantConstants.Root.Id)
-            //     {
-            //         await AssignPermissionsToRoleAsync(context, TMPermissions.Root, role);
-            //     }
-            // }
         }
     }
 

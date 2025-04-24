@@ -19,7 +19,7 @@ public class SearchQuizQuestionSpecs : EntitiesByPaginationFilterSpec<Quizzes.Do
 
         if (!string.IsNullOrEmpty(command.QuestionText))
         {
-            Query.Where(b => b.QuestionText.Contains(command.QuestionText));
+            Query.Where(b => b.QuestionText!.Contains(command.QuestionText));
         }
 
     }

@@ -134,7 +134,7 @@ namespace TalentMesh.Module.Experties.Tests
 
             // Use GetByIdAsync instead of FindByIdAsync
             _repositoryMock.Setup(repo => repo.GetByIdAsync(skillId, It.IsAny<CancellationToken>()))
-                           .ReturnsAsync((Skill)null); // Simulate skill not found
+                           .ReturnsAsync((Skill?)null); // Simulate skill not found
 
             await Assert.ThrowsAsync<SkillNotFoundException>(() =>
                 _deleteHandler.Handle(new DeleteSkillCommand(skillId), CancellationToken.None));
@@ -184,7 +184,7 @@ namespace TalentMesh.Module.Experties.Tests
         public async Task GetSkill_ThrowsExceptionIfNotFound()
         {
             var skillId = Guid.NewGuid();
-            _repositoryMock.Setup(repo => repo.GetByIdAsync(skillId, It.IsAny<CancellationToken>())).ReturnsAsync((Skill)null);
+            _repositoryMock.Setup(repo => repo.GetByIdAsync(skillId, It.IsAny<CancellationToken>())).ReturnsAsync((Skill?)null);
 
             await Assert.ThrowsAsync<SkillNotFoundException>(() => _getHandler.Handle(new GetSkillRequest(skillId), CancellationToken.None));
         }
@@ -366,7 +366,7 @@ namespace TalentMesh.Module.Experties.Tests
         {
             // Arrange
             // Create a seniority with a non-null title then force the title to null for test purposes.
-            var existingSeniority = Skill.Create(null, "Old Desc");
+            var existingSeniority = Skill.Create(string.Empty, "Old Desc");
             // Forcing the Name to null (assuming Name has an accessible setter in test context)
             var seniorityId = existingSeniority.Id;
             var request = new UpdateSkillCommand(seniorityId, "New Title", "Old Desc");
@@ -481,7 +481,7 @@ namespace TalentMesh.Module.Experties.Tests
             var skillId = Guid.NewGuid();
             var request = new UpdateSkillCommand(skillId, "Updated C#", "Updated description");
 
-            _repositoryMock.Setup(repo => repo.GetByIdAsync(skillId, It.IsAny<CancellationToken>())).ReturnsAsync((Skill)null);
+            _repositoryMock.Setup(repo => repo.GetByIdAsync(skillId, It.IsAny<CancellationToken>())).ReturnsAsync((Skill?)null);
 
             await Assert.ThrowsAsync<SkillNotFoundException>(() => _updateHandler.Handle(request, CancellationToken.None));
         }

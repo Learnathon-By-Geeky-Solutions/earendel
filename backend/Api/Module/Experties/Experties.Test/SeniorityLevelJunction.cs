@@ -101,7 +101,7 @@ namespace TalentMesh.Module.Experties.Tests
             var seniorityId = Guid.NewGuid();
 
             _repositoryMock.Setup(repo => repo.GetByIdAsync(seniorityId, It.IsAny<CancellationToken>()))
-                .ReturnsAsync((SeniorityLevelJunction)null);
+                .ReturnsAsync((SeniorityLevelJunction?)null);
 
             // Act & Assert
             await Assert.ThrowsAsync<SeniorityLevelJunctionNotFoundException>(() =>
@@ -129,7 +129,7 @@ namespace TalentMesh.Module.Experties.Tests
                 .ReturnsAsync(expectedSeniority);
 
             _cacheServiceMock.Setup(cache => cache.GetAsync<SeniorityLevelJunctionResponse>(It.IsAny<string>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync((SeniorityLevelJunctionResponse)null);
+                .ReturnsAsync((SeniorityLevelJunctionResponse?)null);
 
             // Act
             var result = await _getHandler.Handle(new GetSeniorityLevelJunctionRequest(seniorityId), CancellationToken.None);
@@ -155,7 +155,7 @@ namespace TalentMesh.Module.Experties.Tests
             var seniorityId = Guid.NewGuid();
 
             _readRepositoryMock.Setup(repo => repo.GetByIdAsync(seniorityId, It.IsAny<CancellationToken>()))
-                .ReturnsAsync((SeniorityLevelJunction)null);
+                .ReturnsAsync((SeniorityLevelJunction?)null);
 
             // Act & Assert
             await Assert.ThrowsAsync<SeniorityLevelJunctionNotFoundException>(() =>

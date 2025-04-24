@@ -32,8 +32,6 @@ namespace TalentMesh.Module.HRView.HRFunc // Or your preferred namespace
                 .OrderByDescending(app => app.ApplicationDate);
 
 
-            var totalCount = await query.CountAsync(cancellationToken);
-
             var applications = await query
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)

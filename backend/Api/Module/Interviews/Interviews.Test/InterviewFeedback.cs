@@ -100,7 +100,7 @@ namespace TalentMesh.Module.Interviews.Tests
             var InterviewFeedbackId = Guid.NewGuid();
 
             _repositoryMock.Setup(repo => repo.GetByIdAsync(InterviewFeedbackId, It.IsAny<CancellationToken>()))
-                .ReturnsAsync((InterviewFeedback)null);
+                .ReturnsAsync((InterviewFeedback?)null);
 
             // Act & Assert
             await Assert.ThrowsAsync<InterviewFeedbackNotFoundException>(() =>
@@ -120,7 +120,7 @@ namespace TalentMesh.Module.Interviews.Tests
                 .ReturnsAsync(expectedInterviewFeedback);
 
             _cacheServiceMock.Setup(cache => cache.GetAsync<InterviewFeedbackResponse>(It.IsAny<string>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync((InterviewFeedbackResponse)null);
+                .ReturnsAsync((InterviewFeedbackResponse?)null);
 
             // Act
             var result = await _getHandler.Handle(new GetInterviewFeedbackRequest(InterviewFeedbackId), CancellationToken.None);
@@ -142,7 +142,7 @@ namespace TalentMesh.Module.Interviews.Tests
             var InterviewFeedbackId = Guid.NewGuid();
 
             _readRepositoryMock.Setup(repo => repo.GetByIdAsync(InterviewFeedbackId, It.IsAny<CancellationToken>()))
-                .ReturnsAsync((InterviewFeedback)null);
+                .ReturnsAsync((InterviewFeedback?)null);
 
             // Act & Assert
             await Assert.ThrowsAsync<InterviewFeedbackNotFoundException>(() =>
@@ -242,7 +242,7 @@ namespace TalentMesh.Module.Interviews.Tests
             var request = new UpdateInterviewFeedbackCommand(InterviewFeedbackId, Guid.NewGuid(), Guid.NewGuid(), "Good", 1.0m);
 
             _repositoryMock.Setup(repo => repo.GetByIdAsync(InterviewFeedbackId, It.IsAny<CancellationToken>()))
-                .ReturnsAsync((InterviewFeedback)null);
+                .ReturnsAsync((InterviewFeedback?)null);
 
             // Act & Assert
             await Assert.ThrowsAsync<InterviewFeedbackNotFoundException>(() =>

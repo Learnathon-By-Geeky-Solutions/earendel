@@ -31,19 +31,19 @@ namespace TalentMesh.Module.InterviewerView
             _jobAppRepo = jobAppRepo;
         }
 
-        public async Task<List<InterviewDto>> Handle(GetUpcomingInterviewsForCandidateQuery req, CancellationToken ct)
+        public async Task<List<InterviewDto>> Handle(GetUpcomingInterviewsForCandidateQuery req, CancellationToken cancellationToken)
         {
             var now = DateTime.UtcNow;
 
             // Fetch all job applications for the candidate
-            var jobApps = await _jobAppRepo.ListAsync(ct);
+            var jobApps = await _jobAppRepo.ListAsync(cancellationToken);
             var candidateJobAppIds = jobApps
                 .Where(ja => ja.CandidateId == req.CandidateId)
                 .Select(ja => ja.Id)
                 .ToList();
 
             // Fetch interviews linked to those job applications and filter by date
-            var interviews = await _interviewRepo.ListAsync(ct);
+            var interviews = await _interviewRepo.ListAsync(cancellationToken);
             return interviews
                 .Where(i => candidateJobAppIds.Contains(i.ApplicationId))
                 .Where(i => i.InterviewDate >= now)

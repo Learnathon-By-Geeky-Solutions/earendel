@@ -180,8 +180,8 @@ namespace TalentMesh.Framework.Infrastructure.Identity.Users.Services
             };
 
             using var content = new FormUrlEncodedContent(parameters);
-            var response = await _httpClient.PostAsync(_sslCommerzInitiateUrl, content).ConfigureAwait(false);
-            string responseContent = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
+            var response = await _httpClient.PostAsync(_sslCommerzInitiateUrl, content, cancellationToken).ConfigureAwait(false);
+            string responseContent = await response.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(false);
             _logger.LogInformation("SSLCommerz Initiation Response: {Response}", responseContent);
 
             if (!response.IsSuccessStatusCode)

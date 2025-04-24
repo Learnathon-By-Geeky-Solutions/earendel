@@ -31,6 +31,12 @@ internal sealed class ExpertiesDbInitializer(
 
         // Persist any additions
         await context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
-        logger.LogInformation("[{Tenant}] seeding default skills data", context.TenantInfo!.Identifier);
+        // Now actually use 'skill' in the log
+        logger.LogInformation(
+            "[{Tenant}] seeded skill {SkillName} (ID: {SkillId})",
+            context.TenantInfo!.Identifier,
+            skill.Name,
+            skill.Id
+        );
     }
 }

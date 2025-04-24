@@ -26,7 +26,6 @@ namespace TalentMesh.Module.HRView.HRFunc
                 .Where(j => j.PostedById == request.RequestingUserId)
                 .OrderByDescending(j => j.Created); // Most recent jobs first
 
-            var totalCount = await query.CountAsync(cancellationToken);
 
             var jobs = await query
                 .Skip((pageNumber - 1) * pageSize)
@@ -35,22 +34,18 @@ namespace TalentMesh.Module.HRView.HRFunc
                 {
                     Id = job.Id,
                     Name = job.Name,
-                    Description = job.Description,
+                    Description = job.Description ?? string.Empty,
                     Requirements = job.Requirments,
                     Location = job.Location,
                     JobType = job.JobType,
                     ExperienceLevel = job.ExperienceLevel,
-                    Salary = job.Salary,
+                    Salary = job.Salary!,
                     PaymentStatus = job.PaymentStatus,
                     PostedById = job.PostedById,
                     CreatedOn = job.Created,
                     LastModifiedOn = job.LastModified
                 })
                 .ToListAsync(cancellationToken);
-
-            // Optional: Return structured paginated result
-            // var paginatedResult = new PaginatedResult<JobDto>(jobs, totalCount, pageNumber, pageSize);
-            // return Results.Ok(paginatedResult);
 
             return Results.Ok(jobs);
         }

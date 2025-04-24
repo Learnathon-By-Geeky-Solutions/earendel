@@ -61,7 +61,7 @@ namespace TalentMesh.Framework.Infrastructure.Identity.Users.Services
             var userManager = scope.ServiceProvider.GetRequiredService<UserManager<TMUser>>();
 
             // Batch-fetch candidate details to avoid repeated DB calls
-            if (interviewMessage.Interviews is not null && interviewMessage.Interviews.Any())
+            if (interviewMessage.Interviews is not null && interviewMessage.Interviews.Count > 0)
             {
                 await PopulateCandidateDetails(interviewMessage.Interviews, userManager);
             }
@@ -74,7 +74,7 @@ namespace TalentMesh.Framework.Infrastructure.Identity.Users.Services
             var finalJson = JsonHelper.Serialize(interviewMessage);
             LoggerHelper.LogInformation(_logger, "Updated Interview Message", finalJson);
 
-            _channel.BasicAck(ea.DeliveryTag, multiple: false);
+            _channel?.BasicAck(ea.DeliveryTag, multiple: false);
         }
 
         private static async Task PopulateCandidateDetails(List<InterviewItem> interviews, UserManager<TMUser> userManager)
@@ -94,8 +94,8 @@ namespace TalentMesh.Framework.Infrastructure.Identity.Users.Services
             {
                 if (interview.CandidateId.HasValue && candidates.TryGetValue(interview.CandidateId.Value.ToString(), out var candidate))
                 {
-                    interview.CandidateName = candidate.UserName ?? string.Empty;
-                    interview.CandidateEmail = candidate.Email ?? string.Empty;
+                    interview.CandidateName = candidate?.UserName ?? string.Empty;
+                    interview.CandidateEmail = candidate?.Email ?? string.Empty;
 
                 }
             }
