@@ -550,6 +550,8 @@ import { HomeService } from '../shared/services/home.service';
         .editor {
           flex: 1 1 100%; /* Full width on small screens */
           height: 250px; /* Limit the editor height */
+          direction: ltr !important; /* Force left-to-right */
+          unicode-bidi: bidi-override !important;
         }
 
         .output {
@@ -640,26 +642,18 @@ export class CodeComponent implements AfterViewInit, OnInit, OnDestroy {
             language: this.selectedLanguage,
             theme: 'vs-dark',
             automaticLayout: true,
-            scrollBeyondLastLine: false,
-            minimap: { enabled: false },
-            wordWrap: 'on',
-            wrappingIndent: 'indent',
-            // Add these new configurations
             lineNumbers: 'on',
+            roundedSelection: false,
+            scrollBeyondLastLine: false,
+            readOnly: false,
+            wordWrap: 'off',
+            wrappingIndent: 'none',
+            minimap: { enabled: false },
+            fixedOverflowWidgets: true,
+            // Force LTR settings
             glyphMargin: false,
             lineDecorationsWidth: 0,
             lineNumbersMinChars: 3,
-            roundedSelection: false,
-            readOnly: false, // Ensure editor is writable
-            scrollbar: {
-              vertical: 'visible',
-              horizontal: 'visible',
-              useShadows: false,
-            },
-            renderLineHighlight: 'all',
-            fixedOverflowWidgets: true,
-            // Force LTR direction
-
           }
         );
 
