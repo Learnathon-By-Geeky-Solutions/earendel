@@ -32,6 +32,9 @@ namespace TalentMesh.Migrations.PGSql.Interviews
                     b.Property<Guid>("ApplicationId")
                         .HasColumnType("uuid");
 
+                    b.Property<Guid>("CandidateId")
+                        .HasColumnType("uuid");
+
                     b.Property<DateTimeOffset>("Created")
                         .HasColumnType("timestamp with time zone");
 
@@ -48,6 +51,9 @@ namespace TalentMesh.Migrations.PGSql.Interviews
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<Guid>("InterviewerId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("JobId")
                         .HasColumnType("uuid");
 
                     b.Property<DateTimeOffset>("LastModified")

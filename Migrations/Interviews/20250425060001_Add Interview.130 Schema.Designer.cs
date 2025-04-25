@@ -12,8 +12,8 @@ using TalentMesh.Module.Interviews.Infrastructure.Persistence;
 namespace TalentMesh.Migrations.PGSql.Interviews
 {
     [DbContext(typeof(InterviewsDbContext))]
-    [Migration("20250420224829_Add Interview.99 Schema")]
-    partial class AddInterview99Schema
+    [Migration("20250425060001_Add Interview.130 Schema")]
+    partial class AddInterview130Schema
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -35,6 +35,9 @@ namespace TalentMesh.Migrations.PGSql.Interviews
                     b.Property<Guid>("ApplicationId")
                         .HasColumnType("uuid");
 
+                    b.Property<Guid>("CandidateId")
+                        .HasColumnType("uuid");
+
                     b.Property<DateTimeOffset>("Created")
                         .HasColumnType("timestamp with time zone");
 
@@ -51,6 +54,9 @@ namespace TalentMesh.Migrations.PGSql.Interviews
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<Guid>("InterviewerId")
+                        .HasColumnType("uuid");
+
+                    b.Property<Guid>("JobId")
                         .HasColumnType("uuid");
 
                     b.Property<DateTimeOffset>("LastModified")

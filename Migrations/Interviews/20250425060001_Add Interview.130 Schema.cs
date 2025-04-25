@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace TalentMesh.Migrations.PGSql.Interviews
 {
     /// <inheritdoc />
-    public partial class AddInterview99Schema : Migration
+    public partial class AddInterview130Schema : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -22,6 +22,8 @@ namespace TalentMesh.Migrations.PGSql.Interviews
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     ApplicationId = table.Column<Guid>(type: "uuid", nullable: false),
                     InterviewerId = table.Column<Guid>(type: "uuid", nullable: false),
+                    CandidateId = table.Column<Guid>(type: "uuid", nullable: false),
+                    JobId = table.Column<Guid>(type: "uuid", nullable: false),
                     InterviewDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     Status = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
                     Notes = table.Column<string>(type: "character varying(1000)", maxLength: 1000, nullable: true),
