@@ -8,8 +8,8 @@ import { CandidateProfileModalComponent } from '../candidate-profile/candidate-p
 import { JobPostingService, JobApplication, UserDetails } from '../services/job-posting.service';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { forkJoin, of } from 'rxjs';
-import { catchError, switchMap, map } from 'rxjs/operators';
+import { forkJoin, of, Observable } from 'rxjs';
+import { catchError, switchMap, map, tap } from 'rxjs/operators';
 import { FormsModule } from '@angular/forms';
 
 interface Candidate {
@@ -758,6 +758,8 @@ export class JobComponent implements OnInit {
   selectedJob: Job | null = null;
   selectedCandidate: Candidate | null = null;
   loading: boolean = false;
+  loadingCandidates: boolean = false; // Add specific loading state for candidates
+  loadingCandidatesCount: { [stage: string]: boolean } = {}; // Track loading state for each stage
   jobApplications: JobApplication[] = [];
   
   // Pagination variables
@@ -782,6 +784,8 @@ export class JobComponent implements OnInit {
   selectedInterviewers: { [candidateId: string]: string } = {};
   // Track loading state for interviewers
   loadingInterviewers: boolean = false;
+  // Cache for user details to avoid redundant API calls
+  private userDetailsCache: Map<string, UserDetails> = new Map();
 
   constructor(
     private dialog: MatDialog, 
@@ -795,40 +799,114 @@ export class JobComponent implements OnInit {
   }
 
   /**
-   * Load both jobs and job applications
+   * Load both jobs and job applications in parallel
    */
   loadJobsAndApplications(): void {
     this.loading = true;
+    this.loadingCandidates = true;
     
-    // First load the jobs
-    this.loadJobs(true);
-  }
-
-  /**
-   * Load job applications and map them to the appropriate jobs
-   */
-  loadJobApplications(): void {
-    this.jobPostingService.getJobApplications()
-      .pipe(
-        catchError(error => {
-          console.error('Error loading job applications:', error);
-          this.snackBar.open('Failed to load job applications', 'Close', { duration: 3000 });
-          return of([]);
-        })
-      )
-      .subscribe(applications => {
-        this.jobApplications = applications;
-        console.log('Job applications loaded:', applications);
+    // Initialize loading states for all stages
+    const stages: Candidate['stage'][] = [
+      'applied',
+      'passed_mcq',
+      'shortlisted',
+      'select_interviewer',
+      'interviewed',
+      'selected',
+      'rejected'
+    ];
+    
+    stages.forEach(stage => {
+      this.loadingCandidatesCount[stage] = true;
+    });
+    
+    // Load jobs and applications in parallel using forkJoin
+    forkJoin({
+      jobs: this.jobPostingService.getJobPostings(this.pageNumber, this.pageSize),
+      applications: this.jobPostingService.getJobApplications()
+    }).pipe(
+      catchError(error => {
+        console.error('Error loading data:', error);
+        this.snackBar.open('Failed to load job data', 'Close', { duration: 3000 });
+        this.loading = false;
+        this.loadingCandidates = false;
+        // Clear loading states
+        stages.forEach(stage => {
+          this.loadingCandidatesCount[stage] = false;
+        });
+        return of({ 
+          jobs: { content: [], pageNumber: 0, pageSize: this.pageSize, totalElements: 0, totalPages: 0 },
+          applications: []
+        });
+      })
+    ).subscribe(({ jobs, applications }) => {
+      console.log('Raw jobs response:', jobs);
+      console.log('Job applications loaded:', applications);
+      
+      // Store applications for reference
+      this.jobApplications = applications;
+      
+      // Handle both potential response formats for jobs
+      let content = jobs.content;
+      
+      // If the response is already the array of jobs
+      if (Array.isArray(jobs) && !content) {
+        content = jobs;
+        this.totalElements = jobs.length;
+        this.totalPages = 1;
+      }
+      
+      // Ensure content is an array before mapping
+      if (Array.isArray(content)) {
+        this.jobs = content.map(jobPosting => this.mapToJob(jobPosting));
         
-        // Map applications to jobs
+        if (jobs.pageNumber !== undefined) {
+          this.pageNumber = jobs.pageNumber;
+        }
+        
+        if (jobs.pageSize !== undefined) {
+          this.pageSize = jobs.pageSize;
+        }
+        
+        if (jobs.totalElements !== undefined) {
+          this.totalElements = jobs.totalElements;
+        } else {
+          this.totalElements = content.length;
+        }
+        
+        if (jobs.totalPages !== undefined) {
+          this.totalPages = jobs.totalPages;
+        }
+        
+        if (this.jobs.length > 0 && !this.selectedJob) {
+          this.selectJob(this.jobs[0]);
+        }
+        
+        // Map applications to jobs now that we have both sets of data
         this.mapApplicationsToJobs();
-      });
+      } else {
+        // If content is not an array, show error
+        console.error('Invalid response format:', jobs);
+        this.snackBar.open('Invalid data format received from server', 'Close', { duration: 3000 });
+        this.jobs = [];
+        
+        this.loadingCandidates = false;
+        // Clear loading states since we have no data
+        stages.forEach(stage => {
+          this.loadingCandidatesCount[stage] = false;
+        });
+      }
+      
+      this.loading = false;
+    });
   }
 
   /**
    * Map job applications to their respective jobs as candidates
    */
   mapApplicationsToJobs(): void {
+    this.loadingCandidates = true;
+    
     // Group applications by jobId
     const applicationsByJob = new Map<string, JobApplication[]>();
     
@@ -860,6 +938,15 @@ export class JobComponent implements OnInit {
         this.selectedJob = updatedJob;
       }
     }
+    
+    // We've mapped all candidates to jobs, so we can clear the loading state
+    this.loadingCandidates = false;
+    
+    // Clear the loading state for each stage 
+    // This ensures the UI shows candidates even if user details are still loading
+    Object.keys(this.loadingCandidatesCount).forEach(stage => {
+      this.loadingCandidatesCount[stage] = false;
+    });
   }
   
   /**
@@ -867,32 +954,60 @@ export class JobComponent implements OnInit {
    */
   fetchUserDetailsForCandidates(candidates: Candidate[]): void {
     candidates.forEach(candidate => {
-      if (candidate.candidateId) {
-        this.jobPostingService.getUserDetails(candidate.candidateId)
-          .pipe(
-            catchError(error => {
-              console.error(`Error fetching user details for candidate ${candidate.candidateId}:`, error);
-              return of(null);
-            })
-          )
-          .subscribe(userDetails => {
-            if (userDetails) {
-              // Update the candidate with user details
-              candidate.userDetails = userDetails;
-              candidate.name = userDetails.userName;
-              candidate.email = userDetails.email;
-              
-              // Force UI update if this is for the selected job
-              if (this.selectedJob && candidate.id) {
-                const candidateInSelectedJob = this.selectedJob.candidates.find(c => c.id === candidate.id);
-                if (candidateInSelectedJob) {
-                  candidateInSelectedJob.name = userDetails.userName;
-                  candidateInSelectedJob.email = userDetails.email;
-                  candidateInSelectedJob.userDetails = userDetails;
-                }
+      // Only proceed if candidateId is definitely defined
+      const candidateId = candidate.candidateId;
+      if (candidateId) {
+        // Check if we already have this user's details in cache
+        if (this.userDetailsCache.has(candidateId)) {
+          // Use cached user details instead of making another API call
+          const userDetails = this.userDetailsCache.get(candidateId);
+          if (userDetails) {
+            // Update the candidate with user details
+            candidate.userDetails = userDetails;
+            candidate.name = userDetails.userName;
+            candidate.email = userDetails.email;
+            
+            // Force UI update if this is for the selected job
+            if (this.selectedJob && candidate.id) {
+              const candidateInSelectedJob = this.selectedJob.candidates.find(c => c.id === candidate.id);
+              if (candidateInSelectedJob) {
+                candidateInSelectedJob.name = userDetails.userName;
+                candidateInSelectedJob.email = userDetails.email;
+                candidateInSelectedJob.userDetails = userDetails;
               }
             }
-          });
+          }
+        } else {
+          // Not in cache, fetch from API
+          this.jobPostingService.getUserDetails(candidateId)
+            .pipe(
+              catchError(error => {
+                console.error(`Error fetching user details for candidate ${candidateId}:`, error);
+                return of(null);
+              })
+            )
+            .subscribe(userDetails => {
+              if (userDetails) {
+                // Update the candidate with user details
+                candidate.userDetails = userDetails;
+                candidate.name = userDetails.userName;
+                candidate.email = userDetails.email;
+                
+                // Force UI update if this is for the selected job
+                if (this.selectedJob && candidate.id) {
+                  const candidateInSelectedJob = this.selectedJob.candidates.find(c => c.id === candidate.id);
+                  if (candidateInSelectedJob) {
+                    candidateInSelectedJob.name = userDetails.userName;
+                    candidateInSelectedJob.email = userDetails.email;
+                    candidateInSelectedJob.userDetails = userDetails;
+                  }
+                }
+                
+                // Cache the user details for future use
+                this.userDetailsCache.set(candidateId, userDetails);
+              }
+            });
+        }
       }
     });
   }
@@ -1006,7 +1121,22 @@ export class JobComponent implements OnInit {
           
           // After jobs are loaded, load applications if requested
           if (withApplications) {
-            this.loadJobApplications();
+            // Load job applications separately
+            this.jobPostingService.getJobApplications()
+              .pipe(
+                catchError(error => {
+                  console.error('Error loading job applications:', error);
+                  this.snackBar.open('Failed to load job applications', 'Close', { duration: 3000 });
+                  return of([]);
+                })
+              )
+              .subscribe(applications => {
+                this.jobApplications = applications;
+                console.log('Job applications loaded:', applications);
+                
+                // Map applications to jobs
+                this.mapApplicationsToJobs();
+              });
           }
         },
         error: (error) => {
@@ -1084,9 +1214,17 @@ export class JobComponent implements OnInit {
     }
     try {
       // Filter only candidates that match the requested stage
-      return this.selectedJob.candidates.filter((c) => c && c.stage === stage) || [];
+      const candidates = this.selectedJob.candidates.filter((c) => c && c.stage === stage) || [];
+      
+      // Mark this stage as loaded once we have candidates
+      if (candidates.length > 0 || !this.loadingCandidates) {
+        this.loadingCandidatesCount[stage] = false;
+      }
+      
+      return candidates;
     } catch (error) {
       console.error('Error filtering candidates by stage:', error);
+      this.loadingCandidatesCount[stage] = false;
       return [];
     }
   }
@@ -1104,9 +1242,13 @@ export class JobComponent implements OnInit {
 
     if (currentIndex < stages.length - 1) {
       const newStage = stages[currentIndex + 1];
+      const originalStage = candidate.stage; // Store original stage for rollback if needed
       
       // Map the stage to the API status string
       const apiStatus = this.getApiStatusFromStage(newStage);
+      
+      // Optimistic UI update - immediately update the UI
+      candidate.stage = newStage;
       
       // Only proceed with API call if we have the necessary application data
       if (candidate.applicationId && candidate.candidateId) {
@@ -1129,8 +1271,7 @@ export class JobComponent implements OnInit {
         this.jobPostingService.updateJobApplicationStatus(applicationId, applicationUpdate)
           .subscribe({
             next: (response) => {
-              // Update the local stage after successful API update
-              candidate.stage = newStage;
+              // Already updated the UI, just show success notification
               this.snackBar.open(
                 `${candidate.name} moved to ${candidate.stage} stage`,
                 'Close',
@@ -1138,6 +1279,8 @@ export class JobComponent implements OnInit {
               );
             },
             error: (error) => {
+              // Rollback the optimistic update on error
+              candidate.stage = originalStage;
               console.error('Error updating candidate stage:', error);
               this.snackBar.open(
                 `Failed to update ${candidate.name}'s stage. Please try again.`,
@@ -1149,7 +1292,6 @@ export class JobComponent implements OnInit {
       } else {
         // If we don't have the necessary data for API call, just update locally
         console.warn('Missing application data for API update. Updating UI only.');
-        candidate.stage = newStage;
         this.snackBar.open(
           `${candidate.name} moved to ${candidate.stage} stage (local update only)`,
           'Close',
@@ -1172,9 +1314,13 @@ export class JobComponent implements OnInit {
 
     if (currentIndex > 0) {
       const newStage = stages[currentIndex - 1];
+      const originalStage = candidate.stage; // Store original stage for rollback if needed
       
       // Map the stage to the API status string
       const apiStatus = this.getApiStatusFromStage(newStage);
+      
+      // Optimistic UI update - immediately update the UI
+      candidate.stage = newStage;
       
       // Only proceed with API call if we have the necessary application data
       if (candidate.applicationId && candidate.candidateId) {
@@ -1197,8 +1343,7 @@ export class JobComponent implements OnInit {
         this.jobPostingService.updateJobApplicationStatus(applicationId, applicationUpdate)
           .subscribe({
             next: (response) => {
-              // Update the local stage after successful API update
-              candidate.stage = newStage;
+              // Already updated the UI, just show success notification
               this.snackBar.open(
                 `${candidate.name} moved back to ${candidate.stage} stage`,
                 'Close',
@@ -1206,6 +1351,8 @@ export class JobComponent implements OnInit {
               );
             },
             error: (error) => {
+              // Rollback the optimistic update on error
+              candidate.stage = originalStage;
               console.error('Error updating candidate stage:', error);
               this.snackBar.open(
                 `Failed to update ${candidate.name}'s stage. Please try again.`,
@@ -1217,7 +1364,6 @@ export class JobComponent implements OnInit {
       } else {
         // If we don't have the necessary data for API call, just update locally
         console.warn('Missing application data for API update. Updating UI only.');
-        candidate.stage = newStage;
         this.snackBar.open(
           `${candidate.name} moved back to ${candidate.stage} stage (local update only)`,
           'Close',
@@ -1259,8 +1405,13 @@ export class JobComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe((result) => {
       if (result?.confirmed) {
+        const originalStage = candidate.stage; // Store original stage for rollback if needed
+        
         // Map the rejected stage to the API status
         const apiStatus = this.getApiStatusFromStage('rejected');
+        
+        // Optimistic UI update - immediately update the UI
+        candidate.stage = 'rejected';
         
         // Only proceed with API call if we have the necessary application data
         if (candidate.applicationId && candidate.candidateId) {
@@ -1283,8 +1434,7 @@ export class JobComponent implements OnInit {
           this.jobPostingService.updateJobApplicationStatus(applicationId, applicationUpdate)
             .subscribe({
               next: (response) => {
-                // Update the local stage after successful API update
-                candidate.stage = 'rejected';
+                // Already updated the UI, just show success notification
                 this.snackBar.open(
                   `${candidate.name} has been rejected. Reason: ${result.reason}`,
                   'Close',
@@ -1292,6 +1442,8 @@ export class JobComponent implements OnInit {
                 );
               },
               error: (error) => {
+                // Rollback the optimistic update on error
+                candidate.stage = originalStage;
                 console.error('Error updating candidate stage to rejected:', error);
                 this.snackBar.open(
                   `Failed to reject ${candidate.name}. Please try again.`,
@@ -1303,7 +1455,6 @@ export class JobComponent implements OnInit {
         } else {
           // If we don't have the necessary data for API call, just update locally
           console.warn('Missing application data for API update. Updating UI only.');
-          candidate.stage = 'rejected';
           this.snackBar.open(
             `${candidate.name} has been rejected. Reason: ${result.reason} (local update only)`,
             'Close',

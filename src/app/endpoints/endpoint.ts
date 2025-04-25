@@ -14,7 +14,8 @@ export const endpoint = {
   userDetailsUrl: `${base}/api/users`,
   jobApplicationUpdateUrl: `${base}/api/v1/job/jobapplications`,
   interviewsUrl: `${base}/api/v1/interviews/interviews`,
-  base
+  jobApplicationsUrl: `${base}/api/v1/HR/HR/job-applications/my-postings`,
+  jobPostingsWithPaginationUrl: `${base}/api/v1/HR/HR/jobs/my-postings`
 };
 
 

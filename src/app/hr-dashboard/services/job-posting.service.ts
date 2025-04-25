@@ -307,7 +307,7 @@ export class JobPostingService {
     }
 
     // The API expects parameters as pageNumber and pageSize
-    const url = `${endpoint.jobPostingUrl}/my-postings?pageNumber=${pageNumber}&pageSize=${pageSize}`;
+    const url = `${endpoint.jobPostingsWithPaginationUrl}?pageNumber=${pageNumber}&pageSize=${pageSize}`;
     
     console.log('[JobPostingService] Fetching job postings with pagination:', { pageNumber, pageSize });
     
@@ -334,9 +334,10 @@ export class JobPostingService {
       headers['Authorization'] = `Bearer ${token}`;
     }
 
-    const url = `${endpoint.jobPostingUrl.replace('/jobs', '')}/job-applications/my-postings`;
+    // Using the endpoint from centralized file
+    const url = `${endpoint.jobApplicationsUrl}`;
     
-    console.log('[JobPostingService] Fetching job applications');
+    console.log('[JobPostingService] Fetching job applications from URL:', url);
     
     return this.http.get<JobApplication[]>(url, { headers })
       .pipe(
