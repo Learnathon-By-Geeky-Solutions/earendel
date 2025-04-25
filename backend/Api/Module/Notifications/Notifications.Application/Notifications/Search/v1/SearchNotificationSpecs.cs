@@ -11,7 +11,10 @@ namespace TalentMesh.Module.Notifications.Application.Notifications.Search.v1;
 public class SearchNotificationSpecs : EntitiesByPaginationFilterSpec<Notification, NotificationResponse>
 {
     public SearchNotificationSpecs(SearchNotificationsCommand command)
-        : base(command) =>
-        Query
-            .OrderBy(c => c.Entity, !command.HasOrderBy());
+        : base(command)
+        {
+            Query
+            .OrderBy(c => c.Entity, !command.HasOrderBy())
+            .Where(i => !command.UserId.HasValue || i.UserId == command.UserId.Value);
+       }
 }

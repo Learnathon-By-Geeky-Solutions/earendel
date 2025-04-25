@@ -7,6 +7,8 @@ namespace TalentMesh.Module.Interviews.Application.Interviews.Create.v1;
 public sealed record CreateInterviewCommand(
     Guid ApplicationId,
     Guid InterviewerId,
+    Guid CandidateId,
+    Guid JobId,
     DateTime InterviewDate,
     string Status,
     [property: DefaultValue(null)] string Notes,

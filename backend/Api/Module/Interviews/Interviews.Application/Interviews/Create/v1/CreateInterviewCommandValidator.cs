@@ -15,6 +15,12 @@ public class CreateInterviewCommandValidator : AbstractValidator<CreateInterview
         RuleFor(b => b.InterviewerId)
             .NotEmpty().WithMessage("InterviewerId is required.");
 
+        RuleFor(b => b.CandidateId)
+            .NotEmpty().WithMessage("CandidateId is required.");
+
+        RuleFor(b => b.JobId)
+            .NotEmpty().WithMessage("JobId is required.");
+
         RuleFor(b => b.InterviewDate)
             .NotEmpty().WithMessage("InterviewDate is required.")
             .GreaterThan(DateTime.UtcNow).WithMessage("InterviewDate must be in the future.");

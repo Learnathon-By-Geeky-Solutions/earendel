@@ -69,8 +69,8 @@ namespace TalentMesh.Module.Interviews.Tests
             var notes = "Interview Note";
             var meetingId = "123456";
 
-            var request = new CreateInterviewCommand(applicationId, interviewerId, intervieweDate, status, notes, meetingId);
-            var expectedInterview = Interview.Create(request.ApplicationId!, request.InterviewerId!, request.InterviewDate, request.Status, request.Notes, request.MeetingId);
+            var request = new CreateInterviewCommand(applicationId, interviewerId, Guid.NewGuid(), Guid.NewGuid(), intervieweDate, status, notes, meetingId);
+            var expectedInterview = Interview.Create(request.ApplicationId!, request.InterviewerId!, request.CandidateId!, request.JobId!, request.InterviewDate, request.Status, request.Notes, request.MeetingId);
 
             _repositoryMock.Setup(repo => repo.AddAsync(It.IsAny<Interview>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(expectedInterview);
@@ -88,7 +88,7 @@ namespace TalentMesh.Module.Interviews.Tests
         public async Task DeleteInterview_DeletesSuccessfully()
         {
             // Arrange
-            var existingInterview = Interview.Create(Guid.NewGuid(), Guid.NewGuid(), DateTime.UtcNow, "Pending", "Interview Notes", "123456");
+            var existingInterview = Interview.Create(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), DateTime.UtcNow, "Pending", "Interview Notes", "123456");
             var InterviewId = existingInterview.Id;
 
             _repositoryMock.Setup(repo => repo.GetByIdAsync(InterviewId, It.IsAny<CancellationToken>()))
@@ -122,7 +122,7 @@ namespace TalentMesh.Module.Interviews.Tests
         public async Task GetInterview_ReturnsInterviewResponse()
         {
             // Arrange
-            var expectedInterview = Interview.Create(Guid.NewGuid(), Guid.NewGuid(), DateTime.UtcNow, "Pending", "Interview Notes", "123456");
+            var expectedInterview = Interview.Create(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), DateTime.UtcNow, "Pending", "Interview Notes", "123456");
             var InterviewId = expectedInterview.Id;
 
             _readRepositoryMock.Setup(repo => repo.GetByIdAsync(InterviewId, It.IsAny<CancellationToken>()))
@@ -221,10 +221,12 @@ namespace TalentMesh.Module.Interviews.Tests
         public async Task UpdateInterview_ReturnsUpdatedInterviewResponse()
         {
             // Arrange
-            var existingInterview = Interview.Create(Guid.NewGuid(), Guid.NewGuid(), DateTime.UtcNow, "Pending", "Notes", "12345");
+            var existingInterview = Interview.Create(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), DateTime.UtcNow, "Pending", "Notes", "12345");
             var InterviewId = existingInterview.Id;
             var request = new UpdateInterviewCommand(
                 InterviewId,
+                Guid.NewGuid(),
+                Guid.NewGuid(),
                 Guid.NewGuid(),
                 Guid.NewGuid(),
                 DateTime.UtcNow,
@@ -252,7 +254,7 @@ namespace TalentMesh.Module.Interviews.Tests
         {
             // Arrange
             var InterviewId = Guid.NewGuid();
-            var request = new UpdateInterviewCommand(InterviewId, Guid.NewGuid(), Guid.NewGuid(), DateTime.UtcNow, "Pending", "Notes", "12345");
+            var request = new UpdateInterviewCommand(InterviewId, Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), DateTime.UtcNow, "Pending", "Notes", "12345");
 
             _repositoryMock.Setup(repo => repo.GetByIdAsync(InterviewId, It.IsAny<CancellationToken>()))
                 .ReturnsAsync((Interview?)null);

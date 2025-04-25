@@ -25,6 +25,8 @@ public sealed class CreateInterviewHandler(
         var interview = Interview.Create(
             request.ApplicationId,
             request.InterviewerId,
+            request.CandidateId,
+            request.JobId,
             request.InterviewDate,
             request.Status,
             request.Notes,
