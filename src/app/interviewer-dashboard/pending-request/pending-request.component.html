@@ -21,9 +21,31 @@
                 </ul>
             </div>
 
+            <!-- Loading State -->
+            <div *ngIf="isLoading" class="text-center py-5">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <p class="mt-3 text-muted">Loading interview requests...</p>
+            </div>
+
+            <!-- Error State -->
+            <div *ngIf="error && !isLoading" class="alert alert-danger">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                {{ error }}
+                <button class="btn btn-sm btn-outline-danger ms-3" (click)="loadInterviews()">Try Again</button>
+            </div>
+
             <!-- Pending Interviews -->
-            <div class="interview-list" *ngIf="activeTab === 'pending'">
-                <div class="row">
+            <div class="interview-list" *ngIf="activeTab === 'pending' && !isLoading && !error">
+                <!-- No data state -->
+                <div *ngIf="requestedInterviews.length === 0" class="text-center p-5">
+                    <i class="bi bi-inbox fs-1 text-muted mb-3"></i>
+                    <p class="lead">No pending interview requests</p>
+                </div>
+
+                <!-- Interview list -->
+                <div class="row" *ngIf="requestedInterviews.length > 0">
                     <div class="col-12" *ngFor="let interview of requestedInterviews">
                         <div class="card mb-3 shadow-sm border-0">
                             <div class="card-body">
@@ -42,7 +64,7 @@
                                     <button class="btn btn-outline-secondary" (click)="interview.status = 'declined'">
                                         Decline
                                     </button>
-                                    <button class="btn btn-primary" (click)="handleAccept(interview.id)">
+                                    <button class="btn btn-primary" (click)="handleAccept(interview.id.toString())">
                                         Accept
                                     </button>
                                 </div>
@@ -53,13 +75,13 @@
             </div>
 
             <!-- Accepted Interviews -->
-            <div class="empty-state text-center p-5" *ngIf="activeTab === 'accepted'">
+            <div class="empty-state text-center p-5" *ngIf="activeTab === 'accepted' && !isLoading">
                 <i class="bi bi-calendar-check fs-1 text-muted mb-3"></i>
                 <p class="lead">No accepted interviews yet</p>
             </div>
 
             <!-- Declined Interviews -->
-            <div class="empty-state text-center p-5" *ngIf="activeTab === 'declined'">
+            <div class="empty-state text-center p-5" *ngIf="activeTab === 'declined' && !isLoading">
                 <i class="bi bi-calendar-x fs-1 text-muted mb-3"></i>
                 <p class="lead">No declined interviews yet</p>
             </div>

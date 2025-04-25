@@ -4,15 +4,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { SidebarComponent } from '../sidebar/sidebar.component';
-
-interface InterviewRequest {
-  id: number;
-  candidate: string;
-  role: string;
-  company: string;
-  requestedDate: string;
-  status: string;
-}
+import { InterviewerService, InterviewRequest } from '../services/interviewer.service';
 
 interface TimeSlot {
   id: number;
@@ -48,32 +40,9 @@ export class PendingRequestComponent implements OnInit {
   activeTab: string = 'pending';
 
   // Interview data
-  requestedInterviews: InterviewRequest[] = [
-    {
-      id: 1,
-      candidate: "Alex Morgan",
-      role: "Frontend Developer",
-      company: "TechCorp",
-      requestedDate: "2023-08-15",
-      status: "pending",
-    },
-    {
-      id: 2,
-      candidate: "Taylor Swift",
-      role: "UX Designer",
-      company: "DesignHub",
-      requestedDate: "2023-08-16",
-      status: "pending",
-    },
-    {
-      id: 3,
-      candidate: "Jamie Rodriguez",
-      role: "Backend Developer",
-      company: "InnoSoft",
-      requestedDate: "2023-08-17",
-      status: "pending",
-    },
-  ];
+  requestedInterviews: InterviewRequest[] = [];
+  isLoading: boolean = false;
+  error: string | null = null;
 
   // Available time slots
   availableDates: AvailableDate[] = [
@@ -103,24 +72,54 @@ export class PendingRequestComponent implements OnInit {
 
   // Dialog state
   isDialogOpen: boolean = false;
-  selectedInterview: number | null = null;
+  selectedInterview: string | null = null;
   selectedDateSlot: string | null = null;
   openDates: Record<string, boolean> = {};
 
-  constructor() { }
+  constructor(private interviewerService: InterviewerService) { }
 
   ngOnInit(): void {
     // Initialize all dates as open
     this.availableDates.forEach(date => {
       this.openDates[date.date] = true;
     });
+    
+    // Load interview data from API
+    this.loadInterviews();
+  }
+  
+  loadInterviews(): void {
+    this.isLoading = true;
+    this.error = null;
+    
+    this.interviewerService.getPendingInterviews()
+      .subscribe({
+        next: (data: InterviewRequest[]) => {
+          this.requestedInterviews = data;
+          this.isLoading = false;
+        },
+        error: (err: any) => {
+          console.error('Error fetching interview requests:', err);
+          this.error = 'Failed to load interview requests. Please try again later.';
+          this.isLoading = false;
+        }
+      });
   }
 
   setActiveTab(tab: string): void {
     this.activeTab = tab;
+    
+    // In a real implementation, you would load different interviews based on the active tab
+    // This is a placeholder for future implementation
+    if (tab === 'pending') {
+      this.loadInterviews();
+    } else {
+      // For now, we'll just show empty states for accepted and declined
+      this.requestedInterviews = [];
+    }
   }
 
-  handleAccept(interviewId: number): void {
+  handleAccept(interviewId: string): void {
     this.selectedInterview = interviewId;
     this.isDialogOpen = true;
     this.selectedDateSlot = null;
@@ -160,6 +159,10 @@ export class PendingRequestComponent implements OnInit {
       console.log(
         `Accepting interview ${this.selectedInterview} on ${this.formatFullDate(selectedDate.date)} from ${this.formatTime(selectedSlot.start)} to ${this.formatTime(selectedSlot.end)}`
       );
+      
+      // TODO: Implement the API call to update the interview status to Accepted
+      // this.interviewerService.acceptInterview(this.selectedInterview, { date, slotId })
+      //   .subscribe(...)
     }
 
     this.closeDialog();

@@ -19,6 +19,9 @@ export const endpoint = {
   interviewerAvailabilityCreateUrl: `${base}/api/v1/evaluator/intervieweravailabilities`,
   interviewerAvailabilitySearchUrl: `${base}/api/v1/evaluator/intervieweravailabilities/search`,
 
+  //Interviewer Pending Interview Request
+  interviewSearchUrl: `${base}/api/v1/interviews/interviews/search`,
+
   //Job View
   jobViewUrl: `${base}/api/v1/JobView/candidateview/JobView`,
   // Quiz related endpoints
