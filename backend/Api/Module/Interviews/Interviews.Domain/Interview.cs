@@ -7,18 +7,22 @@ public class Interview : AuditableEntity, IAggregateRoot
 {
     public Guid ApplicationId { get; private set; }
     public Guid InterviewerId { get; private set; }
+    public Guid CandidateId { get; private set; }
+    public Guid JobId { get; private set; }
     public DateTime InterviewDate { get; private set; }
     public string Status { get; private set; } = null!;
     public string Notes { get; private set; } = null!;
     public string MeetingId { get; private set; } = null!; // New field added
 
     // Updated static Create method to include MeetingId
-    public static Interview Create(Guid applicationId, Guid interviewerId, DateTime interviewDate, string status, string? notes, string meetingId)
+    public static Interview Create(Guid applicationId, Guid interviewerId, Guid candidateId, Guid jobId, DateTime interviewDate, string status, string? notes, string meetingId)
     {
         var interview = new Interview
         {
             ApplicationId = applicationId,
             InterviewerId = interviewerId,
+            CandidateId = candidateId,
+            JobId = jobId,
             InterviewDate = interviewDate,
             Status = status,
             Notes = notes ?? string.Empty,
@@ -31,13 +35,19 @@ public class Interview : AuditableEntity, IAggregateRoot
     }
 
     // Updated Update method to include MeetingId
-    public Interview Update(Guid applicationId, Guid interviewerId, DateTime interviewDate, string status, string? notes, string? meetingId)
+    public Interview Update(Guid applicationId, Guid interviewerId, Guid candidateId, Guid jobId, DateTime interviewDate, string status, string? notes, string? meetingId)
     {
         if (ApplicationId != applicationId)
             ApplicationId = applicationId;
 
         if (InterviewerId != interviewerId)
             InterviewerId = interviewerId;
+
+        if (CandidateId != candidateId)
+            CandidateId = candidateId;
+
+        if (JobId != jobId)
+            JobId = jobId;
 
         if (InterviewDate != interviewDate)
             InterviewDate = interviewDate;
@@ -58,13 +68,15 @@ public class Interview : AuditableEntity, IAggregateRoot
     }
 
     // Updated static Update method to include MeetingId
-    public static Interview Update(Guid id, Guid applicationId, Guid interviewerId, DateTime interviewDate, string status, string? notes, string? meetingId)
+    public static Interview Update(Guid id, Guid applicationId, Guid interviewerId, Guid candidateId, Guid jobId, DateTime interviewDate, string status, string? notes, string? meetingId)
     {
         var interview = new Interview
         {
             Id = id,
             ApplicationId = applicationId,
             InterviewerId = interviewerId,
+            CandidateId = candidateId,
+            JobId = jobId,
             InterviewDate = interviewDate,
             Status = status,
             Notes = notes ?? string.Empty,

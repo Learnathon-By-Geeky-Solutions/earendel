@@ -21,6 +21,12 @@ public class UpdateInterviewCommandValidator : AbstractValidator<UpdateInterview
         RuleFor(b => b.InterviewerId)
             .NotEmpty().WithMessage("InterviewerId is required.");
 
+        RuleFor(b => b.CandidateId)
+            .NotEmpty().WithMessage("CandidateId is required.");
+
+        RuleFor(b => b.JobId)
+            .NotEmpty().WithMessage("JobId is required.");
+
         // Validate InterviewDate (should not be empty)
         RuleFor(b => b.InterviewDate)
             .NotEmpty().WithMessage("InterviewDate is required.");

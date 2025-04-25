@@ -10,6 +10,8 @@ public class SearchInterviewsCommand : PaginationFilter, IRequest<PagedList<Inte
 {
     public Guid? ApplicationId { get; set; }  // Search by ApplicationId
     public Guid? InterviewerId { get; set; }  // Search by InterviewerId
+    public Guid? CandidateId { get; set; }  // Search by CandidateId
+    public Guid? JobId { get; set; }  // Search by JobId
     public DateTime? InterviewDate { get; set; }  // Search by InterviewDate
     public string? Status { get; set; }  // Search by Status
     public string? Notes { get; set; }  // Search by Notes

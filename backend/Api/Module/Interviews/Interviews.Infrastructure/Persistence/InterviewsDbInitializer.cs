@@ -27,6 +27,8 @@ namespace TalentMesh.Module.Interviews.Infrastructure.Persistence
         {
             var applicationId = Guid.NewGuid();  // Generate a new Application ID for seeding
             var interviewerId = Guid.NewGuid();  // Generate a new Interviewer ID for seeding
+            var candidateId = Guid.NewGuid();  // Generate a new Interviewer ID for seeding
+            var jobId = Guid.NewGuid();  // Generate a new Interviewer ID for seeding
             var interviewDate = DateTime.UtcNow.AddDays(1); // Future interview date
             const string status = "Scheduled"; // Default status for seeding
             const string notes = "Initial interview setup"; // Notes for seeding
@@ -36,7 +38,7 @@ namespace TalentMesh.Module.Interviews.Infrastructure.Persistence
             if (await context.Interviews.FirstOrDefaultAsync(t => t.ApplicationId == applicationId, cancellationToken).ConfigureAwait(false) is null)
             {
                 // Create a new Interview for seeding
-                var interview = Interview.Create(applicationId, interviewerId, interviewDate, status, notes, meetingId);
+                var interview = Interview.Create(applicationId, interviewerId, candidateId, jobId, interviewDate, status, notes, meetingId);
 
                 // Add the Interview to the database
                 await context.Interviews.AddAsync(interview, cancellationToken);

@@ -17,6 +17,8 @@ public class SearchInterviewSpecs : EntitiesByPaginationFilterSpec<Interview, In
         Query
             .OrderBy(c => c.Status, !command.HasOrderBy())
             .Where(i => !command.InterviewerId.HasValue || i.InterviewerId == command.InterviewerId.Value)
+            .Where(i => !command.CandidateId.HasValue || i.CandidateId == command.CandidateId.Value)
+            .Where(i => !command.JobId.HasValue || i.JobId == command.JobId.Value)
             .Where(i => string.IsNullOrWhiteSpace(command.Status) || i.Status == command.Status);
     }
 }
