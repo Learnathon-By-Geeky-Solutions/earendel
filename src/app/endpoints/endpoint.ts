@@ -47,6 +47,8 @@ export const endpoint = {
 
   getZoomSignatureUrl: `${base}/api/v1/interviews/interviews/signature`,
 
+  userNotificationGetUrl: `${base}/api/v1/notifications/notifications/search`,
+
   getInterviewerEntryFormList: `${base}/api/v1/evaluator/interviewerentryforms/search`,
   downloadInterviewerEntryFormPdf: `${base}/api/v1/interviewers`,
   uploadInterviewerEntryFormPdf: `${base}/api/v1/interviewers`,
