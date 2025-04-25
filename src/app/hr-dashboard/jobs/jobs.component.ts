@@ -48,6 +48,7 @@ interface Candidate {
   coverLetter?: string;
   candidateId?: string; // Store the original candidate ID for user details lookup
   userDetails?: UserDetails; // Store the fetched user details
+  applicationId?: string; // Store the original application ID for API calls
 }
 
 interface Job {
@@ -792,7 +793,7 @@ export class JobComponent implements OnInit {
         stage = 'applied';
         break;
       case 'screened':
-      case 'passed_mcq':
+      case 'mcq passed':
         stage = 'passed_mcq';
         break;
       case 'shortlisted':
@@ -813,7 +814,7 @@ export class JobComponent implements OnInit {
     }
     
     return {
-      id: parseInt(application.id) || index + 1, // Convert string ID to number or use index
+      id: index + 1, // Use index for UI display only
       name: `Candidate ${index + 1}`, // Default name if candidate details aren't available
       email: application.candidateId, // Use candidateId as email for now
       phone: '',
@@ -826,7 +827,9 @@ export class JobComponent implements OnInit {
       // Additional application data
       applicationDate: new Date(application.applicationDate),
       coverLetter: application.coverLetter,
-      candidateId: application.candidateId // Store the original candidate ID
+      candidateId: application.candidateId, // Store the original candidate ID
+      // Store the original application data for API calls
+      applicationId: application.id
     };
   }
 
@@ -979,12 +982,59 @@ export class JobComponent implements OnInit {
     const currentIndex = stages.indexOf(candidate.stage);
 
     if (currentIndex < stages.length - 1) {
-      candidate.stage = stages[currentIndex + 1];
-      this.snackBar.open(
-        `${candidate.name} moved to ${candidate.stage} stage`,
-        'Close',
-        { duration: 3000 }
-      );
+      const newStage = stages[currentIndex + 1];
+      
+      // Map the stage to the API status string
+      const apiStatus = this.getApiStatusFromStage(newStage);
+      
+      // Only proceed with API call if we have the necessary application data
+      if (candidate.applicationId && candidate.candidateId) {
+        // Get the original application ID (UUID string from API)
+        const applicationId = candidate.applicationId;
+        
+        // Create the application update payload
+        const applicationUpdate = {
+          id: applicationId,
+          jobId: this.selectedJob?.id.toString() || '',
+          candidateId: candidate.candidateId,
+          status: apiStatus,
+          coverLetter: candidate.coverLetter || ''
+        };
+        
+        console.log('Updating application with ID:', applicationId);
+        console.log('Update payload:', applicationUpdate);
+        
+        // Call the service to update the status
+        this.jobPostingService.updateJobApplicationStatus(applicationId, applicationUpdate)
+          .subscribe({
+            next: (response) => {
+              // Update the local stage after successful API update
+              candidate.stage = newStage;
+              this.snackBar.open(
+                `${candidate.name} moved to ${candidate.stage} stage`,
+                'Close',
+                { duration: 3000 }
+              );
+            },
+            error: (error) => {
+              console.error('Error updating candidate stage:', error);
+              this.snackBar.open(
+                `Failed to update ${candidate.name}'s stage. Please try again.`,
+                'Close',
+                { duration: 3000 }
+              );
+            }
+          });
+      } else {
+        // If we don't have the necessary data for API call, just update locally
+        console.warn('Missing application data for API update. Updating UI only.');
+        candidate.stage = newStage;
+        this.snackBar.open(
+          `${candidate.name} moved to ${candidate.stage} stage (local update only)`,
+          'Close',
+          { duration: 3000 }
+        );
+      }
     }
   }
 
@@ -999,12 +1049,81 @@ export class JobComponent implements OnInit {
     const currentIndex = stages.indexOf(candidate.stage);
 
     if (currentIndex > 0) {
-      candidate.stage = stages[currentIndex - 1];
-      this.snackBar.open(
-        `${candidate.name} moved back to ${candidate.stage} stage`,
-        'Close',
-        { duration: 3000 }
-      );
+      const newStage = stages[currentIndex - 1];
+      
+      // Map the stage to the API status string
+      const apiStatus = this.getApiStatusFromStage(newStage);
+      
+      // Only proceed with API call if we have the necessary application data
+      if (candidate.applicationId && candidate.candidateId) {
+        // Get the original application ID (UUID string from API)
+        const applicationId = candidate.applicationId;
+        
+        // Create the application update payload
+        const applicationUpdate = {
+          id: applicationId,
+          jobId: this.selectedJob?.id.toString() || '',
+          candidateId: candidate.candidateId,
+          status: apiStatus,
+          coverLetter: candidate.coverLetter || ''
+        };
+        
+        console.log('Updating application with ID:', applicationId);
+        console.log('Update payload:', applicationUpdate);
+        
+        // Call the service to update the status
+        this.jobPostingService.updateJobApplicationStatus(applicationId, applicationUpdate)
+          .subscribe({
+            next: (response) => {
+              // Update the local stage after successful API update
+              candidate.stage = newStage;
+              this.snackBar.open(
+                `${candidate.name} moved back to ${candidate.stage} stage`,
+                'Close',
+                { duration: 3000 }
+              );
+            },
+            error: (error) => {
+              console.error('Error updating candidate stage:', error);
+              this.snackBar.open(
+                `Failed to update ${candidate.name}'s stage. Please try again.`,
+                'Close',
+                { duration: 3000 }
+              );
+            }
+          });
+      } else {
+        // If we don't have the necessary data for API call, just update locally
+        console.warn('Missing application data for API update. Updating UI only.');
+        candidate.stage = newStage;
+        this.snackBar.open(
+          `${candidate.name} moved back to ${candidate.stage} stage (local update only)`,
+          'Close',
+          { duration: 3000 }
+        );
+      }
+    }
+  }
+
+  /**
+   * Convert the UI stage to the API status string
+   */
+  getApiStatusFromStage(stage: Candidate['stage']): string {
+    switch (stage) {
+      case 'applied':
+        return 'Applied';
+      case 'passed_mcq':
+        return 'MCQ Passed';
+      case 'shortlisted':
+        return 'Shortlisted';
+      case 'interviewed':
+        return 'Interviewed';
+      case 'selected':
+        return 'Selected';
+      case 'rejected':
+        return 'Rejected';
+      default:
+        return 'Applied';
     }
   }
 
@@ -1016,12 +1135,57 @@ export class JobComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe((result) => {
       if (result?.confirmed) {
-        candidate.stage = 'rejected';
-        this.snackBar.open(
-          `${candidate.name} has been rejected. Reason: ${result.reason}`,
-          'Close',
-          { duration: 3000 }
-        );
+        // Map the rejected stage to the API status
+        const apiStatus = this.getApiStatusFromStage('rejected');
+        
+        // Only proceed with API call if we have the necessary application data
+        if (candidate.applicationId && candidate.candidateId) {
+          // Get the original application ID (UUID string from API)
+          const applicationId = candidate.applicationId;
+          
+          // Create the application update payload
+          const applicationUpdate = {
+            id: applicationId,
+            jobId: this.selectedJob?.id.toString() || '',
+            candidateId: candidate.candidateId,
+            status: apiStatus,
+            coverLetter: candidate.coverLetter || ''
+          };
+          
+          console.log('Updating application with ID:', applicationId);
+          console.log('Update payload:', applicationUpdate);
+          
+          // Call the service to update the status
+          this.jobPostingService.updateJobApplicationStatus(applicationId, applicationUpdate)
+            .subscribe({
+              next: (response) => {
+                // Update the local stage after successful API update
+                candidate.stage = 'rejected';
+                this.snackBar.open(
+                  `${candidate.name} has been rejected. Reason: ${result.reason}`,
+                  'Close',
+                  { duration: 3000 }
+                );
+              },
+              error: (error) => {
+                console.error('Error updating candidate stage to rejected:', error);
+                this.snackBar.open(
+                  `Failed to reject ${candidate.name}. Please try again.`,
+                  'Close',
+                  { duration: 3000 }
+                );
+              }
+            });
+        } else {
+          // If we don't have the necessary data for API call, just update locally
+          console.warn('Missing application data for API update. Updating UI only.');
+          candidate.stage = 'rejected';
+          this.snackBar.open(
+            `${candidate.name} has been rejected. Reason: ${result.reason} (local update only)`,
+            'Close',
+            { duration: 3000 }
+          );
+        }
       }
     });
   }

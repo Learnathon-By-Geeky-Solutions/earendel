@@ -12,6 +12,8 @@ export const endpoint = {
   rubricsSearchUrl: `${base}/api/v1/experties/rubrics/search`,
   jobPostingUrl: `${base}/api/v1/HR/HR/jobs`,
   userDetailsUrl: `${base}/api/users`,
+  jobApplicationUpdateUrl: `${base}/api/v1/job/jobapplications`,
+  base
 };
 
 

@@ -374,4 +374,41 @@ export class JobPostingService {
         })
       );
   }
+
+  /**
+   * Update job application status
+   * @param applicationId The ID of the job application to update
+   * @param application The job application data with updated status
+   */
+  updateJobApplicationStatus(applicationId: string, application: {
+    id: string,
+    jobId: string,
+    candidateId: string,
+    status: string,
+    coverLetter: string
+  }): Observable<any> {
+    const token = sessionStorage.getItem('token');
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json'
+    };
+    
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+
+    // Use the correct API endpoint for updating job applications
+    // PUT /api/v1/job/jobapplications/{id}
+    const url = `${endpoint.jobApplicationUpdateUrl}/${applicationId}`;
+    
+    console.log('[JobPostingService] Updating job application status:', application);
+    
+    return this.http.put(url, application, { headers })
+      .pipe(
+        tap(response => console.log('[JobPostingService] Job application status updated successfully:', response)),
+        catchError(err => {
+          console.error('[JobPostingService] Error updating job application status:', err);
+          return throwError(() => err);
+        })
+      );
+  }
 } 
