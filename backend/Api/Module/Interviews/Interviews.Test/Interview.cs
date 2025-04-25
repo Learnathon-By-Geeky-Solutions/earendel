@@ -175,8 +175,8 @@ namespace TalentMesh.Module.Interviews.Tests
 
             var Interviews = new List<InterviewResponse>
             {
-                new InterviewResponse(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), DateTime.UtcNow, "Pending", "Notes", "123456"),
-                new InterviewResponse(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), DateTime.UtcNow, "Done", "Notes", "1234567")
+                new InterviewResponse(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), DateTime.UtcNow, "Pending", "Notes", "123456"),
+                new InterviewResponse(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), DateTime.UtcNow, "Done", "Notes", "1234567")
             };
             var totalCount = Interviews.Count;
 

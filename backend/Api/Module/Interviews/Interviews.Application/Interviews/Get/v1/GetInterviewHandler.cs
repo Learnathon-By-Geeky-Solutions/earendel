@@ -28,6 +28,8 @@ public sealed class GetInterviewHandler(
                     interviewItem.Id,
                     interviewItem.ApplicationId,
                     interviewItem.InterviewerId,
+                    interviewItem.CandidateId,
+                    interviewItem.JobId,
                     interviewItem.InterviewDate,
                     interviewItem.Status,
                     interviewItem.Notes,
