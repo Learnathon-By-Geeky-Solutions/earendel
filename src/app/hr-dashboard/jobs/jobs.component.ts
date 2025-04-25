@@ -265,6 +265,12 @@ interface Job {
                                   Move Forward
                                 </button>
                                 <button
+                                  class="btn btn-sm btn-outline-warning"
+                                  (click)="moveBack(candidate); $event.stopPropagation()"
+                                >
+                                  Move Back
+                                </button>
+                                <button
                                   class="btn btn-sm btn-outline-danger"
                                   (click)="openRejectModal(candidate); $event.stopPropagation()"
                                 >
@@ -326,6 +332,12 @@ interface Job {
                                   (click)="moveForward(candidate)"
                                 >
                                   Move Forward
+                                </button>
+                                <button
+                                  class="btn btn-sm btn-outline-warning"
+                                  (click)="moveBack(candidate)"
+                                >
+                                  Move Back
                                 </button>
                                 <button
                                   class="btn btn-sm btn-outline-danger"
@@ -391,6 +403,12 @@ interface Job {
                                   Move Forward
                                 </button>
                                 <button
+                                  class="btn btn-sm btn-outline-warning"
+                                  (click)="moveBack(candidate)"
+                                >
+                                  Move Back
+                                </button>
+                                <button
                                   class="btn btn-sm btn-outline-danger"
                                   (click)="openRejectModal(candidate)"
                                 >
@@ -441,6 +459,14 @@ interface Job {
                                 <p class="text-muted small mb-0">
                                   {{ candidate.email }}
                                 </p>
+                              </div>
+                              <div class="d-flex gap-2">
+                                <button
+                                  class="btn btn-sm btn-outline-warning"
+                                  (click)="moveBack(candidate)"
+                                >
+                                  Move Back
+                                </button>
                               </div>
                             </div>
                           </div>
@@ -956,6 +982,26 @@ export class JobComponent implements OnInit {
       candidate.stage = stages[currentIndex + 1];
       this.snackBar.open(
         `${candidate.name} moved to ${candidate.stage} stage`,
+        'Close',
+        { duration: 3000 }
+      );
+    }
+  }
+
+  moveBack(candidate: Candidate) {
+    const stages: Candidate['stage'][] = [
+      'applied',
+      'passed_mcq',
+      'shortlisted',
+      'interviewed',
+      'selected',
+    ];
+    const currentIndex = stages.indexOf(candidate.stage);
+
+    if (currentIndex > 0) {
+      candidate.stage = stages[currentIndex - 1];
+      this.snackBar.open(
+        `${candidate.name} moved back to ${candidate.stage} stage`,
         'Close',
         { duration: 3000 }
       );
