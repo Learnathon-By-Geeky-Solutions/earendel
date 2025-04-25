@@ -1,0 +1,125 @@
+<div class="d-flex">
+    <app-sidebar></app-sidebar>
+
+    <!-- Main Content -->
+    <div class="flex-grow-1 p-4">
+        <div class="container">
+            <div class="header">
+                <h2 class="h4 mb-1">Requested Interviews</h2>
+                <p class="text-muted small">{{ requestedInterviews.length }} pending requests</p>
+            </div>
+
+            <!-- Tabs -->
+            <div class="tabs mb-4">
+                <ul class="nav nav-tabs">
+                    <li class="nav-item" *ngFor="let tab of tabs">
+                        <button class="nav-link" [class.active]="activeTab === tab.value"
+                            (click)="setActiveTab(tab.value)">
+                            {{ tab.label }}
+                        </button>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Pending Interviews -->
+            <div class="interview-list" *ngIf="activeTab === 'pending'">
+                <div class="row">
+                    <div class="col-12" *ngFor="let interview of requestedInterviews">
+                        <div class="card mb-3 shadow-sm border-0">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <div>
+                                        <h3 class="h5 mb-1">{{ interview.candidate }}</h3>
+                                        <p class="mb-0 text-muted">{{ interview.role }} • {{ interview.company }}</p>
+                                    </div>
+                                    <span class="badge bg-warning text-dark py-2 px-3 rounded-pill">Pending</span>
+                                </div>
+                                <div class="d-flex align-items-center mb-3">
+                                    <i class="bi bi-calendar me-2"></i>
+                                    <span>Requested: {{ formatDate(interview.requestedDate) }}</span>
+                                </div>
+                                <div class="d-flex justify-content-end gap-2">
+                                    <button class="btn btn-outline-secondary" (click)="interview.status = 'declined'">
+                                        Decline
+                                    </button>
+                                    <button class="btn btn-primary" (click)="handleAccept(interview.id)">
+                                        Accept
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Accepted Interviews -->
+            <div class="empty-state text-center p-5" *ngIf="activeTab === 'accepted'">
+                <i class="bi bi-calendar-check fs-1 text-muted mb-3"></i>
+                <p class="lead">No accepted interviews yet</p>
+            </div>
+
+            <!-- Declined Interviews -->
+            <div class="empty-state text-center p-5" *ngIf="activeTab === 'declined'">
+                <i class="bi bi-calendar-x fs-1 text-muted mb-3"></i>
+                <p class="lead">No declined interviews yet</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Time Selection Dialog -->
+<div class="modal-backdrop fade show" *ngIf="isDialogOpen"></div>
+<div class="modal d-block" tabindex="-1" *ngIf="isDialogOpen">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header border-bottom-0">
+                <h5 class="modal-title fw-bold">Select Available Time</h5>
+                <button type="button" class="btn-close" (click)="closeDialog()"></button>
+            </div>
+            <div class="modal-body pt-0">
+                <p class="mb-4">Choose from your available time slots to schedule this interview</p>
+
+                <div class="mb-3" *ngFor="let dateItem of availableDates">
+                    <div class="time-slot-card">
+                        <div class="time-slot-header" (click)="toggleDateCollapsible(dateItem.date)">
+                            <div class="d-flex align-items-center">
+                                <i class="bi bi-calendar-date me-2"></i>
+                                <span class="fw-medium">{{ dateItem.dayOfWeek }}, {{ formatFullDate(dateItem.date)
+                                    }}</span>
+                            </div>
+                            <div class="d-flex align-items-center">
+                                <span class="slot-badge">
+                                    {{ dateItem.slots.length }} {{ dateItem.slots.length === 1 ? 'slot' : 'slots' }}
+                                </span>
+                                <i class="bi" [class.bi-chevron-up]="isDateOpen(dateItem.date)"
+                                    [class.bi-chevron-down]="!isDateOpen(dateItem.date)"></i>
+                            </div>
+                        </div>
+                        <div class="time-slot-body" *ngIf="isDateOpen(dateItem.date)">
+                            <div class="time-option" *ngFor="let slot of dateItem.slots">
+                                <input type="radio" class="btn-check" [id]="'slot-' + dateItem.date + '-' + slot.id"
+                                    [value]="dateItem.date + '|' + slot.id" [(ngModel)]="selectedDateSlot"
+                                    name="timeSlot">
+                                <label class="time-option-label" [for]="'slot-' + dateItem.date + '-' + slot.id">
+                                    <i class="bi bi-clock me-2"></i>
+                                    <span>{{ formatTime(slot.start) }} - {{ formatTime(slot.end) }}</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center p-4" *ngIf="availableDates.length === 0">
+                    <p class="text-muted">No available time slots found. Please set your availability.</p>
+                </div>
+            </div>
+            <div class="modal-footer border-top-0">
+                <button type="button" class="btn btn-outline-secondary" (click)="closeDialog()">Cancel</button>
+                <button type="button" class="btn btn-primary px-4" [disabled]="!selectedDateSlot"
+                    (click)="handleConfirm()">
+                    Confirm Time
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
