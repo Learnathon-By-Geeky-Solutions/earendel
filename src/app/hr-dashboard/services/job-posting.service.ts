@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable, throwError } from 'rxjs';
-import { catchError, tap } from 'rxjs/operators';
+import { Observable, throwError, switchMap } from 'rxjs';
+import { catchError, tap, map } from 'rxjs/operators';
 import { endpoint } from '../../endpoints/endpoint';
 import { JobService, Skill, SubSkill, SeniorityLevel } from './job.service';
 
@@ -407,6 +407,85 @@ export class JobPostingService {
         tap(response => console.log('[JobPostingService] Job application status updated successfully:', response)),
         catchError(err => {
           console.error('[JobPostingService] Error updating job application status:', err);
+          return throwError(() => err);
+        })
+      );
+  }
+
+  /**
+   * Get all interviewers by fetching users and filtering by role
+   * @returns Observable of UserDetails array containing only users with the "Interviewer" role
+   */
+  getInterviewers(): Observable<UserDetails[]> {
+    const token = sessionStorage.getItem('token');
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json'
+    };
+    
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+
+    const url = `${endpoint.userDetailsUrl}`;
+    
+    console.log('[JobPostingService] Fetching interviewers');
+    
+    return this.http.get<UserDetails[]>(url, { headers })
+      .pipe(
+        map(users => {
+          // Filter only users that have the "Interviewer" role
+          const interviewers = users.filter(user => 
+            user.roles && user.roles.includes('Interviewer')
+          );
+          console.log('[JobPostingService] Filtered interviewers:', interviewers);
+          return interviewers;
+        }),
+        catchError(err => {
+          console.error('[JobPostingService] Error fetching interviewers:', err);
+          return throwError(() => err);
+        })
+      );
+  }
+
+  /**
+   * Assign an interviewer to a job application
+   * @param applicationId The ID of the job application
+   * @param interviewerId The ID of the interviewer to assign
+   */
+  assignInterviewer(applicationId: string, interviewerId: string): Observable<any> {
+    const token = sessionStorage.getItem('token');
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json'
+    };
+    
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+
+    // We'll use the same update endpoint but include interviewer information
+    const url = `${endpoint.jobApplicationUpdateUrl}/${applicationId}`;
+    
+    // We need to get the existing job application first to maintain its data
+    return this.http.get<JobApplication>(`${endpoint.jobApplicationUpdateUrl}/${applicationId}`, { headers })
+      .pipe(
+        switchMap(application => {
+          // Create the complete payload with all required fields plus the interviewer ID
+          const payload = {
+            id: applicationId,
+            jobId: application.jobId,
+            candidateId: application.candidateId,
+            status: application.status,
+            coverLetter: application.coverLetter || '',
+            interviewerId: interviewerId
+          };
+          
+          console.log('[JobPostingService] Assigning interviewer to application:', payload);
+          
+          return this.http.put(url, payload, { headers });
+        }),
+        tap(response => console.log('[JobPostingService] Interviewer assigned successfully:', response)),
+        catchError(err => {
+          console.error('[JobPostingService] Error assigning interviewer:', err);
           return throwError(() => err);
         })
       );

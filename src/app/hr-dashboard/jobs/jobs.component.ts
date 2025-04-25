@@ -10,6 +10,7 @@ import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { forkJoin, of } from 'rxjs';
 import { catchError, switchMap, map } from 'rxjs/operators';
+import { FormsModule } from '@angular/forms';
 
 interface Candidate {
   id: number;
@@ -20,6 +21,7 @@ interface Candidate {
     | 'applied'
     | 'passed_mcq'
     | 'shortlisted'
+    | 'select_interviewer'
     | 'interviewed'
     | 'selected'
     | 'rejected';
@@ -69,7 +71,8 @@ interface Job {
     MatDialogModule, 
     MatPaginatorModule, 
     MatProgressSpinnerModule,
-    MatSnackBarModule
+    MatSnackBarModule,
+    FormsModule
   ],
   template: `
     <div class="d-flex">
@@ -353,9 +356,114 @@ interface Job {
                       </div>
                     </div>
 
+                    <!-- Select Interviewer Stage -->
+                    <div class="timeline-item">
+                      <div class="timeline-marker bg-info">4</div>
+                      <div class="timeline-content">
+                        <div
+                          class="timeline-header"
+                          (click)="toggleStage('select_interviewer')"
+                        >
+                          <h6 class="mb-0">Select your interviewer</h6>
+                          <span class="badge bg-light text-dark">
+                            {{ getCandidatesByStage('select_interviewer').length }}
+                          </span>
+                          <i
+                            class="bi"
+                            [class.bi-chevron-down]="
+                              !expandedStages.select_interviewer
+                            "
+                            [class.bi-chevron-up]="expandedStages.select_interviewer"
+                          ></i>
+                        </div>
+
+                        <div
+                          class="timeline-body"
+                          *ngIf="expandedStages.select_interviewer"
+                        >
+                          <!-- Loader for interviewers -->
+                          <div *ngIf="loadingInterviewers" class="text-center py-2">
+                            <div class="spinner-border spinner-border-sm text-primary" role="status">
+                              <span class="visually-hidden">Loading interviewers...</span>
+                            </div>
+                            <p class="mb-0 mt-2 small text-muted">Loading available interviewers...</p>
+                          </div>
+                          
+                          <!-- No interviewers message -->
+                          <div *ngIf="!loadingInterviewers && interviewers.length === 0" class="alert alert-warning">
+                            <p class="mb-0">No interviewers available. Please add interviewers to the system.</p>
+                          </div>
+                          
+                          <div
+                            *ngFor="
+                              let candidate of getCandidatesByStage(
+                                'select_interviewer'
+                              )
+                            "
+                            class="candidate-card p-3 mb-2 bg-white rounded shadow-sm"
+                          >
+                            <div class="d-flex flex-column">
+                              <!-- Candidate info -->
+                              <div class="d-flex justify-content-between align-items-center mb-3">
+                                <div>
+                                  <h6 class="mb-1">{{ candidate.name }}</h6>
+                                  <p class="text-muted small mb-0">
+                                    {{ candidate.email }}
+                                  </p>
+                                </div>
+                              </div>
+                              
+                              <!-- Interviewer selection -->
+                              <div class="row align-items-center mb-3">
+                                <div class="col-md-5">
+                                  <label class="form-label mb-0">Select Interviewer:</label>
+                                </div>
+                                <div class="col-md-7">
+                                  <select 
+                                    class="form-select"
+                                    [disabled]="loadingInterviewers"
+                                    [(ngModel)]="selectedInterviewers[candidate.applicationId || '']"
+                                    (change)="assignInterviewer(candidate, selectedInterviewers[candidate.applicationId || ''])"
+                                  >
+                                    <option value="" selected disabled>Choose an interviewer</option>
+                                    <option *ngFor="let interviewer of interviewers" [value]="interviewer.id">
+                                      {{ interviewer.userName }} ({{ interviewer.email }})
+                                    </option>
+                                  </select>
+                                </div>
+                              </div>
+                              
+                              <!-- Action buttons -->
+                              <div class="d-flex justify-content-end gap-2">
+                                <button
+                                  class="btn btn-sm btn-outline-success"
+                                  (click)="moveForward(candidate)"
+                                  [disabled]="!selectedInterviewers[candidate.applicationId || '']"
+                                >
+                                  Move Forward
+                                </button>
+                                <button
+                                  class="btn btn-sm btn-outline-warning"
+                                  (click)="moveBack(candidate)"
+                                >
+                                  Move Back
+                                </button>
+                                <button
+                                  class="btn btn-sm btn-outline-danger"
+                                  (click)="openRejectModal(candidate)"
+                                >
+                                  Reject
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
                     <!-- Interviewed Stage -->
                     <div class="timeline-item">
-                      <div class="timeline-marker bg-success">4</div>
+                      <div class="timeline-marker bg-success">5</div>
                       <div class="timeline-content">
                         <div
                           class="timeline-header"
@@ -424,7 +532,7 @@ interface Job {
 
                     <!-- Selected Stage -->
                     <div class="timeline-item">
-                      <div class="timeline-marker bg-primary">5</div>
+                      <div class="timeline-marker bg-primary">6</div>
                       <div class="timeline-content">
                         <div
                           class="timeline-header"
@@ -477,7 +585,7 @@ interface Job {
 
                     <!-- Rejected Stage -->
                     <div class="timeline-item">
-                      <div class="timeline-marker bg-danger">6</div>
+                      <div class="timeline-marker bg-danger">7</div>
                       <div class="timeline-content">
                         <div
                           class="timeline-header"
@@ -662,10 +770,18 @@ export class JobComponent implements OnInit {
     applied: true,
     passed_mcq: true,
     shortlisted: false,
+    select_interviewer: false,
     interviewed: false,
     selected: false,
     rejected: false,
   };
+
+  // Add a property to store the available interviewers list
+  interviewers: UserDetails[] = [];
+  // Track the selected interviewer for each candidate
+  selectedInterviewers: { [candidateId: string]: string } = {};
+  // Track loading state for interviewers
+  loadingInterviewers: boolean = false;
 
   constructor(
     private dialog: MatDialog, 
@@ -675,6 +791,7 @@ export class JobComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadJobsAndApplications();
+    this.loadInterviewers();
   }
 
   /**
@@ -798,6 +915,9 @@ export class JobComponent implements OnInit {
         break;
       case 'shortlisted':
         stage = 'shortlisted';
+        break;
+      case 'select interviewer':
+        stage = 'select_interviewer';
         break;
       case 'interviewed':
         stage = 'interviewed';
@@ -976,6 +1096,7 @@ export class JobComponent implements OnInit {
       'applied',
       'passed_mcq',
       'shortlisted',
+      'select_interviewer',
       'interviewed',
       'selected',
     ];
@@ -1043,6 +1164,7 @@ export class JobComponent implements OnInit {
       'applied',
       'passed_mcq',
       'shortlisted',
+      'select_interviewer',
       'interviewed',
       'selected',
     ];
@@ -1116,6 +1238,8 @@ export class JobComponent implements OnInit {
         return 'MCQ Passed';
       case 'shortlisted':
         return 'Shortlisted';
+      case 'select_interviewer':
+        return 'Select Interviewer';
       case 'interviewed':
         return 'Interviewed';
       case 'selected':
@@ -1221,4 +1345,68 @@ export class JobComponent implements OnInit {
   //     }
   //   });
   // }
+
+  /**
+   * Load interviewers from the service
+   */
+  loadInterviewers(): void {
+    this.loadingInterviewers = true;
+    this.jobPostingService.getInterviewers()
+      .pipe(
+        catchError(error => {
+          console.error('Error loading interviewers:', error);
+          this.snackBar.open('Failed to load interviewers', 'Close', { duration: 3000 });
+          return of([]);
+        })
+      )
+      .subscribe(interviewers => {
+        this.interviewers = interviewers;
+        this.loadingInterviewers = false;
+        console.log('Interviewers loaded:', interviewers);
+      });
+  }
+
+  /**
+   * Assign an interviewer to a candidate
+   */
+  assignInterviewer(candidate: Candidate, interviewerId: string): void {
+    if (!candidate.applicationId || !interviewerId) {
+      this.snackBar.open('Missing required data to assign interviewer', 'Close', { duration: 3000 });
+      return;
+    }
+
+    // Store the selection in our local tracking object
+    this.selectedInterviewers[candidate.applicationId] = interviewerId;
+    
+    // Get the interviewer name for display
+    const interviewer = this.interviewers.find(i => i.id === interviewerId);
+    const interviewerName = interviewer ? interviewer.userName : 'Unknown';
+
+    this.jobPostingService.assignInterviewer(candidate.applicationId, interviewerId)
+      .subscribe({
+        next: () => {
+          this.snackBar.open(
+            `Assigned ${interviewerName} to ${candidate.name}`,
+            'Close',
+            { duration: 3000 }
+          );
+        },
+        error: (error) => {
+          console.error('Error assigning interviewer:', error);
+          this.snackBar.open(
+            `Failed to assign interviewer. Please try again.`,
+            'Close',
+            { duration: 3000 }
+          );
+        }
+      });
+  }
+
+  /**
+   * Get the currently selected interviewer for a candidate
+   */
+  getSelectedInterviewer(candidate: Candidate): string {
+    return candidate.applicationId ? 
+      this.selectedInterviewers[candidate.applicationId] || '' : '';
+  }
 }
