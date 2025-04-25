@@ -1241,6 +1241,17 @@ export class JobComponent implements OnInit {
     const currentIndex = stages.indexOf(candidate.stage);
 
     if (currentIndex < stages.length - 1) {
+      // Check if we're moving from 'select_interviewer' stage and ensure an interviewer is assigned
+      if (candidate.stage === 'select_interviewer' && 
+          (!candidate.applicationId || !this.selectedInterviewers[candidate.applicationId])) {
+        this.snackBar.open(
+          'Please select an interviewer before moving the candidate forward',
+          'Close',
+          { duration: 3000 }
+        );
+        return;
+      }
+
       const newStage = stages[currentIndex + 1];
       const originalStage = candidate.stage; // Store original stage for rollback if needed
       
@@ -1518,32 +1529,69 @@ export class JobComponent implements OnInit {
   }
 
   /**
-   * Assign an interviewer to a candidate
+   * Assign an interviewer to a candidate and create an interview
    */
   assignInterviewer(candidate: Candidate, interviewerId: string): void {
-    if (!candidate.applicationId || !interviewerId) {
+    if (!candidate.applicationId || !interviewerId || !candidate.candidateId) {
       this.snackBar.open('Missing required data to assign interviewer', 'Close', { duration: 3000 });
       return;
     }
 
+    // At this point, we've verified that candidateId exists
+    const candidateId = candidate.candidateId as string;
+    const applicationId = candidate.applicationId;
+    const originalStage = candidate.stage;
+    
     // Store the selection in our local tracking object
-    this.selectedInterviewers[candidate.applicationId] = interviewerId;
+    this.selectedInterviewers[applicationId] = interviewerId;
     
     // Get the interviewer name for display
     const interviewer = this.interviewers.find(i => i.id === interviewerId);
     const interviewerName = interviewer ? interviewer.userName : 'Unknown';
 
-    this.jobPostingService.assignInterviewer(candidate.applicationId, interviewerId)
+    // Create interview instead of just assigning the interviewer
+    this.jobPostingService.createInterview(applicationId, interviewerId, candidateId, this.selectedJob?.id.toString() || '')
       .subscribe({
-        next: () => {
-          this.snackBar.open(
-            `Assigned ${interviewerName} to ${candidate.name}`,
-            'Close',
-            { duration: 3000 }
-          );
+        next: (response) => {
+          console.log('Interview created successfully:', response);
+          
+          // Optimistically update the UI
+          const newStage: Candidate['stage'] = 'interviewed';
+          candidate.stage = newStage;
+          
+          // Update the application status to interviewed since we've scheduled an interview
+          this.jobPostingService.updateJobApplicationStatus(
+            applicationId, 
+            {
+              id: applicationId,
+              jobId: this.selectedJob?.id.toString() || '',
+              candidateId: candidateId,
+              status: this.getApiStatusFromStage(newStage),
+              coverLetter: candidate.coverLetter || ''
+            }
+          ).subscribe({
+            next: () => {
+              this.snackBar.open(
+                `Assigned ${interviewerName} to ${candidate.name} and scheduled an interview`,
+                'Close',
+                { duration: 3000 }
+              );
+            },
+            error: (err) => {
+              // Rollback the optimistic update on error
+              candidate.stage = originalStage;
+              console.error('Error updating application status after interview creation:', err);
+              // We've already created the interview, so we'll consider this a partial success
+              this.snackBar.open(
+                `Assigned ${interviewerName} to ${candidate.name} but status update failed`,
+                'Close',
+                { duration: 3000 }
+              );
+            }
+          });
         },
         error: (error) => {
-          console.error('Error assigning interviewer:', error);
+          console.error('Error creating interview:', error);
           this.snackBar.open(
             `Failed to assign interviewer. Please try again.`,
             'Close',

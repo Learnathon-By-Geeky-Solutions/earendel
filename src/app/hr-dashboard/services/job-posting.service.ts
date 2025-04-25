@@ -491,4 +491,49 @@ export class JobPostingService {
         })
       );
   }
+
+  /**
+   * Create an interview for a job application with an assigned interviewer
+   * @param applicationId The ID of the job application
+   * @param interviewerId The ID of the interviewer to assign
+   */
+  createInterview(applicationId: string, interviewerId: string, candidateId: string, jobId: string): Observable<any> {
+    const token = sessionStorage.getItem('token');
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json'
+    };
+    
+    if (token) {
+      headers['Authorization'] = `Bearer ${token}`;
+    }
+
+    // Set the interview date to tomorrow
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    
+    // Prepare the interview request payload
+    const payload = {
+      applicationId: applicationId,
+      interviewerId: interviewerId,
+      candidateId: candidateId,
+      jobId: jobId,
+      interviewDate: tomorrow.toISOString(),
+      status: "Pending",
+      notes: null,
+      meetingId: "to-be-generated" // This will be generated/updated by the interviewer
+    };
+    
+    const url = `${endpoint.interviewsUrl}`;
+    
+    console.log('[JobPostingService] Creating interview with payload:', payload);
+    
+    return this.http.post(url, payload, { headers })
+      .pipe(
+        tap(response => console.log('[JobPostingService] Interview created successfully:', response)),
+        catchError(err => {
+          console.error('[JobPostingService] Error creating interview:', err);
+          return throwError(() => err);
+        })
+      );
+  }
 } 
