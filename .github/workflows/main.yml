@@ -25,7 +25,7 @@ jobs:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
           password: ${{ secrets.SERVER_PASSWORD }}
-          script_timeout: 1000
+          script_timeout: 2000
           script: |
             mkdir -p /root/Learnathon/earendel/backend
             echo "${{ secrets._APPSETTINGS }}" | base64 --decode > /root/Learnathon/earendel/backend/Api/Server/appsettings.json
