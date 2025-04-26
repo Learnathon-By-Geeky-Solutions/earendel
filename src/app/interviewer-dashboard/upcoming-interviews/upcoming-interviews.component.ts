@@ -28,197 +28,8 @@ interface ProcessedInterview extends InterviewRequest {
   selector: 'app-upcoming-interviews',
   standalone: true,
   imports: [CommonModule, RouterModule, SidebarComponent, PaginationComponent],
-  template: `
-    <div class="d-flex">
-      <app-sidebar> </app-sidebar>
-      <div class="container-fluid py-4">
-        <h1 class="h3 mb-2">Upcoming Interviews</h1>
-        <p class="text-muted mb-4">
-          You have {{ totalItems }} upcoming interviews
-        </p>
-
-        <!-- Loading state -->
-        <div *ngIf="isLoading" class="text-center py-5">
-          <div class="spinner-border text-primary" role="status">
-            <span class="visually-hidden">Loading...</span>
-          </div>
-          <p class="mt-3 text-muted">Loading your upcoming interviews...</p>
-        </div>
-
-        <!-- Error state -->
-        <div *ngIf="error && !isLoading" class="alert alert-danger">
-          <i class="bi bi-exclamation-triangle-fill me-2"></i>
-          {{ error }}
-          <button class="btn btn-sm btn-outline-danger ms-3" (click)="loadInterviews()">Try Again</button>
-        </div>
-
-        <!-- No data state -->
-        <div *ngIf="!isLoading && !error && interviews.length === 0" class="text-center py-5">
-          <i class="bi bi-calendar-x fs-1 text-muted mb-3"></i>
-          <p class="lead">No upcoming interviews found</p>
-          <p class="text-muted">When you accept interview requests, they will appear here.</p>
-        </div>
-
-        <!-- Data state -->
-        <div class="card border-2 shadow-md" *ngIf="!isLoading && !error && interviews.length > 0">
-          <div class="card-body p-0">
-            <div class="table-responsive">
-              <table class="table table-hover mb-0">
-                <thead>
-                  <tr>
-                    <th class="ps-4">Candidate</th>
-                    <th>Role</th>
-                    <th>Company</th>
-                    <th>Date</th>
-                    <th>Time</th>
-                    <th class="pe-4">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr *ngFor="let interview of paginatedInterviews">
-                    <td class="ps-4">{{ interview.candidate }}</td>
-                    <td>{{ interview.role }}</td>
-                    <td>{{ interview.company }}</td>
-                    <td>{{ interview.date }}</td>
-                    <td>{{ interview.time }}</td>
-                    <td class="pe-4">
-                      <div class="d-flex gap-2">
-                        <button class="btn btn-outline-dark btn-sm" (click)="viewDetails(interview)">
-                          View Details
-                        </button>
-                        <button 
-                          *ngIf="hasValidMeeting(interview)" 
-                          class="btn btn-primary btn-sm" 
-                          (click)="joinZoomMeeting(interview, $event)">
-                          Join Meeting
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-            <div class="border-top">
-              <app-pagination
-                [currentPage]="currentPage"
-                [pageSize]="pageSize"
-                [totalItems]="totalItems"
-                (pageChange)="onPageChange($event)"
-              ></app-pagination>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Interview Details Modal -->
-    <div class="modal fade" [class.show]="showDetailsModal" [class.d-block]="showDetailsModal" tabindex="-1" role="dialog">
-      <div class="modal-dialog modal-dialog-centered" role="document">
-        <div class="modal-content" *ngIf="selectedInterview">
-          <div class="modal-header">
-            <h5 class="modal-title">Interview Details</h5>
-            <button type="button" class="btn-close" (click)="closeDetailsModal()"></button>
-          </div>
-          <div class="modal-body">
-            <div class="mb-3">
-              <h6 class="fw-bold mb-1">Candidate</h6>
-              <p>{{ selectedInterview.candidate }}</p>
-            </div>
-            <div class="mb-3">
-              <h6 class="fw-bold mb-1">Role</h6>
-              <p>{{ selectedInterview.role }}</p>
-            </div>
-            <div class="mb-3">
-              <h6 class="fw-bold mb-1">Company</h6>
-              <p>{{ selectedInterview.company }}</p>
-            </div>
-            <div class="mb-3">
-              <h6 class="fw-bold mb-1">Date & Time</h6>
-              <p>{{ selectedInterview.date }} at {{ selectedInterview.time }}</p>
-            </div>
-            <div class="mb-3" *ngIf="selectedInterview.description">
-              <h6 class="fw-bold mb-1">Job Description</h6>
-              <p class="text-muted">{{ selectedInterview.description }}</p>
-            </div>
-            <div class="mb-3" *ngIf="selectedInterview.requirements">
-              <h6 class="fw-bold mb-1">Requirements</h6>
-              <p class="text-muted">{{ selectedInterview.requirements }}</p>
-            </div>
-            <div class="mb-3" *ngIf="selectedInterview.experienceLevel">
-              <h6 class="fw-bold mb-1">Experience Level</h6>
-              <p class="text-muted">{{ selectedInterview.experienceLevel }}</p>
-            </div>
-          </div>
-          <div class="modal-footer">
-            <button 
-              *ngIf="hasValidMeeting(selectedInterview)" 
-              class="btn btn-primary" 
-              (click)="joinZoomMeeting(selectedInterview, $event)">
-              Join Meeting
-            </button>
-            <button type="button" class="btn btn-outline-secondary" (click)="closeDetailsModal()">Close</button>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="modal-backdrop fade" [class.show]="showDetailsModal" *ngIf="showDetailsModal"></div>
-  `,
-  styles: [
-    `
-      .nav-link {
-        color: #666;
-        transition: all 0.3s;
-      }
-      .nav-link:hover,
-      .nav-link.active {
-        background-color: #f8f9fa;
-        color: #000;
-      }
-      .card {
-        transition: transform 0.2s;
-      }
-      .card:hover {
-        transform: translateY(-2px);
-      }
-      .activity-icon {
-        width: 40px;
-        height: 40px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-      }
-      .upcoming-interviews {
-        max-height: 300px;
-        overflow-y: auto;
-      }
-      .table {
-        margin-bottom: 0;
-      }
-      .table th {
-        border-top: none;
-        border-bottom-width: 1px;
-        font-weight: 500;
-        text-transform: uppercase;
-        font-size: 0.75rem;
-        color: #6c757d;
-        padding: 1rem;
-      }
-      .table td {
-        padding: 1rem;
-        vertical-align: middle;
-      }
-      .btn-outline-dark {
-        border-color: #dee2e6;
-      }
-      .btn-outline-dark:hover {
-        background-color: #000;
-        border-color: #000;
-      }
-      .modal-backdrop.show {
-        opacity: 0.5;
-      }
-    `,
-  ],
+  templateUrl: './upcoming-interviews.component.html',
+  styleUrls: ['./upcoming-interviews.component.css']
 })
 export class UpcomingInterviewsComponent implements OnInit {
   interviews: ProcessedInterview[] = [];
@@ -245,6 +56,12 @@ export class UpcomingInterviewsComponent implements OnInit {
     this.isLoading = true;
     this.error = null;
     
+    // Add refresh animation to button if it exists
+    const refreshBtn = document.querySelector('.refresh-btn i');
+    if (refreshBtn) {
+      refreshBtn.classList.add('spinning');
+    }
+    
     this.interviewerService.getAcceptedInterviews().subscribe({
       next: (data) => {
         // Process the interviews to add formatted date and time
@@ -260,11 +77,23 @@ export class UpcomingInterviewsComponent implements OnInit {
         this.totalItems = this.interviews.length;
         this.updatePaginatedInterviews();
         this.isLoading = false;
+        
+        // Remove spinning animation
+        if (refreshBtn) {
+          setTimeout(() => {
+            refreshBtn.classList.remove('spinning');
+          }, 500);
+        }
       },
       error: (err) => {
         console.error('Error loading interviews:', err);
         this.error = 'Failed to load upcoming interviews. Please try again later.';
         this.isLoading = false;
+        
+        // Remove spinning animation
+        if (refreshBtn) {
+          refreshBtn.classList.remove('spinning');
+        }
       }
     });
   }
