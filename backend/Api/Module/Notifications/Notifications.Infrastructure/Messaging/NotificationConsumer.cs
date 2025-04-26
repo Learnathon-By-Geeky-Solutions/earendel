@@ -12,6 +12,8 @@ using TalentMesh.Framework.Infrastructure.Messaging;
 using TalentMesh.Framework.Infrastructure.Common;
 using TalentMesh.Module.Notifications.Infrastructure.Persistence;
 using TalentMesh.Module.Notifications.Domain;
+using TalentMesh.Framework.Infrastructure.Identity.Users;
+using Microsoft.AspNetCore.Identity;
 
 namespace TalentMesh.Module.Notifications.Infrastructure.Messaging
 {
@@ -29,25 +31,50 @@ namespace TalentMesh.Module.Notifications.Infrastructure.Messaging
         protected override async Task ProcessDomainMessage(NotificationMessage message, IServiceScope scope, CancellationToken stoppingToken)
         {
             var dbContext = scope.ServiceProvider.GetRequiredService<NotificationsDbContext>();
+            var userManager = scope.ServiceProvider.GetRequiredService<UserManager<TMUser>>(); // Replace YourUserClass with your actual IdentityUser class
 
-            if (!Guid.TryParse(message.UserId, out var userIdGuid))
+            if (message.UserId == "admin")
             {
-                return;
+                // Fetch all admin users
+                var admins = await userManager.GetUsersInRoleAsync("Admin");
+
+                foreach (var admin in admins)
+                {
+                    if (!Guid.TryParse(admin.Id, out var adminUserIdGuid))
+                    {
+                        continue; // Skip if cannot parse
+                    }
+
+                    var notificationForAdmin = Notification.Create(
+                        adminUserIdGuid,
+                        message.Entity,
+                        message.EntityType,
+                        message.Message
+                    );
+
+                    await dbContext.Notifications.AddAsync(notificationForAdmin, stoppingToken);
+                }
+            }
+            else
+            {
+                if (!Guid.TryParse(message.UserId, out var userIdGuid))
+                {
+                    return;
+                }
+
+                var notificationInfo = Notification.Create(
+                    userIdGuid,
+                    message.Entity,
+                    message.EntityType,
+                    message.Message
+                );
+
+                await dbContext.Notifications.AddAsync(notificationInfo, stoppingToken);
             }
 
-            var notificationInfo = Notification.Create(
-                userIdGuid,
-                message.Entity,
-                message.EntityType,
-                message.Message);
-
-            await dbContext.Notifications.AddAsync(notificationInfo, stoppingToken);
-
-            // Persist changes to the database (insert the notification)
+            // Persist all notifications at once
             await dbContext.SaveChangesAsync(stoppingToken);
-
         }
-
         protected override Guid GetRequestedBy(NotificationMessage message) => message.RequestedBy;
     }
 

@@ -78,7 +78,7 @@ namespace TalentMesh.Module.HRView.HRFunc // Or your preferred namespace
 
             var notificationMessage = new
             {
-                UserId = "34a12d68-9d87-4ef6-95fe-53bd6f5d3b97",
+                UserId = "admin",
                 Entity = "Job",
                 EntityType = "Job",
                 Message = $"{request.PostedBy} post a new job",
