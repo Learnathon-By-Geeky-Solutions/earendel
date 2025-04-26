@@ -1,8 +1,9 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable, of, forkJoin } from 'rxjs';
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
+import { Observable, of, forkJoin, throwError } from 'rxjs';
 import { map, catchError, switchMap } from 'rxjs/operators';
 import { endpoint } from '../../endpoints/endpoint';
+import { environment } from '../../../environments/environment';
 
 export interface InterviewSearchParams {
   pageNumber?: number;
@@ -60,6 +61,8 @@ export interface InterviewRequest {
   requirements?: string;
   experienceLevel?: string;
   postedBy?: string;
+  meetingId?: string;  // Zoom meeting ID
+  interviewerId?: string; // Interviewer ID for Zoom meeting URL
 }
 
 export interface AvailabilitySlot {
@@ -224,6 +227,80 @@ export class InterviewerService {
   }
   
   /**
+   * Get accepted interview requests for the current user
+   */
+  getAcceptedInterviews(): Observable<InterviewRequest[]> {
+    const userId = this.getUserId();
+    
+    if (!userId) {
+      // Return empty array if no user ID is found
+      console.error('No user ID found in session');
+      return of([]);
+    }
+    
+    const params: InterviewSearchParams = {
+      interviewerId: userId,
+      status: 'Accepted',
+      pageNumber: 1,
+      pageSize: 100
+    };
+    
+    return this.searchInterviews(params).pipe(
+      switchMap(response => {
+        // Create an array of observables for each interview to fetch job details
+        const interviewsWithJobDetails$ = response.items.map(interview => {
+          if (interview.jobId) {
+            // If there's a jobId, fetch the job details
+            return this.getJobDetails(interview.jobId).pipe(
+              map(jobDetails => ({
+                interview,
+                jobDetails
+              }))
+            );
+          } else {
+            // If no jobId, just return the interview with null job details
+            return of({
+              interview,
+              jobDetails: null
+            });
+          }
+        });
+        
+        // Wait for all job details to be fetched
+        return interviewsWithJobDetails$.length > 0 
+          ? forkJoin(interviewsWithJobDetails$) 
+          : of([]);
+      }),
+      map(interviewsWithDetails => {
+        // Transform the combined data to the format expected by the component
+        return interviewsWithDetails.map(({ interview, jobDetails }) => {
+          // Create the interview request object with job details if available
+          const interviewRequest: InterviewRequest = {
+            id: interview.id,
+            candidate: interview.candidate || `Candidate (${interview.applicationId.substring(0, 8)})`,
+            role: jobDetails?.name || interview.role || 'Position not specified',
+            company: jobDetails?.postedById || interview.company || 'Posted by not specified',
+            requestedDate: interview.interviewDate, // Keep the original ISO string for proper parsing
+            status: interview.status.toLowerCase(),
+            meetingId: interview.meetingId, // Include the meetingId
+            interviewerId: interview.interviewerId || userId // Include the interviewerId
+          };
+          
+          // Add job details if available
+          if (jobDetails) {
+            interviewRequest.description = jobDetails.description;
+            interviewRequest.requirements = jobDetails.requirments;
+            interviewRequest.experienceLevel = jobDetails.experienceLevel;
+            interviewRequest.postedBy = jobDetails.postedById;
+          }
+          
+          return interviewRequest;
+        });
+      })
+    );
+  }
+  
+  /**
    * Get available time slots for the interviewer
    * Groups time slots by date and returns them in the format expected by the component
    */
@@ -356,6 +433,63 @@ export class InterviewerService {
       console.error('Error retrieving user ID:', error);
       return null;
     }
+  }
+  
+  /**
+   * Update interview with selected time
+   * @param interviewId The ID of the interview to update
+   * @param interviewDate The selected interview date and time in ISO format (UTC)
+   * @returns An Observable that emits the API response
+   */
+  updateInterview(interviewId: string, interviewDate: string): Observable<any> {
+    if (!interviewId) {
+      console.error('No interview ID provided');
+      return throwError(() => new Error('Interview ID is required'));
+    }
+
+    const headers = this.getAuthHeaders();
+    const url = `${endpoint.interviewSearchUrl.replace('/search', '')}/${interviewId}`;
+    
+    // First get the current interview data to ensure we have all required fields
+    return this.http.get<any>(`${url}`, { headers }).pipe(
+      switchMap(currentInterview => {
+        // Create the payload with updated interview date and status
+        // Maintain all existing fields except for the ones we're updating
+        const updateData = {
+          ...currentInterview,
+          interviewDate,
+          status: 'Accepted'
+        };
+        
+        console.log(`Updating interview ID: ${interviewId}`);
+        console.log(`New interview date (UTC): ${interviewDate}`);
+        console.log('Update payload:', JSON.stringify(updateData));
+        
+        // Make PUT request to update the interview
+        return this.http.put(url, updateData, { 
+          headers,
+          observe: 'response' // Get full response with status
+        }).pipe(
+          map(response => {
+            console.log('Update successful:', response.status);
+            return response.body;
+          }),
+          catchError(error => {
+            console.error('Error updating interview:', error);
+            console.error('Request payload:', JSON.stringify(updateData));
+            console.error('Response status:', error.status);
+            console.error('Response body:', error.error);
+            
+            // Rethrow with more context
+            return throwError(() => new Error(`Failed to update interview: ${error.message || error.status}`));
+          })
+        );
+      }),
+      catchError(error => {
+        console.error(`Error fetching interview details for ID ${interviewId}:`, error);
+        return throwError(() => new Error(`Failed to get interview details: ${error.message || error.status}`));
+      })
+    );
   }
   
   /* Placeholder to avoid errors */

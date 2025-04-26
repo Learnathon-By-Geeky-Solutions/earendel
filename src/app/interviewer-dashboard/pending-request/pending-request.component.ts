@@ -42,6 +42,11 @@ export class PendingRequestComponent implements OnInit {
   selectedInterview: string | null = null;
   selectedDateSlot: string | null = null;
   openDates: Record<string, boolean> = {};
+  
+  // Confirmation state
+  isConfirming: boolean = false;
+  confirmationMessage: string | null = null;
+  confirmationError: string | null = null;
 
   constructor(private interviewerService: InterviewerService) { }
 
@@ -119,9 +124,13 @@ export class PendingRequestComponent implements OnInit {
   }
 
   closeDialog(): void {
+    // Reset all state
     this.isDialogOpen = false;
     this.selectedInterview = null;
     this.selectedDateSlot = null;
+    this.isConfirming = false;
+    this.confirmationMessage = null;
+    this.confirmationError = null;
   }
 
   toggleDateCollapsible(date: string): void {
@@ -135,6 +144,11 @@ export class PendingRequestComponent implements OnInit {
   handleConfirm(): void {
     if (!this.selectedDateSlot) return;
 
+    // Reset confirmation state
+    this.isConfirming = true;
+    this.confirmationMessage = null;
+    this.confirmationError = null;
+
     // Parse the selected value to get date and slot ID
     const [date, slotId] = this.selectedDateSlot.split('|');
 
@@ -143,17 +157,61 @@ export class PendingRequestComponent implements OnInit {
     const selectedSlot = selectedDate?.slots.find(s => s.id.toString() === slotId);
 
     if (selectedDate && selectedSlot) {
-      // Here you would handle the API call to accept the interview
-      console.log(
-        `Accepting interview ${this.selectedInterview} on ${this.formatFullDate(selectedDate.date)} from ${this.formatTime(selectedSlot.start)} to ${this.formatTime(selectedSlot.end)}`
-      );
-      
-      // TODO: Implement the API call to update the interview status to Accepted
-      // this.interviewerService.acceptInterview(this.selectedInterview, { date, slotId })
-      //   .subscribe(...)
+      try {
+        // Get the hours and minutes from the selected time slot
+        const [hours, minutes] = selectedSlot.start.split(':').map(Number);
+        
+        // Create a new Date object with the selected date
+        const interviewDateTime = new Date(selectedDate.date);
+        
+        // Set hours and minutes
+        interviewDateTime.setHours(hours, minutes, 0, 0);
+        
+        // Convert to UTC ISO string format required by the API
+        const interviewDateUTC = interviewDateTime.toISOString();
+        
+        console.log(`Selected interview date: ${selectedDate.date}`);
+        console.log(`Selected time slot: ${selectedSlot.start}-${selectedSlot.end}`);
+        console.log(`Converted to UTC: ${interviewDateUTC}`);
+        
+        if (!this.selectedInterview) {
+          this.confirmationError = 'No interview selected. Please try again.';
+          this.isConfirming = false;
+          return;
+        }
+        
+        // Call the API to update the interview with the selected time
+        this.interviewerService.updateInterview(this.selectedInterview, interviewDateUTC)
+          .subscribe({
+            next: (response) => {
+              console.log('Interview successfully scheduled:', response);
+              this.confirmationMessage = 'Interview scheduled successfully!';
+              
+              // Wait a moment to show the success message before closing
+              setTimeout(() => {
+                // Close the dialog
+                this.closeDialog();
+                // Refresh the interview list
+                this.loadInterviews();
+              }, 1500);
+            },
+            error: (error) => {
+              console.error('Error scheduling interview:', error);
+              // Show a more descriptive error message
+              this.confirmationError = `Failed to schedule interview: ${error.message || 'Server error'}`;
+              this.isConfirming = false;
+            }
+          });
+      } catch (err: any) {
+        console.error('Error processing date/time:', err);
+        this.confirmationError = `Invalid date format: ${err.message}`;
+        this.isConfirming = false;
+      }
+    } else {
+      console.error('Invalid date or time slot selected');
+      this.confirmationError = 'Invalid date or time slot selected.';
+      this.isConfirming = false;
     }
-
-    this.closeDialog();
   }
 
   formatDate(dateString: string): string {

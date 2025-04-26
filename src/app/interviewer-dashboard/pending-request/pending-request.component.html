@@ -214,11 +214,26 @@
                 </div>
             </div>
             <div class="modal-footer border-top-0">
-                <button type="button" class="btn btn-outline-secondary" (click)="closeDialog()">Cancel</button>
-                <button type="button" class="btn btn-primary px-4" [disabled]="!selectedDateSlot || isLoadingTimeSlots"
-                    (click)="handleConfirm()">
-                    Confirm Time
+                <button type="button" class="btn btn-outline-secondary" [disabled]="isConfirming"
+                    (click)="closeDialog()">Cancel</button>
+                <button type="button" class="btn btn-primary px-4"
+                    [disabled]="!selectedDateSlot || isLoadingTimeSlots || isConfirming" (click)="handleConfirm()">
+                    <span *ngIf="!isConfirming">Confirm Time</span>
+                    <span *ngIf="isConfirming">
+                        <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                        Confirming...
+                    </span>
                 </button>
+            </div>
+
+            <!-- Success/Error Messages -->
+            <div *ngIf="confirmationMessage" class="alert alert-success mt-3 mx-3 mb-0">
+                <i class="bi bi-check-circle-fill me-2"></i>
+                {{ confirmationMessage }}
+            </div>
+            <div *ngIf="confirmationError" class="alert alert-danger mt-3 mx-3 mb-0">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                {{ confirmationError }}
             </div>
         </div>
     </div>
