@@ -100,13 +100,33 @@ export class UpcomingInterviewsComponent implements OnInit {
 
   parseInterviewDate(dateString: string): { date: string, time: string } {
     try {
-      // Create a date object from the ISO string
+      if (!dateString) {
+        throw new Error('No date provided');
+      }
+
+      // Parse the ISO date string
       const date = new Date(dateString);
+      if (isNaN(date.getTime())) {
+        throw new Error('Invalid date');
+      }
       
-      // Format date and time for display in local timezone
+      // Format date as "Month DD, YYYY" in UTC
+      const month = date.toLocaleString('en-US', { month: 'long', timeZone: 'UTC' });
+      const day = date.getUTCDate();
+      const year = date.getUTCFullYear();
+      const formattedDate = `${month} ${day}, ${year}`;
+      
+      // Format time as "h:mm AM/PM" in UTC (12-hour format)
+      let hours = date.getUTCHours();
+      const minutes = date.getUTCMinutes().toString().padStart(2, '0');
+      const ampm = hours >= 12 ? 'PM' : 'AM';
+      hours = hours % 12;
+      hours = hours ? hours : 12; // Convert 0 to 12 for 12 AM
+      const formattedTime = `${hours}:${minutes} ${ampm}`;
+      
       return {
-        date: formatDate(date, 'MMM d, yyyy', 'en-US'),
-        time: formatDate(date, 'h:mm a', 'en-US')
+        date: formattedDate,
+        time: formattedTime
       };
     } catch (error) {
       console.error('Error parsing date:', error);
