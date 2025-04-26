@@ -1,7 +1,10 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.SignalR;
 using TalentMesh.Framework.Core.Identity.Users.Abstractions;
 using TalentMesh.Framework.Infrastructure.Identity.Users.Services;
+using TalentMesh.Framework.Infrastructure.Messaging;
+using TalentMesh.Framework.Infrastructure.SignalR;
 using TalentMesh.Module.Job.Domain;
 using TalentMesh.Module.Job.Infrastructure.Persistence; // For IResult and Results
 
@@ -10,13 +13,18 @@ namespace TalentMesh.Module.HRView.HRFunc // Or your preferred namespace
     public class CreateJobCommandHandler : IRequestHandler<CreateJobCommand, IResult>
     {
         private readonly JobDbContext _context;
+        private readonly IMessageBus _messageBus;
         private readonly IExternalApiClient _apiClient;
+        private readonly IHubContext<NotificationHub> _hubContext;
 
-        public CreateJobCommandHandler(JobDbContext context, IExternalApiClient apiClient)
+        public CreateJobCommandHandler(JobDbContext context, IMessageBus messageBus, IExternalApiClient apiClient, IHubContext<NotificationHub> hubContext)
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
 
             _apiClient = apiClient ?? throw new ArgumentNullException(nameof(apiClient));
+            _hubContext = hubContext ?? throw new ArgumentNullException(nameof(hubContext));
+
+            _messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
         }
 
         public async Task<IResult> Handle(CreateJobCommand request, CancellationToken cancellationToken)
@@ -67,6 +75,19 @@ namespace TalentMesh.Module.HRView.HRFunc // Or your preferred namespace
 
             // Job ID For SSLCommerz Payment, amount = Number of Interviews * 1000
             string gatewayPageURL = await _apiClient.InitiateSslCommerzPaymentAsync(newJob.Id.ToString(), request.Salary!, cancellationToken);
+
+            var notificationMessage = new
+            {
+                UserId = "34a12d68-9d87-4ef6-95fe-53bd6f5d3b97",
+                Entity = "Job",
+                EntityType = "Job",
+                Message = $"{request.PostedBy} post a new job",
+                RequestedBy = newJob.Id
+            };
+
+            await _messageBus.PublishAsync(notificationMessage, "notification.events", "notification.fetched", cancellationToken);
+
+            await _hubContext.Clients.Group("admin").SendAsync("SystemAlert", "A new job post is created by a HR", cancellationToken);
 
             // 6. Return the ID of the newly created job
             // Consider returning StatusCodes.Status201Created with the location header

@@ -16,24 +16,33 @@ namespace TalentMesh.Framework.Infrastructure.SignalR
     public class NotificationHub : Hub
     {
         private readonly ILogger<NotificationHub> _logger;
+        private readonly UserManager<TMUser> _userManager; // 👈 Add UserManager
 
-        public NotificationHub(ILogger<NotificationHub> logger)
+
+        public NotificationHub(ILogger<NotificationHub> logger, UserManager<TMUser> userManager)
         {
             _logger = logger;
+            _userManager = userManager;
         }
 
         public override async Task OnConnectedAsync()
         {
             var user = Context.User;
             var userId = Context.UserIdentifier;
-            
-            if (user != null && user!.Claims.Any(c => c.Value == "Admin"))
+            var appUser = await _userManager.FindByIdAsync(userId!);
+
+            var roles = await _userManager.GetRolesAsync(appUser!); 
+
+            if (roles.Contains("Admin"))
             {
+                
                 _logger.LogInformation("Admin is connected");
                 await Groups.AddToGroupAsync(Context.ConnectionId, "admin");
+                await Groups.AddToGroupAsync(Context.ConnectionId, $"user:{userId}");
             }
             else if (userId != null)
             {
+                _logger.LogInformation("User is connected");
                 await Groups.AddToGroupAsync(Context.ConnectionId, $"user:{userId}");
             }
 
