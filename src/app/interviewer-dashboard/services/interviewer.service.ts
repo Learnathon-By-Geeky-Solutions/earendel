@@ -301,6 +301,88 @@ export class InterviewerService {
   }
   
   /**
+   * Get past interviews for the current user
+   * Returns interviews that have already occurred (interview date is in the past)
+   */
+  getPastInterviews(): Observable<InterviewRequest[]> {
+    const userId = this.getUserId();
+    
+    if (!userId) {
+      // Return empty array if no user ID is found
+      console.error('No user ID found in session');
+      return of([]);
+    }
+    
+    const params: InterviewSearchParams = {
+      interviewerId: userId,
+      status: 'Accepted',
+      pageNumber: 1,
+      pageSize: 100
+    };
+    
+    return this.searchInterviews(params).pipe(
+      switchMap(response => {
+        // Create an array of observables for each interview to fetch job details
+        const interviewsWithJobDetails$ = response.items.map(interview => {
+          if (interview.jobId) {
+            // If there's a jobId, fetch the job details
+            return this.getJobDetails(interview.jobId).pipe(
+              map(jobDetails => ({
+                interview,
+                jobDetails
+              }))
+            );
+          } else {
+            // If no jobId, just return the interview with null job details
+            return of({
+              interview,
+              jobDetails: null
+            });
+          }
+        });
+        
+        // Wait for all job details to be fetched
+        return interviewsWithJobDetails$.length > 0 
+          ? forkJoin(interviewsWithJobDetails$) 
+          : of([]);
+      }),
+      map(interviewsWithDetails => {
+        const now = new Date();
+        
+        // Filter to only include past interviews and transform the data
+        return interviewsWithDetails
+          .filter(({ interview }) => {
+            const interviewDate = new Date(interview.interviewDate);
+            return interviewDate < now;
+          })
+          .map(({ interview, jobDetails }) => {
+            // Create the interview request object with job details if available
+            const interviewRequest: InterviewRequest = {
+              id: interview.id,
+              candidate: interview.candidate || `Candidate (${interview.applicationId.substring(0, 8)})`,
+              role: jobDetails?.name || interview.role || 'Position not specified',
+              company: jobDetails?.postedById || interview.company || 'Posted by not specified',
+              requestedDate: interview.interviewDate, // Keep the original ISO string for proper parsing
+              status: interview.status.toLowerCase(),
+              meetingId: interview.meetingId, // Include the meetingId
+              interviewerId: interview.interviewerId || userId // Include the interviewerId
+            };
+            
+            // Add job details if available
+            if (jobDetails) {
+              interviewRequest.description = jobDetails.description;
+              interviewRequest.requirements = jobDetails.requirments;
+              interviewRequest.experienceLevel = jobDetails.experienceLevel;
+              interviewRequest.postedBy = jobDetails.postedById;
+            }
+            
+            return interviewRequest;
+          });
+      })
+    );
+  }
+  
+  /**
    * Get available time slots for the interviewer
    * Groups time slots by date and returns them in the format expected by the component
    */
