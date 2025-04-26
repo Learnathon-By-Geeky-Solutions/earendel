@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, of } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { map, catchError } from 'rxjs/operators';
 import { endpoint } from '../../endpoints/endpoint';
 
 export interface InterviewSearchParams {
@@ -44,9 +44,39 @@ export interface InterviewRequest {
 }
 
 export interface AvailabilitySlot {
-  id?: number;
+  id?: number | string;
   startTime: string;
   endTime: string;
+}
+
+export interface TimeSlot {
+  id: number | string;
+  start: string;
+  end: string;
+}
+
+export interface AvailableDate {
+  date: string;
+  dayOfWeek: string;
+  slots: TimeSlot[];
+}
+
+export interface AvailabilityResponse {
+  items: AvailabilityItem[];
+  pageNumber: number;
+  pageSize: number;
+  totalCount: number;
+  totalPages: number;
+  hasPrevious: boolean;
+  hasNext: boolean;
+}
+
+export interface AvailabilityItem {
+  id: string;
+  interviewerId: string;
+  startTime: string;
+  endTime: string;
+  isAvailable: boolean;
 }
 
 @Injectable({
@@ -68,7 +98,13 @@ export class InterviewerService {
       params.interviewerId = userId;
     }
     
-    return this.http.post<InterviewResponse>(endpoint.interviewSearchUrl, params);
+    return this.http.post<InterviewResponse>(endpoint.interviewSearchUrl, params)
+      .pipe(
+        catchError(error => {
+          console.error('Error searching interviews:', error);
+          return of({ items: [], pageNumber: 1, pageSize: 10, totalCount: 0, totalPages: 0, hasPrevious: false, hasNext: false });
+        })
+      );
   }
   
   /**
@@ -110,10 +146,123 @@ export class InterviewerService {
       })
     );
   }
+  
+  /**
+   * Get available time slots for the interviewer
+   * Groups time slots by date and returns them in the format expected by the component
+   */
+  getAvailableTimeSlots(): Observable<AvailableDate[]> {
+    const userId = this.getUserId();
+    
+    if (!userId) {
+      console.error('No user ID found in session');
+      return of([]);
+    }
+    
+    const request = {
+      pageNumber: 1,
+      pageSize: 1000,
+      interviewerId: userId,
+      isAvailable: true
+    };
+    
+    const headers = this.getAuthHeaders();
+    
+    return this.http.post<AvailabilityResponse>(
+      endpoint.interviewerAvailabilitySearchUrl, 
+      request, 
+      { headers }
+    ).pipe(
+      map(response => this.transformAvailabilityData(response.items)),
+      catchError(error => {
+        console.error('Error fetching availability slots:', error);
+        return of([]);
+      })
+    );
+  }
+  
+  /**
+   * Transform availability data from API to the format expected by the component
+   */
+  private transformAvailabilityData(items: AvailabilityItem[]): AvailableDate[] {
+    // Group slots by date
+    const slotsByDate: Record<string, AvailabilityItem[]> = {};
+    
+    // Process all slots
+    items.forEach(slot => {
+      const startDate = new Date(slot.startTime);
+      const dateKey = startDate.toISOString().split('T')[0]; // YYYY-MM-DD format
+      
+      if (!slotsByDate[dateKey]) {
+        slotsByDate[dateKey] = [];
+      }
+      
+      slotsByDate[dateKey].push(slot);
+    });
+    
+    // Convert to array format
+    return Object.keys(slotsByDate).map(dateKey => {
+      const date = new Date(dateKey);
+      const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+      const dayOfWeek = dayNames[date.getDay()];
+      
+      // Sort slots by start time
+      const sortedSlots = slotsByDate[dateKey].sort((a, b) => {
+        return new Date(a.startTime).getTime() - new Date(b.startTime).getTime();
+      });
+      
+      // Transform to TimeSlot format
+      const timeSlots = sortedSlots.map(slot => {
+        const startTime = new Date(slot.startTime);
+        const endTime = new Date(slot.endTime);
+        
+        return {
+          id: slot.id,
+          start: this.formatTimeForDisplay(startTime),
+          end: this.formatTimeForDisplay(endTime)
+        };
+      });
+      
+      return {
+        date: dateKey,
+        dayOfWeek,
+        slots: timeSlots
+      };
+    })
+    // Sort dates in ascending order
+    .sort((a, b) => a.date.localeCompare(b.date));
+  }
+  
+  /**
+   * Format a date to 24-hour time format (HH:MM)
+   */
+  private formatTimeForDisplay(date: Date): string {
+    const hours = date.getHours().toString().padStart(2, '0');
+    const minutes = date.getMinutes().toString().padStart(2, '0');
+    return `${hours}:${minutes}`;
+  }
 
-  /* Placeholder method for searching availabilities */
-  searchAvailabilities(): Observable<any> {
-    return of({ items: [] });
+  /**
+   * Get authentication headers for API requests
+   */
+  private getAuthHeaders(): HttpHeaders {
+    let headers = new HttpHeaders({
+      'Content-Type': 'application/json'
+    });
+    
+    try {
+      const userData = sessionStorage.getItem('userData') || sessionStorage.getItem('loggedInUser');
+      if (userData) {
+        const parsed = JSON.parse(userData);
+        if (parsed && parsed.token) {
+          headers = headers.set('Authorization', `Bearer ${parsed.token}`);
+        }
+      }
+    } catch (error) {
+      console.error('Error setting auth headers:', error);
+    }
+    
+    return headers;
   }
   
   /**
@@ -131,5 +280,12 @@ export class InterviewerService {
       console.error('Error retrieving user ID:', error);
       return null;
     }
+  }
+  
+  /* Placeholder to avoid errors */
+  searchAvailabilities(): Observable<any> {
+    return this.getAvailableTimeSlots().pipe(
+      map(data => ({ items: data }))
+    );
   }
 }

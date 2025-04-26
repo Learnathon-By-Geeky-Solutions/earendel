@@ -4,19 +4,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { SidebarComponent } from '../sidebar/sidebar.component';
-import { InterviewerService, InterviewRequest } from '../services/interviewer.service';
-
-interface TimeSlot {
-  id: number;
-  start: string;
-  end: string;
-}
-
-interface AvailableDate {
-  date: string;
-  dayOfWeek: string;
-  slots: TimeSlot[];
-}
+import { InterviewerService, InterviewRequest, AvailableDate, TimeSlot } from '../services/interviewer.service';
 
 interface Tab {
   value: string;
@@ -45,30 +33,9 @@ export class PendingRequestComponent implements OnInit {
   error: string | null = null;
 
   // Available time slots
-  availableDates: AvailableDate[] = [
-    {
-      date: "2025-05-02",
-      dayOfWeek: "Friday",
-      slots: [
-        { id: 1, start: "20:00", end: "21:00" }, // 8:00 PM - 9:00 PM
-      ],
-    },
-    {
-      date: "2025-05-03",
-      dayOfWeek: "Saturday",
-      slots: [
-        { id: 2, start: "15:00", end: "16:00" }, // 3:00 PM - 4:00 PM
-      ],
-    },
-    {
-      date: "2025-05-05",
-      dayOfWeek: "Monday",
-      slots: [
-        { id: 3, start: "09:00", end: "10:00" }, // 9:00 AM - 10:00 AM
-        { id: 4, start: "15:00", end: "16:00" }, // 3:00 PM - 4:00 PM
-      ],
-    },
-  ];
+  availableDates: AvailableDate[] = [];
+  isLoadingTimeSlots: boolean = false;
+  timeSlotError: string | null = null;
 
   // Dialog state
   isDialogOpen: boolean = false;
@@ -79,11 +46,6 @@ export class PendingRequestComponent implements OnInit {
   constructor(private interviewerService: InterviewerService) { }
 
   ngOnInit(): void {
-    // Initialize all dates as open
-    this.availableDates.forEach(date => {
-      this.openDates[date.date] = true;
-    });
-    
     // Load interview data from API
     this.loadInterviews();
   }
@@ -123,11 +85,37 @@ export class PendingRequestComponent implements OnInit {
     this.selectedInterview = interviewId;
     this.isDialogOpen = true;
     this.selectedDateSlot = null;
-
-    // Initialize all dates as open for better UX
-    this.availableDates.forEach(date => {
-      this.openDates[date.date] = true;
-    });
+    
+    // Fetch available time slots from API
+    this.loadAvailableTimeSlots();
+  }
+  
+  loadAvailableTimeSlots(): void {
+    this.isLoadingTimeSlots = true;
+    this.timeSlotError = null;
+    
+    this.interviewerService.getAvailableTimeSlots()
+      .subscribe({
+        next: (data: AvailableDate[]) => {
+          this.availableDates = data;
+          this.isLoadingTimeSlots = false;
+          
+          // If no available dates, show error
+          if (this.availableDates.length === 0) {
+            this.timeSlotError = 'No available time slots found. Please set your availability first.';
+          }
+          
+          // Initialize all dates as open for better UX
+          this.availableDates.forEach(date => {
+            this.openDates[date.date] = true;
+          });
+        },
+        error: (err: any) => {
+          console.error('Error fetching available time slots:', err);
+          this.timeSlotError = 'Failed to load available time slots. Please try again later.';
+          this.isLoadingTimeSlots = false;
+        }
+      });
   }
 
   closeDialog(): void {
