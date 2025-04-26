@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Observable, of } from 'rxjs';
-import { map, catchError } from 'rxjs/operators';
+import { Observable, of, forkJoin } from 'rxjs';
+import { map, catchError, switchMap } from 'rxjs/operators';
 import { endpoint } from '../../endpoints/endpoint';
 
 export interface InterviewSearchParams {
@@ -25,6 +25,8 @@ export interface Interview {
   id: string;
   applicationId: string;
   interviewerId: string;
+  candidateId?: string;
+  jobId?: string;
   interviewDate: string;
   status: string;
   notes: string;
@@ -32,6 +34,19 @@ export interface Interview {
   candidate?: string;  // Will be populated from application data if available
   role?: string;       // Will be populated from application data if available
   company?: string;    // Will be populated from application data if available
+  jobDetails?: JobDetails; // Will be populated from job data if available
+}
+
+export interface JobDetails {
+  id: string;
+  name: string;
+  description: string;
+  requirments: string;
+  location: string;
+  jobType: string;
+  experienceLevel: string;
+  salary: string;
+  postedById: string;
 }
 
 export interface InterviewRequest {
@@ -41,6 +56,10 @@ export interface InterviewRequest {
   company: string;
   requestedDate: string;
   status: string;
+  description?: string;
+  requirements?: string;
+  experienceLevel?: string;
+  postedBy?: string;
 }
 
 export interface AvailabilitySlot {
@@ -108,6 +127,27 @@ export class InterviewerService {
   }
   
   /**
+   * Get job details by ID
+   * @param jobId The ID of the job to fetch
+   */
+  getJobDetails(jobId: string): Observable<JobDetails | null> {
+    if (!jobId) {
+      console.error('No job ID provided');
+      return of(null);
+    }
+    
+    const headers = this.getAuthHeaders();
+    
+    return this.http.get<JobDetails>(`${endpoint.jobDetailsUrl}/${jobId}`, { headers })
+      .pipe(
+        catchError(error => {
+          console.error(`Error fetching job details for job ID ${jobId}:`, error);
+          return of(null);
+        })
+      );
+  }
+  
+  /**
    * Get pending interview requests for the current user
    */
   getPendingInterviews(): Observable<InterviewRequest[]> {
@@ -127,21 +167,57 @@ export class InterviewerService {
     };
     
     return this.searchInterviews(params).pipe(
-      map(response => {
-        // Transform the response to the format expected by the component
-        return response.items.map(interview => {
+      switchMap(response => {
+        // Create an array of observables for each interview to fetch job details
+        const interviewsWithJobDetails$ = response.items.map(interview => {
+          if (interview.jobId) {
+            // If there's a jobId, fetch the job details
+            return this.getJobDetails(interview.jobId).pipe(
+              map(jobDetails => ({
+                interview,
+                jobDetails
+              }))
+            );
+          } else {
+            // If no jobId, just return the interview with null job details
+            return of({
+              interview,
+              jobDetails: null
+            });
+          }
+        });
+        
+        // Wait for all job details to be fetched
+        return interviewsWithJobDetails$.length > 0 
+          ? forkJoin(interviewsWithJobDetails$) 
+          : of([]);
+      }),
+      map(interviewsWithDetails => {
+        // Transform the combined data to the format expected by the component
+        return interviewsWithDetails.map(({ interview, jobDetails }) => {
           // Calculate requested date as interview date - 1 day
           const interviewDate = new Date(interview.interviewDate);
           interviewDate.setDate(interviewDate.getDate() - 1);
           
-          return {
+          // Create the interview request object with job details if available
+          const interviewRequest: InterviewRequest = {
             id: interview.id,
             candidate: interview.candidate || `Candidate (${interview.applicationId.substring(0, 8)})`,
-            role: interview.role || 'Position not specified',
-            company: interview.company || 'Company not specified',
+            role: jobDetails?.name || interview.role || 'Position not specified',
+            company: jobDetails?.postedById || interview.company || 'Posted by not specified',
             requestedDate: interviewDate.toISOString().split('T')[0],
             status: interview.status.toLowerCase()
           };
+          
+          // Add job details if available
+          if (jobDetails) {
+            interviewRequest.description = jobDetails.description;
+            interviewRequest.requirements = jobDetails.requirments;
+            interviewRequest.experienceLevel = jobDetails.experienceLevel;
+            interviewRequest.postedBy = jobDetails.postedById;
+          }
+          
+          return interviewRequest;
         });
       })
     );

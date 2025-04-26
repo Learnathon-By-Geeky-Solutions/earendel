@@ -15,7 +15,47 @@
 
 .card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1) !important;
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.08) !important;
+}
+
+/* Interview Card Styling */
+.interview-card {
+  overflow: hidden;
+  border-radius: 12px;
+  margin-bottom: 1.25rem;
+}
+
+.interview-card-header {
+  border-bottom: 1px solid #f0f0f0;
+  padding: 1.25rem !important;
+}
+
+.candidate-avatar .avatar-circle {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background-color: #e6f2ff;
+  color: #0d6efd;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  font-weight: bold;
+}
+
+.interview-card-body {
+  padding: 0 !important;
+}
+
+.interview-card-footer {
+  border-top: 1px solid #f0f0f0;
+  padding: 1.25rem !important;
+}
+
+.date-badge {
+  padding: 6px 0;
+  font-size: 0.9rem;
+  color: #1e84f2;
 }
 
 /* Badge styles */
@@ -34,12 +74,18 @@
 }
 
 /* Custom tab styling */
+.nav-tabs {
+  border-bottom: 1px solid #e9ecef;
+  margin-bottom: 1.5rem;
+}
+
 .nav-tabs .nav-link {
   padding: 0.75rem 1.25rem;
   border: none;
   color: #6c757d;
   font-weight: 500;
   transition: all 0.2s;
+  margin-right: 0.5rem;
 }
 
 .nav-tabs .nav-link:hover {
@@ -64,6 +110,7 @@
   border-radius: 8px;
   margin-bottom: 12px;
   overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
 }
 
 .time-slot-header {
@@ -152,7 +199,105 @@
   color: #0d6efd;
 }
 
-/* Card header hover effect */
-.card-header.cursor-pointer:hover {
-  background-color: #f8f9fa;
+/* Job Details Styling - Improved */
+.accordion {
+  margin: 0 !important;
+}
+
+.accordion-item {
+  background-color: transparent;
+  border: none !important;
+}
+
+.accordion-button {
+  font-weight: 500;
+  color: #495057;
+  padding: 1rem;
+  background-color: transparent;
+  border: none !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+  border-bottom: 1px solid #f0f0f0 !important;
+}
+
+.accordion-button:focus {
+  box-shadow: none;
+}
+
+.accordion-button:not(.collapsed) {
+  background-color: transparent;
+  color: #0d6efd;
+  box-shadow: none;
+}
+
+.accordion-button::after {
+  background-size: 1rem;
+  width: 1rem;
+  height: 1rem;
+}
+
+.accordion-body {
+  background-color: #f9fafb;
+  border: none;
+  border-radius: 0;
+  padding: 1.25rem;
+}
+
+.job-detail-item {
+  margin-bottom: 1.25rem;
+}
+
+.job-detail-item:last-child {
+  margin-bottom: 0;
+}
+
+.job-detail-item h6 {
+  color: #495057;
+  font-size: 0.875rem;
+  margin-bottom: 0.5rem;
+}
+
+.job-detail-item p {
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: #6c757d;
+}
+
+/* Action buttons */
+.action-buttons .btn {
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  transition: all 0.2s;
+}
+
+.action-buttons .btn-outline-secondary {
+  border-color: #b1b0b0;
+}
+
+.action-buttons .btn-outline-secondary:hover {
+  background-color: #f62d2d;
+  border-color: #c1c9d0;
+}
+
+.action-buttons .btn-primary {
+  box-shadow: 0 2px 5px rgba(13, 110, 253, 0.1);
+}
+
+.action-buttons .btn-primary:hover {
+  box-shadow: 0 4px 10px rgba(13, 110, 253, 0.15);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .interview-card-footer {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .action-buttons {
+    margin-top: 1rem;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+  }
 }

@@ -47,25 +47,80 @@
                 <!-- Interview list -->
                 <div class="row" *ngIf="requestedInterviews.length > 0">
                     <div class="col-12" *ngFor="let interview of requestedInterviews">
-                        <div class="card mb-3 shadow-sm border-0">
-                            <div class="card-body">
-                                <div class="d-flex justify-content-between align-items-center mb-2">
-                                    <div>
-                                        <h3 class="h5 mb-1">{{ interview.candidate }}</h3>
-                                        <p class="mb-0 text-muted">{{ interview.role }} • {{ interview.company }}</p>
+                        <div class="card shadow-sm border-0 interview-card">
+                            <!-- Card Header with Interview Info -->
+                            <div class="interview-card-header">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div class="d-flex align-items-center">
+                                        <div class="candidate-avatar me-3">
+                                            <div class="avatar-circle">
+                                                {{ interview.candidate.charAt(0) | uppercase }}
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <h3 class="h5 mb-1 fw-bold">{{ interview.candidate }}</h3>
+                                            <p class="mb-0 text-primary">{{ interview.role }}</p>
+                                            <div class="d-flex align-items-center mt-1">
+                                                <i class="bi bi-person me-1 text-muted small"></i>
+                                                <span class="small text-muted">Posted by: {{ interview.company }}</span>
+                                            </div>
+                                        </div>
                                     </div>
                                     <span class="badge bg-warning text-dark py-2 px-3 rounded-pill">Pending</span>
                                 </div>
-                                <div class="d-flex align-items-center mb-3">
-                                    <i class="bi bi-calendar me-2"></i>
+                            </div>
+
+                            <!-- Job Details Section -->
+                            <div class="interview-card-body"
+                                *ngIf="interview.description || interview.requirements || interview.experienceLevel">
+                                <div class="accordion" id="jobDetailsAccordion-{{interview.id}}">
+                                    <div class="accordion-item">
+                                        <h2 class="accordion-header" id="jobHeading-{{interview.id}}">
+                                            <button class="accordion-button collapsed" type="button"
+                                                data-bs-toggle="collapse"
+                                                [attr.data-bs-target]="'#jobCollapse-' + interview.id"
+                                                aria-expanded="false"
+                                                [attr.aria-controls]="'jobCollapse-' + interview.id">
+                                                <i class="bi bi-briefcase me-2"></i> Job Details
+                                            </button>
+                                        </h2>
+                                        <div [id]="'jobCollapse-' + interview.id" class="accordion-collapse collapse"
+                                            [attr.aria-labelledby]="'jobHeading-' + interview.id">
+                                            <div class="accordion-body">
+                                                <div class="job-detail-item" *ngIf="interview.description">
+                                                    <h6 class="fw-bold">Description</h6>
+                                                    <p class="text-muted">{{ interview.description }}</p>
+                                                </div>
+
+                                                <div class="job-detail-item" *ngIf="interview.requirements">
+                                                    <h6 class="fw-bold">Requirements</h6>
+                                                    <p class="text-muted">{{ interview.requirements }}</p>
+                                                </div>
+
+                                                <div class="job-detail-item" *ngIf="interview.experienceLevel">
+                                                    <h6 class="fw-bold">Experience Level</h6>
+                                                    <p class="text-muted">{{ interview.experienceLevel }}</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Footer with Date and Actions -->
+                            <div
+                                class="interview-card-footer d-flex justify-content-between align-items-center bg-light">
+                                <div class="date-badge d-flex align-items-center">
+                                    <i class="bi bi-calendar-event me-2 text-primary"></i>
                                     <span>Requested: {{ formatDate(interview.requestedDate) }}</span>
                                 </div>
-                                <div class="d-flex justify-content-end gap-2">
-                                    <button class="btn btn-outline-secondary" (click)="interview.status = 'declined'">
-                                        Decline
+                                <div class="action-buttons">
+                                    <button class="btn btn-outline-secondary me-2"
+                                        (click)="interview.status = 'declined'">
+                                        <i class="bi bi-x-circle me-1"></i> Decline
                                     </button>
                                     <button class="btn btn-primary" (click)="handleAccept(interview.id.toString())">
-                                        Accept
+                                        <i class="bi bi-check-circle me-1"></i> Accept
                                     </button>
                                 </div>
                             </div>

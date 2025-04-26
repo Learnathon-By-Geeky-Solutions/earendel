@@ -21,6 +21,9 @@ export const endpoint = {
 
   //Interviewer Pending Interview Request
   interviewSearchUrl: `${base}/api/v1/interviews/interviews/search`,
+  
+  //Job Details
+  jobDetailsUrl: `${base}/api/v1/job/jobs`,
 
   //Job View
   jobViewUrl: `${base}/api/v1/JobView/candidateview/JobView`,
