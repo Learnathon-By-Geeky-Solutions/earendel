@@ -2,47 +2,82 @@
     <app-sidebar></app-sidebar>
 
     <div class="container-fluid py-4">
-        <h1 class="h3 mb-2">Notifications</h1>
-        <p class="text-muted mb-4">
-            Stay updated with your latest notifications and alerts.
-        </p>
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h1 class="h3 mb-1">Notifications</h1>
+                <p class="text-muted mb-0">
+                    Stay updated with your latest notifications and alerts
+                </p>
+            </div>
+            <button class="btn btn-sm btn-outline-dark" (click)="loadNotifications()">
+                <i class="bi bi-arrow-clockwise me-1"></i> Refresh
+            </button>
+        </div>
 
         <div class="card border-0 shadow-sm">
-            <div class="card-body">
-                <h5 class="card-title mb-4">Your Notifications</h5>
-
+            <div class="card-body p-0">
                 <!-- Loading state -->
-                <div *ngIf="isLoading" class="text-center p-4">
+                <div *ngIf="isLoading" class="text-center p-5">
                     <div class="spinner-border text-primary" role="status">
                         <span class="visually-hidden">Loading...</span>
                     </div>
-                    <p class="mt-2 text-muted">Loading notifications...</p>
+                    <p class="mt-3 mb-0 text-muted">Loading your notifications...</p>
                 </div>
 
                 <!-- Error state -->
-                <div *ngIf="error && !isLoading" class="alert alert-danger">
-                    {{ error }}
-                    <button class="btn btn-sm btn-outline-danger ms-2" (click)="loadNotifications()">Try Again</button>
+                <div *ngIf="error && !isLoading" class="alert alert-danger m-4 mb-0">
+                    <div class="d-flex align-items-center">
+                        <i class="bi bi-exclamation-triangle-fill me-2 fs-5"></i>
+                        <div>
+                            <strong>Error loading notifications</strong>
+                            <p class="mb-0">{{ error }}</p>
+                        </div>
+                    </div>
+                    <button class="btn btn-danger mt-2" (click)="loadNotifications()">Try Again</button>
                 </div>
 
                 <!-- Empty state -->
-                <div *ngIf="!isLoading && !error && notifications.length === 0" class="text-center p-4">
-                    <i class="bi bi-bell-slash fs-1 text-muted"></i>
-                    <p class="mt-3 mb-0">You don't have any notifications yet.</p>
+                <div *ngIf="!isLoading && !error && notifications.length === 0" class="text-center p-5">
+                    <div class="empty-state">
+                        <i class="bi bi-bell-slash fs-1 text-muted"></i>
+                        <h5 class="mt-3">No notifications yet</h5>
+                        <p class="text-muted">When you receive notifications, they will appear here</p>
+                    </div>
                 </div>
 
                 <!-- Notifications list -->
-                <div *ngIf="!isLoading && notifications.length > 0" class="list-group notifications-list">
-                    <div *ngFor="let notification of notifications"
-                        class="list-group-item list-group-item-action border-0 border-bottom py-3"
-                        [class.bg-light]="!notification.isRead">
-                        <div class="d-flex w-100 justify-content-between align-items-start">
-                            <h6 class="mb-1">{{ notification.title }}</h6>
-                            <small class="text-muted">{{ formatDate(notification.createdOn) }}</small>
+                <div *ngIf="!isLoading && notifications.length > 0" class="notifications-list">
+                    <div class="notification-header px-4 py-3 border-bottom">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h6 class="mb-0">Your Notifications</h6>
+                            <span class="badge bg-primary rounded-pill">{{ notifications.length }}</span>
                         </div>
-                        <p class="mb-1">{{ notification.message }}</p>
-                        <div class="d-flex justify-content-between align-items-center mt-2">
-                            <small *ngIf="!notification.isRead" class="badge bg-primary rounded-pill">New</small>
+                    </div>
+
+                    <div *ngFor="let notification of notifications" class="notification-item p-4"
+                        [class.unread]="!notification.isRead">
+                        <div class="notification-content">
+                            <div class="d-flex">
+                                <div class="notification-icon me-3">
+                                    <div class="icon-circle" [ngClass]="{
+                    'bg-primary-light': !notification.isRead,
+                    'bg-light': notification.isRead
+                  }">
+                                        <i class="bi bi-bell text-primary"></i>
+                                    </div>
+                                </div>
+                                <div class="notification-details flex-grow-1">
+                                    <div class="d-flex justify-content-between align-items-start mb-1">
+                                        <h6 class="notification-title mb-0">{{ notification.title }}</h6>
+                                        <span class="notification-time text-muted small">{{
+                                            formatDate(notification.createdOn) }}</span>
+                                    </div>
+                                    <p class="notification-message mb-0">{{ notification.message }}</p>
+                                    <div class="mt-2" *ngIf="!notification.isRead">
+                                        <span class="badge bg-primary">New</span>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>

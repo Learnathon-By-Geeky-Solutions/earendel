@@ -3,36 +3,122 @@
   overflow-y: auto;
 }
 
-.list-group-item {
+.notification-item {
+  position: relative;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
   transition: all 0.2s ease;
-  border-radius: 0;
 }
 
-.list-group-item:hover {
-  transform: translateX(3px);
+.notification-item:hover {
   background-color: #f8f9fa;
 }
 
-.list-group-item.bg-light {
-  border-left: 3px solid #0d6efd;
-  padding-left: calc(1rem - 3px);
+.notification-item:last-child {
+  border-bottom: none;
 }
 
-/* Custom scrollbar for the notifications list */
+.notification-item.unread {
+  background-color: rgba(13, 110, 253, 0.03);
+}
+
+.notification-item.unread::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background-color: #0d6efd;
+}
+
+.notification-title {
+  color: #212529;
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.notification-message {
+  color: #6c757d;
+  font-size: 0.9rem;
+}
+
+.notification-time {
+  color: #adb5bd;
+  font-size: 0.8rem;
+}
+
+.icon-circle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+}
+
+.bg-primary-light {
+  background-color: rgba(13, 110, 253, 0.1);
+}
+
+.notification-header {
+  background-color: #f8f9fa;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.empty-state {
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  color: #6c757d;
+}
+
+.empty-state i {
+  font-size: 3rem;
+  opacity: 0.5;
+}
+
+/* Custom scrollbar */
 .notifications-list::-webkit-scrollbar {
   width: 6px;
 }
 
 .notifications-list::-webkit-scrollbar-track {
-  background: #f1f1f1;
-  border-radius: 10px;
+  background: #f8f9fa;
 }
 
 .notifications-list::-webkit-scrollbar-thumb {
-  background: #c1c1c1;
+  background: #ced4da;
   border-radius: 10px;
 }
 
 .notifications-list::-webkit-scrollbar-thumb:hover {
-  background: #a8a8a8;
+  background: #adb5bd;
+}
+
+/* Animation for new notifications */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.notification-item {
+  animation: fadeIn 0.3s ease-out forwards;
+}
+
+/* Responsive adjustments for mobile */
+@media (max-width: 768px) {
+  .notification-item {
+    padding: 1rem !important;
+  }
+  
+  .notification-icon {
+    display: none;
+  }
+  
+  .notification-time {
+    font-size: 0.7rem;
+  }
 }
