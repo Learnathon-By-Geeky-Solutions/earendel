@@ -12,7 +12,7 @@ import { MatChipsModule } from '@angular/material/chips';
 import { JobDetailsModalComponent } from '../job-details/job-details.component';
 import { JobService, Job, JobFilter } from '../services/job.service';
 import { Subject, debounceTime, distinctUntilChanged, takeUntil, of } from 'rxjs';
-import { catchError, shareReplay } from 'rxjs/operators';
+import { catchError, shareReplay, finalize } from 'rxjs/operators';
 
 @Component({
   selector: 'app-job-posts',
@@ -619,12 +619,32 @@ export class JobPostsComponent implements OnInit, OnDestroy {
     this.selectedJob = null;
   }
 
-  applyForJob(job: Job) {
-    console.log('Applying for job:', job);
-    this.snackBar.open('Application submitted successfully!', 'Close', {
-      duration: 3000,
-      panelClass: ['snack-bar-success']
-    });
-    this.closeModal();
+  applyForJob(jobData: {job: Job, coverLetter: string}) {
+    this.loading = true;
+    
+    this.jobService.applyForJob(jobData.job.id, jobData.coverLetter)
+      .pipe(
+        takeUntil(this.destroy$),
+        catchError(error => {
+          console.error('Error applying for job:', error);
+          this.snackBar.open('Failed to submit application. Please try again later.', 'Close', {
+            duration: 5000,
+            panelClass: ['snack-bar-error']
+          });
+          return of(null);
+        }),
+        finalize(() => {
+          this.loading = false;
+        })
+      )
+      .subscribe(response => {
+        if (response) {
+          this.snackBar.open('Application submitted successfully!', 'Close', {
+            duration: 3000,
+            panelClass: ['snack-bar-success']
+          });
+          this.closeModal();
+        }
+      });
   }
 }
