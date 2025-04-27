@@ -580,4 +580,42 @@ export class InterviewerService {
       map(data => ({ items: data }))
     );
   }
+
+  /**
+   * Get notifications for the current user
+   * 
+   * @param pageNumber Page number to fetch (default 1)
+   * @param pageSize Number of notifications per page (default 1000)
+   * @returns Observable with notification data
+   */
+  getNotifications(pageNumber: number = 1, pageSize: number = 1000): Observable<any> {
+    const userId = this.getUserId();
+    
+    if (!userId) {
+      console.error('Cannot fetch notifications: No user ID found');
+      return throwError(() => new Error('User ID not available'));
+    }
+    
+    console.log('Fetching notifications for user ID:', userId);
+    
+    // Correctly format the request according to the API specification
+    const request = {
+      pageNumber: pageNumber,
+      pageSize: pageSize,
+      userId: userId
+    };
+
+    const headers = this.getAuthHeaders();
+    
+    console.log('Notification search request:', request);
+    console.log('Notification search endpoint:', endpoint.notificationSearchUrl);
+    
+    return this.http.post(endpoint.notificationSearchUrl, request, { headers })
+      .pipe(
+        catchError(error => {
+          console.error('API Error searching notifications:', error);
+          return throwError(() => error);
+        })
+      );
+  }
 }
