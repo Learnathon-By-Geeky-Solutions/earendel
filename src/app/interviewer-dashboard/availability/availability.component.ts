@@ -43,6 +43,12 @@ export class AvailabilityComponent implements OnInit {
   isLoading = false;
   apiError = "";
 
+  // Toast notification properties
+  showToast = false;
+  toastMessage = '';
+  toastType = 'success'; // 'success', 'error', 'info'
+  toastTimeout: any = null;
+
   monthNames = [
     'January', 'February', 'March', 'April', 'May', 'June', 'July',
     'August', 'September', 'October', 'November', 'December',
@@ -534,7 +540,7 @@ export class AvailabilityComponent implements OnInit {
         next: (response) => {
             console.log('API save success:', response);
             this.isLoading = false;
-            alert('Availability saved successfully!');
+            this.showToastNotification('Availability saved successfully!', 'success');
 
             // Reset form state
             this.selectedDate = null;
@@ -550,7 +556,7 @@ export class AvailabilityComponent implements OnInit {
             this.isLoading = false;
             const errorMessage = error.error?.message || error.message || 'Server error occurred.';
             this.apiError = `Failed to save availability: ${errorMessage}`;
-            alert(`Error saving availability: ${errorMessage}`);
+            this.showToastNotification(`Error saving availability: ${errorMessage}`, 'error');
             // Optionally, keep the form state on error for retry?
             // this.editingSlot = null; // Maybe keep editing state if save fails? Depends on UX desired.
         }
@@ -681,6 +687,30 @@ export class AvailabilityComponent implements OnInit {
         console.error("Error during overlap check execution:", e);
         // Fail safe: Assume overlap if any unexpected error occurs during the check
         return true;
+    }
+  }
+
+  // Display a toast notification
+  showToastNotification(message: string, type: 'success' | 'error' | 'info' = 'success') {
+    this.toastMessage = message;
+    this.toastType = type;
+    this.showToast = true;
+    
+    // Auto hide after 3 seconds
+    if (this.toastTimeout) {
+      clearTimeout(this.toastTimeout);
+    }
+    
+    this.toastTimeout = setTimeout(() => {
+      this.showToast = false;
+    }, 3000);
+  }
+  
+  // Hide toast manually
+  hideToast() {
+    this.showToast = false;
+    if (this.toastTimeout) {
+      clearTimeout(this.toastTimeout);
     }
   }
 
