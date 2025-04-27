@@ -14,6 +14,7 @@ using TalentMesh.Module.Notifications.Infrastructure.Persistence;
 using TalentMesh.Module.Notifications.Domain;
 using TalentMesh.Framework.Infrastructure.Identity.Users;
 using Microsoft.AspNetCore.Identity;
+using TalentMesh.Module.Job.Infrastructure.Persistence;
 
 namespace TalentMesh.Module.Notifications.Infrastructure.Messaging
 {
@@ -31,9 +32,50 @@ namespace TalentMesh.Module.Notifications.Infrastructure.Messaging
         protected override async Task ProcessDomainMessage(NotificationMessage message, IServiceScope scope, CancellationToken stoppingToken)
         {
             var dbContext = scope.ServiceProvider.GetRequiredService<NotificationsDbContext>();
+            var jobDbContext = scope.ServiceProvider.GetRequiredService<JobDbContext>();
             var userManager = scope.ServiceProvider.GetRequiredService<UserManager<TMUser>>(); // Replace YourUserClass with your actual IdentityUser class
+            var hubContext = scope.ServiceProvider.GetRequiredService<IHubContext<NotificationHub>>(); // resolve again inside scope
 
-            if (message.UserId == "admin")
+
+            if (message.EntityType == "InterviewScheduled" && !string.IsNullOrEmpty(message.Entity))
+            {
+                var jobId = Guid.Parse(message.Entity);
+
+                var job = await jobDbContext.Jobs.FindAsync(new object[] { jobId }, cancellationToken: stoppingToken);
+
+                // Create the notification
+                var notification = Notification.Create(
+                    job!.PostedById,
+                    jobId.ToString(),
+                    message.EntityType,
+                    message.Message
+                );
+
+                await dbContext.Notifications.AddAsync(notification, stoppingToken);
+                await hubContext.Clients.Group($"user:{job.PostedById}").SendAsync("SystemAlert", message.Message, stoppingToken);
+
+            }
+
+            else if (message.EntityType == "JobApplication" && !string.IsNullOrEmpty(message.Entity))
+            {
+                // Fetch the Job
+                var jobId = Guid.Parse(message.Entity);
+                var job = await jobDbContext.Jobs.FindAsync(new object[] { jobId }, cancellationToken: stoppingToken);
+
+                var notification = Notification.Create(
+                            job!.PostedById,
+                            message.Entity,
+                            message.EntityType,
+                            message.Message
+                        );
+
+                await dbContext.Notifications.AddAsync(notification, stoppingToken);
+                await dbContext.SaveChangesAsync(stoppingToken);
+                await hubContext.Clients.Group($"user:{job.PostedById}").SendAsync("SystemAlert", message.Message, stoppingToken);
+
+            }
+
+            else if (message.UserId == "admin")
             {
                 // Fetch all admin users
                 var admins = await userManager.GetUsersInRoleAsync("Admin");
@@ -53,6 +95,8 @@ namespace TalentMesh.Module.Notifications.Infrastructure.Messaging
                     );
 
                     await dbContext.Notifications.AddAsync(notificationForAdmin, stoppingToken);
+                    await hubContext.Clients.Group("admin").SendAsync("SystemAlert", message.Message, stoppingToken);
+
                 }
             }
             else
@@ -70,6 +114,7 @@ namespace TalentMesh.Module.Notifications.Infrastructure.Messaging
                 );
 
                 await dbContext.Notifications.AddAsync(notificationInfo, stoppingToken);
+                await hubContext.Clients.Group($"user:{userIdGuid}").SendAsync("SystemAlert", message.Message, stoppingToken);
             }
 
             // Persist all notifications at once

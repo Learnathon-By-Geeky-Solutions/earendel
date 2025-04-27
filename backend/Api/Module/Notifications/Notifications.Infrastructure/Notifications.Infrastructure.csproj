@@ -8,6 +8,11 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\Framework\Infrastructure\Infrastructure.csproj" />
+    <ProjectReference Include="..\..\Candidate\Candidate.Infrastructure\Candidate.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\Evaluator\Evaluator.Infrastructure\Evaluator.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\Experties\Experties.Infrastructure\Experties.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\Interviews\Interviews.Infrastructure\Interviews.Infrastructure.csproj" />
+    <ProjectReference Include="..\..\Jobs\Jobs.Infrastructure\Jobs.Infrastructure.csproj" />
     <ProjectReference Include="..\Notifications.Application\Notifications.Application.csproj" />
   </ItemGroup>
 
