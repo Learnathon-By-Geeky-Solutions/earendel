@@ -41,7 +41,7 @@ public sealed class CreateInterviewHandler(
         {
             UserId = request.InterviewerId,
             Entity = request.JobId,
-            EntityType = "Interview", 
+            EntityType = "Interview.Interviewer", 
             Message = $"A new interview request from HR with JobId {request.JobId}, CandidateId {request.CandidateId}.", 
             RequestedBy = request.JobId
         };

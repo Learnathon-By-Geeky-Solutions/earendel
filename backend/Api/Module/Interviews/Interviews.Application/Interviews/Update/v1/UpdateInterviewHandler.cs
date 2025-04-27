@@ -37,21 +37,22 @@ public sealed class UpdateInterviewHandler(
         {
             UserId = "null",
             Entity = request.JobId, 
-            EntityType = "InterviewScheduled",
+            EntityType = "InterviewScheduled.HR",
             Message = $"Interviewer {request.InterviewerId} has accepted the interview for Job {request.JobId} with Candidate {request.CandidateId} scheduled at {request.InterviewDate:yyyy-MM-dd HH:mm}."
         };
 
         await messageBus.PublishAsync(notificationMessage, "notification.events", "notification.fetched", cancellationToken);
 
-        var notificationMessageForCandidate = new
+
+        var candidateNotification = new
         {
             UserId = request.CandidateId,
             Entity = request.JobId,
-            EntityType = "InterviewScheduledForCandidate",
-            Message = $"An interview has been scheduled for Candidate {request.CandidateId} on {request.InterviewDate:yyyy-MM-dd HH:mm} for the Job {request.JobId}."
+            EntityType = "InterviewScheduled.Candidate",    // ← distinct type
+            Message = $"Your interview for Job {request.JobId} has been accepted by Interviewer {request.InterviewerId}, scheduled at {request.InterviewDate:yyyy-MM-dd HH:mm}."
         };
 
-        await messageBus.PublishAsync(notificationMessageForCandidate, "notification.events", "notification.fetched", cancellationToken);
+        await messageBus.PublishAsync(candidateNotification, "notification.events", "notification.fetched", cancellationToken);
 
 
         // Log the update action

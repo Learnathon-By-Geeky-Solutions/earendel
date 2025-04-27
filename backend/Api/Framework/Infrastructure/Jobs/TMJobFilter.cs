@@ -6,6 +6,7 @@ using Hangfire.Logging;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using System.Diagnostics.CodeAnalysis;
+using TalentMesh.Framework.Core.Mail;
 
 namespace TalentMesh.Framework.Infrastructure.Jobs;
 [ExcludeFromCodeCoverage]
@@ -21,6 +22,11 @@ public class TMJobFilter : IClientFilter
     public void OnCreating(CreatingContext context)
     {
         ArgumentNullException.ThrowIfNull(context);
+
+        if (context.Job.Method.Name == nameof(IMailService.SendEmail))
+        {
+            return;
+        }
 
         Logger.InfoFormat("Set TenantId and UserId parameters to job {0}.{1}...", context.Job.Method.ReflectedType?.FullName, context.Job.Method.Name);
 
