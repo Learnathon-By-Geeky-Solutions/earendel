@@ -74,6 +74,31 @@ export class InterviewerService {
   }
 
   /**
+   * Delete an interviewer availability by ID
+   */
+  deleteAvailability(availabilityId: number | string): Observable<any> {
+    if (!availabilityId) {
+      console.error('Cannot delete: No availability ID provided');
+      return throwError(() => new Error('No availability ID provided for deletion'));
+    }
+    
+    console.log(`Deleting availability with ID: ${availabilityId}`);
+    
+    const headers = this.getAuthHeaders();
+    const url = `${endpoint.interviewerAvailabilityDeleteUrl}/${availabilityId}`;
+    
+    console.log('Delete endpoint:', url);
+    
+    return this.http.delete(url, { headers })
+      .pipe(
+        catchError(error => {
+          console.error('API Error deleting availability:', error);
+          return throwError(() => error);
+        })
+      );
+  }
+
+  /**
    * Get auth headers with token
    */
   private getAuthHeaders(): HttpHeaders {

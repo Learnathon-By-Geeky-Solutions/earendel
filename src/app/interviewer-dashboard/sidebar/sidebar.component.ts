@@ -59,6 +59,14 @@ import { RouterModule } from '@angular/router';
             class="nav-link px-3 py-2 rounded-2"
             routerLinkActive="active"
             [routerLinkActiveOptions]="{ exact: true }"
+            routerLink="/interviewer-dashboard/notification"
+          >
+            Notifications
+          </a>
+          <a
+            class="nav-link px-3 py-2 rounded-2"
+            routerLinkActive="active"
+            [routerLinkActiveOptions]="{ exact: true }"
             routerLink="/interviewer-dashboard/earnings"
           >
             Earnings

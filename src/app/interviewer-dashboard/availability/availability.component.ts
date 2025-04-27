@@ -153,6 +153,21 @@ export class AvailabilityComponent implements OnInit {
       let endTimeISO: string | undefined;
       let apiId: number | string | undefined = item.id || item.interviewerAvailabilityId || undefined; // Adapt based on actual API ID field name
 
+      // Improved API ID extraction - check all possible locations based on API response structure
+      if (!apiId) {
+        // Check for nested ID if the primary ID wasn't found
+        apiId = item.availabilitySlot?.id || item.availabilitySlot?.interviewerAvailabilityId || undefined;
+        
+        if (!apiId) {
+          console.warn('Could not extract valid ID from availability item:', item);
+          // Continue anyway, as we might still want to display the time slot even if we can't delete it
+        } else {
+          console.log(`Found API ID (${apiId}) in nested availabilitySlot object`);
+        }
+      } else {
+        console.log(`Found API ID (${apiId}) in root availability item`);
+      }
+
       // Extract ISO UTC time strings - Make robust based on confirmed API response structure
       if (item.startTime && item.endTime && typeof item.startTime === 'string' && typeof item.endTime === 'string') {
         startTimeISO = item.startTime; endTimeISO = item.endTime;
@@ -595,33 +610,50 @@ export class AvailabilityComponent implements OnInit {
   confirmDelete() {
     if (this.selectedInterviewer && this.selectedSlotId !== null) {
         const slotToDelete = this.selectedInterviewer.timeSlots.find(s => s.id === this.selectedSlotId);
+        
+        if (!slotToDelete) {
+            console.error("Cannot delete: Slot not found");
+            this.showToastNotification("Cannot delete this slot: Slot not found in local data.", "error");
+            this.closeDeleteModal();
+            return;
+        }
+        
+        if (!slotToDelete.apiId) {
+            console.error("Cannot delete: Slot has no API ID", slotToDelete);
+            this.showToastNotification("Cannot delete this slot: No server ID available.", "error");
+            this.closeDeleteModal();
+            return;
+        }
 
-        // !!! IMPORTANT: API Call Required Here !!!
-        // You need a service method and API endpoint to delete a specific availability slot.
-        // Use `slotToDelete.apiId` if available and required by your API.
-        console.warn(`API Delete Call needed for slot UI ID: ${this.selectedSlotId}, API ID: ${slotToDelete?.apiId}`);
-        // Example placeholder:
-        // this.interviewerService.deleteAvailability(slotToDelete.apiId).subscribe({
-        //   next: () => {
-        //     console.log('Slot deleted successfully via API.');
-        //     // Update UI *after* successful API call
-        //     this.performLocalDelete(this.selectedInterviewer!, this.selectedSlotId!); // Pass non-null values
-        //     this.closeDeleteModal();
-        //     alert("Slot deleted.");
-        //   },
-        //   error: (err) => {
-        //     console.error('API error deleting slot:', err);
-        //     alert("Failed to delete slot on the server.");
-        //     // Optionally close modal even on error, or leave it open
-        //     this.closeDeleteModal();
-        //   }
-        // });
-
-        // --- Temporary: Update UI Optimistically (REMOVE THIS when API call is added) ---
-        alert("Slot removed from UI (API delete not implemented).");
-        this.performLocalDelete(this.selectedInterviewer, this.selectedSlotId);
-        this.closeDeleteModal();
-        // --- End Temporary ---
+        this.isLoading = true;
+        console.log(`Deleting availability slot with:
+        - UI ID: ${this.selectedSlotId}
+        - API ID: ${slotToDelete.apiId}
+        - Time Range: ${slotToDelete.startTime} - ${slotToDelete.endTime}
+        - UTC Time: ${slotToDelete.startTimeUTC} - ${slotToDelete.endTimeUTC}
+        `);
+        
+        this.interviewerService.deleteAvailability(slotToDelete.apiId).subscribe({
+            next: (response) => {
+                console.log('Slot deleted successfully via API.', response);
+                this.isLoading = false;
+                this.showToastNotification("Availability time slot deleted successfully!", "success");
+                
+                // Update UI after successful API deletion
+                this.performLocalDelete(this.selectedInterviewer!, this.selectedSlotId!);
+                this.closeDeleteModal();
+                
+                // Optionally reload from API to ensure UI matches server state
+                // setTimeout(() => { this.loadAvailabilities(); }, 300);
+            },
+            error: (err) => {
+                console.error('API error deleting slot:', err);
+                this.isLoading = false;
+                const errorMessage = err.error?.message || err.message || 'Server error occurred.';
+                this.showToastNotification(`Failed to delete time slot: ${errorMessage}`, "error");
+                this.closeDeleteModal();
+            }
+        });
     }
   }
 

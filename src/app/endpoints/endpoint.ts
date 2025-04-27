@@ -18,6 +18,7 @@ export const endpoint = {
   //Interviewer Availability
   interviewerAvailabilityCreateUrl: `${base}/api/v1/evaluator/intervieweravailabilities`,
   interviewerAvailabilitySearchUrl: `${base}/api/v1/evaluator/intervieweravailabilities/search`,
+  interviewerAvailabilityDeleteUrl: `${base}/api/v1/evaluator/intervieweravailabilities`,
 
   //Interviewer Pending Interview Request
   interviewSearchUrl: `${base}/api/v1/interviews/interviews/search`,

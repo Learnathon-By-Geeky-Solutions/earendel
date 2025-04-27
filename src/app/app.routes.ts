@@ -53,6 +53,7 @@ import { ZoomsdkComponent } from './zoomsdk/zoomsdk.component';
 import { CodeComponent } from './code/code.component';
 import { PendingRequestComponent } from './interviewer-dashboard/pending-request/pending-request.component';
 import { PastInterviewsComponent } from './interviewer-dashboard/past-interviews/past-interviews.component';
+import { NotificationComponent as InterviewerNotificationComponent } from './interviewer-dashboard/notification/notification.component';
 
 export const routes: Routes = [
   { path: '', component: LandingComponent },
@@ -138,6 +139,7 @@ export const routes: Routes = [
       { path: 'past-interviews', component: PastInterviewsComponent },
       { path: 'earnings', component: EarningsComponent },
       { path: 'profile', component: ProfileComponent },
+      { path: 'notification', component: InterviewerNotificationComponent },
     ],
   },
 
