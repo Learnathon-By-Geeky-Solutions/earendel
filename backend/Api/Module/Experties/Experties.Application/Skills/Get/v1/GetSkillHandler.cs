@@ -24,11 +24,8 @@ namespace TalentMesh.Module.Experties.Application.Skills.Get.v1
 
             // Use the specification to include related data
             var spec = new GetSkillSpec(request.Id);
-            var skillItem = await repository.FirstOrDefaultAsync(spec, cancellationToken);
-            if (skillItem == null)
-            {
-                throw new SkillNotFoundException(request.Id);
-            }
+            var skillItem = await repository.FirstOrDefaultAsync(spec, cancellationToken)
+                ?? throw new SkillNotFoundException(request.Id);
 
             // Map related subskills
             var subSkills = skillItem.SubSkills.Select(sub => new SubSkillResponse(
