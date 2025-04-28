@@ -47,6 +47,15 @@ import { AdminProfileComponent } from './admin-dashboard/profile/profile.compone
 import { InterviewerRegistrationComponent } from './candidate-dashboard/interviewer-registration/interviewer-registration.component';
 import { AuthGuardService } from './shared/services/auth-guard.service';
 import { GithubcallbackComponent } from './githubcallback/githubcallback.component';
+import { HiringRubricsComponent } from './admin-dashboard/hiring-rubrics/hiring-rubrics.component';
+import { SenioritiesComponent } from './admin-dashboard/seniorities/seniorities.component';
+import { QuizzesComponent } from './admin-dashboard/quizzes/quizzes.component';
+import { ZoomsdkComponent } from './zoomsdk/zoomsdk.component';
+import { CodeComponent } from './code/code.component';
+import { PendingRequestComponent } from './interviewer-dashboard/pending-request/pending-request.component';
+import { PastInterviewsComponent } from './interviewer-dashboard/past-interviews/past-interviews.component';
+import { NotificationComponent as InterviewerNotificationComponent } from './interviewer-dashboard/notification/notification.component';
+import { FeedbackComponent } from './interviewer-dashboard/feedback/feedback.component';
 
 export const routes: Routes = [
   { path: '', component: LandingComponent },
@@ -64,7 +73,7 @@ export const routes: Routes = [
       { path: 'quiz', component: QuizListComponent },
       { path: 'quiz/start', component: QuizStartComponent },
       { path: 'quiz/interface', component: QuizInterfaceComponent },
-      { path: 'quiz/results', component: QuizResultsComponent },
+      { path: 'quiz/results/:attemptId', component: QuizResultsComponent },
       { path: 'profile', component: CandidateProfileComponent },
       { path: 'notifications', component: CandidateNotificationsComponent },
       { path: 'interview-setup', component: InterviewSetupComponent },
@@ -75,6 +84,9 @@ export const routes: Routes = [
       { path: '', redirectTo: 'requested', pathMatch: 'full' },
     ],
   },
+
+  { path: 'coding-playground', component: CodeComponent },
+  { path: 'meeting', component: ZoomsdkComponent },
 
   {
     path: 'register',
@@ -134,9 +146,13 @@ export const routes: Routes = [
     children: [
       { path: '', component: InterviewerDashboardComponent },
       { path: 'availability', component: AvailabilityComponent },
+      { path: 'pending-request', component: PendingRequestComponent },
       { path: 'upcoming', component: UpcomingInterviewsComponent },
+      { path: 'past-interviews', component: PastInterviewsComponent },
       { path: 'earnings', component: EarningsComponent },
       { path: 'profile', component: ProfileComponent },
+      { path: 'notification', component: InterviewerNotificationComponent },
+      { path: 'interview-feedback', component: FeedbackComponent },
     ],
   },
 
@@ -150,7 +166,10 @@ export const routes: Routes = [
       { path: 'candidates', component: CandidatesComponent },
       { path: 'hr', component: HrComponent },
       { path: 'interviewers', component: InterviewersComponent },
+      { path: 'seniorities', component: SenioritiesComponent },
+      { path: 'quizzes', component: QuizzesComponent },
       { path: 'skills', component: SkillsComponent },
+      { path: 'rubrics', component: HiringRubricsComponent },
       { path: 'jobs', component: JobsComponent },
       { path: 'payments', component: PaymentsComponent },
       { path: 'notifications', component: NotificationsComponent },

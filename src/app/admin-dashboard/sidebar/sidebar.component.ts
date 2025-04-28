@@ -95,12 +95,45 @@ import { LogoutModalComponent } from '../logout-modal/logout-modal.component';
             <li class="nav-item">
               <a
                 class="nav-link d-flex align-items-center gap-2"
+                routerLink="/admin-dashboard/seniorities"
+                routerLinkActive="active"
+                (click)="closeSidebarOnMobile()"
+              >
+                <i class="bi bi-person-video2"></i>
+                <span>Seniorities</span>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a
+                class="nav-link d-flex align-items-center gap-2"
                 routerLink="/admin-dashboard/skills"
                 routerLinkActive="active"
                 (click)="closeSidebarOnMobile()"
               >
                 <i class="bi bi-person-video2"></i>
                 <span>Skills</span>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a
+                class="nav-link d-flex align-items-center gap-2"
+                routerLink="/admin-dashboard/rubrics"
+                routerLinkActive="active"
+                (click)="closeSidebarOnMobile()"
+              >
+                <i class="bi bi-person-video2"></i>
+                <span>Rubrics</span>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a
+                class="nav-link d-flex align-items-center gap-2"
+                routerLink="/admin-dashboard/quizzes"
+                routerLinkActive="active"
+                (click)="closeSidebarOnMobile()"
+              >
+                <i class="bi bi-person-video2"></i>
+                <span>Quizzes</span>
               </a>
             </li>
             <li class="nav-item">

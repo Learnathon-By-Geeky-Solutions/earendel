@@ -35,6 +35,14 @@ import { RouterModule } from '@angular/router';
             class="nav-link px-3 py-2 rounded-2"
             routerLinkActive="active"
             [routerLinkActiveOptions]="{ exact: true }"
+            routerLink="/interviewer-dashboard/pending-request"
+          >
+            Requested Interviews
+          </a>
+          <a
+            class="nav-link px-3 py-2 rounded-2"
+            routerLinkActive="active"
+            [routerLinkActiveOptions]="{ exact: true }"
             routerLink="/interviewer-dashboard/upcoming"
           >
             Upcoming Interviews
@@ -46,6 +54,14 @@ import { RouterModule } from '@angular/router';
             routerLink="/interviewer-dashboard/past-interviews"
           >
             Past Interviews
+          </a>
+          <a
+            class="nav-link px-3 py-2 rounded-2"
+            routerLinkActive="active"
+            [routerLinkActiveOptions]="{ exact: true }"
+            routerLink="/interviewer-dashboard/notification"
+          >
+            Notifications
           </a>
           <a
             class="nav-link px-3 py-2 rounded-2"

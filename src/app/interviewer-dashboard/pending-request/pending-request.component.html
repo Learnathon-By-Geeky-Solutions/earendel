@@ -1,0 +1,240 @@
+<div class="d-flex">
+    <app-sidebar></app-sidebar>
+
+    <!-- Main Content -->
+    <div class="flex-grow-1 p-4">
+        <div class="container">
+            <div class="header">
+                <h2 class="h4 mb-1">Requested Interviews</h2>
+                <p class="text-muted small">{{ requestedInterviews.length }} pending requests</p>
+            </div>
+
+            <!-- Tabs -->
+            <div class="tabs mb-4">
+                <ul class="nav nav-tabs">
+                    <li class="nav-item" *ngFor="let tab of tabs">
+                        <button class="nav-link" [class.active]="activeTab === tab.value"
+                            (click)="setActiveTab(tab.value)">
+                            {{ tab.label }}
+                        </button>
+                    </li>
+                </ul>
+            </div>
+
+            <!-- Loading State -->
+            <div *ngIf="isLoading" class="text-center py-5">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <p class="mt-3 text-muted">Loading interview requests...</p>
+            </div>
+
+            <!-- Error State -->
+            <div *ngIf="error && !isLoading" class="alert alert-danger">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                {{ error }}
+                <button class="btn btn-sm btn-outline-danger ms-3" (click)="loadInterviews()">Try Again</button>
+            </div>
+
+            <!-- Pending Interviews -->
+            <div class="interview-list" *ngIf="activeTab === 'pending' && !isLoading && !error">
+                <!-- No data state -->
+                <div *ngIf="requestedInterviews.length === 0" class="text-center p-5">
+                    <i class="bi bi-inbox fs-1 text-muted mb-3"></i>
+                    <p class="lead">No pending interview requests</p>
+                </div>
+
+                <!-- Interview list -->
+                <div class="row" *ngIf="requestedInterviews.length > 0">
+                    <div class="col-12" *ngFor="let interview of requestedInterviews">
+                        <div class="card shadow-sm border-0 interview-card">
+                            <!-- Card Header with Interview Info -->
+                            <div class="interview-card-header">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div class="d-flex align-items-center">
+                                        <div class="candidate-avatar me-3">
+                                            <div class="avatar-circle">
+                                                {{ interview.candidate.charAt(0) | uppercase }}
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <h3 class="h5 mb-1 fw-bold">{{ interview.candidate }}</h3>
+                                            <p class="mb-0 text-primary">{{ interview.role }}</p>
+                                            <div class="d-flex align-items-center mt-1">
+                                                <i class="bi bi-person me-1 text-muted small"></i>
+                                                <span class="small text-muted">Posted by: {{ interview.company }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <span class="badge bg-warning text-dark py-2 px-3 rounded-pill">Pending</span>
+                                </div>
+                            </div>
+
+                            <!-- Job Details Section -->
+                            <div class="interview-card-body"
+                                *ngIf="interview.description || interview.requirements || interview.experienceLevel">
+                                <div class="accordion" id="jobDetailsAccordion-{{interview.id}}">
+                                    <div class="accordion-item">
+                                        <h2 class="accordion-header" id="jobHeading-{{interview.id}}">
+                                            <button class="accordion-button collapsed" type="button"
+                                                data-bs-toggle="collapse"
+                                                [attr.data-bs-target]="'#jobCollapse-' + interview.id"
+                                                aria-expanded="false"
+                                                [attr.aria-controls]="'jobCollapse-' + interview.id">
+                                                <i class="bi bi-briefcase me-2"></i> Job Details
+                                            </button>
+                                        </h2>
+                                        <div [id]="'jobCollapse-' + interview.id" class="accordion-collapse collapse"
+                                            [attr.aria-labelledby]="'jobHeading-' + interview.id">
+                                            <div class="accordion-body">
+                                                <div class="job-detail-item" *ngIf="interview.description">
+                                                    <h6 class="fw-bold">Description</h6>
+                                                    <p class="text-muted">{{ interview.description }}</p>
+                                                </div>
+
+                                                <div class="job-detail-item" *ngIf="interview.requirements">
+                                                    <h6 class="fw-bold">Requirements</h6>
+                                                    <p class="text-muted">{{ interview.requirements }}</p>
+                                                </div>
+
+                                                <div class="job-detail-item" *ngIf="interview.experienceLevel">
+                                                    <h6 class="fw-bold">Experience Level</h6>
+                                                    <p class="text-muted">{{ interview.experienceLevel }}</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Footer with Date and Actions -->
+                            <div
+                                class="interview-card-footer d-flex justify-content-between align-items-center bg-light">
+                                <div class="date-badge d-flex align-items-center">
+                                    <i class="bi bi-calendar-event me-2 text-primary"></i>
+                                    <span>Requested: {{ formatDate(interview.requestedDate) }}</span>
+                                </div>
+                                <div class="action-buttons">
+                                    <button class="btn btn-outline-secondary me-2"
+                                        (click)="interview.status = 'declined'">
+                                        <i class="bi bi-x-circle me-1"></i> Decline
+                                    </button>
+                                    <button class="btn btn-primary" (click)="handleAccept(interview.id.toString())">
+                                        <i class="bi bi-check-circle me-1"></i> Accept
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Accepted Interviews -->
+            <div class="empty-state text-center p-5" *ngIf="activeTab === 'accepted' && !isLoading">
+                <i class="bi bi-calendar-check fs-1 text-muted mb-3"></i>
+                <p class="lead">No accepted interviews yet</p>
+            </div>
+
+            <!-- Declined Interviews -->
+            <div class="empty-state text-center p-5" *ngIf="activeTab === 'declined' && !isLoading">
+                <i class="bi bi-calendar-x fs-1 text-muted mb-3"></i>
+                <p class="lead">No declined interviews yet</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Time Selection Dialog -->
+<div class="modal-backdrop fade show" *ngIf="isDialogOpen"></div>
+<div class="modal d-block" tabindex="-1" *ngIf="isDialogOpen">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header border-bottom-0">
+                <h5 class="modal-title fw-bold">Select Available Time</h5>
+                <button type="button" class="btn-close" (click)="closeDialog()"></button>
+            </div>
+            <div class="modal-body pt-0">
+                <p class="mb-4">Choose from your available time slots to schedule this interview</p>
+
+                <!-- Loading State -->
+                <div *ngIf="isLoadingTimeSlots" class="text-center py-4">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading time slots...</span>
+                    </div>
+                    <p class="mt-3 text-muted">Loading available time slots...</p>
+                </div>
+
+                <!-- Error State -->
+                <div *ngIf="timeSlotError && !isLoadingTimeSlots" class="alert alert-warning">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                    {{ timeSlotError }}
+                </div>
+
+                <!-- Time Slots -->
+                <div *ngIf="!isLoadingTimeSlots && !timeSlotError && availableDates.length > 0">
+                    <div class="mb-3" *ngFor="let dateItem of availableDates">
+                        <div class="time-slot-card">
+                            <div class="time-slot-header" (click)="toggleDateCollapsible(dateItem.date)">
+                                <div class="d-flex align-items-center">
+                                    <i class="bi bi-calendar-date me-2"></i>
+                                    <span class="fw-medium">{{ dateItem.dayOfWeek }}, {{ formatFullDate(dateItem.date)
+                                        }}</span>
+                                </div>
+                                <div class="d-flex align-items-center">
+                                    <span class="slot-badge">
+                                        {{ dateItem.slots.length }} {{ dateItem.slots.length === 1 ? 'slot' : 'slots' }}
+                                    </span>
+                                    <i class="bi" [class.bi-chevron-up]="isDateOpen(dateItem.date)"
+                                        [class.bi-chevron-down]="!isDateOpen(dateItem.date)"></i>
+                                </div>
+                            </div>
+                            <div class="time-slot-body" *ngIf="isDateOpen(dateItem.date)">
+                                <div class="time-option" *ngFor="let slot of dateItem.slots">
+                                    <input type="radio" class="btn-check" [id]="'slot-' + dateItem.date + '-' + slot.id"
+                                        [value]="dateItem.date + '|' + slot.id" [(ngModel)]="selectedDateSlot"
+                                        name="timeSlot">
+                                    <label class="time-option-label" [for]="'slot-' + dateItem.date + '-' + slot.id">
+                                        <i class="bi bi-clock me-2"></i>
+                                        <span>{{ formatTime(slot.start) }} - {{ formatTime(slot.end) }}</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- No Available Time Slots -->
+                <div class="text-center p-4"
+                    *ngIf="!isLoadingTimeSlots && !timeSlotError && availableDates.length === 0">
+                    <i class="bi bi-calendar-x fs-1 text-muted mb-3"></i>
+                    <p class="text-muted">No available time slots found. Please set your availability.</p>
+                    <a routerLink="/interviewer-dashboard/availability" class="btn btn-outline-primary mt-2">
+                        Set Availability
+                    </a>
+                </div>
+            </div>
+            <div class="modal-footer border-top-0">
+                <button type="button" class="btn btn-outline-secondary" [disabled]="isConfirming"
+                    (click)="closeDialog()">Cancel</button>
+                <button type="button" class="btn btn-primary px-4"
+                    [disabled]="!selectedDateSlot || isLoadingTimeSlots || isConfirming" (click)="handleConfirm()">
+                    <span *ngIf="!isConfirming">Confirm Time</span>
+                    <span *ngIf="isConfirming">
+                        <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                        Confirming...
+                    </span>
+                </button>
+            </div>
+
+            <!-- Success/Error Messages -->
+            <div *ngIf="confirmationMessage" class="alert alert-success mt-3 mx-3 mb-0">
+                <i class="bi bi-check-circle-fill me-2"></i>
+                {{ confirmationMessage }}
+            </div>
+            <div *ngIf="confirmationError" class="alert alert-danger mt-3 mx-3 mb-0">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                {{ confirmationError }}
+            </div>
+        </div>
+    </div>
+</div>

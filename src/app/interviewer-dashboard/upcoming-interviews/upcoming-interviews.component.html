@@ -1,1 +1,183 @@
-<p>upcoming-interviews works!</p>
+<div class="d-flex">
+    <app-sidebar> </app-sidebar>
+    <div class="content-wrapper">
+        <div class="container-fluid py-4 px-4">
+            <!-- Header section -->
+            <div class="header-section mb-4">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h1 class="h3 fw-bold mb-1">Upcoming Interviews</h1>
+                        <p class="text-muted">
+                            You have <span class="text-primary fw-medium">{{ totalItems }}</span> upcoming interviews
+                        </p>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-outline-primary rounded-pill refresh-btn" (click)="loadInterviews()">
+                            <i class="bi bi-arrow-clockwise me-1"></i> Refresh
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Loading state -->
+            <div *ngIf="isLoading" class="text-center py-5">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <p class="mt-3 text-muted">Loading your upcoming interviews...</p>
+            </div>
+
+            <!-- Error state -->
+            <div *ngIf="error && !isLoading" class="alert alert-danger">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                {{ error }}
+                <button class="btn btn-sm btn-outline-danger ms-3" (click)="loadInterviews()">Try Again</button>
+            </div>
+
+            <!-- No data state -->
+            <div *ngIf="!isLoading && !error && interviews.length === 0" class="empty-state text-center py-5">
+                <div class="empty-state-icon">
+                    <i class="bi bi-calendar-x"></i>
+                </div>
+                <h3 class="h5 mt-3">No upcoming interviews found</h3>
+                <p class="text-muted">When you accept interview requests, they will appear here.</p>
+            </div>
+
+            <!-- Data state -->
+            <div *ngIf="!isLoading && !error && interviews.length > 0">
+                <div class="card border-0 shadow-sm rounded-3">
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover interview-table mb-0">
+                                <thead>
+                                    <tr>
+                                        <th class="ps-4">Candidate</th>
+                                        <th>Role</th>
+                                        <th>Company</th>
+                                        <th>
+                                            <i class="bi bi-calendar-event me-1"></i>
+                                            Date
+                                        </th>
+                                        <th>
+                                            <i class="bi bi-clock me-1"></i>
+                                            Time
+                                        </th>
+                                        <th class="text-end pe-4">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr *ngFor="let interview of paginatedInterviews" class="interview-row">
+                                        <td class="ps-4">
+                                            <div class="d-flex align-items-center">
+                                                <div class="avatar me-2 bg-primary-soft rounded-circle text-primary">
+                                                    {{ interview.candidate.charAt(0) | uppercase }}
+                                                </div>
+                                                <span class="fw-medium">{{ interview.candidate }}</span>
+                                            </div>
+                                        </td>
+                                        <td>{{ interview.role }}</td>
+                                        <td>{{ interview.company }}</td>
+                                        <td>{{ interview.date }}</td>
+                                        <td>{{ interview.time }}</td>
+                                        <td class="text-end pe-4">
+                                            <div class="d-flex gap-2 justify-content-end">
+                                                <button class="btn btn-outline-secondary btn-sm"
+                                                    (click)="viewDetails(interview)">
+                                                    <i class="bi bi-info-circle me-1"></i> Details
+                                                </button>
+                                                <button *ngIf="hasValidMeeting(interview)"
+                                                    class="btn btn-primary btn-sm"
+                                                    (click)="joinZoomMeeting(interview, $event)">
+                                                    <i class="bi bi-camera-video-fill me-1"></i> Join Meeting
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="border-top p-3">
+                            <app-pagination [currentPage]="currentPage" [pageSize]="pageSize" [totalItems]="totalItems"
+                                (pageChange)="onPageChange($event)"></app-pagination>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Interview Details Modal -->
+<div class="modal fade" [class.show]="showDetailsModal" [class.d-block]="showDetailsModal" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content border-0 shadow" *ngIf="selectedInterview">
+            <div class="modal-header border-bottom-0 pb-0">
+                <h5 class="modal-title fw-bold">Interview Details</h5>
+                <button type="button" class="btn-close" (click)="closeDetailsModal()"></button>
+            </div>
+            <div class="modal-body pt-3">
+                <div class="card bg-light border-0 mb-3">
+                    <div class="card-body py-3">
+                        <div class="d-flex align-items-center mb-2">
+                            <div class="avatar me-3 bg-primary-soft rounded-circle text-primary">
+                                {{ selectedInterview.candidate.charAt(0) | uppercase }}
+                            </div>
+                            <div>
+                                <h6 class="fw-bold mb-0">{{ selectedInterview.candidate }}</h6>
+                                <p class="text-muted small mb-0">{{ selectedInterview.role }}</p>
+                            </div>
+                        </div>
+                        <div class="d-flex justify-content-between mt-2">
+                            <div class="interview-detail">
+                                <span class="small text-muted d-block">Company</span>
+                                <span class="fw-medium">{{ selectedInterview.company }}</span>
+                            </div>
+                            <div class="interview-detail text-end">
+                                <span class="small text-muted d-block">Schedule</span>
+                                <span class="fw-medium">{{ selectedInterview.date }} at {{ selectedInterview.time
+                                    }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-3" *ngIf="selectedInterview.meetingId">
+                    <h6 class="fw-bold mb-2">Meeting Information</h6>
+                    <div class="d-flex align-items-center meeting-info bg-light p-3 rounded">
+                        <i class="bi bi-camera-video text-primary me-2 fs-5"></i>
+                        <div>
+                            <p class="mb-0 small">Meeting ID: <span class="text-dark fw-medium">{{
+                                    selectedInterview.meetingId }}</span></p>
+                            <p class="mb-0 small text-muted">Click the join button below to enter the meeting</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div *ngIf="selectedInterview.description" class="mb-3">
+                    <h6 class="fw-bold mb-2">Job Description</h6>
+                    <p class="text-muted small">{{ selectedInterview.description }}</p>
+                </div>
+
+                <div *ngIf="selectedInterview.requirements" class="mb-3">
+                    <h6 class="fw-bold mb-2">Requirements</h6>
+                    <p class="text-muted small">{{ selectedInterview.requirements }}</p>
+                </div>
+
+                <div *ngIf="selectedInterview.experienceLevel" class="mb-3">
+                    <h6 class="fw-bold mb-2">Experience Level</h6>
+                    <p class="text-muted small">{{ selectedInterview.experienceLevel }}</p>
+                </div>
+            </div>
+            <div class="modal-footer border-top-0">
+                <button type="button" class="btn btn-outline-secondary" (click)="closeDetailsModal()">
+                    <i class="bi bi-x me-1"></i> Close
+                </button>
+                <button *ngIf="hasValidMeeting(selectedInterview)" class="btn btn-primary"
+                    (click)="joinZoomMeeting(selectedInterview, $event)">
+                    <i class="bi bi-camera-video-fill me-1"></i> Join Meeting
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal-backdrop fade" [class.show]="showDetailsModal" *ngIf="showDetailsModal"></div>

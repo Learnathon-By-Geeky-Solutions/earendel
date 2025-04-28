@@ -1,0 +1,119 @@
+<div class="feedback-container">
+    <h1>Feedback</h1>
+    <p class="subtitle">Add questions, answers, and scores for interview feedback</p>
+
+    <!-- Status messages -->
+    <div *ngIf="errorMessage" class="error-message">
+        {{ errorMessage }}
+    </div>
+    <div *ngIf="successMessage" class="success-message">
+        {{ successMessage }}
+    </div>
+
+    <div class="feedback-form">
+        <div *ngFor="let pair of feedbackPairs; let i = index" class="question-answer-pair">
+            <h2>Question-Answer Pair {{ i + 1 }}</h2>
+
+            <div class="form-group">
+                <label for="question-{{i}}">Question</label>
+                <input type="text" id="question-{{i}}" [(ngModel)]="pair.question" placeholder="Enter your question"
+                    class="form-control">
+            </div>
+
+            <div class="form-group">
+                <label for="answer-{{i}}">Answer</label>
+                <textarea id="answer-{{i}}" [(ngModel)]="pair.answer" placeholder="Enter your answer"
+                    class="form-control"></textarea>
+            </div>
+
+            <div class="form-group">
+                <div class="score-header">
+                    <label>Score</label>
+                    <span class="score-label score-{{pair.score}}">
+                        {{ pair.score }} - {{ getScoreLabel(pair.score) }}
+                    </span>
+                </div>
+
+                <div class="custom-slider" [attr.data-value]="pair.score" #sliderContainer>
+                    <div class="slider-track">
+                        <div class="slider-range" [style.width]="getSliderWidth(pair.score) + '%'"></div>
+                    </div>
+                    <input type="range" min="1" max="5" step="1" [(ngModel)]="pair.score"
+                        (input)="updateSliderPosition($event, pair)" class="slider-input">
+                </div>
+
+                <div class="score-labels">
+                    <span>
+                        <strong>1</strong>
+                        <span>Very Bad</span>
+                    </span>
+                    <span>
+                        <strong>2</strong>
+                        <span>Bad</span>
+                    </span>
+                    <span>
+                        <strong>3</strong>
+                        <span>Average</span>
+                    </span>
+                    <span>
+                        <strong>4</strong>
+                        <span>Good</span>
+                    </span>
+                    <span>
+                        <strong>5</strong>
+                        <span>Very Good</span>
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <button type="button" class="add-more-btn" (click)="addMore()">
+            <span class="add-icon">+</span> Add More
+        </button>
+
+        <button type="button" class="submit-btn" [disabled]="isSubmitting" (click)="openConfirmDialog()">
+            <span *ngIf="isSubmitting">Submitting...</span>
+            <span *ngIf="!isSubmitting">Submit Feedback</span>
+        </button>
+    </div>
+</div>
+
+<!-- Confirmation Dialog -->
+<div class="modal-overlay" *ngIf="showConfirmDialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Confirm Submission</h3>
+                <button type="button" class="close-btn" (click)="cancelConfirmation()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to submit the feedback?</p>
+                <p>After successful submission, you will be redirected to the Interviewer Dashboard.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="cancel-btn" (click)="cancelConfirmation()">Cancel</button>
+                <button type="button" class="confirm-btn" (click)="confirmSubmission()">Submit</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Partial Success Dialog -->
+<div class="modal-overlay" *ngIf="showPartialSuccessDialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Partial Success</h3>
+                <button type="button" class="close-btn" (click)="cancelPartialConfirmation()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>Only {{ submittedCount }} of {{ totalCount }} feedback items were submitted successfully.</p>
+                <p>Do you still want to proceed to the dashboard?</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="cancel-btn" (click)="cancelPartialConfirmation()">Stay Here</button>
+                <button type="button" class="confirm-btn" (click)="confirmPartialSuccess()">Go to Dashboard</button>
+            </div>
+        </div>
+    </div>
+</div>

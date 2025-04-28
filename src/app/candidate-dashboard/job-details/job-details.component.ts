@@ -1,97 +1,121 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatDialogModule, MatDialog } from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { Job } from '../services/job.service';
+
+@Component({
+  selector: 'app-cover-letter-dialog',
+  standalone: true,
+  imports: [
+    CommonModule,
+    FormsModule,
+    MatButtonModule,
+    MatDialogModule,
+    MatFormFieldModule,
+    MatInputModule
+  ],
+  template: `
+    <h2 mat-dialog-title>Add Cover Letter</h2>
+    <mat-dialog-content>
+      <p>Please write a cover letter for your job application:</p>
+      <mat-form-field appearance="outline" style="width: 100%">
+        <mat-label>Cover Letter</mat-label>
+        <textarea
+          matInput
+          [(ngModel)]="coverLetter"
+          rows="8"
+          placeholder="Tell us why you're a good fit for this position..."
+        ></textarea>
+      </mat-form-field>
+    </mat-dialog-content>
+    <mat-dialog-actions align="end">
+      <button mat-button mat-dialog-close>Cancel</button>
+      <button mat-raised-button color="primary" [mat-dialog-close]="coverLetter">Submit Application</button>
+    </mat-dialog-actions>
+  `
+})
+export class CoverLetterDialogComponent {
+  coverLetter = '';
+}
 
 @Component({
   selector: 'app-job-details-modal',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, MatButtonModule, MatIconModule, MatDialogModule, FormsModule],
   template: `
     <div *ngIf="isOpen" class="modal-overlay" (click)="close()">
       <div class="modal-content" (click)="$event.stopPropagation()">
         <div class="modal-header">
           <div>
-            <h2>{{ job.position }}</h2>
-            <p class="company-name">{{ job.companyName }}</p>
+            <h2>{{ job.name }}</h2>
+            <p class="posted-date">Posted {{ job.createdOn | date }}</p>
           </div>
           <button class="close-btn" (click)="close()">
-            <i class="bi bi-x"></i>
+            <mat-icon>close</mat-icon>
           </button>
         </div>
 
         <div class="modal-body">
           <div class="info-grid">
             <div class="info-item">
-              <i class="bi bi-briefcase"></i>
+              <mat-icon>work</mat-icon>
               <div>
-                <label>Experience</label>
-                <span>{{ job.experience }} years</span>
+                <label>Experience Level</label>
+                <span>{{ job.experienceLevel }}</span>
               </div>
             </div>
             <div class="info-item">
-              <i class="bi bi-currency-dollar"></i>
-              <div>
-                <label>Salary</label>
-                <span>{{ job.salary }}</span>
-              </div>
-            </div>
-            <div class="info-item">
-              <i class="bi bi-geo-alt"></i>
+              <mat-icon>location_on</mat-icon>
               <div>
                 <label>Location</label>
-                <span>{{ job.location || 'Remote' }}</span>
+                <span>{{ job.location }}</span>
               </div>
             </div>
             <div class="info-item">
-              <i class="bi bi-clock"></i>
+              <mat-icon>business</mat-icon>
               <div>
-                <label>Employment Type</label>
-                <span>{{ job.employmentType || 'Full Time' }}</span>
+                <label>Job Type</label>
+                <span>{{ job.jobType }}</span>
               </div>
             </div>
           </div>
 
           <div class="section">
             <h3>Description</h3>
-            <p>{{ job.description || 'No description provided.' }}</p>
+            <p>{{ job.description }}</p>
           </div>
 
           <div class="section">
             <h3>Requirements</h3>
-            <ul>
-              <li *ngFor="let req of job.requirements">{{ req }}</li>
-            </ul>
+            <p>{{ job.requirments }}</p>
           </div>
 
-          <div class="section">
-            <h3>Responsibilities</h3>
-            <ul>
-              <li *ngFor="let resp of job.responsibilities">{{ resp }}</li>
-            </ul>
-          </div>
-
-          <div class="section">
+          <div class="section" *ngIf="job.requiredSkillIds && job.requiredSkillIds.length > 0">
             <h3>Required Skills</h3>
             <div class="skills-list">
-              <span *ngFor="let skill of job.skills" class="skill-tag">
-                {{ skill }}
+              <span *ngFor="let skillId of job.requiredSkillIds" class="skill-tag">
+                {{ skillId }}
               </span>
             </div>
           </div>
-
-          <div class="section">
-            <h3>Benefits</h3>
-            <ul>
-              <li *ngFor="let benefit of job.benefits">{{ benefit }}</li>
-            </ul>
+          
+          <div class="section" *ngIf="job.requiredSubskillIds && job.requiredSubskillIds.length > 0">
+            <h3>Required Subskills</h3>
+            <div class="skills-list">
+              <span *ngFor="let subskillId of job.requiredSubskillIds" class="skill-tag">
+                {{ subskillId }}
+              </span>
+            </div>
           </div>
         </div>
 
         <div class="modal-footer">
-          <button
-            class="apply-btn"
-            [disabled]="job.status === 'closed'"
-            (click)="apply()"
-          >
+          <button mat-raised-button color="primary" (click)="apply()">
             Apply Now
           </button>
         </div>
@@ -138,8 +162,8 @@ import { CommonModule } from '@angular/common';
           color: #333;
         }
 
-        .company-name {
-          font-size: 16px;
+        .posted-date {
+          font-size: 14px;
           color: #666;
           margin: 0;
         }
@@ -148,7 +172,6 @@ import { CommonModule } from '@angular/common';
       .close-btn {
         background: none;
         border: none;
-        font-size: 24px;
         color: #666;
         cursor: pointer;
         padding: 4px;
@@ -176,7 +199,7 @@ import { CommonModule } from '@angular/common';
         gap: 12px;
         align-items: start;
 
-        i {
+        mat-icon {
           font-size: 20px;
           color: #666;
         }
@@ -211,28 +234,6 @@ import { CommonModule } from '@angular/common';
           color: #666;
           margin: 0;
         }
-
-        ul {
-          list-style: none;
-          padding: 0;
-          margin: 0;
-
-          li {
-            position: relative;
-            padding-left: 24px;
-            margin-bottom: 12px;
-            font-size: 14px;
-            color: #666;
-            line-height: 1.6;
-
-            &:before {
-              content: '•';
-              position: absolute;
-              left: 8px;
-              color: #999;
-            }
-          }
-        }
       }
 
       .skills-list {
@@ -242,72 +243,43 @@ import { CommonModule } from '@angular/common';
       }
 
       .skill-tag {
-        padding: 4px 12px;
-        background: #f8f9fa;
+        padding: 6px 12px;
+        background: #f5f5f5;
         border-radius: 16px;
         font-size: 12px;
         color: #666;
       }
 
       .modal-footer {
-        padding: 24px;
+        padding: 16px 24px;
         border-top: 1px solid #eee;
-      }
-
-      .apply-btn {
-        width: 100%;
-        padding: 12px;
-        background: #0066ff;
-        color: white;
-        border: none;
-        border-radius: 8px;
-        font-size: 16px;
-        font-weight: 500;
-        cursor: pointer;
-        transition: all 0.2s ease;
-
-        &:hover:not(:disabled) {
-          background: #0052cc;
-        }
-
-        &:disabled {
-          background: #e9ecef;
-          color: #666;
-          cursor: not-allowed;
-        }
-      }
-
-      @media (max-width: 768px) {
-        .modal-overlay {
-          padding: 16px;
-        }
-
-        .modal-header,
-        .modal-body,
-        .modal-footer {
-          padding: 16px;
-        }
-
-        .info-grid {
-          grid-template-columns: 1fr;
-          gap: 16px;
-        }
+        display: flex;
+        justify-content: flex-end;
       }
     `,
   ],
 })
 export class JobDetailsModalComponent {
   @Input() isOpen = false;
-  @Input() job!: any;
+  @Input() job!: Job;
   @Output() closeModal = new EventEmitter<void>();
-  @Output() applyForJob = new EventEmitter<string>();
+  @Output() applyForJob = new EventEmitter<{job: Job, coverLetter: string}>();
+
+  constructor(private dialog: MatDialog) {}
 
   close() {
     this.closeModal.emit();
   }
 
   apply() {
-    this.applyForJob.emit(this.job.id);
-    this.close();
+    const dialogRef = this.dialog.open(CoverLetterDialogComponent, {
+      width: '600px'
+    });
+
+    dialogRef.afterClosed().subscribe(coverLetter => {
+      if (coverLetter) {
+        this.applyForJob.emit({job: this.job, coverLetter});
+      }
+    });
   }
 }

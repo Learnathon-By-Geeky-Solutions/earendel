@@ -98,3 +98,40 @@
     margin-top: 0.5rem;
   }
 }
+
+/* Add toast styles */
+.toast-container {
+  margin-bottom: 20px;
+}
+
+.toast {
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.toast.show.d-block {
+  opacity: 1;
+}
+
+.toast-header {
+  border-bottom: 0;
+}
+
+.toast-header.bg-success {
+  background-color: #28a745 !important;
+}
+
+.toast-header.bg-error {
+  background-color: #dc3545 !important;
+}
+
+.toast-header.bg-info {
+  background-color: #17a2b8 !important;
+}
+
+.toast-body {
+  padding: 12px 16px;
+  font-size: 0.95rem;
+  line-height: 1.4;
+}
