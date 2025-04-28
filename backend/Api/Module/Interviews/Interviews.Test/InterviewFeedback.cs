@@ -129,7 +129,7 @@ namespace TalentMesh.Module.Interviews.Tests
             Assert.NotNull(result);
             Assert.Equal(expectedInterviewFeedback.Id, result.Id);
             Assert.Equal(expectedInterviewFeedback.InterviewId, result.InterviewId);
-            Assert.Equal(expectedInterviewFeedback.InterviewQuestionText, result.InterviewQuestionQuestion);
+            Assert.Equal(expectedInterviewFeedback.InterviewQuestionText, result.InterviewQuestionText);
 
             _readRepositoryMock.Verify(repo => repo.GetByIdAsync(InterviewFeedbackId, It.IsAny<CancellationToken>()), Times.Once);
             _cacheServiceMock.Verify(cache => cache.SetAsync(It.IsAny<string>(), It.IsAny<InterviewFeedbackResponse>(), It.IsAny<TimeSpan?>(), It.IsAny<CancellationToken>()), Times.Once);
