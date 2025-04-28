@@ -4,12 +4,13 @@ using TalentMesh.Module.Interviews.Domain.Exceptions;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using TalentMesh.Framework.Infrastructure.Messaging;
 
 namespace TalentMesh.Module.Interviews.Application.Interviews.Update.v1;
 
 public sealed class UpdateInterviewHandler(
     ILogger<UpdateInterviewHandler> logger,
-    [FromKeyedServices("interviews:interview")] IRepository<Interview> repository)
+    [FromKeyedServices("interviews:interview")] IRepository<Interview> repository, IMessageBus messageBus)
     : IRequestHandler<UpdateInterviewCommand, UpdateInterviewResponse>
 {
     public async Task<UpdateInterviewResponse> Handle(UpdateInterviewCommand request, CancellationToken cancellationToken)
@@ -31,6 +32,28 @@ public sealed class UpdateInterviewHandler(
 
         // Save the updated interview back to the repository
         await repository.UpdateAsync(interview, cancellationToken);
+
+        var notificationMessage = new 
+        {
+            UserId = "null",
+            Entity = request.JobId, 
+            EntityType = "InterviewScheduled.HR",
+            Message = $"Interviewer {request.InterviewerId} has accepted the interview for Job {request.JobId} with Candidate {request.CandidateId} scheduled at {request.InterviewDate:yyyy-MM-dd HH:mm}."
+        };
+
+        await messageBus.PublishAsync(notificationMessage, "notification.events", "notification.fetched", cancellationToken);
+
+
+        var candidateNotification = new
+        {
+            UserId = request.CandidateId,
+            Entity = request.JobId,
+            EntityType = "InterviewScheduled.Candidate",    // ← distinct type
+            Message = $"Your interview for Job {request.JobId} has been accepted by Interviewer {request.InterviewerId}, scheduled at {request.InterviewDate:yyyy-MM-dd HH:mm}."
+        };
+
+        await messageBus.PublishAsync(candidateNotification, "notification.events", "notification.fetched", cancellationToken);
+
 
         // Log the update action
         logger.LogInformation("Interview with id: {InterviewId} updated.", interview.Id);

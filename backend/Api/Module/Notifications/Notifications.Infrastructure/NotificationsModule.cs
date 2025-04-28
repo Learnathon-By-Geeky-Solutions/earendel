@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using System.Diagnostics.CodeAnalysis;
+using TalentMesh.Module.Notifications.Infrastructure.Messaging;
 
 namespace TalentMesh.Module.Notifications.Infrastructure;
 [ExcludeFromCodeCoverage]
@@ -35,6 +36,8 @@ public static class NotificationsModule
         ArgumentNullException.ThrowIfNull(builder);
         builder.Services.BindDbContext<NotificationsDbContext>();
         builder.Services.AddScoped<IDbInitializer, NotificationsDbInitializer>();
+
+        builder.Services.AddHostedService<NotificationConsumer>();
 
         builder.Services.AddKeyedScoped<IRepository<Notification>, NotificationsRepository<Notification>>("notifications:notification");
         builder.Services.AddKeyedScoped<IReadRepository<Notification>, NotificationsRepository<Notification>>("notifications:notificationReadOnly");

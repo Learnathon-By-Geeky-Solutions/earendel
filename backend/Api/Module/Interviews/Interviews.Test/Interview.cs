@@ -16,6 +16,7 @@ using TalentMesh.Framework.Core.Persistence;
 using TalentMesh.Framework.Core.Caching;
 using Microsoft.Extensions.Logging;
 using TalentMesh.Module.Interviews.Application.Services;
+using TalentMesh.Framework.Infrastructure.Messaging;
 
 namespace TalentMesh.Module.Interviews.Tests
 {
@@ -24,6 +25,7 @@ namespace TalentMesh.Module.Interviews.Tests
         private readonly Mock<IRepository<Interview>> _repositoryMock;
         private readonly Mock<IReadRepository<Interview>> _readRepositoryMock;
         private readonly Mock<ICacheService> _cacheServiceMock;
+        private readonly Mock<IMessageBus> _messageServiceMock;
         private readonly Mock<ILogger<CreateInterviewHandler>> _createLoggerMock;
         private readonly Mock<ILogger<DeleteInterviewHandler>> _deleteLoggerMock;
         private readonly Mock<ILogger<GetInterviewHandler>> _getLoggerMock;
@@ -42,6 +44,7 @@ namespace TalentMesh.Module.Interviews.Tests
             _repositoryMock = new Mock<IRepository<Interview>>();
             _readRepositoryMock = new Mock<IReadRepository<Interview>>();
             _cacheServiceMock = new Mock<ICacheService>();
+            _messageServiceMock = new Mock<IMessageBus>();
             _createLoggerMock = new Mock<ILogger<CreateInterviewHandler>>();
             _deleteLoggerMock = new Mock<ILogger<DeleteInterviewHandler>>();
             _getLoggerMock = new Mock<ILogger<GetInterviewHandler>>();
@@ -50,11 +53,11 @@ namespace TalentMesh.Module.Interviews.Tests
 
             _zoomServiceMock = new Mock<IZoomService>();
 
-            _createHandler = new CreateInterviewHandler(_createLoggerMock.Object, _repositoryMock.Object, _zoomServiceMock.Object);
+            _createHandler = new CreateInterviewHandler(_createLoggerMock.Object, _repositoryMock.Object, _zoomServiceMock.Object, _messageServiceMock.Object);
             _deleteHandler = new DeleteInterviewHandler(_deleteLoggerMock.Object, _repositoryMock.Object);
             _getHandler = new GetInterviewHandler(_readRepositoryMock.Object, _cacheServiceMock.Object);
             _searchHandler = new SearchInterviewsHandler(_readRepositoryMock.Object);
-            _updateHandler = new UpdateInterviewHandler(_updateLoggerMock.Object, _repositoryMock.Object);
+            _updateHandler = new UpdateInterviewHandler(_updateLoggerMock.Object, _repositoryMock.Object, _messageServiceMock.Object);
 
         }
 

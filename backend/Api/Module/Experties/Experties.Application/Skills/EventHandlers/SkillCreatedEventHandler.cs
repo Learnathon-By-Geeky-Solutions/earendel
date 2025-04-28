@@ -31,14 +31,9 @@ namespace TalentMesh.Module.Experties.Application.Skills.EventHandlers
 
         public async Task Handle(SkillCreated notification, CancellationToken cancellationToken)
         {
-            if (notification.Skill is null)
-            {
-                _logger.LogWarning("SkillCreated event received without a valid Skill entity.");
-                return;
-            }
-
-            var skillId = notification.Skill.Id;
-            var skillName = notification.Skill.Name;
+            var skill = notification.Skill!;
+            var skillId = skill.Id;
+            var skillName = skill.Name;
 
             // Combined user context logging
             ClaimsPrincipal? user = _httpContextAccessor.HttpContext?.User;
@@ -51,7 +46,7 @@ namespace TalentMesh.Module.Experties.Application.Skills.EventHandlers
             {
                 SkillId = skillId,
                 Name = skillName,
-                notification.Skill.Description,
+                skill.Description
             };
 
             await _messageBus.PublishAsync(skillMessage, "skill.events", "skill.created", cancellationToken);

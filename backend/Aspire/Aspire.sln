@@ -106,6 +106,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "InterviewerView", "Intervie
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InterviewerView", "..\Api\Module\InterviewerView\InterviewerView.csproj", "{DA0B8CDE-6C87-4D59-A2B2-9AFD0DA7AE61}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Jobs.Test", "..\Api\Module\Jobs\Jobs.Test\Jobs.Test.csproj", "{154005DB-5531-46ED-B528-DE4E0429F0A7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -264,6 +266,10 @@ Global
 		{DA0B8CDE-6C87-4D59-A2B2-9AFD0DA7AE61}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DA0B8CDE-6C87-4D59-A2B2-9AFD0DA7AE61}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DA0B8CDE-6C87-4D59-A2B2-9AFD0DA7AE61}.Release|Any CPU.Build.0 = Release|Any CPU
+		{154005DB-5531-46ED-B528-DE4E0429F0A7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{154005DB-5531-46ED-B528-DE4E0429F0A7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{154005DB-5531-46ED-B528-DE4E0429F0A7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{154005DB-5531-46ED-B528-DE4E0429F0A7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -314,6 +320,7 @@ Global
 		{9ADA5816-8F13-40F7-ACD9-C40C96A43A7C} = {04A66965-7720-4E82-9653-2FD826387960}
 		{ACC14A0B-54BC-4BA2-A5D7-73A4BC585524} = {E5DA2A94-76C5-460A-88A4-CEECDF1DB1DC}
 		{DA0B8CDE-6C87-4D59-A2B2-9AFD0DA7AE61} = {ACC14A0B-54BC-4BA2-A5D7-73A4BC585524}
+		{154005DB-5531-46ED-B528-DE4E0429F0A7} = {E3CC0A2C-90C5-4E7E-97E1-DEF1C9900C5C}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {3F0797FB-39B5-40DB-99C8-40E2B73F0B41}

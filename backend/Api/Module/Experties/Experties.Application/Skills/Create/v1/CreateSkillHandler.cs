@@ -12,35 +12,31 @@ namespace TalentMesh.Module.Experties.Application.Skills.Create.v1
 {
     public sealed class CreateSkillHandler(
         ILogger<CreateSkillHandler> logger,
-        [FromKeyedServices("skills:skill")] IRepository<Experties.Domain.Skill> repository,
+        [FromKeyedServices("skills:skill")] IRepository<Skill> repository,
         IMessageBus messageBus,
-        IMediator mediator) // Add IMediator dependency
+        IMediator mediator)
         : IRequestHandler<CreateSkillCommand, CreateSkillResponse>
     {
         public async Task<CreateSkillResponse> Handle(CreateSkillCommand request, CancellationToken cancellationToken)
         {
             ArgumentNullException.ThrowIfNull(request);
 
-            var skill = Experties.Domain.Skill.Create(request.Name!, request.Description);
+            var skill = Skill.Create(request.Name!, request.Description);
             await repository.AddAsync(skill, cancellationToken);
+
             logger.LogInformation("Skill created {SkillId}", skill.Id);
 
-            // Publish skill creation event
             var skillMessage = new
             {
                 SkillId = skill.Id,
                 Name = skill.Name,
                 Description = skill.Description
             };
-
             await messageBus.PublishAsync(skillMessage, "skill.events.user", "skill.created.user", cancellationToken);
 
-            // **Trigger CreateSeniorityLevelJunctionHandler**
-            if (request.SeniorityLevels?.Count > 0)
-            {
-                var createJunctionCommand = new CreateSeniorityLevelJunctionCommand(skill.Id, request.SeniorityLevels);
-                await mediator.Send(createJunctionCommand, cancellationToken);
-            }
+            var seniorityLevels = request.SeniorityLevels ?? [];
+            var createJunctionCommand = new CreateSeniorityLevelJunctionCommand(skill.Id, seniorityLevels);
+            await mediator.Send(createJunctionCommand, cancellationToken);
 
             return new CreateSkillResponse(skill.Id);
         }
