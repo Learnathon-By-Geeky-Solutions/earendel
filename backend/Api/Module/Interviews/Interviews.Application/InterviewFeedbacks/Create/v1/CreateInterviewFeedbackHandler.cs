@@ -18,7 +18,8 @@ public sealed class CreateInterviewFeedbackHandler(
         // Create InterviewFeedback object
         var interviewFeedback = InterviewFeedback.Create(
             request.InterviewId,
-            request.InterviewQuestionId,
+            // request.InterviewQuestionId,
+            request.InterviewQuestionText,
             request.Response,
             request.Score
         );

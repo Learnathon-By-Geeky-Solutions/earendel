@@ -27,7 +27,7 @@ public sealed class UpdateInterviewFeedbackHandler(
         }
 
         // Update the interview entity with the new fields
-        interview.Update(request.InterviewId, request.InterviewQuestionId, request.Response, request.Score);
+        interview.Update(request.InterviewId, request.InterviewQuestionText, request.Response, request.Score);
 
         // Save the updated interview back to the repository
         await repository.UpdateAsync(interview, cancellationToken);

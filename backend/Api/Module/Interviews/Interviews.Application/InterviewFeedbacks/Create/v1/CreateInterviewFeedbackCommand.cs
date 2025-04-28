@@ -4,7 +4,8 @@ namespace TalentMesh.Module.Interviews.Application.InterviewFeedbacks.Create.v1;
 
 public sealed record CreateInterviewFeedbackCommand(
     Guid InterviewId,
-    Guid InterviewQuestionId,
+    // Guid InterviewQuestionId,
+    string InterviewQuestionText,
     string Response,
     decimal Score
 ) : IRequest<CreateInterviewFeedbackResponse>;
