@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using TalentMesh.Module.Evaluator.Application.Interviewer;
+using TalentMesh.Framework.Infrastructure.Auth.Policy;
 
 namespace TalentMesh.Module.InterviewerView
 {
@@ -22,6 +23,7 @@ namespace TalentMesh.Module.InterviewerView
                 })
                .WithTags("InterviewerFileHandler")
                .WithName("RejectInterviewer")
+               .RequirePermission("Permissions.RejectInterviewers.Create")
                .Produces(StatusCodes.Status204NoContent)
                .Produces(StatusCodes.Status404NotFound)
                .Produces(StatusCodes.Status500InternalServerError);

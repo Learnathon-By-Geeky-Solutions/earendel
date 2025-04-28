@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc; // For [FromBody]
 using Microsoft.AspNetCore.Routing;
+using TalentMesh.Framework.Infrastructure.Auth.Policy;
 
 namespace TalentMesh.Module.HRView.HRFunc 
 {
@@ -53,7 +54,8 @@ namespace TalentMesh.Module.HRView.HRFunc
                 .WithName("CreateJob")
                 .Produces<object>(StatusCodes.Status201Created) // Returns { JobId: "guid" } in body and Location header
                 .ProducesValidationProblem() // For potential validation errors
-                .Produces(StatusCodes.Status500InternalServerError);
+                .Produces(StatusCodes.Status500InternalServerError)
+                .RequirePermission("Permissions.Jobs.Create");
         }
     }
 }

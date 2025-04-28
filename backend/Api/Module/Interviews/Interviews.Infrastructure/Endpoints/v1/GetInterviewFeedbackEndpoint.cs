@@ -23,7 +23,7 @@ public static class GetInterviewFeedbackEndpoint
             .WithSummary("gets Interview by id")
             .WithDescription("gets Interview by id")
             .Produces<InterviewFeedbackResponse>()
-            // .RequirePermission("Permissions.Jobs.View")
+            .RequirePermission("Permissions.InterviewFeedbacks.View")
             .MapToApiVersion(1);
     }
 }

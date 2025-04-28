@@ -24,7 +24,7 @@ namespace TalentMesh.Module.Evaluator.Infrastructure.Endpoints.v1
                 .WithSummary("Gets Interviewer Entry Form by id")
                 .WithDescription("Retrieves an Interviewer Entry Form by its identifier")
                 .Produces<InterviewerEntryFormResponse>()
-                // .RequirePermission("Permissions.Interviews.View")
+                .RequirePermission("Permissions.InterviewerEntryForms.View")
                 .MapToApiVersion(1);
         }
     }

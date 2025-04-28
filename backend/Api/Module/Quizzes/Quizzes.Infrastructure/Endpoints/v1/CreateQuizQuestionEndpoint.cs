@@ -23,7 +23,7 @@ public static class CreateQuizQuestionEndpoint
             .WithSummary("creates a Question")
             .WithDescription("creates a Question")
             .Produces<CreateQuizQuestionResponse>()
-            // .RequirePermission("Permissions.Products.Create")
+            .RequirePermission("Permissions.QuizQuestions.Create")    // ← enforce Create permission
             .MapToApiVersion(1);
     }
 }

@@ -23,7 +23,7 @@ public static class DeleteQuizAttemptEndpoint
             .WithSummary("deletes Quiz by id")
             .WithDescription("deletes Quiz by id")
             .Produces(StatusCodes.Status204NoContent)
-            // .RequirePermission("Permissions.Products.Delete")
+            .RequirePermission("Permissions.QuizAttempts.Delete")    // ← enforce Create permission
             .MapToApiVersion(1);
     }
 }

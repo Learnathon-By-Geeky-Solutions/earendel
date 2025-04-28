@@ -24,7 +24,7 @@ namespace TalentMesh.Module.Job.Infrastructure.Endpoints.v1
                 .WithSummary("Gets a Job Required Subskill by id")
                 .WithDescription("Retrieves a Job Required Subskill association by its identifier")
                 .Produces<JobRequiredSubskillResponse>()
-                .RequirePermission("Permissions.Jobs.View")
+                .RequirePermission("Permissions.JobRequiredSubskills.View") 
                 .MapToApiVersion(1);
         }
     }

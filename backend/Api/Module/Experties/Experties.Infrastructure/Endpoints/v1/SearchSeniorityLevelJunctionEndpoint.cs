@@ -26,7 +26,7 @@ public static class SearchSeniorityLevelJunctionEndpoint
             .WithSummary("Gets a list of seniority level junctions")
             .WithDescription("Gets a list of seniority level junctions with pagination and filtering support")
             .Produces<PagedList<SeniorityLevelJunctionResponse>>()
-            // .RequirePermission("Permissions.SeniorityLevelJunctions.View")
+            .RequirePermission("Permissions.SeniorityLevelJunctions.View")    // ← added
             .MapToApiVersion(1);
     }
 }

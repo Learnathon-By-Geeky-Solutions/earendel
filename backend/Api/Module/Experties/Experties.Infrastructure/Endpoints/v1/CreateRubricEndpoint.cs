@@ -22,7 +22,7 @@ public static class CreateRubricEndpoint
             .WithSummary("creates a Rubric")
             .WithDescription("creates a Rubric")
             .Produces<CreateRubricResponse>()
-            // .RequirePermission("Permissions.Products.Create")
+            .RequirePermission("Permissions.Rubrics.Create")    // ← added
             .MapToApiVersion(1);
     }
 }

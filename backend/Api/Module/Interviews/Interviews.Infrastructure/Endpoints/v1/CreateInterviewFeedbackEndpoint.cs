@@ -23,7 +23,7 @@ public static class CreateInterviewFeedbackEndpoint
             .WithSummary("InterviewFeedback")
             .WithDescription("Interview Question")
             .Produces<CreateInterviewFeedbackResponse>()
-            // .RequirePermission("Permissions.Products.Create")
+            .RequirePermission("Permissions.InterviewFeedbacks.Create") // ✅ Corrected permission
             .MapToApiVersion(1);
     }
 }

@@ -26,7 +26,7 @@ public static class SearchRubricsEndpoint
             .WithSummary("Gets a list of Rubrics")
             .WithDescription("Gets a list of Rubrics with pagination and filtering support")
             .Produces<PagedList<RubricResponse>>()
-            // .RequirePermission("Permissions.Products.View")
+            .RequirePermission("Permissions.Rubrics.View")    // ← added
             .MapToApiVersion(1);
     }
 }

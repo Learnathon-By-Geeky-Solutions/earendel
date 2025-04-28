@@ -23,7 +23,7 @@ public static class UpdateSeniorityEndpoint
             .WithSummary("update a seniority")
             .WithDescription("update a seniority")
             .Produces<UpdateSeniorityResponse>()
-            // .RequirePermission("Permissions.Products.Update")
+            .RequirePermission("Permissions.Seniorities.Update")    // ← added
             .MapToApiVersion(1);
     }
 }

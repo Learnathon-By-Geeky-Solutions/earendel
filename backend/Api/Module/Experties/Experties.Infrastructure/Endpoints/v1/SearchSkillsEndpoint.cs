@@ -26,7 +26,7 @@ public static class SearchSkillsEndpoint
             .WithSummary("Gets a list of skills")
             .WithDescription("Gets a list of skills with pagination and filtering support")
             .Produces<PagedList<SkillResponse>>()
-            // .RequirePermission("Permissions.Products.View")
+            .RequirePermission("Permissions.Skills.View")    // ← added
             .MapToApiVersion(1);
     }
 }

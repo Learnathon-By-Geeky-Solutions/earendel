@@ -26,7 +26,7 @@ public static class SearchInterviewQuestionsEndpoint
             .WithSummary("Gets a list of InterviewQuestion")
             .WithDescription("Gets a list of InterviewQuestion with pagination and filtering support")
             .Produces<PagedList<InterviewQuestionResponse>>()
-            // .RequirePermission("Permissions.Products.View")
+            .RequirePermission("Permissions.InterviewQuestions.View")
             .MapToApiVersion(1);
     }
 }

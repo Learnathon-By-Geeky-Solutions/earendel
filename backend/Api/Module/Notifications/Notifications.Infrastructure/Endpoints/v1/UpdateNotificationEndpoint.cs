@@ -24,7 +24,7 @@ public static class UpdateNotificationEndpoint
             .WithSummary("update Notification")
             .WithDescription("update Notification")
             .Produces<UpdateNotificationResponse>()
-            // .RequirePermission("Permissions.Products.Update")
+            .RequirePermission("Permissions.Notifications.Update")
             .MapToApiVersion(1);
     }
 }

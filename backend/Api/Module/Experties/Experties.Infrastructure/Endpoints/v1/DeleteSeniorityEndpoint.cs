@@ -23,7 +23,7 @@ public static class DeleteSeniorityEndpoint
             .WithSummary("deletes seniority by id")
             .WithDescription("deletes seniority by id")
             .Produces(StatusCodes.Status204NoContent)
-            // .RequirePermission("Permissions.Products.Delete")
+            .RequirePermission("Permissions.Seniorities.Delete")    // ← added
             .MapToApiVersion(1);
     }
 }

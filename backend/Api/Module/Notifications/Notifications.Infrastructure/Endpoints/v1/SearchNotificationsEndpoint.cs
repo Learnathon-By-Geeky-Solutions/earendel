@@ -26,7 +26,7 @@ public static class SearchNotificationsEndpoint
             .WithSummary("Gets a list of Notification")
             .WithDescription("Gets a list of Notification with pagination and filtering support")
             .Produces<PagedList<NotificationResponse>>()
-            // .RequirePermission("Permissions.Products.View")
+            .RequirePermission("Permissions.Notifications.View")
             .MapToApiVersion(1);
     }
 }

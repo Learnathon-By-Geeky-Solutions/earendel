@@ -23,7 +23,7 @@ public static class CreateInterviewEndpoint
             .WithSummary("Interview")
             .WithDescription("Interview")
             .Produces<CreateInterviewResponse>()
-            // .RequirePermission("Permissions.Products.Create")
+            .RequirePermission("Permissions.Interviews.Create")  
             .MapToApiVersion(1);
     }
 }
