@@ -1,0 +1,72 @@
+name: Deploy to Server
+
+on:
+  push:
+    branches:
+      - main
+      - development
+      - feature/UserService
+  pull_request:
+    branches:
+      - main
+      - development
+      - feature/UserService
+
+jobs:
+  deploy:
+    name: Deploy to Server
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    steps:
+      - name: Deploy configuration
+        uses: appleboy/ssh-action@v0.1.8
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          password: ${{ secrets.SERVER_PASSWORD }}
+          script_timeout: 600
+          script: |
+            mkdir -p /root/Learnathon/earendel/backend
+            echo "${{ secrets._APPSETTINGS }}" | base64 --decode > /root/Learnathon/earendel/backend/Api/Server/appsettings.json
+            echo "${{ secrets._TENANT_CONSTANTS_CS }}" | base64 --decode > /root/Learnathon/earendel/backend/Shared/Authorization/TenantConstants.cs
+            chmod 644 /root/Learnathon/earendel/backend/Api/Server/appsettings.json
+            chmod 644 /root/Learnathon/earendel/backend/Shared/Authorization/TenantConstants.cs
+
+      - name: Deploy application
+        uses: appleboy/ssh-action@v0.1.8
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          password: ${{ secrets.SERVER_PASSWORD }}
+          script_timeout: 1800
+          script: |
+            cd /root/Learnathon/earendel
+            echo "Switching to main branch and pulling latest changes..."
+            git checkout main
+            git pull origin main
+            echo "Switching to migrations branch and pulling latest changes..."
+            git checkout migrations
+            git pull origin migrations
+            echo "Backing up migration folders from migrations branch..."
+            rm -rf /tmp/migration-backup
+            mkdir -p /tmp/migration-backup
+            cp -r Migrations/* /tmp/migration-backup/
+
+            echo "Switching back to main branch..."
+            git checkout main
+
+            echo "Cleaning old migration folders inside PGSql (excluding obj, bin, PGSql.csproj)..."
+            cd backend/Api/Migrations/PGSql
+            for folder in Candidates Tenant Identity Job Notifications Experties Evaluator Interviews Quizzes; do
+              rm -rf "$folder"
+            done
+            cd -
+            echo "Copying new migration folders into PGSql..."
+            cp -r /tmp/migration-backup/* backend/Api/Migrations/PGSql/
+            echo "Cleaning up..."
+            rm -rf /tmp/migration-backup
+            echo "Rebuilding and restarting Docker containers..."
+            cd backend
+            docker-compose down 
+            docker-compose up -d --build

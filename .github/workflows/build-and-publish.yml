@@ -1,0 +1,95 @@
+name: .NET CI/CD Workflow with SonarCloud
+
+on:
+  push:
+    branches:
+      - main
+      - development
+      - feature/UserService
+  pull_request:
+    branches:
+      - main
+      - development
+      - feature/UserService
+
+jobs:
+  build-and-analyze:
+    name: Build & Analyze
+    runs-on: ubuntu-latest
+    needs: deploy
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Setup .NET 8 SDK
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Install required tools
+        run: |
+          dotnet tool install --global dotnet-coverage
+          dotnet tool install --global dotnet-sonarscanner
+
+      - name: Begin SonarCloud analysis
+        run: |
+          dotnet sonarscanner begin \
+            /k:"Learnathon-By-Geeky-Solutions_earendel" \
+            /o:"learnathon-by-geeky-solutions" \
+            /d:sonar.host.url="https://sonarcloud.io" \
+            /d:sonar.token="${{ secrets.SONAR_TOKEN }}" \
+            /d:sonar.cs.vscoveragexml.reportsPaths="backend/Aspire/coverage.xml" \
+            /d:sonar.coverage.exclusions="**Test*.cs,**/Migrations/**" \
+            /d:sonar.projectBaseDir="${{ github.workspace }}" \
+            /d:sonar.qualitygate.wait=true
+
+      - name: Restore TenantConstants.cs
+        run: |
+          echo "${{ secrets._TENANT_CONSTANTS_CS }}" | base64 --decode > backend/Shared/Authorization/TenantConstants.cs
+
+      - name: Build solution
+        run: dotnet restore backend/Aspire/Aspire.sln && dotnet build backend/Aspire/Aspire.sln -c Release --no-restore
+
+      - name: Run tests with coverage collection
+        run: |
+          mkdir -p test-results
+          dotnet-coverage collect "dotnet test backend/Aspire/Aspire.sln --no-build --configuration Release" \
+            -f xml \
+            -o "backend/Aspire/coverage.xml"
+
+      - name: End SonarCloud analysis
+        run: dotnet sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
+
+  publish:
+    name: Publish Application
+    runs-on: ubuntu-latest
+    needs: build-and-analyze
+    timeout-minutes: 20
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Restore TenantConstants.cs
+        run: |
+          echo "${{ secrets._TENANT_CONSTANTS_CS }}" | base64 --decode > backend/Shared/Authorization/TenantConstants.cs
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: "8.0.x"
+
+      - name: Publish application
+        run: |
+          dotnet publish backend/Api/Server/Server.csproj \
+            -c Release \
+            -o backend/Api/Server/publish
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: published-app
+          path: backend/Api/Server/publish/
