@@ -22,6 +22,7 @@ interface Interview {
 interface ProcessedInterview extends InterviewRequest {
   date: string;
   time: string;
+  originalDate?: Date | null; // Store the original Date object for filtering
 }
 
 @Component({
@@ -65,14 +66,18 @@ export class UpcomingInterviewsComponent implements OnInit {
     this.interviewerService.getAcceptedInterviews().subscribe({
       next: (data) => {
         // Process the interviews to add formatted date and time
-        this.interviews = data.map(interview => {
-          const { date, time } = this.parseInterviewDate(interview.requestedDate);
+        const processedInterviews = data.map(interview => {
+          const { date, time, originalDate } = this.parseInterviewDate(interview.requestedDate);
           return {
             ...interview,
             date,
-            time
+            time,
+            originalDate
           };
         });
+        
+        // Filter interviews to show only upcoming and those within the 1-hour grace period
+        this.interviews = this.filterUpcomingInterviews(processedInterviews);
         
         this.totalItems = this.interviews.length;
         this.updatePaginatedInterviews();
@@ -98,7 +103,25 @@ export class UpcomingInterviewsComponent implements OnInit {
     });
   }
 
-  parseInterviewDate(dateString: string): { date: string, time: string } {
+  /**
+   * Filter interviews to show only upcoming ones and those within a 1-hour grace period
+   */
+  filterUpcomingInterviews(interviews: ProcessedInterview[]): ProcessedInterview[] {
+    const now = new Date();
+    // Calculate the cutoff time (1 hour in the past from now)
+    const oneHourAgo = new Date(now.getTime() - 60 * 60 * 1000);
+    
+    return interviews.filter(interview => {
+      if (!interview.originalDate) {
+        return false; // Skip if no valid date
+      }
+      
+      // Keep interviews that are in the future OR within the 1-hour grace period
+      return interview.originalDate >= oneHourAgo;
+    });
+  }
+
+  parseInterviewDate(dateString: string): { date: string, time: string, originalDate: Date | null } {
     try {
       if (!dateString) {
         throw new Error('No date provided');
@@ -106,6 +129,7 @@ export class UpcomingInterviewsComponent implements OnInit {
 
       // Parse the ISO date string
       const date = new Date(dateString);
+      
       if (isNaN(date.getTime())) {
         throw new Error('Invalid date');
       }
@@ -126,13 +150,15 @@ export class UpcomingInterviewsComponent implements OnInit {
       
       return {
         date: formattedDate,
-        time: formattedTime
+        time: formattedTime,
+        originalDate: date
       };
     } catch (error) {
       console.error('Error parsing date:', error);
       return {
         date: 'Invalid Date',
-        time: 'Invalid Time'
+        time: 'Invalid Time',
+        originalDate: null
       };
     }
   }
