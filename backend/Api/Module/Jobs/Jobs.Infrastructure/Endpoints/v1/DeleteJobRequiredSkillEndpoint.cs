@@ -24,7 +24,7 @@ namespace TalentMesh.Module.Job.Infrastructure.Endpoints.v1
                 .WithSummary("Deletes a Job Required Skill by id")
                 .WithDescription("Deletes a Job Required Skill by id")
                 .Produces(StatusCodes.Status204NoContent)
-                .RequirePermission("Permissions.Jobs.Create")
+                .RequirePermission("Permissions.JobRequiredSkills.Delete")
                 .MapToApiVersion(1);
         }
     }

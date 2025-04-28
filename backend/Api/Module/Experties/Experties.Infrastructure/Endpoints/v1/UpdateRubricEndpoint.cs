@@ -23,7 +23,7 @@ public static class UpdateRubricEndpoint
             .WithSummary("update a Rubric")
             .WithDescription("update a Rubric")
             .Produces<UpdateRubricResponse>()
-            // .RequirePermission("Permissions.Products.Update")
+            .RequirePermission("Permissions.Rubrics.Update")    // ← added
             .MapToApiVersion(1);
     }
 }

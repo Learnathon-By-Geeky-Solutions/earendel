@@ -23,7 +23,7 @@ public static class CreateSubSkillEndpoint
             .WithSummary("creates a subskill")
             .WithDescription("creates a subskill")
             .Produces<CreateSubSkillResponse>()
-            // .RequirePermission("Permissions.Products.Create")
+            .RequirePermission("Permissions.SubSkills.Create")    // ← added
             .MapToApiVersion(1);
     }
 }

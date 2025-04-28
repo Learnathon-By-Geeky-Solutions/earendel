@@ -26,7 +26,7 @@ public static class SearchSenioritiesEndpoint
             .WithSummary("Gets a list of seniorities")
             .WithDescription("Gets a list of seniorities with pagination and filtering support")
             .Produces<PagedList<SeniorityResponse>>()
-            // .RequirePermission("Permissions.Products.View")
+            .RequirePermission("Permissions.Seniorities.View")    // ← added
             .MapToApiVersion(1);
     }
 }

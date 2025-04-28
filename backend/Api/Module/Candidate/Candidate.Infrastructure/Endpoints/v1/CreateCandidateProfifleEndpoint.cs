@@ -24,7 +24,7 @@ namespace TalentMesh.Module.Candidate.Infrastructure.Endpoints.v1
                 .WithSummary("Creates a Candidate Profile")
                 .WithDescription("Creates a Candidate Profile")
                 .Produces<CreateCandidateProfileResponse>()
-                .RequirePermission("Permissions.CandidateProfile.Create")
+                .RequirePermission("Permissions.CandidateProfiles.Create")
                 .MapToApiVersion(1);
         }
     }

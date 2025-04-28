@@ -23,7 +23,7 @@ public static class DeleteSkillEndpoint
             .WithSummary("deletes skill by id")
             .WithDescription("deletes skill by id")
             .Produces(StatusCodes.Status204NoContent)
-            // .RequirePermission("Permissions.Products.Delete")
+            .RequirePermission("Permissions.Skills.Delete")    // ← added
             .MapToApiVersion(1);
     }
 }

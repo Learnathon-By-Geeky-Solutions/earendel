@@ -26,7 +26,7 @@ public static class SearchInterviewFeedbacksEndpoint
             .WithSummary("Gets a list of Interview")
             .WithDescription("Gets a list of Interview with pagination and filtering support")
             .Produces<PagedList<InterviewFeedbackResponse>>()
-            // .RequirePermission("Permissions.Products.View")
+            .RequirePermission("Permissions.InterviewFeedbacks.View")
             .MapToApiVersion(1);
     }
 }

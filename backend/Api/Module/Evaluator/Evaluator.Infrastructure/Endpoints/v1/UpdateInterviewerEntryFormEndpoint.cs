@@ -27,7 +27,7 @@ namespace TalentMesh.Module.Evaluator.Infrastructure.Endpoints.v1
                 .WithSummary("Update Interviewer Entry Form")
                 .WithDescription("Updates Interviewer Entry Form by its identifier")
                 .Produces<UpdateInterviewerEntryFormResponse>()
-                 .RequirePermission("Permissions.Interviewer.Update")
+                .RequirePermission("Permissions.InterviewerEntryForms.Update")
                 .MapToApiVersion(1);
         }
     }

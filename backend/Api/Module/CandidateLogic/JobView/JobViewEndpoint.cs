@@ -38,7 +38,7 @@ public static class JobViewEndpoint
             .WithTags("CandidateJobView")
             .WithName("GetAllJobsForCandidates")
             .Produces<List<Jobs>>(StatusCodes.Status200OK)
-            //.RequirePermission("Permissions.CandidateLogic.View")
+            .RequirePermission("Permissions.Jobs.View")   // ← added correct permission
             .Produces(StatusCodes.Status500InternalServerError);
     }
 }

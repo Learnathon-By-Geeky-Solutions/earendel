@@ -24,7 +24,7 @@ namespace TalentMesh.Module.Job.Infrastructure.Endpoints.v1
                 .WithSummary("Gets a Job Required Skill by id")
                 .WithDescription("Retrieves a Job Required Skill association by its identifier")
                 .Produces<JobRequiredSkillResponse>()
-                .RequirePermission("Permissions.Jobs.View")
+                .RequirePermission("Permissions.JobRequiredSkills.View")
                 .MapToApiVersion(1);
         }
     }

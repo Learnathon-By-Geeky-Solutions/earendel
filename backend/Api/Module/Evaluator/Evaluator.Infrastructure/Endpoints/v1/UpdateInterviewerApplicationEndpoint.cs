@@ -27,7 +27,7 @@ namespace TalentMesh.Module.Evaluator.Infrastructure.Endpoints.v1
                 .WithSummary("Update an Interviewer Application")
                 .WithDescription("Updates an Interviewer Application by its identifier")
                 .Produces<UpdateInterviewerApplicationResponse>()
-                 .RequirePermission("Permissions.Interviewer.Update")
+                .RequirePermission("Permissions.InterviewerApplications.Update")
                 .MapToApiVersion(1);
         }
     }

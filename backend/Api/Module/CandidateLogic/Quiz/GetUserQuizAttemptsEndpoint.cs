@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using TalentMesh.Module.Quizzes.Application.QuizAttempts.Get; // Namespace for DTO
 using TalentMesh.Module.Quizzes.Application.QuizAttempts.GetUserAttempts; // Namespace for Query
+using TalentMesh.Framework.Infrastructure.Auth.Policy;
 
 namespace TalentMesh.Module.Quizzes.Api.Endpoints // Or your preferred namespace
 {
@@ -33,6 +34,7 @@ namespace TalentMesh.Module.Quizzes.Api.Endpoints // Or your preferred namespace
                 // Add .RequireAuthorization() if needed based on your security policy
                 .WithTags("QuizView")
                 .WithName("GetUserQuizAttempts")
+                .RequirePermission("Permissions.QuizAttempts.View")   // ← view permission
                 .Produces<List<QuizAttemptDto>>(StatusCodes.Status200OK) // Specify DTO list
                 .Produces(StatusCodes.Status404NotFound) // If user or attempts not found (can be handled in handler)
                 .Produces(StatusCodes.Status401Unauthorized) // If authorization fails

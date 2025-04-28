@@ -23,7 +23,7 @@ public static class GetSeniorityEndpoint
             .WithSummary("gets seniority by id")
             .WithDescription("gets seniority by id")
             .Produces<SeniorityResponse>()
-            // .RequirePermission("Permissions.Jobs.View")
+            .RequirePermission("Permissions.Seniority.View")
             .MapToApiVersion(1);
     }
 }

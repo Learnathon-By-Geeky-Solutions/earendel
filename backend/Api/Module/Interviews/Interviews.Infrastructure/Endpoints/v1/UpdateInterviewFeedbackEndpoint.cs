@@ -24,7 +24,7 @@ public static class UpdateInterviewFeedbackEndpoint
             .WithSummary("update Interview")
             .WithDescription("update Interview")
             .Produces<UpdateInterviewFeedbackResponse>()
-            // .RequirePermission("Permissions.Products.Update")
+            .RequirePermission("Permissions.InterviewFeedbacks.Update")
             .MapToApiVersion(1);
     }
 }

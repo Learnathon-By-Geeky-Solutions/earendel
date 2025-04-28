@@ -23,7 +23,7 @@ namespace TalentMesh.Module.Evaluator.Infrastructure.Endpoints.v1
                 .WithSummary("Deletes Interviewer Entry Form by id")
                 .WithDescription("Deletes Interviewer Entry Form by id")
                 .Produces(StatusCodes.Status204NoContent)
-                 .RequirePermission("Permissions.Interviewer.Delete")
+                .RequirePermission("Permissions.InterviewerEntryForms.Delete")
                 .MapToApiVersion(1);
         }
     }

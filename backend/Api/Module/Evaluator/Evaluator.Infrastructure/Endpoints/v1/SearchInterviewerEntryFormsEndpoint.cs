@@ -26,7 +26,7 @@ namespace TalentMesh.Module.Evaluator.Infrastructure.Endpoints.v1
                 .WithSummary("Gets a list of Interviewer Entry Forms")
                 .WithDescription("Gets a list of Interviewer Entry Forms with pagination and filtering support")
                 .Produces<PagedList<InterviewerEntryFormResponse>>()
-                //  .RequirePermission("Permissions.Interviewer.View")
+                .RequirePermission("Permissions.InterviewerEntryForms.View")
                 .MapToApiVersion(1);
         }
     }

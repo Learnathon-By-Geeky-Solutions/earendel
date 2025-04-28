@@ -23,7 +23,7 @@ public static class CreateSkillEndpoint
             .WithSummary("creates a skill")
             .WithDescription("creates a skill")
             .Produces<CreateSkillResponse>()
-            // .RequirePermission("Permissions.Products.Create")
+            .RequirePermission("Permissions.Skills.Create")    // ← added
             .MapToApiVersion(1);
     }
 }

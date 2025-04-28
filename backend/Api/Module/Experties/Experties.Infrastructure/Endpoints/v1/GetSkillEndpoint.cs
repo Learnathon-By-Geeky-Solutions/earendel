@@ -23,7 +23,7 @@ public static class GetSkillEndpoint
             .WithSummary("gets skill by id")
             .WithDescription("gets skill by id")
             .Produces<SkillResponse>()
-            // .RequirePermission("Permissions.Jobs.View")
+            .RequirePermission("Permissions.Skills.View")    // ← added
             .MapToApiVersion(1);
     }
 }

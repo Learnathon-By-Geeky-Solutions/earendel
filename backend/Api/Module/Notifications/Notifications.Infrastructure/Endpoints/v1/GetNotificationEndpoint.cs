@@ -23,7 +23,7 @@ public static class GetNotificationEndpoint
             .WithSummary("gets notification by id")
             .WithDescription("gets notification by id")
             .Produces<NotificationResponse>()
-            // .RequirePermission("Permissions.Jobs.View")
+            .RequirePermission("Permissions.Notifications.View")
             .MapToApiVersion(1);
     }
 }

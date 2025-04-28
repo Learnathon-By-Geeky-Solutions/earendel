@@ -24,7 +24,7 @@ namespace TalentMesh.Module.Candidate.Infrastructure.Endpoints.v1
                 .WithSummary("Deletes a Candidate Profile by id")
                 .WithDescription("Deletes a Candidate Profile by id")
                 .Produces(StatusCodes.Status204NoContent)
-                .RequirePermission("Permissions.CandidateProfile.Delete")
+                .RequirePermission("Permissions.CandidateProfiles.Delete")
                 .MapToApiVersion(1);
         }
     }

@@ -26,7 +26,7 @@ namespace TalentMesh.Module.Evaluator.Infrastructure.Endpoints.v1
                 .WithSummary("Gets a list of Interviewer Applications")
                 .WithDescription("Gets a list of Interviewer Applications with pagination and filtering support")
                 .Produces<PagedList<InterviewerApplicationResponse>>()
-                .RequirePermission("Permissions.Interviewer.View")
+                .RequirePermission("Permissions.InterviewerApplications.View")
                 .MapToApiVersion(1);
         }
     }

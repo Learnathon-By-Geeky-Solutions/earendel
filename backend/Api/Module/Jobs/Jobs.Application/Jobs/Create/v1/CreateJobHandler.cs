@@ -5,8 +5,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
 namespace TalentMesh.Module.Job.Application.Jobs.Create.v1;
-public sealed class CreateJobApplicationHandler(
-    ILogger<CreateJobApplicationHandler> logger,
+public sealed class CreateJobHandler(
+    ILogger<CreateJobHandler> logger,
     [FromKeyedServices("jobs:job")] IRepository<Job.Domain.Jobs> repository)
     : IRequestHandler<CreateJobCommand, CreateJobResponse>
 {
