@@ -5,7 +5,6 @@ import { SidebarComponent } from '../../sidebar/sidebar.component';
 import { JobService, Skill, SubSkill, SeniorityLevel, Rubric } from '../../services/job.service';
 import { JobPostingService } from '../../services/job-posting.service';
 import { FormsModule } from '@angular/forms';
-import  { Router, ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-customized-interview',

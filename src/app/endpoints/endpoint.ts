@@ -25,7 +25,7 @@ export const endpoint = {
   jobApplicationUpdateUrl: `${base}/api/v1/job/jobapplications`,
   interviewsUrl: `${base}/api/v1/interviews/interviews`,
   jobApplicationsUrl: `${base}/api/v1/HR/HR/job-applications/my-postings`,
-  jobPostingsWithPaginationUrl: `${base}/api/v1/HR/HR/jobs/my-postings`
+  jobPostingsWithPaginationUrl: `${base}/api/v1/HR/HR/jobs/my-postings`,
   interviewerAvailabilityDeleteUrl: `${base}/api/v1/evaluator/intervieweravailabilities`,
 
   //Interviewer Pending Interview Request
