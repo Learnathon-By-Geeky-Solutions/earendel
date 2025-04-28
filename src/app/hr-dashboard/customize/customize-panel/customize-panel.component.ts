@@ -21,29 +21,8 @@ import { CommonModule } from '@angular/common';
         </div>
       </div>
 
-      <div class="skill-section mb-4">
-        <h6 class="text-dark mb-4">JavaScript</h6>
-        <div class="text-muted mb-4">Good to have skills</div>
 
-        <div class="seniority-selector p-3 rounded-3 mb-4">
-          <div class="d-flex justify-content-between align-items-center">
-            <div>
-              <div class="fw-medium">Senior (5-8 years)</div>
-              <div class="text-muted small mt-1">Medium</div>
-            </div>
-            <i class="bi bi-chevron-right"></i>
-          </div>
-        </div>
-      </div>
 
-      <div class="mb-4">
-        <div
-          class="config-item d-flex justify-content-between align-items-center p-3 rounded-3"
-        >
-          <span class="fw-medium">Advanced configuration</span>
-          <i class="bi bi-chevron-right"></i>
-        </div>
-      </div>
 
       <div class="mb-4">
         <div
@@ -57,9 +36,9 @@ import { CommonModule } from '@angular/common';
       <button class="btn submit-btn w-100">
         <div class="d-flex align-items-center justify-content-between">
           <div class="d-flex align-items-center">
-            <div class="avatar-group me-2">
+            <!-- <div class="avatar-group me-2">
               <span class="avatar">👤</span>
-            </div>
+            </div> -->
             <span>Submit & add candidates</span>
           </div>
           <div class="duration-selector d-flex align-items-center">

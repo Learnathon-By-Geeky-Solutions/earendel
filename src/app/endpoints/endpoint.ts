@@ -18,6 +18,14 @@ export const endpoint = {
   //Interviewer Availability
   interviewerAvailabilityCreateUrl: `${base}/api/v1/evaluator/intervieweravailabilities`,
   interviewerAvailabilitySearchUrl: `${base}/api/v1/evaluator/intervieweravailabilities/search`,
+  skillSearchUrl: `${base}/api/v1/experties/skills/search`,
+  rubricsSearchUrl: `${base}/api/v1/experties/rubrics/search`,
+  jobPostingUrl: `${base}/api/v1/HR/HR/jobs`,
+  userDetailsUrl: `${base}/api/users`,
+  jobApplicationUpdateUrl: `${base}/api/v1/job/jobapplications`,
+  interviewsUrl: `${base}/api/v1/interviews/interviews`,
+  jobApplicationsUrl: `${base}/api/v1/HR/HR/job-applications/my-postings`,
+  jobPostingsWithPaginationUrl: `${base}/api/v1/HR/HR/jobs/my-postings`
   interviewerAvailabilityDeleteUrl: `${base}/api/v1/evaluator/intervieweravailabilities`,
 
   //Interviewer Pending Interview Request
@@ -75,3 +83,5 @@ export const endpoint = {
 
   userProfile: `${base}/api/users`,
 };
+
+

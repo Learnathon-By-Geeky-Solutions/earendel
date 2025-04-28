@@ -1,1 +1,43 @@
-<p>interview-request works!</p>
+<div class="container">
+
+    <app-sidebar> </app-sidebar>
+
+    <div class="row g-4 py-4">
+        <div class="col-8">
+            <h2 class="h5 fw-bold mb-4">Select profile to request interviewer</h2>
+
+            <div class="mb-4">
+                <div class="position-relative">
+                    <input type="search" class="form-control form-control-lg" placeholder="Search profile" />
+                    <i class="bi bi-search position-absolute top-50 end-0 translate-middle-y me-3"></i>
+                </div>
+            </div>
+
+            <!-- Loading Spinner -->
+            <div *ngIf="loading" class="text-center my-4">
+                <div class="spinner-border" role="status"></div>
+            </div>
+
+            <!-- Error Message -->
+            <div *ngIf="error" class="alert alert-danger text-center my-4">
+                {{ error }}
+            </div>
+
+            <!-- Profiles Grid -->
+            <div class="row g-4" *ngIf="!loading && !error">
+                <div class="col-6 col-xl-3 cursor-pointer" *ngFor="let profile of profiles"
+                    (click)="selectProfile(profile)">
+                    <div class="card border-1 rounded-4 shadow-sm h-100">
+                        <div class="card-body text-center p-4">
+                            <div class="rounded-3 bg-light d-inline-block p-3 mb-3">
+                                <i [class]="profile.icon + ' fs-4'"></i>
+                            </div>
+                            <h3 class="card-title h6 mb-0">{{ profile.name }}</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>

@@ -1,6 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import  { Router, ActivatedRoute } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
+import { JobService, Skill, SeniorityLevel } from '../../services/job.service';
+import { SidebarComponent } from '../../sidebar/sidebar.component';
 
 @Component({
   selector: 'app-seniority-selection',
@@ -13,13 +15,23 @@ import  { Router, ActivatedRoute } from '@angular/router';
           <i class="bi bi-arrow-left"></i>
           Select seniority
         </button>
-        <span class="step-indicator">Step 2 of 4</span>
+        <span class="step-indicator">Step 3 of 4</span>
       </header>
 
       <main class="main-content">
         <h2>Choose the experience level for the position</h2>
 
-        <div class="seniority-grid">
+        <!-- Loading state -->
+        <div *ngIf="loading" class="loading-indicator">
+          <p>Loading seniority levels...</p>
+        </div>
+
+        <!-- Error state -->
+        <div *ngIf="error" class="error-message">
+          <p>{{ error }}</p>
+        </div>
+
+        <div class="seniority-grid" *ngIf="!loading && !error">
           <div
             class="seniority-card"
             *ngFor="let level of seniorityLevels"
@@ -34,7 +46,7 @@ import  { Router, ActivatedRoute } from '@angular/router';
             </div>
             <div class="card-content">
               <h3>{{ level.title }}</h3>
-              <p>{{ level.years }} yrs of experience</p>
+              <p>{{ level.description }}</p>
             </div>
             <div
               class="progress-bar"
@@ -103,6 +115,19 @@ import  { Router, ActivatedRoute } from '@angular/router';
           margin-bottom: 2rem;
           color: #666;
         }
+      }
+
+      .loading-indicator, .error-message {
+        text-align: center;
+        padding: 2rem;
+        background: #f8f9fa;
+        border-radius: 12px;
+        margin-bottom: 2rem;
+      }
+
+      .error-message {
+        background: #fff5f5;
+        color: #d32f2f;
       }
 
       .seniority-grid {
@@ -215,76 +240,99 @@ import  { Router, ActivatedRoute } from '@angular/router';
     `,
   ],
 })
-export class SenioritySelectionComponent {
+export class SenioritySelectionComponent implements OnInit {
   selectedLevel: any | null = null;
+  seniorityLevels: any[] = [];
+  loading = false;
+  error = '';
+  selectedSkill: Skill | null = null;
+  selectedSubSkill: any | null = null;
 
-  seniorityLevels: any[] = [
-    {
-      id: 'internship',
-      title: 'Internship',
-      years: '0',
-      icon: 'bi bi-mortarboard',
-      progressColor: '#2196f3',
-    },
-    {
-      id: 'entry',
-      title: 'Entry Level',
-      years: '0-1',
-      icon: 'bi bi-star',
-      progressColor: '#4caf50',
-    },
-    {
-      id: 'intermediate',
-      title: 'Intermediate',
-      years: '1-3',
-      icon: 'bi bi-graph-up',
-      progressColor: '#ff9800',
-    },
-    {
-      id: 'mid-senior',
-      title: 'Mid-senior',
-      years: '3-5',
-      icon: 'bi bi-award',
-      progressColor: '#e91e63',
-    },
-    {
-      id: 'senior',
-      title: 'Senior',
-      years: '5-8',
-      icon: 'bi bi-trophy',
-      progressColor: '#9c27b0',
-    },
-    {
-      id: 'senior-plus',
-      title: 'Senior+',
-      years: '8-10',
-      icon: 'bi bi-stars',
-      progressColor: '#673ab7',
-    },
-    {
-      id: 'staff',
-      title: 'Staff',
-      years: '10+',
-      icon: 'bi bi-bookmark-star',
-      progressColor: '#3f51b5',
-    },
-  ];
+  // Map to convert API seniority levels to display format
+  private seniorityIconMap: Record<string, { icon: string, progressColor: string }> = {
+    'Internship': { icon: 'bi bi-mortarboard', progressColor: '#2196f3' },
+    'Entry Level': { icon: 'bi bi-star', progressColor: '#4caf50' },
+    'Junior': { icon: 'bi bi-graph-up', progressColor: '#ff9800' },
+    'Mid Level': { icon: 'bi bi-award', progressColor: '#e91e63' },
+    'Senior': { icon: 'bi bi-trophy', progressColor: '#9c27b0' },
+    'Lead': { icon: 'bi bi-stars', progressColor: '#673ab7' },
+    'Principal': { icon: 'bi bi-bookmark-star', progressColor: '#3f51b5' },
+    'default': { icon: 'bi bi-person', progressColor: '#2196f3' }
+  };
 
-  constructor(private router: Router, private route: ActivatedRoute) {}
+  // Map for years of experience based on seniority level name
+  private experienceYearsMap: Record<string, string> = {
+    'Internship': '0',
+    'Entry Level': '0-1',
+    'Junior': '1-3',
+    'Mid Level': '3-5',
+    'Senior': '5-8',
+    'Lead': '8-10',
+    'Principal': '10+',
+    'default': '0-1'
+  };
+
+  constructor(
+    private router: Router,
+    private route: ActivatedRoute,
+    private jobService: JobService
+  ) {}
+
+  ngOnInit(): void {
+    this.loading = true;
+    this.error = '';
+
+    // Get selected skill and subskill from the service
+    this.selectedSkill = this.jobService.getSelectedSkill();
+    this.selectedSubSkill = this.jobService.getSelectedSubSkill();
+
+    if (!this.selectedSkill || !this.selectedSubSkill) {
+      this.error = 'No skill or subskill selected. Please go back and select a skill and subskill.';
+      this.loading = false;
+      return;
+    }
+
+    console.log('[SenioritySelectionComponent] Selected skill:', this.selectedSkill);
+    console.log('[SenioritySelectionComponent] Selected subskill:', this.selectedSubSkill);
+
+    // Get seniority levels from the skill's seniorityLevelJunctions
+    if (this.selectedSkill.seniorityLevelJunctions && this.selectedSkill.seniorityLevelJunctions.length > 0) {
+      // Map the API seniority levels to the format expected by the UI
+      this.seniorityLevels = this.selectedSkill.seniorityLevelJunctions.map(junction => {
+        const seniority = junction.seniority;
+        const iconData = this.seniorityIconMap[seniority.name] || this.seniorityIconMap['default'];
+        const years = this.experienceYearsMap[seniority.name] || this.experienceYearsMap['default'];
+
+        return {
+          id: seniority.id,
+          title: seniority.name,
+          years: years,
+          icon: iconData.icon,
+          progressColor: iconData.progressColor,
+          description: seniority.description
+        };
+      });
+
+      console.log('[SenioritySelectionComponent] Mapped seniority levels:', this.seniorityLevels);
+    } 
+
+    this.loading = false;
+  }
 
   goBack() {
-    const { domain, tech } = this.route.snapshot.params;
-    this.router.navigate(['/hr-dashboard/customize', domain]);
+    this.router.navigate(['/hr-dashboard/job-post/technology-selection']);
   }
 
   selectLevel(level: any) {
     this.selectedLevel = level;
+    // Store the selected seniority level in the service
+    this.jobService.setSelectedSeniority(level);
   }
 
   continue() {
     if (this.selectedLevel) {
-      const { domain, tech } = this.route.snapshot.params;
-      this.router.navigate(['/hr-dashboard/customized', domain, tech, this.selectedLevel.id]);
+      // Navigate to the next step in the job posting flow with all selected data
+      this.router.navigate(['/hr-dashboard/job-post/customize-interview']);
     }
   }
 }

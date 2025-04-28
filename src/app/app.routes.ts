@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { SettingsComponent } from './settings/settings.component';
 import { DashboardComponent } from './dashboard/dashboard.component';
+import { InterviewRequestComponent } from './hr-dashboard/interview-request/interview-request.component';
 import { InterviewerDashboardComponent } from './interviewer-dashboard/interviewer-dashboard/interviewer-dashboard.component';
 import { AvailabilityComponent } from './interviewer-dashboard/availability/availability.component';
 import { UpcomingInterviewsComponent } from './interviewer-dashboard/upcoming-interviews/upcoming-interviews.component';
@@ -113,7 +114,7 @@ export const routes: Routes = [
       { path: 'jobs', component: JobComponent },
       { path: 'payments', component: PaymentComponent },
       { path: 'notifications', component: NotificationComponent },
-      { path: 'job-post', component: ProfileSelectionComponent },
+      { path: 'job-post', component: InterviewRequestComponent },
       { path: 'customize/:domain', component: TechnologySelectionComponent },
       {
         path: 'seniority/:domain/:tech',
@@ -123,6 +124,16 @@ export const routes: Routes = [
         path: 'customized/:domain/:tech/:seniority',
         component: CustomizedInterviewComponent,
       },
+      { path: 'job-post/technology-selection',
+        component: TechnologySelectionComponent 
+      },
+      { path: 'job-post/seniority-selection',
+        component: SenioritySelectionComponent 
+      },
+      { path: 'job-post/customize-interview',
+        component: CustomizedInterviewComponent 
+      },
+
       { path: '', redirectTo: 'overview', pathMatch: 'full' },
     ],
   },
