@@ -24,7 +24,7 @@ namespace TalentMesh.Module.Evaluator.Infrastructure.Endpoints.v1
                 .WithSummary("Creates Interviewer Entry Form")
                 .WithDescription("Creates Interviewer Entry Form")
                 .Produces<CreateInterviewerEntryFormResponse>()
-                .RequirePermission("Permissions.Interviewer.Create")
+                .RequirePermission("Permissions.InterviewerEntryForms.Create")
                 .MapToApiVersion(1);
         }
     }

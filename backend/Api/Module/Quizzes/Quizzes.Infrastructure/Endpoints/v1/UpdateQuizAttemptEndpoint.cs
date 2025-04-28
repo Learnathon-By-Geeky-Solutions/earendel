@@ -24,7 +24,7 @@ public static class UpdateQuizAttemptEndpoint
             .WithSummary("update a Quiz")
             .WithDescription("update a Quiz")
             .Produces<UpdateQuizAttemptResponse>()
-            // .RequirePermission("Permissions.Products.Update")
+            .RequirePermission("Permissions.QuizAttempts.Update")
             .MapToApiVersion(1);
     }
 }

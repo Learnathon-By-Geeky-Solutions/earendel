@@ -24,7 +24,7 @@ namespace TalentMesh.Module.Job.Infrastructure.Endpoints.v1
                 .WithSummary("Creates a Job Required Subskill")
                 .WithDescription("Creates a Job Required Subskill association for a job")
                 .Produces<CreateJobRequiredSubskillResponse>()
-                .RequirePermission("Permissions.Jobs.Create")
+                .RequirePermission("Permissions.JobRequiredSubSkills.Create")
                 .MapToApiVersion(1);
         }
     }

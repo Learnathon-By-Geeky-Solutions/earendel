@@ -23,7 +23,7 @@ public static class GetQuizAttemptAnswerEndpoint
             .WithSummary("gets attempt answer by id")
             .WithDescription("gets answer by id")
             .Produces<QuizAttemptAnswerResponse>()
-            // .RequirePermission("Permissions.Jobs.View")
+            .RequirePermission("Permissions.QuizAttemptAnswers.View")   
             .MapToApiVersion(1);
     }
 }

@@ -23,7 +23,7 @@ public static class CreateSeniorityLevelJunctionEndpoint
             .WithSummary("creates a seniority level junction")
             .WithDescription("creates a seniority level junction")
             .Produces<CreateSeniorityLevelJunctionResponse>()
-            // .RequirePermission("Permissions.SeniorityLevelJunctions.Create")
+            .RequirePermission("Permissions.SeniorityLevelJunctions.Create")    // ← added
             .MapToApiVersion(1);
     }
 }

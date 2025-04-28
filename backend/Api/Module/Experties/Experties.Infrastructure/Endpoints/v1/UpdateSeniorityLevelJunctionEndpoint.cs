@@ -23,7 +23,7 @@ public static class UpdateSeniorityLevelJunctionEndpoint
             .WithSummary("Update seniority level junctions for a skill")
             .WithDescription("Updates the seniority level junctions for a given skill")
             .Produces<UpdateSeniorityLevelJunctionResponse>()
-            // .RequirePermission("Permissions.SeniorityLevelJunctions.Update") // Uncomment if needed
+            .RequirePermission("Permissions.SeniorityLevelJunctions.Update")    // ← added
             .MapToApiVersion(1);
     }
 }

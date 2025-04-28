@@ -3,7 +3,8 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using System;
-using TalentMesh.Module.Quizzes.Application.QuizQuestions.Get; 
+using TalentMesh.Module.Quizzes.Application.QuizQuestions.Get;
+using TalentMesh.Framework.Infrastructure.Auth.Policy;
 
 namespace TalentMesh.Module.Quizzes.Api.Endpoints 
 {
@@ -22,6 +23,7 @@ namespace TalentMesh.Module.Quizzes.Api.Endpoints
                 })
                 .WithTags("QuizView")
                 .WithName("GetQuizQuestionForAttempt")
+                .RequirePermission("Permissions.QuizQuestions.View")   // ← only view needed
                 .Produces<QuizQuestionDto>(StatusCodes.Status200OK) 
                 .Produces<object>(StatusCodes.Status200OK) 
                 .Produces(StatusCodes.Status404NotFound)   

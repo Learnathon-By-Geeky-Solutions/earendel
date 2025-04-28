@@ -23,7 +23,7 @@ namespace TalentMesh.Module.Evaluator.Infrastructure.Endpoints.v1
                 .WithSummary("Deletes Interviewer Application by id")
                 .WithDescription("Deletes Interviewer Application by id")
                 .Produces(StatusCodes.Status204NoContent)
-                .RequirePermission("Permissions.Interviewer.Delete")
+                .RequirePermission("Permissions.InterviewerApplications.Delete")
                 .MapToApiVersion(1);
         }
     }

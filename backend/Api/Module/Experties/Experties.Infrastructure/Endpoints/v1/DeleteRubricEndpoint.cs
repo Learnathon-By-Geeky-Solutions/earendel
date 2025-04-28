@@ -23,7 +23,7 @@ public static class DeleteRubricEndpoint
             .WithSummary("deletes Rubric by id")
             .WithDescription("deletes Rubric by id")
             .Produces(StatusCodes.Status204NoContent)
-            // .RequirePermission("Permissions.Products.Delete")
+            .RequirePermission("Permissions.Rubrics.Delete")    // ← added
             .MapToApiVersion(1);
     }
 }

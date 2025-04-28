@@ -23,7 +23,7 @@ public static class GetRubricEndpoint
             .WithSummary("gets Rubric by id")
             .WithDescription("gets Rubric by id")
             .Produces<RubricResponse>()
-            // .RequirePermission("Permissions.Jobs.View")
+            .RequirePermission("Permissions.Rubrics.View")
             .MapToApiVersion(1);
     }
 }

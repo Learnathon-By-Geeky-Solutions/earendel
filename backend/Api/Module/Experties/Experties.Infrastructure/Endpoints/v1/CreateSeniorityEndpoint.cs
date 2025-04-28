@@ -23,7 +23,7 @@ public static class CreateSeniorityEndpoint
             .WithSummary("creates a seniority")
             .WithDescription("creates a seniority")
             .Produces<CreateSeniorityResponse>()
-            // .RequirePermission("Permissions.Products.Create")
+            .RequirePermission("Permissions.Seniorities.Create")    // ← added
             .MapToApiVersion(1);
     }
 }

@@ -23,7 +23,7 @@ public static class DeleteSubSkillEndpoint
             .WithSummary("deletes subskill by id")
             .WithDescription("deletes subskill by id")
             .Produces(StatusCodes.Status204NoContent)
-            // .RequirePermission("Permissions.Products.Delete")
+            .RequirePermission("Permissions.SubSkills.Delete")    // ← added
             .MapToApiVersion(1);
     }
 }

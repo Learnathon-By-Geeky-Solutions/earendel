@@ -23,7 +23,7 @@ public static class DeleteSeniorityLevelJunctionEndpoint
             .WithSummary("deletes a seniority level junction")
             .WithDescription("deletes a seniority level junction")
             .Produces(StatusCodes.Status204NoContent)
-            // .RequirePermission("Permissions.Products.Delete")
+            .RequirePermission("Permissions.SeniorityLevelJunctions.Delete")    // ← added
             .MapToApiVersion(1);
     }
 }

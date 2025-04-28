@@ -23,7 +23,7 @@ public static class UpdateSkillEndpoint
             .WithSummary("update a skill")
             .WithDescription("update a skill")
             .Produces<UpdateSkillResponse>()
-            // .RequirePermission("Permissions.Products.Update")
+            .RequirePermission("Permissions.Skills.Update")    // ← added
             .MapToApiVersion(1);
     }
 }

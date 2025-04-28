@@ -26,7 +26,7 @@ public static class SearchQuizAttemptsEndpoint
             .WithSummary("Gets a list of Quiz")
             .WithDescription("Gets a list of Quiz with pagination and filtering support")
             .Produces<PagedList<QuizAttemptResponse>>()
-            // .RequirePermission("Permissions.Products.View")
+            .RequirePermission("Permissions.QuizAttempts.View")
             .MapToApiVersion(1);
     }
 }

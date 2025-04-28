@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc; // For [FromQuery]
 using Microsoft.AspNetCore.Routing;
 using System.Security.Claims;
+using TalentMesh.Framework.Infrastructure.Auth.Policy;
 
 namespace TalentMesh.Module.HRView.HRFunc
 {
@@ -37,7 +38,9 @@ namespace TalentMesh.Module.HRView.HRFunc
                 .Produces<List<JobDto>>(StatusCodes.Status200OK)
                 .Produces(StatusCodes.Status401Unauthorized)
                 .Produces(StatusCodes.Status400BadRequest)
+                .RequirePermission("Permissions.Jobs.View")
                 .Produces(StatusCodes.Status500InternalServerError);
+
         }
     }
 }

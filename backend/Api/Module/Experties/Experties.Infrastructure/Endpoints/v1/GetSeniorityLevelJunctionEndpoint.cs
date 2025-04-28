@@ -23,7 +23,7 @@ public static class GetSeniorityLevelJunctionEndpoint
             .WithSummary("gets seniority level junction by id")
             .WithDescription("gets seniority level junction by id")
             .Produces<SeniorityLevelJunctionResponse>()
-            // .RequirePermission("Permissions.Jobs.View")
+            .RequirePermission("Permissions.SeniorityLevelJunctions.View")    // ← added
             .MapToApiVersion(1);
     }
 }

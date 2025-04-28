@@ -23,7 +23,7 @@ public static class CreateNotificationEndpoint
             .WithSummary("Notification")
             .WithDescription("Notification")
             .Produces<CreateNotificationResponse>()
-            // .RequirePermission("Permissions.Products.Create")
+            .RequirePermission("Permissions.Notifications.Create")
             .MapToApiVersion(1);
     }
 }

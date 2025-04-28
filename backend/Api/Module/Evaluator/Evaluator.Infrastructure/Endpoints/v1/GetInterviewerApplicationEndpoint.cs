@@ -23,7 +23,7 @@ namespace TalentMesh.Module.Evaluator.Infrastructure.Endpoints.v1
                 .WithSummary("Gets Interviewer Application by id")
                 .WithDescription("Retrieves an Interviewer Application by its identifier")
                 .Produces<InterviewerApplicationResponse>()
-                 .RequirePermission("Permissions.Interviewer.View")
+                .RequirePermission("Permissions.InterviewerApplications.View")
                 .MapToApiVersion(1);
         }
     }

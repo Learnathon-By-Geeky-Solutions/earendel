@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using System;
 using TalentMesh.Module.Quizzes.Application.QuizAttempts.SubmitAnswer; // Namespace for Command
+using TalentMesh.Framework.Infrastructure.Auth.Policy;
 
 namespace TalentMesh.Module.Quizzes.Api.Endpoints // Or your preferred namespace
 {
@@ -35,6 +36,7 @@ namespace TalentMesh.Module.Quizzes.Api.Endpoints // Or your preferred namespace
                 })
                 .WithTags("QuizView")
                 .WithName("SubmitQuizAnswer")
+                .RequirePermission("Permissions.QuizAttemptAnswers.Update")   // ← submitting is an update on the attempt
                 .Produces<object>(StatusCodes.Status200OK) // Returns { IsCorrect: bool, NewScore: decimal }
                 .Produces(StatusCodes.Status400BadRequest)
                 .Produces(StatusCodes.Status404NotFound) // If attempt or question not found
