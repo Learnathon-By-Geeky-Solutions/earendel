@@ -101,6 +101,14 @@ export interface AvailabilityItem {
   isAvailable: boolean;
 }
 
+// Add new interface for interview feedback
+export interface InterviewFeedback {
+  interviewId: string;
+  interviewQuestionText: string;  
+  response: string;
+  score: number;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -617,5 +625,65 @@ export class InterviewerService {
           return throwError(() => error);
         })
       );
+  }
+
+  /**
+   * Submit feedback for a specific interview question
+   * @param feedback The feedback data containing question, answer, and score
+   * @returns Observable with the API response
+   */
+  submitInterviewFeedback(feedback: InterviewFeedback): Observable<any> {
+    const headers = this.getAuthHeaders();
+    
+    // Log the request payload for debugging
+    console.log('Submitting feedback with payload:', JSON.stringify(feedback, null, 2));
+    
+    const url = endpoint.interviewFeedbackUrl;
+    
+    // Use standard Angular HTTP client for submission
+    return this.http.post(url, feedback, { 
+      headers,
+      observe: 'response' // Get the full response to access status codes
+    }).pipe(
+      map(response => {
+        console.log('Feedback submission successful:', response.status);
+        return response.body;
+      }),
+      catchError(error => {
+        console.error('Error submitting feedback:', error);
+        
+        // Add more detailed logging for 400 errors
+        if (error.status === 400) {
+          console.error('Bad Request (400) details:', {
+            error: error.error,
+            url: url,
+            requestBody: JSON.stringify(feedback),
+            headers: Array.from(headers.keys()).reduce((obj: Record<string, string | null>, key) => {
+              obj[key] = headers.get(key);
+              return obj;
+            }, {})
+          });
+        }
+        
+        return throwError(() => error);
+      })
+    );
+  }
+
+  /**
+   * Submit multiple feedback items one by one
+   * @param feedbackItems Array of feedback items to submit
+   * @returns Observable that completes when all submissions are processed
+   */
+  submitAllFeedback(feedbackItems: InterviewFeedback[]): Observable<any[]> {
+    if (!feedbackItems || feedbackItems.length === 0) {
+      return of([]);
+    }
+
+    const submissionObservables = feedbackItems.map(feedback => 
+      this.submitInterviewFeedback(feedback)
+    );
+
+    return forkJoin(submissionObservables);
   }
 }
