@@ -54,6 +54,7 @@ import { CodeComponent } from './code/code.component';
 import { PendingRequestComponent } from './interviewer-dashboard/pending-request/pending-request.component';
 import { PastInterviewsComponent } from './interviewer-dashboard/past-interviews/past-interviews.component';
 import { NotificationComponent as InterviewerNotificationComponent } from './interviewer-dashboard/notification/notification.component';
+import { FeedbackComponent } from './interviewer-dashboard/feedback/feedback.component';
 
 export const routes: Routes = [
   { path: '', component: LandingComponent },
@@ -140,6 +141,7 @@ export const routes: Routes = [
       { path: 'earnings', component: EarningsComponent },
       { path: 'profile', component: ProfileComponent },
       { path: 'notification', component: InterviewerNotificationComponent },
+      { path: 'interview-feedback', component: FeedbackComponent },
     ],
   },
 
