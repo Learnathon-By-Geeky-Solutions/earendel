@@ -23,7 +23,7 @@ namespace TalentMesh.Module.Job.Application.JobRequiredSkill.Get.v1
                 async () =>
                 {
                     var entity = await repository.GetByIdAsync(request.Id, cancellationToken);
-                    if (entity == null || entity.DeletedBy != Guid.Empty)
+                    if (entity == null)
                         throw new JobRequiredSkillNotFoundException(request.Id);
                     return new JobRequiredSkillResponse(
                         entity.Id,

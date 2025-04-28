@@ -21,7 +21,7 @@ namespace TalentMesh.Module.Job.Application.JobRequiredSkill.Update.v1
         {
             ArgumentNullException.ThrowIfNull(request);
             var entity = await repository.GetByIdAsync(request.Id, cancellationToken);
-            if (entity == null || entity.DeletedBy != Guid.Empty)
+            if (entity == null)
                 throw new JobRequiredSkillNotFoundException(request.Id);
 
             // Update the entity – assuming your domain entity implements an Update method.

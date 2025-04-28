@@ -20,9 +20,7 @@ namespace TalentMesh.Module.Job.Application.JobRequiredSubskill.Update.v1
         public async Task<UpdateJobRequiredSubskillResponse> Handle(UpdateJobRequiredSubskillCommand request, CancellationToken cancellationToken)
         {
             ArgumentNullException.ThrowIfNull(request);
-            var entity = await repository.GetByIdAsync(request.Id, cancellationToken);
-            if (entity == null || entity.DeletedBy != Guid.Empty)
-                throw new JobRequiredSubskillNotFoundException(request.Id);
+            var entity = await repository.GetByIdAsync(request.Id, cancellationToken) ?? throw new JobRequiredSubskillNotFoundException(request.Id);
 
             // Update the entity – assuming your domain entity implements an Update method.
             var updatedEntity = entity.Update(request.JobId, request.SubskillId);

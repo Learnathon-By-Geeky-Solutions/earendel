@@ -15,8 +15,7 @@ public sealed class DeleteJobHandler(
     public async Task Handle(DeleteJobCommand request, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(request);
-        var job = await repository.GetByIdAsync(request.Id, cancellationToken);
-        if (job.IsDeletedOrNotFound()) throw new JobApplicationNotFoundException(request.Id);
+        var job = await repository.GetByIdAsync(request.Id, cancellationToken) ?? throw new JobNotFoundException(request.Id);
         await repository.DeleteAsync(job!, cancellationToken);
         logger.LogInformation("User with id : {UserId} deleted", job?.Id);
     }

@@ -19,9 +19,7 @@ namespace TalentMesh.Module.Job.Application.JobRequiredSkill.Delete.v1
         public async Task Handle(DeleteJobRequiredSkillCommand request, CancellationToken cancellationToken)
         {
             ArgumentNullException.ThrowIfNull(request);
-            var entity = await repository.GetByIdAsync(request.Id, cancellationToken);
-            if (entity.IsDeletedOrNotFound())
-                throw new JobNotFoundException(request.Id); // Alternatively, create a specific exception like JobRequiredSkillNotFoundException
+            var entity = await repository.GetByIdAsync(request.Id, cancellationToken) ?? throw new JobRequiredSkillNotFoundException(request.Id); ;
 
             await repository.DeleteAsync(entity!, cancellationToken);
             logger.LogInformation("JobRequiredSkill with id {Id} deleted", entity?.Id);

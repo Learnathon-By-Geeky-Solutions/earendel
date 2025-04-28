@@ -22,9 +22,8 @@ namespace TalentMesh.Module.Job.Application.JobRequiredSubskill.Get.v1
                 $"jobRequiredSubskill:{request.Id}",
                 async () =>
                 {
-                    var entity = await repository.GetByIdAsync(request.Id, cancellationToken);
-                    if (entity == null || entity.DeletedBy != Guid.Empty)
-                        throw new JobRequiredSubskillNotFoundException(request.Id);
+                    var entity = await repository.GetByIdAsync(request.Id, cancellationToken) ?? throw new JobRequiredSubskillNotFoundException(request.Id);
+                    
                     return new JobRequiredSubskillResponse(
                         entity.Id,
                         entity.JobId,
