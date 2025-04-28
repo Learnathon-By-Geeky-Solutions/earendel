@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace TalentMesh.Migrations.PGSql.Interviews
 {
     /// <inheritdoc />
-    public partial class AddInterview130Schema : Migration
+    public partial class AddInterview131Schema : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -41,6 +41,35 @@ namespace TalentMesh.Migrations.PGSql.Interviews
                 });
 
             migrationBuilder.CreateTable(
+                name: "InterviewFeedbacks",
+                schema: "interviews",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
+                    InterviewId = table.Column<Guid>(type: "uuid", nullable: false),
+                    InterviewQuestionText = table.Column<string>(type: "text", nullable: false),
+                    Response = table.Column<string>(type: "text", nullable: false),
+                    Score = table.Column<decimal>(type: "numeric", maxLength: 50, nullable: false),
+                    Created = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    CreatedBy = table.Column<Guid>(type: "uuid", nullable: false),
+                    LastModified = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
+                    LastModifiedBy = table.Column<Guid>(type: "uuid", nullable: true),
+                    Deleted = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
+                    DeletedBy = table.Column<Guid>(type: "uuid", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_InterviewFeedbacks", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_InterviewFeedbacks_Interviews_InterviewId",
+                        column: x => x.InterviewId,
+                        principalSchema: "interviews",
+                        principalTable: "Interviews",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "InterviewQuestions",
                 schema: "interviews",
                 columns: table => new
@@ -68,53 +97,11 @@ namespace TalentMesh.Migrations.PGSql.Interviews
                         onDelete: ReferentialAction.Cascade);
                 });
 
-            migrationBuilder.CreateTable(
-                name: "InterviewFeedbacks",
-                schema: "interviews",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uuid", nullable: false),
-                    InterviewId = table.Column<Guid>(type: "uuid", nullable: false),
-                    InterviewQuestionId = table.Column<Guid>(type: "uuid", nullable: false),
-                    Response = table.Column<string>(type: "text", nullable: false),
-                    Score = table.Column<decimal>(type: "numeric", maxLength: 50, nullable: false),
-                    Created = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
-                    CreatedBy = table.Column<Guid>(type: "uuid", nullable: false),
-                    LastModified = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
-                    LastModifiedBy = table.Column<Guid>(type: "uuid", nullable: true),
-                    Deleted = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: true),
-                    DeletedBy = table.Column<Guid>(type: "uuid", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_InterviewFeedbacks", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_InterviewFeedbacks_InterviewQuestions_InterviewQuestionId",
-                        column: x => x.InterviewQuestionId,
-                        principalSchema: "interviews",
-                        principalTable: "InterviewQuestions",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_InterviewFeedbacks_Interviews_InterviewId",
-                        column: x => x.InterviewId,
-                        principalSchema: "interviews",
-                        principalTable: "Interviews",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
             migrationBuilder.CreateIndex(
                 name: "IX_InterviewFeedbacks_InterviewId",
                 schema: "interviews",
                 table: "InterviewFeedbacks",
                 column: "InterviewId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_InterviewFeedbacks_InterviewQuestionId",
-                schema: "interviews",
-                table: "InterviewFeedbacks",
-                column: "InterviewQuestionId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_InterviewQuestions_InterviewId",

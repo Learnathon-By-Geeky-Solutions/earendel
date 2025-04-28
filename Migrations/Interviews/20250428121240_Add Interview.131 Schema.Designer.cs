@@ -12,8 +12,8 @@ using TalentMesh.Module.Interviews.Infrastructure.Persistence;
 namespace TalentMesh.Migrations.PGSql.Interviews
 {
     [DbContext(typeof(InterviewsDbContext))]
-    [Migration("20250425060001_Add Interview.130 Schema")]
-    partial class AddInterview130Schema
+    [Migration("20250428121240_Add Interview.131 Schema")]
+    partial class AddInterview131Schema
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -105,8 +105,9 @@ namespace TalentMesh.Migrations.PGSql.Interviews
                     b.Property<Guid>("InterviewId")
                         .HasColumnType("uuid");
 
-                    b.Property<Guid>("InterviewQuestionId")
-                        .HasColumnType("uuid");
+                    b.Property<string>("InterviewQuestionText")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<DateTimeOffset>("LastModified")
                         .HasColumnType("timestamp with time zone");
@@ -125,8 +126,6 @@ namespace TalentMesh.Migrations.PGSql.Interviews
                     b.HasKey("Id");
 
                     b.HasIndex("InterviewId");
-
-                    b.HasIndex("InterviewQuestionId");
 
                     b.ToTable("InterviewFeedbacks", "interviews");
                 });
@@ -181,15 +180,7 @@ namespace TalentMesh.Migrations.PGSql.Interviews
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("TalentMesh.Module.Interviews.Domain.InterviewQuestion", "InterviewQuestion")
-                        .WithMany()
-                        .HasForeignKey("InterviewQuestionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.Navigation("Interview");
-
-                    b.Navigation("InterviewQuestion");
                 });
 
             modelBuilder.Entity("TalentMesh.Module.Interviews.Domain.InterviewQuestion", b =>
