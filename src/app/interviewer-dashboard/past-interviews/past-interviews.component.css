@@ -90,8 +90,16 @@
   border-radius: 0.5rem;
 }
 
-.meeting-info {
-  border-left: 3px solid #0d6efd;
+.modal {
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.modal.show {
+  display: block;
+}
+
+.modal-backdrop.show {
+  opacity: 0.5;
 }
 
 /* Animation for refreshing data */

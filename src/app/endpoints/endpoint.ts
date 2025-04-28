@@ -5,15 +5,34 @@ const quizBase = `${base}/api/v1/JobView/candidateview/quiz-attempts`;
 
 
 export const endpoint = {
+  //Login and Registration
   googleLoginUrl: `${base}/api/users/google-login`,
   githubLoginUrl: `${base}/api/users/github-login`,
   userRegistrationUrl: `${base}/api/users/self-register`,
   userLoginUrl: `${base}/api/token`,
   refreshTokenUrl: `${base}/api/token/refresh`,
+
+  //HR Details  
   hrDetailsUrl: `${base}/api/users/hr`,
 
+  //Interviewer Availability
   interviewerAvailabilityCreateUrl: `${base}/api/v1/evaluator/intervieweravailabilities`,
   interviewerAvailabilitySearchUrl: `${base}/api/v1/evaluator/intervieweravailabilities/search`,
+  interviewerAvailabilityDeleteUrl: `${base}/api/v1/evaluator/intervieweravailabilities`,
+
+  //Interviewer Pending Interview Request
+  interviewSearchUrl: `${base}/api/v1/interviews/interviews/search`,
+  
+  //Interview Feedback
+  interviewFeedbackUrl: `${base}/api/v1/interviews/interviewfeedbacks`,
+  
+  //Notifications
+  notificationSearchUrl: `${base}/api/v1/notifications/notifications/search`,
+  
+  //Job Details
+  jobDetailsUrl: `${base}/api/v1/job/jobs`,
+
+  //Job View
   jobViewUrl: `${base}/api/v1/JobView/candidateview/JobView`,
   // Quiz related endpoints
   quizStartUrl: `${quizBase}/start`,
