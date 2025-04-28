@@ -15,8 +15,8 @@ public class SearchInterviewFeedbackSpecs : EntitiesByPaginationFilterSpec<Inter
         if (command.InterviewId.HasValue)
             Query.Where(c => c.InterviewId == command.InterviewId.Value);
 
-        if (command.InterviewQuestionId.HasValue)
-            Query.Where(c => c.InterviewQuestionId == command.InterviewQuestionId.Value);
+        if (!string.IsNullOrEmpty(command.InterviewQuestionText))
+            Query.Where(c => c.Response.Contains(command.InterviewQuestionText));
 
         if (!string.IsNullOrEmpty(command.Response))
             Query.Where(c => c.Response.Contains(command.Response));

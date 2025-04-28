@@ -15,7 +15,7 @@ internal sealed class InterviewFeedbackConfiguration : IEntityTypeConfiguration<
         builder.Property(x => x.InterviewId)
             .IsRequired(); 
 
-        builder.Property(x => x.InterviewQuestionId)
+        builder.Property(x => x.InterviewQuestionText)
             .IsRequired(); 
 
         builder.Property(x => x.Response)

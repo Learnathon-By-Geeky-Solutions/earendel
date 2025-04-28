@@ -58,11 +58,11 @@ namespace TalentMesh.Module.Interviews.Tests
         {
             // Arrange
             var interviewId = Guid.NewGuid();
-            var interviewQuestionId = Guid.NewGuid();
+            var interviewQuestionText = "what is oop";
             var response = "Good";
             var score = 8.0m;
-            var request = new CreateInterviewFeedbackCommand(interviewId, interviewQuestionId, response, score);
-            var expectedInterviewFeedback = InterviewFeedback.Create(request.InterviewId!, request.InterviewQuestionId!, request.Response, request.Score);
+            var request = new CreateInterviewFeedbackCommand(interviewId, interviewQuestionText, response, score);
+            var expectedInterviewFeedback = InterviewFeedback.Create(request.InterviewId!, request.InterviewQuestionText!, request.Response, request.Score);
 
             _repositoryMock.Setup(repo => repo.AddAsync(It.IsAny<InterviewFeedback>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(expectedInterviewFeedback);
@@ -79,7 +79,7 @@ namespace TalentMesh.Module.Interviews.Tests
         public async Task DeleteInterviewFeedback_DeletesSuccessfully()
         {
             // Arrange
-            var existingInterviewFeedback = InterviewFeedback.Create(Guid.NewGuid(), Guid.NewGuid(), "Good", 0.8m);
+            var existingInterviewFeedback = InterviewFeedback.Create(Guid.NewGuid(), "OOP", "Good", 0.8m);
             var InterviewFeedbackId = existingInterviewFeedback.Id;
 
             _repositoryMock.Setup(repo => repo.GetByIdAsync(InterviewFeedbackId, It.IsAny<CancellationToken>()))
@@ -113,7 +113,7 @@ namespace TalentMesh.Module.Interviews.Tests
         public async Task GetInterviewFeedback_ReturnsInterviewFeedbackResponse()
         {
             // Arrange
-            var expectedInterviewFeedback = InterviewFeedback.Create(Guid.NewGuid(), Guid.NewGuid(), "Good", 0.8m);
+            var expectedInterviewFeedback = InterviewFeedback.Create(Guid.NewGuid(), "OOP", "Good", 0.8m);
             var InterviewFeedbackId = expectedInterviewFeedback.Id;
 
             _readRepositoryMock.Setup(repo => repo.GetByIdAsync(InterviewFeedbackId, It.IsAny<CancellationToken>()))
@@ -129,7 +129,7 @@ namespace TalentMesh.Module.Interviews.Tests
             Assert.NotNull(result);
             Assert.Equal(expectedInterviewFeedback.Id, result.Id);
             Assert.Equal(expectedInterviewFeedback.InterviewId, result.InterviewId);
-            Assert.Equal(expectedInterviewFeedback.InterviewQuestionId, result.InterviewQuestionId);
+            Assert.Equal(expectedInterviewFeedback.InterviewQuestionText, result.InterviewQuestionQuestion);
 
             _readRepositoryMock.Verify(repo => repo.GetByIdAsync(InterviewFeedbackId, It.IsAny<CancellationToken>()), Times.Once);
             _cacheServiceMock.Verify(cache => cache.SetAsync(It.IsAny<string>(), It.IsAny<InterviewFeedbackResponse>(), It.IsAny<TimeSpan?>(), It.IsAny<CancellationToken>()), Times.Once);
@@ -164,8 +164,8 @@ namespace TalentMesh.Module.Interviews.Tests
 
             var InterviewFeedbacks = new List<InterviewFeedbackResponse>
             {
-                new InterviewFeedbackResponse(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), "Good", 0.8m),
-                new InterviewFeedbackResponse(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), "Good", 0.9m),
+                new InterviewFeedbackResponse(Guid.NewGuid(), Guid.NewGuid(), "OOP", "Good", 0.8m),
+                new InterviewFeedbackResponse(Guid.NewGuid(), Guid.NewGuid(), "OOP", "Good", 0.9m),
             };
             var totalCount = InterviewFeedbacks.Count;
 
@@ -210,12 +210,12 @@ namespace TalentMesh.Module.Interviews.Tests
         public async Task UpdateInterviewFeedback_ReturnsUpdatedInterviewFeedbackResponse()
         {
             // Arrange
-            var existingInterviewFeedback = InterviewFeedback.Create(Guid.NewGuid(), Guid.NewGuid(), "Good", 0.5m);
+            var existingInterviewFeedback = InterviewFeedback.Create(Guid.NewGuid(), "OOP", "Good", 0.5m);
             var InterviewFeedbackId = existingInterviewFeedback.Id;
             var request = new UpdateInterviewFeedbackCommand(
                 InterviewFeedbackId,
                 Guid.NewGuid(),
-                Guid.NewGuid(),
+                "OOP",
                 "Bad",
                 1.0m
             );
@@ -239,7 +239,7 @@ namespace TalentMesh.Module.Interviews.Tests
         {
             // Arrange
             var InterviewFeedbackId = Guid.NewGuid();
-            var request = new UpdateInterviewFeedbackCommand(InterviewFeedbackId, Guid.NewGuid(), Guid.NewGuid(), "Good", 1.0m);
+            var request = new UpdateInterviewFeedbackCommand(InterviewFeedbackId, Guid.NewGuid(), "OOP", "Good", 1.0m);
 
             _repositoryMock.Setup(repo => repo.GetByIdAsync(InterviewFeedbackId, It.IsAny<CancellationToken>()))
                 .ReturnsAsync((InterviewFeedback?)null);

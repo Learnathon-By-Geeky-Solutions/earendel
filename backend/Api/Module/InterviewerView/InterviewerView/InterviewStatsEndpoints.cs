@@ -32,7 +32,7 @@ namespace TalentMesh.Module.InterviewerView
             {
                 var cmd = new CreateInterviewFeedbackCommand(
                     req.InterviewId,
-                    req.InterviewQuestionId,
+                    req.InterviewQuestionText,
                     req.Response,
                     req.Score);
 
@@ -68,20 +68,20 @@ namespace TalentMesh.Module.InterviewerView
         public async Task<List<InterviewFeedbackDto>> Handle(GetAllInterviewFeedbackQuery request, CancellationToken cancellationToken)
         {
             var entities = await _repo.ListAsync(cancellationToken);
-            return entities.Select(x => new InterviewFeedbackDto(x.Id, x.InterviewId, x.InterviewQuestionId, x.Response, x.Score)).ToList();
+            return entities.Select(x => new InterviewFeedbackDto(x.Id, x.InterviewId, x.InterviewQuestionText, x.Response, x.Score)).ToList();
         }
     }
 
-    public record CreateInterviewFeedbackCommand(Guid InterviewId, Guid InterviewQuestionId, string Response, decimal Score) : IRequest<InterviewFeedbackDto>;
+    public record CreateInterviewFeedbackCommand(Guid InterviewId, string InterviewQuestionText, string Response, decimal Score) : IRequest<InterviewFeedbackDto>;
     public class CreateInterviewFeedbackHandler : IRequestHandler<CreateInterviewFeedbackCommand, InterviewFeedbackDto>
     {
         private readonly IRepository<InterviewFeedback> _repo;
         public CreateInterviewFeedbackHandler(IRepository<InterviewFeedback> repo) => _repo = repo;
         public async Task<InterviewFeedbackDto> Handle(CreateInterviewFeedbackCommand request, CancellationToken cancellationToken)
         {
-            var entity = InterviewFeedback.Create(request.InterviewId, request.InterviewQuestionId, request.Response, request.Score);
+            var entity = InterviewFeedback.Create(request.InterviewId, request.InterviewQuestionText, request.Response, request.Score);
             await _repo.AddAsync(entity, cancellationToken);
-            return new InterviewFeedbackDto(entity.Id, entity.InterviewId, entity.InterviewQuestionId, entity.Response, entity.Score);
+            return new InterviewFeedbackDto(entity.Id, entity.InterviewId, entity.InterviewQuestionText, entity.Response, entity.Score);
         }
     }
 

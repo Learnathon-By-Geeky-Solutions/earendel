@@ -12,10 +12,13 @@ public class UpdateInterviewFeedbackCommandValidator : AbstractValidator<UpdateI
             .NotEmpty().WithMessage("Id is required.");
 
         RuleFor(b => b.InterviewId)
-            .NotEmpty().WithMessage("ApplicationId is required.");
+            .NotEmpty().WithMessage("InterviewId is required.");
 
-        RuleFor(b => b.InterviewQuestionId)
-            .NotEmpty().WithMessage("InterviewerId is required.");
+        RuleFor(b => b.InterviewQuestionText)
+            .NotEmpty().WithMessage("InterviewQuestionText is required.");
+
+        // RuleFor(b => b.InterviewQuestionId)
+        //     .NotEmpty().WithMessage("InterviewerId is required.");
 
         RuleFor(b => b.Response)
             .NotEmpty().WithMessage("InterviewDate is required.");
