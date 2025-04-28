@@ -26,6 +26,12 @@ export interface Job {
   requiredSubskillIds: string[];
 }
 
+export interface JobApplication {
+  jobId: string;
+  candidateId: string;
+  coverLetter: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -65,5 +71,35 @@ export class JobService {
       params,
       headers
     });
+  }
+
+  applyForJob(jobId: string, coverLetter: string): Observable<any> {
+    const apiUrl = `${endpoint.jobViewUrl.split('/JobView')[0]}/job/jobapplications`;
+    
+    // Get user data from session storage
+    const userDataStr = sessionStorage.getItem('loggedInUser');
+    let headers = new HttpHeaders();
+    let candidateId = '';
+    
+    if (userDataStr) {
+      try {
+        const userData = JSON.parse(userDataStr);
+        if (userData.token) {
+          headers = headers.set('Authorization', `Bearer ${userData.token}`);
+        }
+        // Use the userId as candidateId
+        candidateId = userData.userId || '';
+      } catch (error) {
+        console.error('Error parsing user data from session storage:', error);
+      }
+    }
+
+    const applicationData: JobApplication = {
+      jobId: jobId,
+      candidateId: candidateId,
+      coverLetter: coverLetter
+    };
+
+    return this.http.post(apiUrl, applicationData, { headers });
   }
 } 
