@@ -18,7 +18,7 @@ public sealed class UpdateJobHandler(
 
         var brand = await repository.GetByIdAsync(request.Id, cancellationToken);
 
-        if (brand is null || brand.DeletedBy != Guid.Empty)
+        if (brand is null)
         {
             throw new JobNotFoundException(request.Id);
         }

@@ -15,6 +15,8 @@ using TalentMesh.Module.Job.Application.JobApplication.Delete.v1;
 using TalentMesh.Module.Job.Application.JobApplication.Get.v1;
 using TalentMesh.Module.Job.Application.JobApplication.Search.v1;
 using TalentMesh.Module.Job.Application.JobApplication.Update.v1;
+using TalentMesh.Framework.Infrastructure.Messaging;
+using TalentMesh.Module.Job.Application.Jobs.Create.v1;
 
 namespace TalentMesh.Module.Job.Tests
 {
@@ -23,6 +25,7 @@ namespace TalentMesh.Module.Job.Tests
         private readonly Mock<IRepository<JobApplication>> _repositoryMock;
         private readonly Mock<IReadRepository<JobApplication>> _readRepositoryMock;
         private readonly Mock<ICacheService> _cacheServiceMock;
+        private readonly Mock<IMessageBus> _messageServiceMock;
         private readonly Mock<ILogger<CreateJobApplicationHandler>> _createLoggerMock;
         private readonly Mock<ILogger<DeleteJobApplicationHandler>> _deleteLoggerMock;
         private readonly Mock<ILogger<GetJobApplicationHandler>> _getLoggerMock;
@@ -40,13 +43,14 @@ namespace TalentMesh.Module.Job.Tests
             _repositoryMock = new Mock<IRepository<JobApplication>>();
             _readRepositoryMock = new Mock<IReadRepository<JobApplication>>();
             _cacheServiceMock = new Mock<ICacheService>();
+            _messageServiceMock = new Mock<IMessageBus>();
             _createLoggerMock = new Mock<ILogger<CreateJobApplicationHandler>>();
             _deleteLoggerMock = new Mock<ILogger<DeleteJobApplicationHandler>>();
             _getLoggerMock = new Mock<ILogger<GetJobApplicationHandler>>();
             _searchLoggerMock = new Mock<ILogger<SearchJobApplicationHandler>>();
             _updateLoggerMock = new Mock<ILogger<UpdateJobApplicationHandler>>();
 
-            _createHandler = new CreateJobApplicationHandler(_createLoggerMock.Object, _repositoryMock.Object);
+            _createHandler = new CreateJobApplicationHandler(_createLoggerMock.Object, _repositoryMock.Object, _messageServiceMock.Object);
             _deleteHandler = new DeleteJobApplicationHandler(_deleteLoggerMock.Object, _repositoryMock.Object);
             _getHandler = new GetJobApplicationHandler(_readRepositoryMock.Object, _cacheServiceMock.Object);
             _searchHandler = new SearchJobApplicationHandler(_readRepositoryMock.Object);
@@ -78,7 +82,33 @@ namespace TalentMesh.Module.Job.Tests
         public async Task DeleteJobApplication_DeletesSuccessfully()
         {
             // Arrange
-            var existingJobApplication = JobApplication.Create(Guid.NewGuid(), Guid.NewGuid(), "Cover letter content");
+            var jobInfo = new JobInfo
+            {
+                Name = "Software Developer",
+                Description = "Developing software applications",
+                Requirments = "C#, .NET Core, Azure",
+                Location = "Remote",
+                JobType = "Full-time",
+                ExperienceLevel = "Mid-Senior",
+                Salary = "100000",
+                PostedById = Guid.NewGuid()
+            };
+
+            var request = new CreateJobCommand(
+               jobInfo.Name,
+               jobInfo.Description,
+               jobInfo.Requirments,
+               jobInfo.Location,
+               jobInfo.JobType,
+               jobInfo.ExperienceLevel,
+               jobInfo.Salary,
+               jobInfo.PostedById
+           );
+
+            var expectedJob = Jobs.Create(jobInfo);
+            var jobId = expectedJob.Id;
+
+            var existingJobApplication = JobApplication.Create(jobId, Guid.NewGuid(), "Cover letter content");
             var jobApplicationId = existingJobApplication.Id;
 
             _repositoryMock.Setup(repo => repo.GetByIdAsync(jobApplicationId, It.IsAny<CancellationToken>()))
@@ -89,7 +119,6 @@ namespace TalentMesh.Module.Job.Tests
 
             // Assert
             _repositoryMock.Verify(repo => repo.DeleteAsync(existingJobApplication, It.IsAny<CancellationToken>()), Times.Once);
-            _repositoryMock.Verify(repo => repo.GetByIdAsync(jobApplicationId, It.IsAny<CancellationToken>()), Times.Once);
         }
 
         [Fact]

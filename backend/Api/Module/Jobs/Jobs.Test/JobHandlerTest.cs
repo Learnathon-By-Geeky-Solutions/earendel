@@ -224,7 +224,8 @@ namespace TalentMesh.Module.Job.Tests
                 Salary = "100,000 - 120,000",
                 PostedById = Guid.NewGuid()
             });
-            job1.Update(name: null, description: null, requirments: null, location: null, jobType: null, experienceLevel: null, salary: null, paymentStatus: "Pending");
+            job1.Update(name: null, description: null, requirments: null, location: null,
+                        jobType: null, experienceLevel: null, salary: null, paymentStatus: "Pending");
 
             var job2 = Jobs.Create(new JobInfo
             {
@@ -237,19 +238,31 @@ namespace TalentMesh.Module.Job.Tests
                 Salary = "90,000 - 110,000",
                 PostedById = Guid.NewGuid()
             });
-            job2.Update(name: null, description: null, requirments: null, location: null, jobType: null, experienceLevel: null, salary: null, paymentStatus: "Paid");
+            job2.Update(name: null, description: null, requirments: null, location: null,
+                        jobType: null, experienceLevel: null, salary: null, paymentStatus: "Paid");
 
             var jobs = new List<Jobs> { job1, job2 };
-            var totalCount = jobs.Count;
 
-            // Use a callback to return the list of Jobs
-            _readRepositoryMock
-                .Setup(repo => repo.ListAsync(It.IsAny<SearchJobSpecs>(), It.IsAny<CancellationToken>()))
-                .Returns((SearchJobSpecs specs, CancellationToken token) => Task.FromResult(jobs));
+            // Map to DTOs
+            var jobResponses = jobs.Select(j => new JobResponse(
+                j.Id,
+                j.Name,
+                j.Description,
+                j.Requirments,
+                j.Location,
+                j.JobType,
+                j.ExperienceLevel,
+                j.Salary!,
+                j.PostedById
+            )).ToList();
 
+            // Mock repository
             _readRepositoryMock
-                .Setup(repo => repo.CountAsync(It.IsAny<SearchJobSpecs>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(totalCount);
+                .Setup(r => r.ListAsync(It.IsAny<SearchJobSpecs>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(jobResponses);
+            _readRepositoryMock
+                .Setup(r => r.CountAsync(It.IsAny<SearchJobSpecs>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync(jobResponses.Count);
 
             // Act
             var result = await _searchHandler.Handle(request, CancellationToken.None);
@@ -258,16 +271,12 @@ namespace TalentMesh.Module.Job.Tests
             Assert.NotNull(result);
             Assert.Equal(2, result.Items.Count);
 
-            // Verify repository calls
-            _readRepositoryMock.Verify(repo =>
-                repo.ListAsync(It.IsAny<SearchJobSpecs>(), It.IsAny<CancellationToken>()),
-                Times.Once
-            );
-
-            _readRepositoryMock.Verify(repo =>
-                repo.CountAsync(It.IsAny<SearchJobSpecs>(), It.IsAny<CancellationToken>()),
-                Times.Once
-            );
+            _readRepositoryMock.Verify(r =>
+                r.ListAsync(It.IsAny<SearchJobSpecs>(), It.IsAny<CancellationToken>()),
+                Times.Once);
+            _readRepositoryMock.Verify(r =>
+                r.CountAsync(It.IsAny<SearchJobSpecs>(), It.IsAny<CancellationToken>()),
+                Times.Once);
         }
 
         [Fact]
