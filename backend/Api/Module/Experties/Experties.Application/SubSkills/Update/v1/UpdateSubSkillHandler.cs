@@ -1,27 +1,34 @@
+using System;
 using TalentMesh.Framework.Core.Persistence;
 using TalentMesh.Module.Experties.Domain;
 using TalentMesh.Module.Experties.Domain.Exceptions;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using System.Threading;
+using System.Threading.Tasks;
 
-namespace TalentMesh.Module.Experties.Application.SubSkills.Update.v1;
-public sealed class UpdateSubSkillHandler(
-    ILogger<UpdateSubSkillHandler> logger,
-    [FromKeyedServices("subskills:subskill")] IRepository<Experties.Domain.SubSkill> repository)
-    : IRequestHandler<UpdateSubSkillCommand, UpdateSubSkillResponse>
+namespace TalentMesh.Module.Experties.Application.SubSkills.Update.v1
 {
-    public async Task<UpdateSubSkillResponse> Handle(UpdateSubSkillCommand request, CancellationToken cancellationToken)
+    public sealed class UpdateSubSkillHandler(
+        ILogger<UpdateSubSkillHandler> logger,
+        [FromKeyedServices("subskills:subskill")] IRepository<SubSkill> repository)
+        : IRequestHandler<UpdateSubSkillCommand, UpdateSubSkillResponse>
     {
-        ArgumentNullException.ThrowIfNull(request);
-        var skill = await repository.GetByIdAsync(request.Id, cancellationToken);
-        if (skill is null)
+        public async Task<UpdateSubSkillResponse> Handle(UpdateSubSkillCommand request, CancellationToken cancellationToken)
         {
-            throw new SubSkillNotFoundException(request.Id);
+            ArgumentNullException.ThrowIfNull(request);
+
+            // Retrieve or throw immediately (no branching)
+            var subSkill = await repository.GetByIdAsync(request.Id, cancellationToken)
+                           ?? throw new SubSkillNotFoundException(request.Id);
+
+            // Update and persist
+            var updated = subSkill.Update(request.Name, request.Description, request.SkillId);
+            await repository.UpdateAsync(updated, cancellationToken);
+
+            logger.LogInformation("SubSkill with ID: {SubSkillId} updated.", updated.Id);
+            return new UpdateSubSkillResponse(updated.Id);
         }
-        var updatedSkill = skill.Update(request.Name, request.Description, request.SkillId);
-        await repository.UpdateAsync(updatedSkill, cancellationToken);
-        logger.LogInformation("subskill with id : {SubSkill} updated.", skill.Id);
-        return new UpdateSubSkillResponse(skill.Id);
     }
 }

@@ -6,17 +6,19 @@ using TalentMesh.Module.Experties.Domain;
 using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Module.Experties.Application.SubSkills.Search.v1;
+
 [ExcludeFromCodeCoverage]
-public class SearchSubSkillSpecs : EntitiesByPaginationFilterSpec<Experties.Domain.SubSkill, SubSkillResponse>
+public class SearchSubSkillSpecs : EntitiesByPaginationFilterSpec<SubSkill, SubSkillResponse>
 {
     public SearchSubSkillSpecs(SearchSubSkillsCommand command)
-        : base(command) =>
-        Query
-            .OrderBy(c => c.Name, !command.HasOrderBy())
-            .Where(
-                b => b.Name != null &&
-                !string.IsNullOrEmpty(command.Keyword) &&
-                b.Name.Contains(command.Keyword),
-                !string.IsNullOrEmpty(command.Keyword)
-                );
+        : base(command)
+    {
+        // Apply default ordering without branching
+        Query.OrderBy(c => c.Name, !command.HasOrderBy());
+
+        // Filter by keyword or skip filtering if keyword is empty
+        Query.Where(b =>
+            string.IsNullOrEmpty(command.Keyword) || (b.Name != null && b.Name.Contains(command.Keyword))
+        );
+    }
 }

@@ -8,7 +8,7 @@ namespace TalentMesh.Module.InterviewerView
         [FromBody]
         public Guid InterviewId { get; set; }
         [FromBody]
-        public Guid InterviewQuestionId { get; set; }
+        public string InterviewQuestionText { get; set; } = null!;
         [FromBody]
         public string Response { get; set; } = null!;
         [FromBody]

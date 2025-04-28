@@ -15,14 +15,12 @@ namespace TalentMesh.Module.HRView.HRFunc // Or your preferred namespace
         private readonly JobDbContext _context;
         private readonly IMessageBus _messageBus;
         private readonly IExternalApiClient _apiClient;
-        private readonly IHubContext<NotificationHub> _hubContext;
 
         public CreateJobCommandHandler(JobDbContext context, IMessageBus messageBus, IExternalApiClient apiClient, IHubContext<NotificationHub> hubContext)
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
 
             _apiClient = apiClient ?? throw new ArgumentNullException(nameof(apiClient));
-            _hubContext = hubContext ?? throw new ArgumentNullException(nameof(hubContext));
 
             _messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
         }
@@ -87,7 +85,6 @@ namespace TalentMesh.Module.HRView.HRFunc // Or your preferred namespace
 
             await _messageBus.PublishAsync(notificationMessage, "notification.events", "notification.fetched", cancellationToken);
 
-            await _hubContext.Clients.Group("admin").SendAsync("SystemAlert", "A new job post is created by a HR", cancellationToken);
 
             // 6. Return the ID of the newly created job
             // Consider returning StatusCodes.Status201Created with the location header

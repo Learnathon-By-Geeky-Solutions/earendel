@@ -27,7 +27,7 @@ public sealed class GetInterviewFeedbackHandler(
                 return new InterviewFeedbackResponse(
                     feedback.Id,
                     feedback.InterviewId,
-                    feedback.InterviewQuestionId,
+                    feedback.InterviewQuestionText,
                     feedback.Response,
                     feedback.Score
                 );
