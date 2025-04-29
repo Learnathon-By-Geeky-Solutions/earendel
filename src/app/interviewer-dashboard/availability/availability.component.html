@@ -100,7 +100,7 @@
             <ul class="list-group availability-list">
               <li *ngFor="let interviewer of interviewerAvailability" class="list-group-item availability-item">
                 <div class="d-flex justify-content-between align-items-center mb-2">
-                  <h6 class="mb-0">{{ interviewer.name }}</h6>
+                  <h6 class="mb-0">{{ interviewer.date | date : 'EEEE, MMMM d, y' }}</h6>
                   <div class="d-flex align-items-center">
                     <span class="badge me-2" [ngClass]="interviewer.isAvailable ? 'bg-success' : 'bg-secondary'">
                       {{ interviewer.isAvailable ? 'Available' : 'Not Available' }}
@@ -110,9 +110,6 @@
                     </button>
                   </div>
                 </div>
-                <p class="mb-2 small text-muted">
-                  {{ interviewer.date | date : 'fullDate' }}
-                </p>
                 <div class="mt-3" *ngIf="interviewer.expanded">
                   <ul class="list-unstyled time-slots">
                     <li *ngFor="let slot of interviewer.timeSlots" class="time-slot-item mb-2">
@@ -140,6 +137,8 @@
       </div>
     </div>
   </div>
+
+  <!-- Delete Confirmation Modal -->
   <div class="modal" [class.show]="showDeleteConfirmation" [style.display]="showDeleteConfirmation ? 'block' : 'none'">
     <div class="modal-dialog">
       <div class="modal-content">
@@ -157,3 +156,28 @@
       </div>
     </div>
   </div>
+
+  <!-- Toast Notification -->
+  <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1100">
+    <div class="toast show" [class.d-block]="showToast" role="alert" aria-live="assertive" aria-atomic="true">
+      <div class="toast-header" [ngClass]="{
+        'bg-success text-white': toastType === 'success',
+        'bg-danger text-white': toastType === 'error',
+        'bg-info text-white': toastType === 'info'
+      }">
+        <strong class="me-auto">
+          <i class="bi" [ngClass]="{
+            'bi-check-circle': toastType === 'success',
+            'bi-exclamation-circle': toastType === 'error',
+            'bi-info-circle': toastType === 'info'
+          }"></i>
+          {{ toastType === 'success' ? 'Success' : (toastType === 'error' ? 'Error' : 'Information') }}
+        </strong>
+        <button type="button" class="btn-close" (click)="hideToast()"></button>
+      </div>
+      <div class="toast-body">
+        {{ toastMessage }}
+      </div>
+    </div>
+  </div>
+</div>

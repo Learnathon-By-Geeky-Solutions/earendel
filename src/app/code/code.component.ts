@@ -414,15 +414,18 @@ import { HomeService } from '../shared/services/home.service';
 
       .editor-output {
         height: calc(100% - 60px);
+        position: relative; /* Add this */
       }
 
       .editor {
-        height: 60% !important;
+        height: 70% !important;
+        position: relative !important;
+        width: 100% !important;
       }
 
       .output {
         height: 40% !important;
-        flex: 1 1 35%; /* The output takes less space on larger screens */
+        flex: 1 1 45%; /* The output takes less space on larger screens */
         display: flex;
         flex-direction: column;
         background-color: #1e1e1e;
@@ -505,6 +508,16 @@ import { HomeService } from '../shared/services/home.service';
         overflow-x: auto;
       }
 
+      @media (max-width: 768px) {
+        .editor {
+          height: 50vh !important;
+          position: relative !important;
+        }
+        .output {
+          height: 30vh !important;
+        }
+      }
+
       @media screen and (max-width: 768px) {
         .editor-container {
           padding: 5px;
@@ -516,9 +529,30 @@ import { HomeService } from '../shared/services/home.service';
           align-items: stretch;
         }
 
+        /* Force cursor visibility */
+        .monaco-editor .cursors-layer .cursor {
+          background-color: #ffffff !important;
+          border-color: #ffffff !important;
+          width: 2px !important;
+        }
+
+        /* Fix line number alignment */
+        .monaco-editor .line-numbers {
+          text-align: right !important;
+          padding-right: 8px !important;
+        }
+
+        /* Ensure editor content alignment */
+        .monaco-editor .view-lines {
+          direction: ltr !important;
+          unicode-bidi: isolate !important;
+        }
+          
         .editor {
           flex: 1 1 100%; /* Full width on small screens */
           height: 250px; /* Limit the editor height */
+          direction: ltr !important; /* Force left-to-right */
+          unicode-bidi: bidi-override !important;
         }
 
         .output {
@@ -609,6 +643,21 @@ export class CodeComponent implements AfterViewInit, OnInit, OnDestroy {
             language: this.selectedLanguage,
             theme: 'vs-dark',
             automaticLayout: true,
+            lineNumbers: 'on',
+            roundedSelection: false,
+            scrollBeyondLastLine: false,
+            readOnly: false,
+            wordWrap: 'off',
+            wrappingIndent: 'none',
+            minimap: { enabled: false },
+            fixedOverflowWidgets: true,
+            // Force LTR settings
+            glyphMargin: false,
+            lineDecorationsWidth: 0,
+            lineNumbersMinChars: 3,
+            cursorStyle: 'line', // 'block', 'underline', etc.
+            cursorBlinking: 'blink', // 'blink' | 'smooth' | 'phase' | 'expand' | 'solid'
+            cursorWidth: 2, // in pixels
           }
         );
 

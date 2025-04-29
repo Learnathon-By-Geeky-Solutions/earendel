@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { RubricsConfigComponent } from './rubrics-config.component';
+import { FeedbackComponent } from './feedback.component';
 
-describe('RubricsConfigComponent', () => {
-  let component: RubricsConfigComponent;
-  let fixture: ComponentFixture<RubricsConfigComponent>;
+describe('FeedbackComponent', () => {
+  let component: FeedbackComponent;
+  let fixture: ComponentFixture<FeedbackComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [RubricsConfigComponent]
+      imports: [FeedbackComponent]
     })
     .compileComponents();
     
-    fixture = TestBed.createComponent(RubricsConfigComponent);
+    fixture = TestBed.createComponent(FeedbackComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

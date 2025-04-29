@@ -1,13 +1,52 @@
 import { Component, Input, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { MatDialogModule, MatDialog } from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 import { Job } from '../services/job.service';
+
+@Component({
+  selector: 'app-cover-letter-dialog',
+  standalone: true,
+  imports: [
+    CommonModule,
+    FormsModule,
+    MatButtonModule,
+    MatDialogModule,
+    MatFormFieldModule,
+    MatInputModule
+  ],
+  template: `
+    <h2 mat-dialog-title>Add Cover Letter</h2>
+    <mat-dialog-content>
+      <p>Please write a cover letter for your job application:</p>
+      <mat-form-field appearance="outline" style="width: 100%">
+        <mat-label>Cover Letter</mat-label>
+        <textarea
+          matInput
+          [(ngModel)]="coverLetter"
+          rows="8"
+          placeholder="Tell us why you're a good fit for this position..."
+        ></textarea>
+      </mat-form-field>
+    </mat-dialog-content>
+    <mat-dialog-actions align="end">
+      <button mat-button mat-dialog-close>Cancel</button>
+      <button mat-raised-button color="primary" [mat-dialog-close]="coverLetter">Submit Application</button>
+    </mat-dialog-actions>
+  `
+})
+export class CoverLetterDialogComponent {
+  coverLetter = '';
+}
 
 @Component({
   selector: 'app-job-details-modal',
   standalone: true,
-  imports: [CommonModule, MatButtonModule, MatIconModule],
+  imports: [CommonModule, MatButtonModule, MatIconModule, MatDialogModule, FormsModule],
   template: `
     <div *ngIf="isOpen" class="modal-overlay" (click)="close()">
       <div class="modal-content" (click)="$event.stopPropagation()">
@@ -224,13 +263,23 @@ export class JobDetailsModalComponent {
   @Input() isOpen = false;
   @Input() job!: Job;
   @Output() closeModal = new EventEmitter<void>();
-  @Output() applyForJob = new EventEmitter<Job>();
+  @Output() applyForJob = new EventEmitter<{job: Job, coverLetter: string}>();
+
+  constructor(private dialog: MatDialog) {}
 
   close() {
     this.closeModal.emit();
   }
 
   apply() {
-    this.applyForJob.emit(this.job);
+    const dialogRef = this.dialog.open(CoverLetterDialogComponent, {
+      width: '600px'
+    });
+
+    dialogRef.afterClosed().subscribe(coverLetter => {
+      if (coverLetter) {
+        this.applyForJob.emit({job: this.job, coverLetter});
+      }
+    });
   }
 }

@@ -1,15 +1,16 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, ActivatedRoute } from '@angular/router';
 import { SidebarComponent } from '../../sidebar/sidebar.component';
+import { JobService, Skill, SubSkill } from '../../services/job.service';
 
 @Component({
   selector: 'app-technology-selection',
   standalone: true,
-  imports: [CommonModule, SidebarComponent],
+  imports: [CommonModule],
   template: `
     <div class="container">
-\      <header class="header">
+      <header class="header">
         <button class="back-btn" (click)="goBack()">
           <i class="bi bi-arrow-left"></i>
           {{ domain }}
@@ -18,50 +19,21 @@ import { SidebarComponent } from '../../sidebar/sidebar.component';
 
       <main class="main-content">
         <div class="left-section">
-          <section class="tech-section">
+          <section class="tech-section" *ngIf="subSkills.length > 0">
             <h3>Skill based</h3>
             <div class="tech-grid">
               <div
                 class="tech-card"
-                *ngFor="let tech of skillBasedOptions"
-                (click)="selectTechnology(tech)"
-                [class.selected]="tech.id === selectedTech?.id"
+                *ngFor="let tech of subSkills"
+                (click)="selectSubSkill(tech)"
+                [class.selected]="tech.id === selectedSubSkill?.id"
               >
-                <img [src]="tech.icon" [alt]="tech.name" />
+                <img [src]="getIconForSubSkill(tech.name)" [alt]="tech.name" />
                 <span>{{ tech.name }}</span>
               </div>
             </div>
           </section>
-
-          <section class="tech-section">
-            <h3>Round based</h3>
-            <div class="tech-grid">
-              <div
-                class="tech-card"
-                *ngFor="let tech of roundBasedOptions"
-                (click)="selectTechnology(tech)"
-                [class.selected]="tech.id === selectedTech?.id"
-              >
-                <img [src]="tech.icon" [alt]="tech.name" />
-                <span>{{ tech.name }}</span>
-              </div>
-            </div>
-          </section>
-
-          <section class="tech-section">
-            <h3>Experience based</h3>
-            <div class="tech-grid">
-              <div
-                class="tech-card"
-                *ngFor="let tech of experienceBasedOptions"
-                (click)="selectTechnology(tech)"
-                [class.selected]="tech.id === selectedTech?.id"
-              >
-                <img [src]="tech.icon" [alt]="tech.name" />
-                <span>{{ tech.name }}</span>
-              </div>
-            </div>
-          </section>
+ 
         </div>
 
         <div class="right-section">
@@ -258,10 +230,15 @@ import { SidebarComponent } from '../../sidebar/sidebar.component';
     `,
   ],
 })
-export class TechnologySelectionComponent {
+export class TechnologySelectionComponent implements OnInit {
   domain = '';
   selectedTech: any | null = null;
+  selectedSubSkill: SubSkill | null = null;
   interviewersCount = 1274;
+  subSkills: SubSkill[] = [];
+  selectedSkill: Skill | null = null;
+  loading = false;
+  error = '';
 
   skillBasedOptions: any[] = [
     {
@@ -296,32 +273,27 @@ export class TechnologySelectionComponent {
     },
   ];
 
-  roundBasedOptions: any[] = [
-    {
-      id: 'system-design',
-      name: 'System Design',
-      icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nodejs/nodejs-original.svg',
-      category: 'round',
-    },
-    {
-      id: 'dsa',
-      name: 'Data Structure & Algorithms',
-      icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nodejs/nodejs-original.svg',
-      category: 'round',
-    },
-  ];
+ 
 
-  experienceBasedOptions: any[] = [
-    {
-      id: 'backend-architect',
-      name: 'Backend Architect',
-      icon: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nodejs/nodejs-original.svg',
-      category: 'experience',
-    },
-  ];
-
-  constructor(private route: ActivatedRoute, private router: Router) {
+  constructor(
+    private route: ActivatedRoute,
+    private router: Router,
+    private jobService: JobService
+  ) {
     this.domain = this.route.snapshot.paramMap.get('domain') || 'Backend';
+  }
+
+  ngOnInit(): void {
+    // Get the selected skill from the job service
+    this.selectedSkill = this.jobService.getSelectedSkill();
+    
+    if (this.selectedSkill && this.selectedSkill.subSkills) {
+      console.log('[TechnologySelectionComponent] Selected skill:', this.selectedSkill);
+      this.subSkills = this.selectedSkill.subSkills;
+    } else {
+      console.warn('[TechnologySelectionComponent] No skill or subskills found');
+      this.error = 'No subskills available for this skill';
+    }
   }
 
   goBack() {
@@ -330,6 +302,34 @@ export class TechnologySelectionComponent {
 
   selectTechnology(tech: any) {
     this.selectedTech = tech;
-    this.router.navigate(['/hr-dashboard/seniority', this.domain.toLowerCase(), tech.id]);
+    this.router.navigate(['/hr-dashboard/job-post/seniority-selection', this.domain.toLowerCase(), tech.id]);
+  }
+
+  selectSubSkill(subSkill: SubSkill) {
+    this.selectedSubSkill = subSkill;
+    console.log('[TechnologySelectionComponent] Selected subskill:', subSkill);
+    this.jobService.setSelectedSubSkill(subSkill);
+    
+    // Navigate to seniority selection with the selected skill and subskill
+    this.router.navigate(['/hr-dashboard/job-post/seniority-selection']);
+  }
+
+  getIconForSubSkill(name: string): string {
+    const map: Record<string, string> = {
+      'Node.js': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nodejs/nodejs-original.svg',
+      'Express.js': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/express/express-original.svg',
+      'React': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg',
+      'Angular': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/angularjs/angularjs-original.svg',
+      'Vue.js': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/vuejs/vuejs-original.svg',
+      'Python': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg',
+      'Django': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/django/django-plain.svg',
+      'Java': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/java/java-original.svg',
+      'Spring': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/spring/spring-original.svg',
+      'PHP': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/php/php-original.svg',
+      'Laravel': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/laravel/laravel-plain.svg',
+      'Go': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/go/go-original.svg',
+      'default': 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nodejs/nodejs-original.svg'
+    };
+    return map[name] || map['default'];
   }
 }

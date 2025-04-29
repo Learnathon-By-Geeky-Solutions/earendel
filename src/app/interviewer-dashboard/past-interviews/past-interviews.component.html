@@ -6,13 +6,13 @@
             <div class="header-section mb-4">
                 <div class="d-flex justify-content-between align-items-center">
                     <div>
-                        <h1 class="h3 fw-bold mb-1">Upcoming Interviews</h1>
+                        <h1 class="h3 fw-bold mb-1">Past Interviews</h1>
                         <p class="text-muted">
-                            You have <span class="text-primary fw-medium">{{ totalItems }}</span> upcoming interviews
+                            You have <span class="text-primary fw-medium">{{ totalItems }}</span> past interviews
                         </p>
                     </div>
                     <div class="d-flex gap-2">
-                        <button class="btn btn-outline-primary rounded-pill refresh-btn" (click)="loadInterviews()">
+                        <button class="btn btn-outline-primary rounded-pill refresh-btn" (click)="loadPastInterviews()">
                             <i class="bi bi-arrow-clockwise me-1"></i> Refresh
                         </button>
                     </div>
@@ -24,14 +24,14 @@
                 <div class="spinner-border text-primary" role="status">
                     <span class="visually-hidden">Loading...</span>
                 </div>
-                <p class="mt-3 text-muted">Loading your upcoming interviews...</p>
+                <p class="mt-3 text-muted">Loading your past interviews...</p>
             </div>
 
             <!-- Error state -->
             <div *ngIf="error && !isLoading" class="alert alert-danger">
                 <i class="bi bi-exclamation-triangle-fill me-2"></i>
                 {{ error }}
-                <button class="btn btn-sm btn-outline-danger ms-3" (click)="loadInterviews()">Try Again</button>
+                <button class="btn btn-sm btn-outline-danger ms-3" (click)="loadPastInterviews()">Try Again</button>
             </div>
 
             <!-- No data state -->
@@ -39,8 +39,8 @@
                 <div class="empty-state-icon">
                     <i class="bi bi-calendar-x"></i>
                 </div>
-                <h3 class="h5 mt-3">No upcoming interviews found</h3>
-                <p class="text-muted">When you accept interview requests, they will appear here.</p>
+                <h3 class="h5 mt-3">No past interviews found</h3>
+                <p class="text-muted">Your completed interviews will appear here.</p>
             </div>
 
             <!-- Data state -->
@@ -84,11 +84,6 @@
                                                 <button class="btn btn-outline-secondary btn-sm"
                                                     (click)="viewDetails(interview)">
                                                     <i class="bi bi-info-circle me-1"></i> Details
-                                                </button>
-                                                <button *ngIf="hasValidMeeting(interview)"
-                                                    class="btn btn-primary btn-sm"
-                                                    (click)="joinZoomMeeting(interview, $event)">
-                                                    <i class="bi bi-camera-video-fill me-1"></i> Join Meeting
                                                 </button>
                                             </div>
                                         </td>
@@ -141,18 +136,6 @@
                     </div>
                 </div>
 
-                <div class="mb-3" *ngIf="selectedInterview.meetingId">
-                    <h6 class="fw-bold mb-2">Meeting Information</h6>
-                    <div class="d-flex align-items-center meeting-info bg-light p-3 rounded">
-                        <i class="bi bi-camera-video text-primary me-2 fs-5"></i>
-                        <div>
-                            <p class="mb-0 small">Meeting ID: <span class="text-dark fw-medium">{{
-                                    selectedInterview.meetingId }}</span></p>
-                            <p class="mb-0 small text-muted">Click the join button below to enter the meeting</p>
-                        </div>
-                    </div>
-                </div>
-
                 <div *ngIf="selectedInterview.description" class="mb-3">
                     <h6 class="fw-bold mb-2">Job Description</h6>
                     <p class="text-muted small">{{ selectedInterview.description }}</p>
@@ -171,10 +154,6 @@
             <div class="modal-footer border-top-0">
                 <button type="button" class="btn btn-outline-secondary" (click)="closeDetailsModal()">
                     <i class="bi bi-x me-1"></i> Close
-                </button>
-                <button *ngIf="hasValidMeeting(selectedInterview)" class="btn btn-primary"
-                    (click)="joinZoomMeeting(selectedInterview, $event)">
-                    <i class="bi bi-camera-video-fill me-1"></i> Join Meeting
                 </button>
             </div>
         </div>
