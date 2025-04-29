@@ -97,6 +97,29 @@ export class JobService {
     return this.http.post<JobApplication[]>(apiUrl, body, { headers });
   }
 
+  getApplications(candidateId: string): Observable<JobApplication[]> {
+    const apiUrl = `${
+      endpoint.jobViewUrl.split('/JobView')[0]
+    }/job/jobapplications/search`;
+    const body = { candidateId };
+    let headers = new HttpHeaders();
+    const userData = sessionStorage.getItem('loggedInUser');
+    if (userData) {
+      try {
+        const u = JSON.parse(userData);
+        if (u.token)
+          headers = headers.set('Authorization', `Bearer ${u.token}`);
+      } catch {}
+    }
+    return this.http.post<JobApplication[]>(apiUrl, body, { headers });
+  }
+
+  getJob(jobId: string): Observable<Job> {
+    return this.http.get<any>(
+      `${endpoint.getJobUrl}/${jobId}`
+    );
+  }
+
   applyForJob(jobId: string, coverLetter: string): Observable<any> {
     const apiUrl = `${
       endpoint.jobViewUrl.split('/JobView')[0]

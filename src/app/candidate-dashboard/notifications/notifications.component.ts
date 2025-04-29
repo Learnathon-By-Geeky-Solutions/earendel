@@ -28,9 +28,6 @@ interface Notification {
         >
           <div class="notification-content">
             <p>{{ notification.message }}</p>
-            <span class="timestamp">{{
-              notification.timestamp | date : 'medium'
-            }}</span>
           </div>
         </div>
       </div>
