@@ -14,7 +14,7 @@ jobs:
   deploy:
     name: Deploy to Server
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 45  # This is the GitHub Actions job-level timeout, you may keep it or adjust it
 
     steps:
       - name: Deploy configuration
@@ -23,7 +23,6 @@ jobs:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
           password: ${{ secrets.SERVER_PASSWORD }}
-          script_timeout: 3600  
           script: |
             mkdir -p /root/Learnathon/earendel/backend
             echo "${{ secrets._APPSETTINGS }}" | base64 --decode > /root/Learnathon/earendel/backend/Api/Server/appsettings.json
@@ -37,7 +36,6 @@ jobs:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
           password: ${{ secrets.SERVER_PASSWORD }}
-          script_timeout: 1800
           script: |
             cd /root/Learnathon/earendel
             echo "Switching to main branch and pulling latest changes..."
