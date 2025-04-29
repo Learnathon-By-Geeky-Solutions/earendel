@@ -48,10 +48,6 @@ namespace TalentMesh.Framework.Infrastructure.Identity.Users.Endpoints
                 {
                     // Extract additional fields for logging and process tracking.
                     var tranId = form["tran_id"].ToString();
-                    var status = form["status"].ToString();
-                    var amount = form["amount"].ToString();
-                    var cardType = form["card_type"].ToString();
-
                     // Call the validation API using the extracted val_id.
                     var response = await externalApiClient.ValidateSslCommerzPaymentAsync(valId);
 

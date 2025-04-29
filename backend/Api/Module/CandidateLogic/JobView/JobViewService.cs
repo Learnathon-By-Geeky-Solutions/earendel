@@ -26,19 +26,20 @@ namespace TalentMesh.Module.CandidateLogic.JobView // Or your preferred namespac
 
             if (!string.IsNullOrWhiteSpace(request.Name))
             {
+                // Normalize both database value and filter
                 var normalizedFilter = request.Name
                     .Trim()
                     .Replace(" ", "")
-                    .ToLower();
+                    .ToLower(); // Case normalization
 
                 jobQuery = jobQuery.Where(j =>
-                    j.Name != null &&
-                    j.Name.Trim()
-                          .Replace(" ", "")
-                          .ToLower()
-                          .Contains(normalizedFilter)
+                    EF.Functions.Like(
+                        j.Name.Replace(" ", "").ToLower(), // Database-side normalization
+                        $"%{normalizedFilter}%"
+                    )
                 );
             }
+
 
             if (!string.IsNullOrWhiteSpace(request.Description))
                 jobQuery = jobQuery.Where(j => j.Description != null && j.Description.Contains(request.Description));

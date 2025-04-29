@@ -12,9 +12,15 @@ public class SearchNotificationSpecs : EntitiesByPaginationFilterSpec<Notificati
 {
     public SearchNotificationSpecs(SearchNotificationsCommand command)
         : base(command)
-        {
-            Query
-            .OrderBy(c => c.Entity, !command.HasOrderBy())
+    {
+        Query
             .Where(i => !command.UserId.HasValue || i.UserId == command.UserId.Value);
-       }
+
+        // Single order chain with conditional default
+        if (!command.HasOrderBy())
+        {
+            Query.OrderByDescending(n => n.Created)
+                 .ThenBy(n => n.Entity);
+        }
+    }
 }
