@@ -60,7 +60,7 @@ import { LogoutModalComponent } from '../../hr-dashboard/logout-modal/logout-mod
           Upcoming Interview
         </a>
         <a
-          routerLink="/candidate-dashboard/quiz"
+          routerLink="/candidate-dashboard/quiz/start"
           routerLinkActive="active"
           class="nav-item"
         >
