@@ -116,18 +116,79 @@ export class UpcomingInterviewsComponent implements OnInit {
     interviews: ProcessedInterview[]
   ): ProcessedInterview[] {
     const now = new Date();
-    // Calculate the cutoff time (1 hour in the past from now)
-    const oneHourAgo = new Date(now.getTime() - 60 * 60 * 1000);
+    const oneAndHalfHoursAgo = new Date(now.getTime() - 90 * 60 * 1000); // 1.5 hours in milliseconds
 
     return interviews.filter((interview) => {
-      if (!interview.originalDate) {
-        return false; // Skip if no valid date
-      }
+      if (!interview.originalDate) return false;
 
-      // Keep interviews that are in the future OR within the 1-hour grace period
-      return interview.originalDate >= oneHourAgo;
+      // Keep interviews that are in the future or within the last 1.5 hours
+      return interview.originalDate >= oneAndHalfHoursAgo;
     });
   }
+
+  /**
+   * Returns true if the interview meeting is joinable:
+   *   - It has a valid meetingId
+   *   - Its start time is <= now + some future buffer (optional)
+   *   - Its start time is >= 1.5 hours ago
+   */
+  /** Return true if joining is allowed (i.e. interview time ≤ now and ≥ 1.5h ago) */
+  canJoin(interview: ProcessedInterview): boolean {
+    if (!interview.originalDate) return false;
+    const now = new Date().getTime();
+    const start = interview.originalDate.getTime();
+    const oneAndHalfAgo = now - 1.5 * 60 * 60 * 1000; // 90 minutes ago
+    return start <= now && start >= oneAndHalfAgo;
+  }
+
+  // parseInterviewDate(dateString: string): {
+  //   date: string;
+  //   time: string;
+  //   originalDate: Date | null;
+  // } {
+  //   try {
+  //     if (!dateString) {
+  //       throw new Error('No date provided');
+  //     }
+
+  //     // Parse the ISO date string
+  //     const date = new Date(dateString);
+
+  //     if (isNaN(date.getTime())) {
+  //       throw new Error('Invalid date');
+  //     }
+
+  //     // Format date as "Month DD, YYYY" in UTC
+  //     const month = date.toLocaleString('en-US', {
+  //       month: 'long',
+  //       timeZone: 'UTC',
+  //     });
+  //     const day = date.getUTCDate();
+  //     const year = date.getUTCFullYear();
+  //     const formattedDate = `${month} ${day}, ${year}`;
+
+  //     // Format time as "h:mm AM/PM" in UTC (12-hour format)
+  //     let hours = date.getUTCHours();
+  //     const minutes = date.getUTCMinutes().toString().padStart(2, '0');
+  //     const ampm = hours >= 12 ? 'PM' : 'AM';
+  //     hours = hours % 12;
+  //     hours = hours ? hours : 12; // Convert 0 to 12 for 12 AM
+  //     const formattedTime = `${hours}:${minutes} ${ampm}`;
+
+  //     return {
+  //       date: formattedDate,
+  //       time: formattedTime,
+  //       originalDate: date,
+  //     };
+  //   } catch (error) {
+  //     console.error('Error parsing date:', error);
+  //     return {
+  //       date: 'Invalid Date',
+  //       time: 'Invalid Time',
+  //       originalDate: null,
+  //     };
+  //   }
+  // }
 
   parseInterviewDate(dateString: string): {
     date: string;
@@ -135,33 +196,22 @@ export class UpcomingInterviewsComponent implements OnInit {
     originalDate: Date | null;
   } {
     try {
-      if (!dateString) {
-        throw new Error('No date provided');
-      }
+      if (!dateString) throw new Error('No date provided');
 
-      // Parse the ISO date string
       const date = new Date(dateString);
+      if (isNaN(date.getTime())) throw new Error('Invalid date');
 
-      if (isNaN(date.getTime())) {
-        throw new Error('Invalid date');
-      }
-
-      // Format date as "Month DD, YYYY" in UTC
-      const month = date.toLocaleString('en-US', {
+      const formattedDate = date.toLocaleDateString('en-US', {
+        year: 'numeric',
         month: 'long',
-        timeZone: 'UTC',
+        day: 'numeric',
       });
-      const day = date.getUTCDate();
-      const year = date.getUTCFullYear();
-      const formattedDate = `${month} ${day}, ${year}`;
 
-      // Format time as "h:mm AM/PM" in UTC (12-hour format)
-      let hours = date.getUTCHours();
-      const minutes = date.getUTCMinutes().toString().padStart(2, '0');
-      const ampm = hours >= 12 ? 'PM' : 'AM';
-      hours = hours % 12;
-      hours = hours ? hours : 12; // Convert 0 to 12 for 12 AM
-      const formattedTime = `${hours}:${minutes} ${ampm}`;
+      const formattedTime = date.toLocaleTimeString('en-US', {
+        hour: 'numeric',
+        minute: '2-digit',
+        hour12: true,
+      });
 
       return {
         date: formattedDate,
