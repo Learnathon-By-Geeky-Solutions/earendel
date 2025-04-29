@@ -50,23 +50,27 @@ public class Jobs : AuditableEntity, IAggregateRoot
         return job;
     }
 
-    public Jobs Update(
-        string? name, string? description, string? requirments,
-        string? location, string? jobType, string? experienceLevel, string? salary, string? paymentStatus = default!
-        )
+    public Jobs Update(JobUpdateDetails details)
     {
-        if (name is not null && Name?.Equals(name, StringComparison.OrdinalIgnoreCase) is not true) Name = name;
-        if (description is not null && Description?.Equals(description, StringComparison.OrdinalIgnoreCase) is not true) Description = description;
-        if (requirments is not null && Requirments?.Equals(requirments, StringComparison.OrdinalIgnoreCase) is not true) Requirments = requirments;
-        if (location is not null && Location?.Equals(location, StringComparison.OrdinalIgnoreCase) is not true) Location = location;
-        if (jobType is not null && JobType?.Equals(jobType, StringComparison.OrdinalIgnoreCase) is not true) JobType = jobType;
-        if (experienceLevel is not null && ExperienceLevel?.Equals(experienceLevel, StringComparison.OrdinalIgnoreCase) is not true) ExperienceLevel = experienceLevel;
-        if (salary is not null && Salary?.Equals(salary, StringComparison.OrdinalIgnoreCase) is not true) Salary = salary;
-        if (paymentStatus is not null && PaymentStatus?.Equals(paymentStatus, StringComparison.OrdinalIgnoreCase) is not true) PaymentStatus = paymentStatus;
+        UpdateProperty(details.Name, value => Name = value, Name);
+        UpdateProperty(details.Description, value => Description = value, Description);
+        UpdateProperty(details.Requirments, value => Requirments = value, Requirments);
+        UpdateProperty(details.Location, value => Location = value, Location);
+        UpdateProperty(details.JobType, value => JobType = value, JobType);
+        UpdateProperty(details.ExperienceLevel, value => ExperienceLevel = value, ExperienceLevel);
+        UpdateProperty(details.Salary, value => Salary = value, Salary);
+        UpdateProperty(details.PaymentStatus, value => PaymentStatus = value, PaymentStatus);
 
-        this.QueueDomainEvent(new JobUpdated() { User = this });
-
+        this.QueueDomainEvent(new JobUpdated { User = this });
         return this;
+    }
+
+    private void UpdateProperty(string? newValue, Action<string> setter, string? currentValue)
+    {
+        if (newValue != null && (currentValue == null || !currentValue.Equals(newValue, StringComparison.OrdinalIgnoreCase)))
+        {
+            setter(newValue);
+        }
     }
 
 }

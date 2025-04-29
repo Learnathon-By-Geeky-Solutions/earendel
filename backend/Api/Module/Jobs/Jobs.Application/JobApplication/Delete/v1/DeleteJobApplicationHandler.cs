@@ -17,6 +17,6 @@ public sealed class DeleteJobApplicationHandler(
         ArgumentNullException.ThrowIfNull(request);
         var jobApplication = await repository.GetByIdAsync(request.Id, cancellationToken) ?? throw new JobApplicationNotFoundException(request.Id);
         await repository.DeleteAsync(jobApplication!, cancellationToken);
-        logger.LogInformation("JobApplication with id : {Id} deleted", jobApplication?.Id);
+        logger.LogInformation("JobApplication with id : {Id} deleted", jobApplication.Id);
     }
 }

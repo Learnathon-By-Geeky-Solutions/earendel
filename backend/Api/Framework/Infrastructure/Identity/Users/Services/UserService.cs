@@ -493,15 +493,6 @@ internal sealed partial class UserService(
 
     public async Task<List<UserDetail>> GetListAsync(CancellationToken cancellationToken)
     {
-        // var usersWithRoles = await userManager.Users
-        //     .Include(u => u.UserRoles!)              // bring in the join table
-        //         .ThenInclude(ur => ur.Role!)        // bring in each Role
-        //     .AsNoTracking()
-        //     .ToListAsync(cancellationToken);
-
-        // // Now Mapster will see the UserRoles.Role.Name and fill your DTO’s Roles
-        // return usersWithRoles.Adapt<List<UserDetail>>();
-
 
         var userDetail = await (from user in userManager.Users
                                 join ur in db.UserRoles on user.Id equals ur.UserId into userRoles

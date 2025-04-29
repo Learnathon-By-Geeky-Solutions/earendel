@@ -12,9 +12,6 @@ public class CreateInterviewFeedbackCommandValidator : AbstractValidator<CreateI
         RuleFor(b => b.InterviewId)
             .NotEmpty().WithMessage("InterviewId is required.");
 
-        // RuleFor(b => b.InterviewQuestionId)
-        //     .NotEmpty().WithMessage("InterviewQuestionId is required.");
-
         RuleFor(b => b.InterviewQuestionText)
             .NotEmpty().WithMessage("InterviewQuestionText is required.");
 

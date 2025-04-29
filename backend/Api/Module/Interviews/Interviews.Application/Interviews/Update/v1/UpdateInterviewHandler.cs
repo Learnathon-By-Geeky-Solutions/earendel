@@ -27,8 +27,19 @@ public sealed class UpdateInterviewHandler(
             throw new InterviewNotFoundException(request.Id);
         }
 
-        // Update the interview entity with the new fields
-        interview.Update(request.ApplicationId, request.InterviewerId, request.CandidateId, request.JobId, request.InterviewDate, request.Status, request.Notes, request.MeetingId);
+        var updateDetails = new InterviewDetails
+        {
+            ApplicationId = request.ApplicationId,
+            InterviewerId = request.InterviewerId,
+            CandidateId = request.CandidateId,
+            JobId = request.JobId,
+            InterviewDate = request.InterviewDate,
+            Status = request.Status,
+            Notes = request.Notes,
+            MeetingId = request.MeetingId
+        };
+
+        interview.Update(updateDetails);
 
         // Save the updated interview back to the repository
         await repository.UpdateAsync(interview, cancellationToken);

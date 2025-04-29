@@ -17,9 +17,6 @@ public class UpdateInterviewFeedbackCommandValidator : AbstractValidator<UpdateI
         RuleFor(b => b.InterviewQuestionText)
             .NotEmpty().WithMessage("InterviewQuestionText is required.");
 
-        // RuleFor(b => b.InterviewQuestionId)
-        //     .NotEmpty().WithMessage("InterviewerId is required.");
-
         RuleFor(b => b.Response)
             .NotEmpty().WithMessage("InterviewDate is required.");
 

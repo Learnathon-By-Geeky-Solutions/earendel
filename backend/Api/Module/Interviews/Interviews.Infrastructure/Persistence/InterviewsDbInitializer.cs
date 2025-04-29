@@ -38,8 +38,19 @@ namespace TalentMesh.Module.Interviews.Infrastructure.Persistence
             if (await context.Interviews.FirstOrDefaultAsync(t => t.ApplicationId == applicationId, cancellationToken).ConfigureAwait(false) is null)
             {
                 // Create a new Interview for seeding
-                var interview = Interview.Create(applicationId, interviewerId, candidateId, jobId, interviewDate, status, notes, meetingId);
+                var createDetails = new InterviewDetails
+                {
+                    ApplicationId = applicationId,
+                    InterviewerId = interviewerId,
+                    CandidateId = candidateId,
+                    JobId = jobId,
+                    InterviewDate = interviewDate,
+                    Status = status,
+                    Notes = notes,
+                    MeetingId = meetingId
+                };
 
+                var interview = Interview.Create(createDetails);
                 // Add the Interview to the database
                 await context.Interviews.AddAsync(interview, cancellationToken);
                 await context.SaveChangesAsync(cancellationToken).ConfigureAwait(false);
