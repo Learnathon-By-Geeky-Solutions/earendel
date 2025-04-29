@@ -12,7 +12,7 @@ using System.Diagnostics.CodeAnalysis;
 namespace TalentMesh.Module.Job.Infrastructure.Persistence;
 [ExcludeFromCodeCoverage]
 
-public sealed class JobDbContext : TMDbContext
+public class JobDbContext : TMDbContext
 {
     public JobDbContext(IMultiTenantContextAccessor<TMTenantInfo> multiTenantContextAccessor, DbContextOptions<JobDbContext> options, IPublisher publisher, IOptions<DatabaseOptions> settings)
         : base(multiTenantContextAccessor, options, publisher, settings)

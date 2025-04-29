@@ -11,6 +11,7 @@ internal static class Extensions
     {
         app.MapRefreshTokenEndpoint();
         app.MapTokenGenerationEndpoint();
+        app.MapLogoutEndpoint();
         return app;
     }
     [ExcludeFromCodeCoverage]
