@@ -57,6 +57,7 @@ import { PendingRequestComponent } from './interviewer-dashboard/pending-request
 import { PastInterviewsComponent } from './interviewer-dashboard/past-interviews/past-interviews.component';
 import { NotificationComponent as InterviewerNotificationComponent } from './interviewer-dashboard/notification/notification.component';
 import { FeedbackComponent } from './interviewer-dashboard/feedback/feedback.component';
+import { InterviewReportComponent } from './hr-dashboard/jobs/interview-report/interview-report.component';
 
 export const routes: Routes = [
   { path: '', component: LandingComponent },
@@ -133,6 +134,9 @@ export const routes: Routes = [
       },
       { path: 'job-post/customize-interview',
         component: CustomizedInterviewComponent 
+      },
+      { path: 'jobs/interview-report',
+        component: InterviewReportComponent 
       },
 
       { path: '', redirectTo: 'overview', pathMatch: 'full' },
