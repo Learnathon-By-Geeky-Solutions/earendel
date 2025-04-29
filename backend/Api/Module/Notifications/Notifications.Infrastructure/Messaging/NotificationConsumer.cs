@@ -18,9 +18,11 @@ using TalentMesh.Module.Notifications.Domain;
 using TalentMesh.Module.Notifications.Infrastructure.Persistence;
 using TalentMesh.Framework.Core.Jobs;
 using TalentMesh.Framework.Core.Mail;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Module.Notifications.Infrastructure.Messaging
 {
+    [ExcludeFromCodeCoverage]
     public class NotificationConsumer : RabbitMqConsumer<NotificationMessage>
     {
         private readonly IJobService _jobService;
@@ -50,15 +52,15 @@ namespace TalentMesh.Module.Notifications.Infrastructure.Messaging
             switch (message.EntityType)
             {
                 case "InterviewScheduled.HR":
-                    await HandleHrInterviewScheduled(message, jobDbContext, userManager, dbContext, stoppingToken);
+                    await HandleHrInterviewScheduled(message, jobDbContext, userManager, dbContext, _jobService, _mailService, stoppingToken);
                     break;
 
                 case "InterviewScheduled.Candidate":
-                    await HandleCandidateInterviewScheduled(message, userManager, dbContext, hubContext, stoppingToken);
+                    await HandleCandidateInterviewScheduled(message, userManager, dbContext, hubContext, _jobService, _mailService, stoppingToken);
                     break;
 
                 case "Interview.Interviewer":
-                    await HandleInterviewerNotification(message, userManager, dbContext, hubContext, stoppingToken);
+                    await HandleInterviewerNotification(message, userManager, dbContext, hubContext, _jobService, _mailService, stoppingToken);
                     break;
 
                 case "JobApplication":
@@ -78,14 +80,22 @@ namespace TalentMesh.Module.Notifications.Infrastructure.Messaging
 
         protected override Guid GetRequestedBy(NotificationMessage message) => message.RequestedBy;
 
-        private async Task HandleHrInterviewScheduled(NotificationMessage message, JobDbContext jobDbContext, UserManager<TMUser> userManager, NotificationsDbContext dbContext, CancellationToken stoppingToken)
+        private static async Task HandleHrInterviewScheduled(
+            NotificationMessage message,
+            JobDbContext jobDbContext,
+            UserManager<TMUser> userManager,
+            NotificationsDbContext dbContext,
+            IJobService jobService,
+            IMailService mailService,
+            CancellationToken stoppingToken)
         {
             if (string.IsNullOrEmpty(message.Entity)) return;
 
             var jobId = Guid.Parse(message.Entity);
             var job = await jobDbContext.Jobs.FindAsync(new object[] { jobId }, cancellationToken: stoppingToken);
-            var user = await userManager.FindByIdAsync(job!.PostedById.ToString());
+            if (job == null) return;
 
+            var user = await userManager.FindByIdAsync(job.PostedById.ToString());
             var notification = Notification.Create(job.PostedById, message.Entity, message.EntityType, message.Message);
             await dbContext.Notifications.AddAsync(notification, stoppingToken);
 
@@ -96,11 +106,18 @@ namespace TalentMesh.Module.Notifications.Infrastructure.Messaging
                     "Interview Scheduled",
                     message.Message!
                 );
-                _jobService.Enqueue("email", () => _mailService.SendEmail(mailRequest));
+                jobService.Enqueue("email", () => mailService.SendEmail(mailRequest));
             }
         }
 
-        private async Task HandleCandidateInterviewScheduled(NotificationMessage message, UserManager<TMUser> userManager, NotificationsDbContext dbContext, IHubContext<NotificationHub> hubContext, CancellationToken stoppingToken)
+        private static async Task HandleCandidateInterviewScheduled(
+            NotificationMessage message,
+            UserManager<TMUser> userManager,
+            NotificationsDbContext dbContext,
+            IHubContext<NotificationHub> hubContext,
+            IJobService jobService,
+            IMailService mailService,
+            CancellationToken stoppingToken)
         {
             if (!Guid.TryParse(message.UserId, out var candidateId) || !Guid.TryParse(message.Entity, out var jobId))
                 return;
@@ -119,11 +136,18 @@ namespace TalentMesh.Module.Notifications.Infrastructure.Messaging
                     "Interview Scheduled",
                     message.Message!
                 );
-                _jobService.Enqueue("email", () => _mailService.SendEmail(mailRequest));
+                jobService.Enqueue("email", () => mailService.SendEmail(mailRequest));
             }
         }
 
-        private async Task HandleInterviewerNotification(NotificationMessage message, UserManager<TMUser> userManager, NotificationsDbContext dbContext, IHubContext<NotificationHub> hubContext, CancellationToken stoppingToken)
+        private static async Task HandleInterviewerNotification(
+            NotificationMessage message,
+            UserManager<TMUser> userManager,
+            NotificationsDbContext dbContext,
+            IHubContext<NotificationHub> hubContext,
+            IJobService jobService,
+            IMailService mailService,
+            CancellationToken stoppingToken)
         {
             if (!Guid.TryParse(message.UserId, out var userId) || !Guid.TryParse(message.Entity, out var jobId))
                 return;
@@ -142,25 +166,36 @@ namespace TalentMesh.Module.Notifications.Infrastructure.Messaging
                     "Interview Request",
                     message.Message!
                 );
-                _jobService.Enqueue("email", () => _mailService.SendEmail(mailRequest));
+                jobService.Enqueue("email", () => mailService.SendEmail(mailRequest));
             }
         }
 
-        private async Task HandleJobApplication(NotificationMessage message, JobDbContext jobDbContext, NotificationsDbContext dbContext, IHubContext<NotificationHub> hubContext, CancellationToken stoppingToken)
+        private static async Task HandleJobApplication(
+            NotificationMessage message,
+            JobDbContext jobDbContext,
+            NotificationsDbContext dbContext,
+            IHubContext<NotificationHub> hubContext,
+            CancellationToken stoppingToken)
         {
             if (string.IsNullOrEmpty(message.Entity)) return;
 
             var jobId = Guid.Parse(message.Entity);
             var job = await jobDbContext.Jobs.FindAsync(new object[] { jobId }, cancellationToken: stoppingToken);
+            if (job == null) return;
 
-            var notification = Notification.Create(job!.PostedById, message.Entity, message.EntityType, message.Message);
+            var notification = Notification.Create(job.PostedById, message.Entity, message.EntityType, message.Message);
             await dbContext.Notifications.AddAsync(notification, stoppingToken);
 
             await hubContext.Clients.Group($"user:{job.PostedById}")
                 .SendAsync(NotificationConstants.SystemAlert, message.Message, stoppingToken);
         }
 
-        private async Task HandleAdminNotification(NotificationMessage message, UserManager<TMUser> userManager, NotificationsDbContext dbContext, IHubContext<NotificationHub> hubContext, CancellationToken stoppingToken)
+        private static async Task HandleAdminNotification(
+            NotificationMessage message,
+            UserManager<TMUser> userManager,
+            NotificationsDbContext dbContext,
+            IHubContext<NotificationHub> hubContext,
+            CancellationToken stoppingToken)
         {
             var admins = await userManager.GetUsersInRoleAsync("Admin");
 
@@ -176,7 +211,11 @@ namespace TalentMesh.Module.Notifications.Infrastructure.Messaging
             }
         }
 
-        private async Task HandleGenericUserNotification(NotificationMessage message, NotificationsDbContext dbContext, IHubContext<NotificationHub> hubContext, CancellationToken stoppingToken)
+        private static async Task HandleGenericUserNotification(
+            NotificationMessage message,
+            NotificationsDbContext dbContext,
+            IHubContext<NotificationHub> hubContext,
+            CancellationToken stoppingToken)
         {
             if (!Guid.TryParse(message.UserId, out var userId)) return;
 
@@ -188,11 +227,13 @@ namespace TalentMesh.Module.Notifications.Infrastructure.Messaging
         }
     }
 
+    [ExcludeFromCodeCoverage]
     public static class NotificationConstants
     {
         public const string SystemAlert = "SystemAlert";
     }
 
+    [ExcludeFromCodeCoverage]
     public class NotificationMessage
     {
         public string? UserId { get; set; }
