@@ -117,10 +117,10 @@ new(TMActions.Delete, TMResources.Notifications, "Delete Notification Questions"
 
 
 // — New permissions for InterviewSignature
-new(TMActions.View, TMResources.InterviewSignature, "View Interview Signature"),
-new(TMActions.Create, TMResources.InterviewSignature, "Create Interview Signature"),
-new(TMActions.Update, TMResources.InterviewSignature, "Update Interview Signature"),
-new(TMActions.Delete, TMResources.InterviewSignature, "Delete Interview Signature"),
+new(TMActions.View, TMResources.InterviewSignatures, "View Interview Signature"),
+new(TMActions.Create, TMResources.InterviewSignatures, "Create Interview Signature"),
+new(TMActions.Update, TMResources.InterviewSignatures, "Update Interview Signature"),
+new(TMActions.Delete, TMResources.InterviewSignatures, "Delete Interview Signature"),
 
     // — New: JobRequiredSkill
     new(TMActions.View, TMResources.JobRequiredSkills, "View Job Required Skills"),
