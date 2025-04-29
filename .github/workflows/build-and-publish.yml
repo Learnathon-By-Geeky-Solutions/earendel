@@ -1,5 +1,11 @@
 name: .NET CI/CD Workflow with SonarCloud
 
+permissions:
+  contents: read         
+  actions: write         
+  id-token: write        
+  security-events: write 
+
 on:
   push:
     branches:

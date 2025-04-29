@@ -22,10 +22,23 @@ namespace TalentMesh.Module.CandidateLogic.JobView // Or your preferred namespac
         public async Task<IResult> Handle(JobViewFilters request, CancellationToken cancellationToken)
         {
             // --- 1. Filter Jobs ---
-            var jobQuery = _jobDbContext.Jobs.AsNoTracking().AsQueryable(); 
+            var jobQuery = _jobDbContext.Jobs.AsNoTracking().AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(request.Name))
-                jobQuery = jobQuery.Where(j => j.Name.Contains(request.Name));
+            {
+                var normalizedFilter = request.Name
+                    .Trim()
+                    .Replace(" ", "")
+                    .ToLower();
+
+                jobQuery = jobQuery.Where(j =>
+                    j.Name != null &&
+                    j.Name.Trim()
+                          .Replace(" ", "")
+                          .ToLower()
+                          .Contains(normalizedFilter)
+                );
+            }
 
             if (!string.IsNullOrWhiteSpace(request.Description))
                 jobQuery = jobQuery.Where(j => j.Description != null && j.Description.Contains(request.Description));

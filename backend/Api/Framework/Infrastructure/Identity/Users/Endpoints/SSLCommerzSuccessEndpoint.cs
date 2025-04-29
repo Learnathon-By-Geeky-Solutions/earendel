@@ -52,16 +52,11 @@ namespace TalentMesh.Framework.Infrastructure.Identity.Users.Endpoints
                     var amount = form["amount"].ToString();
                     var cardType = form["card_type"].ToString();
 
-                    logger.LogInformation("Received SSLCommerz success callback. TranId: {TranId}, ValId: {ValId}, Status: {Status}, Amount: {Amount}, CardType: {CardType}",
-                        tranId, valId, status, amount, cardType);
-
                     // Call the validation API using the extracted val_id.
                     var response = await externalApiClient.ValidateSslCommerzPaymentAsync(valId);
 
                     if (string.Equals(response, "VALID", StringComparison.OrdinalIgnoreCase))
-                    {
-                        logger.LogInformation("Payment validation succeeded for TranId: {TranId}", tranId);
-                        
+                    {                        
                         var publishMessage = new
                         {
                             JobId = tranId,
@@ -75,13 +70,12 @@ namespace TalentMesh.Framework.Infrastructure.Identity.Users.Endpoints
                     }
                     else
                     {
-                        logger.LogWarning("Payment validation failed for TranId: {TranId}. Validation API returned status: {ValidationStatus}", tranId, response);
                         return $"Payment validation failed. Response status: {response}";
                     }
                 }
                 catch (System.Exception ex)
                 {
-                    logger.LogError(ex, "Failed to process SSLCommerz success callback for val_id: {ValId}", valId);
+                    logger.LogError(ex, "Failed to process SSLCommerz success callback");
                     context.Response.StatusCode = StatusCodes.Status500InternalServerError;
                     await context.Response.WriteAsync("Payment validation failed due to an internal error.", cancellationToken);
                     return "Invalid";
