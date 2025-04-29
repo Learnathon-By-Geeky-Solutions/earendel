@@ -26,7 +26,7 @@ public static class TMResources
     public const string Interviews = nameof(Interviews); 
     public const string InterviewFeedbacks = nameof(InterviewFeedbacks); 
     public const string InterviewQuestions = nameof(InterviewQuestions); 
-    public const string InterviewSignature = nameof(InterviewSignature); 
+    public const string InterviewSignatures = nameof(InterviewSignatures); 
     public const string JobRequiredSkills = nameof(JobRequiredSkills); 
     public const string JobRequiredSubskills = nameof(JobRequiredSubskills); 
     public const string Notifications = nameof(Notifications); 
