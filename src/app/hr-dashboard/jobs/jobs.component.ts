@@ -506,6 +506,12 @@ interface Job {
                               </div>
                               <div class="d-flex gap-2">
                                 <button
+                                  class="btn btn-sm btn-outline-primary"
+                                  (click)="viewInterviewReport(candidate); $event.stopPropagation()"
+                                >
+                                  View Report
+                                </button>
+                                <button
                                   class="btn btn-sm btn-outline-success"
                                   (click)="moveForward(candidate)"
                                 >
@@ -1607,5 +1613,19 @@ export class JobComponent implements OnInit {
   getSelectedInterviewer(candidate: Candidate): string {
     return candidate.applicationId ? 
       this.selectedInterviewers[candidate.applicationId] || '' : '';
+  }
+
+  /**
+   * View the interview report for a candidate
+   * Opens in a new window with candidateId and jobId as URL parameters
+   */
+  viewInterviewReport(candidate: Candidate): void {
+    if (!candidate.candidateId || !this.selectedJob?.id) {
+      this.snackBar.open('Missing candidate ID or job ID', 'Close', { duration: 3000 });
+      return;
+    }
+
+    const url = `hr-dashboard/jobs/interview-report?candidateId=${candidate.candidateId}&jobId=${this.selectedJob.id}`;
+    window.open(url, '_blank');
   }
 }
