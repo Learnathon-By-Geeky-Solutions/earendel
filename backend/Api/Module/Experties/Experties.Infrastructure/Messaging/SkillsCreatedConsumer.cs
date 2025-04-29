@@ -57,7 +57,6 @@ namespace TalentMesh.Module.Experties.Infrastructure.Messaging
         {
             _channel?.Close();
             _connection?.Close();
-            GC.SuppressFinalize(this);
             base.Dispose();
         }
     }

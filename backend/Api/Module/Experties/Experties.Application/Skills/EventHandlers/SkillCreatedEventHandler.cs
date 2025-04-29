@@ -19,14 +19,12 @@ namespace TalentMesh.Module.Experties.Application.Skills.EventHandlers
         private readonly ILogger<SkillCreatedEventHandler> _logger;
         private readonly IMessageBus _messageBus;
         private readonly IHubContext<NotificationHub> _hubContext;
-        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public SkillCreatedEventHandler(ILogger<SkillCreatedEventHandler> logger, IMessageBus messageBus, IHubContext<NotificationHub> hubContext, IHttpContextAccessor httpContextAccessor)
+        public SkillCreatedEventHandler(ILogger<SkillCreatedEventHandler> logger, IMessageBus messageBus, IHubContext<NotificationHub> hubContext)
         {
             _logger = logger;
             _messageBus = messageBus;
             _hubContext = hubContext;
-            _httpContextAccessor = httpContextAccessor;
         }
 
         public async Task Handle(SkillCreated notification, CancellationToken cancellationToken)
@@ -34,9 +32,6 @@ namespace TalentMesh.Module.Experties.Application.Skills.EventHandlers
             var skill = notification.Skill!;
             var skillId = skill.Id;
             var skillName = skill.Name;
-
-            // Combined user context logging
-            ClaimsPrincipal? user = _httpContextAccessor.HttpContext?.User;
             
             var skillMessage = new
             {
