@@ -1,7 +1,6 @@
 import { Component, OnInit, Inject, NgZone } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { CommonModule, DOCUMENT } from '@angular/common';
-
 import { ZoomMtg } from '@zoom/meetingsdk';
 import { CodeComponent } from '../code/code.component';
 import { HomeService } from '../shared/services/home.service';
@@ -9,13 +8,10 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { environment } from '../../environments/environment';
 
 ZoomMtg.preLoadWasm();
-// ZoomMtg.prepareWebSDK();
-
 console.log('Zoom SDK prepared.');
 
 @Component({
   selector: 'app-root',
-  // templateUrl: './zoomsdk.component.html',
   template: `
     <main class="main-container">
       <div class="video-editor-wrapper">
@@ -30,14 +26,13 @@ console.log('Zoom SDK prepared.');
         </div>
 
         <!-- Code Editor Container -->
-        <div class="editor-container">
+        <div class="editor-container" *ngIf="role !== 1">
           <app-monaco-editor></app-monaco-editor>
         </div>
       </div>
     </main>
   `,
   standalone: true,
-  // styleUrl: './zoomsdk.component.css',
   styles: [
     `
       .main-container {
@@ -51,7 +46,7 @@ console.log('Zoom SDK prepared.');
         display: flex;
         gap: 20px;
         height: calc(100vh - 40px);
-        min-height: 600px; /* Add minimum height */
+        min-height: 600px;
       }
 
       .zoom-container {
@@ -109,23 +104,17 @@ console.log('Zoom SDK prepared.');
 })
 export class ZoomsdkComponent implements OnInit {
   isMeetingJoined = false;
-
-  authEndpoint = '';
-  sdkKey = `${environment.zoomSdkKey}`;
-  // meetingNumber = '75964314386';
-  meetingNumber: any;
-  passWord = `${environment.zoomSdkPassword}`;
-  role: any;
+  sdkKey = environment.zoomSdkKey;
+  meetingNumber!: string;
+  passWord = environment.zoomSdkPassword;
+  role!: number;
   userName = 'Angular';
-  // userEmail = 'mdnafiulhasanhamim12345@gmail.com';
   userEmail = 'mdnafiulhasanhamim12345@gmail.com';
-  registrantToken = '';
-  zakToken = '';
-  leaveUrl = 'http://localhost:4200';
+  leaveUrl = '';
 
   constructor(
-    public httpClient: HttpClient,
-    @Inject(DOCUMENT) document: any,
+    private httpClient: HttpClient,
+    @Inject(DOCUMENT) private document: Document,
     private ngZone: NgZone,
     private homeService: HomeService,
     private route: ActivatedRoute,
@@ -133,46 +122,40 @@ export class ZoomsdkComponent implements OnInit {
   ) {}
 
   ngOnInit() {
-    this.meetingNumber = `${this.route.snapshot.queryParamMap.get(
-      'meetingNumber'
-    )}`;
+    this.meetingNumber =
+      this.route.snapshot.queryParamMap.get('meetingNumber') || '';
     const interviewerId =
       this.route.snapshot.queryParamMap.get('interviewerId');
+    const interviewId = this.route.snapshot.queryParamMap.get('interviewId');
     const user = JSON.parse(sessionStorage.getItem('loggedInUser') || '{}');
-    if (interviewerId === user.userId) {
-      console.log('matched with interviewer id');
-      this.role = 1;
+    this.role = interviewerId === user.userId ? 1 : 0;
+
+    // Set dynamic leaveUrl based on role
+    if (this.role === 1 && interviewId) {
+      this.leaveUrl = `https://talent-mesh-frontend.netlify.app/interviewer-dashboard/interview-feedback?interviewId=${interviewId}`;
     } else {
-      this.role = 0;
+      this.leaveUrl =
+        'https://talent-mesh-frontend.netlify.app/candidate-dashboard';
     }
   }
 
   getSignature() {
     this.homeService
-      .getZoomSignature({
-        meetingNumber: this.meetingNumber,
-        role: this.role,
-      })
+      .getZoomSignature({ meetingNumber: this.meetingNumber, role: this.role })
       .subscribe(
-        (data) => {
-          console.log(data);
-          this.startMeeting(data.signature);
-        },
-        (error: any) => {
-          console.log('Somthing went wrong ', error);
-        }
+        (data: any) => this.startMeeting(data.signature),
+        (error: any) => console.error('Something went wrong', error)
       );
   }
 
-  // zoomsdk.component.ts
   startMeeting(signature: string) {
     ZoomMtg.init({
       leaveUrl: this.leaveUrl,
       patchJsMedia: true,
       disableCallOut: true,
       success: () => {
-        // Clean up Zoom's default styles
-        const zoomRoot = document.getElementById('zmmtg-root')!;
+        // style adjustments
+        const zoomRoot = this.document.getElementById('zmmtg-root')!;
         Object.assign(zoomRoot.style, {
           position: 'relative',
           width: '100%',
@@ -181,10 +164,9 @@ export class ZoomsdkComponent implements OnInit {
           overflow: 'hidden',
         });
 
-        // Remove Zoom's default footer
         ZoomMtg.inMeetingServiceListener('onMeetingStatus', (data: any) => {
           if (data.status === 'MEETING_STATUS_INMEETING') {
-            document
+            this.document
               .querySelectorAll('.footer-button__list')
               .forEach((el) => el.remove());
           }
@@ -199,12 +181,12 @@ export class ZoomsdkComponent implements OnInit {
           userEmail: this.userEmail,
           success: () => {
             this.isMeetingJoined = true;
-
-            // Additional UI cleanup after join
             setTimeout(() => {
-              document.querySelectorAll('.react-draggable').forEach((el) => {
-                (el as HTMLElement).style.transform = 'none !important';
-              });
+              this.document
+                .querySelectorAll('.react-draggable')
+                .forEach((el) => {
+                  (el as HTMLElement).style.transform = 'none !important';
+                });
             }, 1000);
           },
           error: console.error,
