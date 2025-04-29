@@ -63,7 +63,6 @@ console.log('Zoom SDK prepared.');
         padding: 20px;
       }
 
-
       #zmmtg-root {
         flex: 1;
         min-height: 400px;

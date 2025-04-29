@@ -55,7 +55,6 @@ import { CodeComponent } from './code/code.component';
 import { InterviewerNotificationComponent } from './interviewer-dashboard/notifications/notifications.component';
 import { PendingRequestComponent } from './interviewer-dashboard/pending-request/pending-request.component';
 import { PastInterviewsComponent } from './interviewer-dashboard/past-interviews/past-interviews.component';
-import { NotificationComponent as InterviewerNotificationComponent } from './interviewer-dashboard/notification/notification.component';
 import { FeedbackComponent } from './interviewer-dashboard/feedback/feedback.component';
 import { InterviewReportComponent } from './hr-dashboard/jobs/interview-report/interview-report.component';
 

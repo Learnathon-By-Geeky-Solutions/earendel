@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule, formatDate } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { SidebarComponent } from '../sidebar/sidebar.component';
 import { PaginationComponent } from '../pagination/pagination.component';
 import { InterviewerService, InterviewRequest, Interview as ApiInterview } from '../services/interviewer.service';
@@ -30,24 +30,27 @@ interface ProcessedInterview extends InterviewRequest {
   standalone: true,
   imports: [CommonModule, RouterModule, SidebarComponent, PaginationComponent],
   templateUrl: './upcoming-interviews.component.html',
-  styleUrls: ['./upcoming-interviews.component.css']
+  styleUrls: ['./upcoming-interviews.component.css'],
 })
 export class UpcomingInterviewsComponent implements OnInit {
   interviews: ProcessedInterview[] = [];
   paginatedInterviews: ProcessedInterview[] = [];
   isLoading = true;
   error: string | null = null;
-  
+
   // Pagination
   currentPage = 1;
   pageSize = 10;
   totalItems = 0;
-  
+
   // Modal
   showDetailsModal = false;
   selectedInterview: ProcessedInterview | null = null;
 
-  constructor(private interviewerService: InterviewerService) { }
+  constructor(
+    private interviewerService: InterviewerService,
+    private router: Router
+  ) {}
 
   ngOnInit(): void {
     this.loadInterviews();
@@ -56,33 +59,35 @@ export class UpcomingInterviewsComponent implements OnInit {
   loadInterviews(): void {
     this.isLoading = true;
     this.error = null;
-    
+
     // Add refresh animation to button if it exists
     const refreshBtn = document.querySelector('.refresh-btn i');
     if (refreshBtn) {
       refreshBtn.classList.add('spinning');
     }
-    
+
     this.interviewerService.getAcceptedInterviews().subscribe({
       next: (data) => {
         // Process the interviews to add formatted date and time
-        const processedInterviews = data.map(interview => {
-          const { date, time, originalDate } = this.parseInterviewDate(interview.requestedDate);
+        const processedInterviews = data.map((interview) => {
+          const { date, time, originalDate } = this.parseInterviewDate(
+            interview.requestedDate
+          );
           return {
             ...interview,
             date,
             time,
-            originalDate
+            originalDate,
           };
         });
-        
+
         // Filter interviews to show only upcoming and those within the 1-hour grace period
         this.interviews = this.filterUpcomingInterviews(processedInterviews);
-        
+
         this.totalItems = this.interviews.length;
         this.updatePaginatedInterviews();
         this.isLoading = false;
-        
+
         // Remove spinning animation
         if (refreshBtn) {
           setTimeout(() => {
@@ -92,36 +97,43 @@ export class UpcomingInterviewsComponent implements OnInit {
       },
       error: (err) => {
         console.error('Error loading interviews:', err);
-        this.error = 'Failed to load upcoming interviews. Please try again later.';
+        this.error =
+          'Failed to load upcoming interviews. Please try again later.';
         this.isLoading = false;
-        
+
         // Remove spinning animation
         if (refreshBtn) {
           refreshBtn.classList.remove('spinning');
         }
-      }
+      },
     });
   }
 
   /**
    * Filter interviews to show only upcoming ones and those within a 1-hour grace period
    */
-  filterUpcomingInterviews(interviews: ProcessedInterview[]): ProcessedInterview[] {
+  filterUpcomingInterviews(
+    interviews: ProcessedInterview[]
+  ): ProcessedInterview[] {
     const now = new Date();
     // Calculate the cutoff time (1 hour in the past from now)
     const oneHourAgo = new Date(now.getTime() - 60 * 60 * 1000);
-    
-    return interviews.filter(interview => {
+
+    return interviews.filter((interview) => {
       if (!interview.originalDate) {
         return false; // Skip if no valid date
       }
-      
+
       // Keep interviews that are in the future OR within the 1-hour grace period
       return interview.originalDate >= oneHourAgo;
     });
   }
 
-  parseInterviewDate(dateString: string): { date: string, time: string, originalDate: Date | null } {
+  parseInterviewDate(dateString: string): {
+    date: string;
+    time: string;
+    originalDate: Date | null;
+  } {
     try {
       if (!dateString) {
         throw new Error('No date provided');
@@ -129,17 +141,20 @@ export class UpcomingInterviewsComponent implements OnInit {
 
       // Parse the ISO date string
       const date = new Date(dateString);
-      
+
       if (isNaN(date.getTime())) {
         throw new Error('Invalid date');
       }
-      
+
       // Format date as "Month DD, YYYY" in UTC
-      const month = date.toLocaleString('en-US', { month: 'long', timeZone: 'UTC' });
+      const month = date.toLocaleString('en-US', {
+        month: 'long',
+        timeZone: 'UTC',
+      });
       const day = date.getUTCDate();
       const year = date.getUTCFullYear();
       const formattedDate = `${month} ${day}, ${year}`;
-      
+
       // Format time as "h:mm AM/PM" in UTC (12-hour format)
       let hours = date.getUTCHours();
       const minutes = date.getUTCMinutes().toString().padStart(2, '0');
@@ -147,25 +162,28 @@ export class UpcomingInterviewsComponent implements OnInit {
       hours = hours % 12;
       hours = hours ? hours : 12; // Convert 0 to 12 for 12 AM
       const formattedTime = `${hours}:${minutes} ${ampm}`;
-      
+
       return {
         date: formattedDate,
         time: formattedTime,
-        originalDate: date
+        originalDate: date,
       };
     } catch (error) {
       console.error('Error parsing date:', error);
       return {
         date: 'Invalid Date',
         time: 'Invalid Time',
-        originalDate: null
+        originalDate: null,
       };
     }
   }
 
   updatePaginatedInterviews(): void {
     const startIndex = (this.currentPage - 1) * this.pageSize;
-    this.paginatedInterviews = this.interviews.slice(startIndex, startIndex + this.pageSize);
+    this.paginatedInterviews = this.interviews.slice(
+      startIndex,
+      startIndex + this.pageSize
+    );
   }
 
   onPageChange(page: number): void {
@@ -189,20 +207,29 @@ export class UpcomingInterviewsComponent implements OnInit {
 
   joinZoomMeeting(interview: ProcessedInterview, event: Event): void {
     event.stopPropagation();
-    
+
     if (!interview.meetingId) {
       console.error('No meeting ID available for this interview');
       return;
     }
-    
+
     // Format the Zoom meeting URL
     const meetingId = interview.meetingId;
     const interviewerId = interview.interviewerId;
-    
+    const interviewId = interview.id;
+
     // Construct the Zoom meeting URL
-    const zoomUrl = `https://talent-mesh-frontend.netlify.app/meeting?interviewerId=${interviewerId}&meetingNumber=${meetingId}`;
-    
+    // const zoomUrl = `https://talent-mesh-frontend.netlify.app/meeting?interviewerId=${interviewerId}&meetingNumber=${meetingId}&interviewId=${interviewId}`;
+
+    this.router.navigate(['meeting'], {
+      queryParams: {
+        interviewerId,
+        meetingNumber: meetingId,
+        interviewId,
+      },
+    });
+
     // Open in a new tab
-    window.open(zoomUrl, '_blank');
+    // window.open(zoomUrl, '_blank');
   }
 }
