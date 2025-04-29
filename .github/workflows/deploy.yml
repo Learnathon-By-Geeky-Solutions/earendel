@@ -14,7 +14,7 @@ jobs:
   deploy:
     name: Deploy to Server
     runs-on: ubuntu-latest
-    timeout-minutes: 45  # This is the GitHub Actions job-level timeout, you may keep it or adjust it
+    timeout-minutes: 45  
 
     steps:
       - name: Deploy configuration
