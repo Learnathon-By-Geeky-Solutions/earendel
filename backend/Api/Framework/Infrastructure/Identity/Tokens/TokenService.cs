@@ -19,6 +19,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.Diagnostics.CodeAnalysis;
+using TalentMesh.Framework.Core.Identity.Tokens.Features.Logout;
 
 namespace TalentMesh.Framework.Infrastructure.Identity.Tokens;
 
@@ -172,8 +173,44 @@ public sealed class TokenService : ITokenService
         var tokenHandler = new JwtSecurityTokenHandler();
         return tokenHandler.WriteToken(token);
     }
-    [ExcludeFromCodeCoverage]
 
+    [ExcludeFromCodeCoverage]
+    public async Task<bool> LogoutAsync(LogoutCommand request, CancellationToken cancellationToken)
+    {
+        var user = await _userManager.FindByIdAsync(request.UserId);
+        if (user == null)
+        {
+            return false;
+        }
+
+        // Invalidate refresh token
+        user.RefreshToken = null;
+        user.RefreshTokenExpiryTime = DateTime.UtcNow;
+
+        // Update user
+        var result = await _userManager.UpdateAsync(user);
+
+        if (result.Succeeded)
+        {
+            // Log the logout action
+            await _publisher.Publish(new AuditPublishedEvent(new()
+            {
+                new()
+                {
+                    Id = Guid.NewGuid(),
+                    Operation = "User Logged Out",
+                    Entity = "Identity",
+                    UserId = new Guid(user.Id),
+                    DateTime = DateTime.UtcNow,
+                }
+            }), cancellationToken);
+        }
+
+        return result.Succeeded;
+    }
+
+
+    [ExcludeFromCodeCoverage]
     private List<Claim> GetClaims(TMUser user, string ipAddress) =>
         new List<Claim>
         {
