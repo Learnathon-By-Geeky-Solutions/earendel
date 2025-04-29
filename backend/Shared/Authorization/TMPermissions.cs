@@ -188,7 +188,7 @@ new(TMActions.Delete, TMResources.QuizQuestions,      "Delete Quiz Questions"),
     (p.Resource == TMResources.InterviewQuestions && p.Action == TMActions.View) ||
 
     // — HR access to InterviewSignature (view only)
-    (p.Resource == TMResources.InterviewSignature && p.Action == TMActions.View) ||
+    (p.Resource == TMResources.InterviewSignatures && p.Action == TMActions.View) ||
 
       (p.Resource == TMResources.JobRequiredSkills && p.Action == TMActions.View) ||
     (p.Resource == TMResources.JobRequiredSubskills && p.Action == TMActions.View) ||
@@ -219,7 +219,7 @@ new(TMActions.Delete, TMResources.QuizQuestions,      "Delete Quiz Questions"),
     (p.Resource == TMResources.InterviewQuestions && p.Action == TMActions.View) ||
 
     // — Candidate view InterviewSignature
-    (p.Resource == TMResources.InterviewSignature && p.Action == TMActions.View) ||
+    (p.Resource == TMResources.InterviewSignatures && p.Action == TMActions.View) ||
 
      (p.Resource == TMResources.JobRequiredSkills && p.Action == TMActions.View) ||
     (p.Resource == TMResources.JobRequiredSubskills && p.Action == TMActions.View) ||
@@ -256,7 +256,7 @@ new(TMActions.Delete, TMResources.QuizQuestions,      "Delete Quiz Questions"),
     (p.Resource == TMResources.InterviewQuestions && (p.Action == TMActions.View || p.Action == TMActions.Create || p.Action == TMActions.Update)) ||
 
     // — Interviewer access to InterviewSignature (view, create, update)
-    (p.Resource == TMResources.InterviewSignature && (p.Action == TMActions.View || p.Action == TMActions.Create || p.Action == TMActions.Update)) ||
+    (p.Resource == TMResources.InterviewSignatures && (p.Action == TMActions.View || p.Action == TMActions.Create || p.Action == TMActions.Update)) ||
 
     (p.Resource == TMResources.JobRequiredSkills && p.Action == TMActions.View) ||
     (p.Resource == TMResources.JobRequiredSubskills && p.Action == TMActions.View) ||
