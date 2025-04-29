@@ -11,6 +11,8 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { forkJoin, of, Observable } from 'rxjs';
 import { catchError, switchMap, map, tap } from 'rxjs/operators';
 import { FormsModule } from '@angular/forms';
+import { QuizService } from '../../candidate-dashboard/services/quiz.service';
+import { finalize } from 'rxjs/operators';
 
 interface Candidate {
   id: number;
@@ -183,7 +185,7 @@ interface Job {
                               let candidate of getCandidatesByStage('applied')
                             "
                             class="candidate-card p-3 mb-2 bg-white rounded shadow-sm"
-                          
+                            (click)="openCandidateProfile(candidate, $event)"
                           >
                             <div
                               class="d-flex justify-content-between align-items-center"
@@ -247,7 +249,7 @@ interface Job {
                               )
                             "
                             class="candidate-card p-3 mb-2 bg-white rounded shadow-sm"
-                        
+                            (click)="openCandidateProfile(candidate, $event)"
                           >
                             <div
                               class="d-flex justify-content-between align-items-center"
@@ -319,7 +321,7 @@ interface Job {
                               )
                             "
                             class="candidate-card p-3 mb-2 bg-white rounded shadow-sm"
-                            
+                            (click)="openCandidateProfile(candidate, $event)"
                           >
                             <div
                               class="d-flex justify-content-between align-items-center"
@@ -401,6 +403,7 @@ interface Job {
                               )
                             "
                             class="candidate-card p-3 mb-2 bg-white rounded shadow-sm"
+                            (click)="openCandidateProfile(candidate, $event)"
                           >
                             <div class="d-flex flex-column">
                               <!-- Candidate info -->
@@ -493,7 +496,7 @@ interface Job {
                               )
                             "
                             class="candidate-card p-3 mb-2 bg-white rounded shadow-sm"
-    
+                            (click)="openCandidateProfile(candidate, $event)"
                           >
                             <div
                               class="d-flex justify-content-between align-items-center"
@@ -564,7 +567,7 @@ interface Job {
                               let candidate of getCandidatesByStage('selected')
                             "
                             class="candidate-card p-3 mb-2 bg-white rounded shadow-sm"
-                          
+                            (click)="openCandidateProfile(candidate, $event)"
                           >
                             <div
                               class="d-flex justify-content-between align-items-center"
@@ -617,7 +620,7 @@ interface Job {
                               let candidate of getCandidatesByStage('rejected')
                             "
                             class="candidate-card p-3 mb-2 bg-white rounded shadow-sm"
-                        
+                            (click)="openCandidateProfile(candidate, $event)"
                           >
                             <div
                               class="d-flex justify-content-between align-items-center"
@@ -744,10 +747,12 @@ interface Job {
 
       .candidate-card {
         transition: all 0.2s ease;
+        cursor: pointer;
       }
 
       .candidate-card:hover {
         transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
       }
 
       @media (max-width: 991.98px) {
@@ -792,11 +797,14 @@ export class JobComponent implements OnInit {
   loadingInterviewers: boolean = false;
   // Cache for user details to avoid redundant API calls
   private userDetailsCache: Map<string, UserDetails> = new Map();
+  candidateQuizResults: any = null;
+  loadingQuizResults: boolean = false;
 
   constructor(
     private dialog: MatDialog, 
     private snackBar: MatSnackBar,
-    private jobPostingService: JobPostingService
+    private jobPostingService: JobPostingService,
+    private quizService: QuizService
   ) {}
 
   ngOnInit(): void {
@@ -1482,37 +1490,86 @@ export class JobComponent implements OnInit {
     });
   }
 
-  // openCandidateProfile(candidate: Candidate) {
-  //   console.log('Opening candidate profile:', candidate);
+  openCandidateProfile(candidate: Candidate, event?: Event) {
+    // If this is triggered by a button click within the card, don't open the profile
+    if (event && (event.target as HTMLElement).closest('button')) {
+      return;
+    }
     
-  //   // Pass the complete candidate data including application details and user details
-  //   const dialogRef = this.dialog.open(CandidateProfileModalComponent, {
-  //     width: '700px',
-  //     data: { 
-  //       candidate: {
-  //         ...candidate,
-  //         // Use user details if available
-  //         name: candidate.userDetails?.userName || candidate.name,
-  //         email: candidate.userDetails?.email || candidate.email
-  //       },
-  //       // Include any application-specific data
-  //       applicationInfo: {
-  //         applicationDate: candidate.applicationDate,
-  //         coverLetter: candidate.coverLetter,
-  //         jobName: this.selectedJob?.title || 'Unknown Job'
-  //       },
-  //       userDetails: candidate.userDetails
-  //     }
-  //   });
+    this.selectedCandidate = candidate;
+    this.loadingQuizResults = true;
+    this.candidateQuizResults = null;
 
-  //   dialogRef.afterClosed().subscribe((result) => {
-  //     if (result?.action === 'move') {
-  //       this.moveForward(candidate);
-  //     } else if (result?.action === 'reject') {
-  //       this.openRejectModal(candidate);
-  //     }
-  //   });
-  // }
+    // Prepare candidate data in the format expected by the modal
+    const candidateData = {
+      name: candidate.name,
+      email: candidate.email,
+      phone: candidate.phone,
+      skills: candidate.skills || [],
+      education: candidate.education || [],
+      experience: candidate.experience || [],
+      assessments: candidate.assessments || [],
+      coverLetter: candidate.coverLetter || '',
+      quizResult: null
+    };
+
+    // Open the dialog immediately
+    const dialogRef = this.dialog.open(CandidateProfileModalComponent, {
+      width: '800px',
+      data: candidateData
+    });
+
+    // Fetch candidate's quiz results if they have a candidateId
+    if (candidate.candidateId) {
+      this.fetchCandidateQuizResults(candidate.candidateId, dialogRef);
+    } else {
+      this.loadingQuizResults = false;
+    }
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result?.action === 'move') {
+        this.moveForward(candidate);
+      } else if (result?.action === 'reject') {
+        this.openRejectModal(candidate);
+      }
+    });
+  }
+
+  fetchCandidateQuizResults(candidateId: string, dialogRef?: any): void {
+    this.quizService.getQuizAttempts(candidateId, 1, 10)
+      .pipe(
+        finalize(() => {
+          this.loadingQuizResults = false;
+        })
+      )
+      .subscribe({
+        next: (results) => {
+          if (results && results.length > 0) {
+            // Get the latest quiz attempt
+            const latestAttempt = results[0];
+            
+            // Format quiz result data
+            const quizResult = {
+              score: latestAttempt.score,
+              totalQuestions: latestAttempt.totalQuestions,
+              answers: latestAttempt.answers || [],
+              createdOn: latestAttempt.createdOn
+            };
+            
+            this.candidateQuizResults = quizResult;
+            
+            // Update the dialog data if it's provided
+            if (dialogRef && dialogRef.componentInstance) {
+              dialogRef.componentInstance.data.quizResult = quizResult;
+            }
+          }
+          console.log('Quiz results loaded:', results);
+        },
+        error: (error) => {
+          console.error('Error fetching quiz results:', error);
+        }
+      });
+  }
 
   /**
    * Load interviewers from the service
@@ -1620,8 +1677,10 @@ export class JobComponent implements OnInit {
    * Opens in a new window with candidateId and jobId as URL parameters
    */
   viewInterviewReport(candidate: Candidate): void {
-    if (!candidate.candidateId || !this.selectedJob?.id) {
-      this.snackBar.open('Missing candidate ID or job ID', 'Close', { duration: 3000 });
+    if (!candidate.candidateId || !this.selectedJob || !this.selectedJob.id) {
+      this.snackBar.open('Cannot view report: Missing candidate or job information', 'Close', {
+        duration: 3000
+      });
       return;
     }
 

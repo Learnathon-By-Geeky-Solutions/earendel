@@ -228,7 +228,6 @@ export class JobService {
       );
     }
 
-    // Removed sample data code as requested
 
     return this.fetchRubrics().pipe(
       map(response => {
