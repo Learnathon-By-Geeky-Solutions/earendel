@@ -1,118 +1,146 @@
 <div class="d-flex">
-    <app-sidebar></app-sidebar>
+  <app-sidebar></app-sidebar>
 
-    <main class="main-content bg-light">
-        <div class="container-fluid py-4">
-            <h1 class="h3 mb-4">Interview Report</h1>
+  <main class="main-content bg-light">
+    <div class="container-fluid py-4">
+      <h1 class="h3 mb-4">Interview Report</h1>
 
-            <!-- Loading spinner -->
-            <div *ngIf="loading" class="text-center py-5">
-                <mat-spinner diameter="50" class="mx-auto mb-3"></mat-spinner>
-                <p class="text-muted">Loading interview report...</p>
-            </div>
+      <!-- Loading spinner -->
+      <div *ngIf="loading" class="text-center py-5">
+        <mat-spinner diameter="50" class="mx-auto mb-3"></mat-spinner>
+        <p class="text-muted">Loading interview report...</p>
+      </div>
 
-            <!-- Error message -->
-            <div *ngIf="error && !loading" class="alert alert-danger">
-                <mat-icon>error</mat-icon> {{ error }}
-            </div>
+      <!-- Error message -->
+      <div *ngIf="error && !loading" class="alert alert-danger d-flex align-items-center">
+        <mat-icon class="me-2">error</mat-icon> {{ error }}
+      </div>
 
-            <!-- No data message -->
-            <div *ngIf="!loading && !error && (!interview || feedbackItems.length === 0)"
-                class="card shadow-sm border-0">
-                <div class="card-body text-center py-5">
-                    <mat-icon class="text-muted"
-                        style="font-size: 48px; width: 48px; height: 48px;">search_off</mat-icon>
-                    <h4 class="mt-3">No Interview Data Found</h4>
-                    <p class="text-muted">
-                        We couldn't find any interview data for this candidate.
-                        <br>This may happen if the interview hasn't been conducted yet or no feedback has been
-                        submitted.
-                    </p>
-                </div>
-            </div>
-
-            <!-- Interview report content -->
-            <div *ngIf="!loading && !error && interview && feedbackItems.length > 0" class="report-container">
-                <!-- Header section -->
-                <div class="card shadow-sm border-0 mb-4">
-                    <div class="card-body">
-                        <div class="d-flex justify-content-between align-items-start">
-                            <div>
-                                <h2 class="h4 mb-3">{{ candidateName }}</h2>
-                                <p class="text-muted mb-1"><strong>Position:</strong> {{ jobTitle }}</p>
-                                <p class="text-muted mb-1"><strong>Interview Date:</strong> {{ interviewDate }}</p>
-                            </div>
-                            <div class="score-summary text-center">
-                                <div class="score-circle"
-                                    [ngClass]="getScorePercentage() >= 70 ? 'good' : (getScorePercentage() >= 50 ? 'average' : 'poor')">
-                                    <span class="score-value">{{ getScorePercentage() }}%</span>
-                                </div>
-                                <p class="mt-2 mb-0"><strong>{{ getOverallRating() }}</strong></p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Actions bar -->
-                <div class="card shadow-sm border-0 mb-4">
-                    <div class="card-body d-flex justify-content-between align-items-center">
-                        <div>
-                            <h3 class="h5 mb-0">Interview Feedback</h3>
-                            <p class="text-muted small mb-0">{{ feedbackItems.length }} questions evaluated</p>
-                        </div>
-                        <div class="btn-group">
-                            <button mat-flat-button color="primary" (click)="downloadPDF()">
-                                <mat-icon>download</mat-icon> Download PDF
-                            </button>
-                            <button mat-stroked-button color="primary" (click)="downloadCSV()" class="ms-2">
-                                <mat-icon>table_chart</mat-icon> Export CSV
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Feedback items -->
-                <div class="feedback-items">
-                    <div *ngFor="let feedback of feedbackItems; let i = index"
-                        class="card shadow-sm border-0 mb-3 feedback-card">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between">
-                                <h4 class="h6 mb-3">Question {{ i + 1 }}</h4>
-                                <div class="score-badge"
-                                    [ngStyle]="{'background-color': getScoreColor(feedback.score)}">
-                                    {{ feedback.score }}/5
-                                </div>
-                            </div>
-
-                            <p class="question-text mb-3">{{ feedback.interviewQuestionText }}</p>
-
-                            <mat-divider></mat-divider>
-
-                            <div class="mt-3">
-                                <h5 class="h6 text-muted">Response:</h5>
-                                <p class="response-text">{{ feedback.response || 'No response recorded' }}</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Summary section -->
-                <div class="card shadow-sm border-0 mt-4">
-                    <div class="card-body">
-                        <h3 class="h5 mb-3">Summary</h3>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <p><strong>Total Score:</strong> {{ totalScore }}/{{ maxPossibleScore }}</p>
-                                <p><strong>Percentage:</strong> {{ getScorePercentage() }}%</p>
-                            </div>
-                            <div class="col-md-6">
-                                <p><strong>Overall Rating:</strong> {{ getOverallRating() }}</p>
-                                <p><strong>Interview ID:</strong> {{ interview.id }}</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+      <!-- No data message -->
+      <div
+        *ngIf="!loading && !error && (!interview || feedbackItems.length === 0)"
+        class="card shadow-sm border-0"
+      >
+        <div class="card-body text-center py-5">
+          <mat-icon class="text-muted mb-3" style="font-size: 48px;">search_off</mat-icon>
+          <h4>No Interview Data Found</h4>
+          <p class="text-muted">
+            We couldn't find any interview data for this candidate.<br />
+            This may happen if the interview hasn't been conducted yet or no feedback has been submitted.
+          </p>
         </div>
-    </main>
+      </div>
+
+      <!-- Interview report content -->
+      <div
+        *ngIf="!loading && !error && interview && feedbackItems.length > 0"
+        class="report-container"
+        #reportContainer
+      >
+        <!-- Header section -->
+        <div class="card shadow-sm border-0 mb-4">
+          <div class="card-body">
+            <div class="d-flex justify-content-between align-items-start">
+              <div>
+                <h2 class="h4 mb-3">{{ candidateName }}</h2>
+                <p class="text-muted mb-1"><strong>Position:</strong> {{ jobTitle }}</p>
+                <p class="text-muted mb-1"><strong>Interview Date:</strong> {{ interviewDate }}</p>
+              </div>
+              <div class="score-summary text-center">
+                <div
+                  class="score-circle"
+                  [ngClass]="
+                    getScorePercentage() >= 70
+                      ? 'good'
+                      : getScorePercentage() >= 50
+                      ? 'average'
+                      : 'poor'
+                  "
+                >
+                  <span class="score-value">{{ getScorePercentage() }}%</span>
+                </div>
+                <p class="mt-2 mb-0"><strong>{{ getOverallRating() }}</strong></p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Actions bar -->
+        <div class="card shadow-sm border-0 mb-4">
+          <div class="card-body d-flex justify-content-between align-items-center">
+            <div>
+              <h3 class="h5 mb-0">Interview Feedback</h3>
+              <p class="text-muted small mb-0">{{ feedbackItems.length }} questions evaluated</p>
+            </div>
+            <div class="btn-group">
+              <button mat-flat-button color="primary" (click)="downloadPDF()">
+                <mat-icon>download</mat-icon> Download PDF
+              </button>
+              <button mat-stroked-button color="primary" class="ms-2" (click)="downloadCSV()">
+                <mat-icon>table_chart</mat-icon> Export CSV
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Feedback items -->
+        <div class="feedback-items">
+          <div
+            *ngFor="let feedback of feedbackItems; let i = index"
+            class="card shadow-sm border-0 mb-3 feedback-card"
+          >
+            <div class="card-body">
+              <div class="d-flex justify-content-between">
+                <h4 class="h6 mb-3">Question {{ i + 1 }}</h4>
+                <div
+                  class="score-badge"
+                  [ngStyle]="{ 'background-color': getScoreColor(feedback.score) }"
+                >
+                  {{ feedback.score }}/5
+                </div>
+              </div>
+
+              <p class="question-text mb-3">{{ feedback.interviewQuestionText }}</p>
+
+              <mat-divider></mat-divider>
+
+              <div class="mt-3">
+                <h5 class="h6 text-muted">Response:</h5>
+                <p class="response-text">
+                  {{ feedback.response || 'No response recorded' }}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Summary section -->
+        <div class="card shadow-sm border-0 mt-4">
+          <div class="card-body">
+            <h3 class="h5 mb-3">Summary</h3>
+            <div class="row">
+              <div class="col-md-6">
+                <p><strong>Total Score:</strong> {{ totalScore }}/{{ maxPossibleScore }}</p>
+                <p><strong>Percentage:</strong> {{ getScorePercentage() }}%</p>
+              </div>
+              <div class="col-md-6">
+                <p><strong>Overall Rating:</strong> {{ getOverallRating() }}</p>
+                <p><strong>Interview ID:</strong> {{ interview.id }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Download as Image -->
+      <div
+        *ngIf="!loading && !error && interview && feedbackItems.length > 0"
+        class="text-end mt-3"
+      >
+        <button mat-stroked-button color="accent" (click)="downloadReportAsImage()">
+          <mat-icon>image</mat-icon> Download as Image
+        </button>
+      </div>
+    </div>
+  </main>
 </div>

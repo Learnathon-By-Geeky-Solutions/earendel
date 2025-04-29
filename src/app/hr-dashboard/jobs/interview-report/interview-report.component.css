@@ -1,6 +1,7 @@
 .main-content {
   margin-left: 240px;
   width: calc(100% - 240px);
+  /* width: 100% ; */
   min-height: 100vh;
 }
 

@@ -86,9 +86,6 @@ export const routes: Routes = [
     ],
   },
 
-  { path: 'coding-playground', component: CodeComponent },
-  { path: 'meeting', component: ZoomsdkComponent },
-
   {
     path: 'register',
     component: RegistrationComponent,

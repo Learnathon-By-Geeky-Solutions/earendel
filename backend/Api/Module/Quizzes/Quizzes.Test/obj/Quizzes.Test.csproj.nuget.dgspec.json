@@ -1,0 +1,2691 @@
+{
+  "format": 1,
+  "restore": {
+    "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Quizzes\\Quizzes.Test\\Quizzes.Test.csproj": {}
+  },
+  "projects": {
+    "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Framework\\Core\\Core.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Framework\\Core\\Core.csproj",
+        "projectName": "TalentMesh.Framework.Core",
+        "projectPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Framework\\Core\\Core.csproj",
+        "packagesPath": "C:\\Users\\User\\.nuget\\packages\\",
+        "outputPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Framework\\Core\\obj\\",
+        "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\User\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net8.0"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net8.0": {
+            "targetAlias": "net8.0",
+            "projectReferences": {
+              "E:\\FullStack\\learnathon\\earendel\\backend\\Shared\\Shared.csproj": {
+                "projectPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Shared\\Shared.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        },
+        "SdkAnalysisLevel": "9.0.200"
+      },
+      "frameworks": {
+        "net8.0": {
+          "targetAlias": "net8.0",
+          "dependencies": {
+            "Ardalis.Specification": {
+              "target": "Package",
+              "version": "[8.0.0, )"
+            },
+            "FluentValidation.DependencyInjectionExtensions": {
+              "target": "Package",
+              "version": "[11.11.0, )"
+            },
+            "Mapster": {
+              "target": "Package",
+              "version": "[7.4.0, )"
+            },
+            "MediatR": {
+              "target": "Package",
+              "version": "[12.4.1, )"
+            },
+            "Microsoft.Extensions.Logging.Abstractions": {
+              "target": "Package",
+              "version": "[9.0.1, )"
+            },
+            "MimeKit": {
+              "target": "Package",
+              "version": "[4.11.0, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.200/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Framework\\Infrastructure\\Infrastructure.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Framework\\Infrastructure\\Infrastructure.csproj",
+        "projectName": "TalentMesh.Framework.Infrastructure",
+        "projectPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Framework\\Infrastructure\\Infrastructure.csproj",
+        "packagesPath": "C:\\Users\\User\\.nuget\\packages\\",
+        "outputPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Framework\\Infrastructure\\obj\\",
+        "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\User\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net8.0"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net8.0": {
+            "targetAlias": "net8.0",
+            "projectReferences": {
+              "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Framework\\Core\\Core.csproj": {
+                "projectPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Framework\\Core\\Core.csproj"
+              },
+              "E:\\FullStack\\learnathon\\earendel\\backend\\Aspire\\Aspire.ServiceDefaults\\Aspire.ServiceDefaults.csproj": {
+                "projectPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Aspire\\Aspire.ServiceDefaults\\Aspire.ServiceDefaults.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        },
+        "SdkAnalysisLevel": "9.0.200"
+      },
+      "frameworks": {
+        "net8.0": {
+          "targetAlias": "net8.0",
+          "dependencies": {
+            "Ardalis.Specification.EntityFrameworkCore": {
+              "target": "Package",
+              "version": "[8.0.0, )"
+            },
+            "Asp.Versioning.Http": {
+              "target": "Package",
+              "version": "[8.1.0, )"
+            },
+            "Asp.Versioning.Mvc.ApiExplorer": {
+              "target": "Package",
+              "version": "[8.1.0, )"
+            },
+            "Carter": {
+              "target": "Package",
+              "version": "[8.2.1, )"
+            },
+            "Finbuckle.MultiTenant": {
+              "target": "Package",
+              "version": "[9.0.0, )"
+            },
+            "Finbuckle.MultiTenant.AspNetCore": {
+              "target": "Package",
+              "version": "[9.0.0, )"
+            },
+            "Finbuckle.MultiTenant.EntityFrameworkCore": {
+              "target": "Package",
+              "version": "[9.0.0, )"
+            },
+            "Google.Apis.Auth": {
+              "target": "Package",
+              "version": "[1.64.0, )"
+            },
+            "Hangfire": {
+              "target": "Package",
+              "version": "[1.8.18, )"
+            },
+            "Hangfire.Core": {
+              "target": "Package",
+              "version": "[1.8.18, )"
+            },
+            "Hangfire.PostgreSql": {
+              "target": "Package",
+              "version": "[1.20.10, )"
+            },
+            "MailKit": {
+              "target": "Package",
+              "version": "[2.1.1, )"
+            },
+            "Microsoft.AspNetCore.Authentication.JwtBearer": {
+              "target": "Package",
+              "version": "[8.0.13, )"
+            },
+            "Microsoft.AspNetCore.Identity.EntityFrameworkCore": {
+              "target": "Package",
+              "version": "[8.0.13, )"
+            },
+            "Microsoft.AspNetCore.SignalR.Client": {
+              "target": "Package",
+              "version": "[9.0.0, )"
+            },
+            "Microsoft.EntityFrameworkCore": {
+              "target": "Package",
+              "version": "[9.0.2, )"
+            },
+            "Microsoft.Extensions.Caching.StackExchangeRedis": {
+              "target": "Package",
+              "version": "[9.0.2, )"
+            },
+            "MimeKit": {
+              "target": "Package",
+              "version": "[4.11.0, )"
+            },
+            "Npgsql.EntityFrameworkCore.PostgreSQL": {
+              "target": "Package",
+              "version": "[9.0.3, )"
+            },
+            "RabbitMQ.Client": {
+              "target": "Package",
+              "version": "[6.4.0, )"
+            },
+            "Serilog": {
+              "target": "Package",
+              "version": "[4.2.0, )"
+            },
+            "Serilog.AspNetCore": {
+              "target": "Package",
+              "version": "[9.0.0, )"
+            },
+            "Serilog.Enrichers.CorrelationId": {
+              "target": "Package",
+              "version": "[3.0.1, )"
+            },
+            "Serilog.Enrichers.Environment": {
+              "target": "Package",
+              "version": "[3.0.1, )"
+            },
+            "Serilog.Enrichers.Span": {
+              "target": "Package",
+              "version": "[3.1.0, )"
+            },
+            "Serilog.Exceptions": {
+              "target": "Package",
+              "version": "[8.4.0, )"
+            },
+            "Serilog.Expressions": {
+              "target": "Package",
+              "version": "[5.0.0, )"
+            },
+            "Serilog.Extensions.Hosting": {
+              "target": "Package",
+              "version": "[9.0.0, )"
+            },
+            "Serilog.Formatting.Elasticsearch": {
+              "target": "Package",
+              "version": "[10.0.0, )"
+            },
+            "Serilog.Sinks.Async": {
+              "target": "Package",
+              "version": "[2.1.0, )"
+            },
+            "Serilog.Sinks.Console": {
+              "target": "Package",
+              "version": "[6.0.0, )"
+            },
+            "Serilog.Sinks.Debug": {
+              "target": "Package",
+              "version": "[3.0.0, )"
+            },
+            "Serilog.Sinks.Elasticsearch": {
+              "target": "Package",
+              "version": "[9.0.3, )"
+            },
+            "Serilog.Sinks.File": {
+              "target": "Package",
+              "version": "[6.0.0, )"
+            },
+            "Serilog.Sinks.OpenTelemetry": {
+              "target": "Package",
+              "version": "[4.1.1, )"
+            },
+            "Serilog.Sinks.Seq": {
+              "target": "Package",
+              "version": "[9.0.0, )"
+            },
+            "Serilog.Sinks.SpectreConsole": {
+              "target": "Package",
+              "version": "[0.3.3, )"
+            },
+            "SerilogTimings": {
+              "target": "Package",
+              "version": "[3.1.0, )"
+            },
+            "Swashbuckle.AspNetCore": {
+              "target": "Package",
+              "version": "[7.2.0, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.200/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Migrations\\PGSql\\PGSql.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Migrations\\PGSql\\PGSql.csproj",
+        "projectName": "TalentMesh.Migrations.PGSql",
+        "projectPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Migrations\\PGSql\\PGSql.csproj",
+        "packagesPath": "C:\\Users\\User\\.nuget\\packages\\",
+        "outputPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Migrations\\PGSql\\obj\\",
+        "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\User\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net8.0"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net8.0": {
+            "targetAlias": "net8.0",
+            "projectReferences": {
+              "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Framework\\Infrastructure\\Infrastructure.csproj": {
+                "projectPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Framework\\Infrastructure\\Infrastructure.csproj"
+              },
+              "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Candidate\\Candidate.Infrastructure\\Candidate.Infrastructure.csproj": {
+                "projectPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Candidate\\Candidate.Infrastructure\\Candidate.Infrastructure.csproj"
+              },
+              "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Evaluator\\Evaluator.Infrastructure\\Evaluator.Infrastructure.csproj": {
+                "projectPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Evaluator\\Evaluator.Infrastructure\\Evaluator.Infrastructure.csproj"
+              },
+              "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Experties\\Experties.Infrastructure\\Experties.Infrastructure.csproj": {
+                "projectPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Experties\\Experties.Infrastructure\\Experties.Infrastructure.csproj"
+              },
+              "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Interviews\\Interviews.Infrastructure\\Interviews.Infrastructure.csproj": {
+                "projectPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Interviews\\Interviews.Infrastructure\\Interviews.Infrastructure.csproj"
+              },
+              "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Jobs\\Jobs.Infrastructure\\Jobs.Infrastructure.csproj": {
+                "projectPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Jobs\\Jobs.Infrastructure\\Jobs.Infrastructure.csproj"
+              },
+              "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Notifications\\Notifications.Infrastructure\\Notifications.Infrastructure.csproj": {
+                "projectPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Notifications\\Notifications.Infrastructure\\Notifications.Infrastructure.csproj"
+              },
+              "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Quizzes\\Quizzes.Infrastructure\\Quizzes.Infrastructure.csproj": {
+                "projectPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Quizzes\\Quizzes.Infrastructure\\Quizzes.Infrastructure.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        },
+        "SdkAnalysisLevel": "9.0.200"
+      },
+      "frameworks": {
+        "net8.0": {
+          "targetAlias": "net8.0",
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.200/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\CandidateLogic\\CandidateLogic.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\CandidateLogic\\CandidateLogic.csproj",
+        "projectName": "CandidateLogic",
+        "projectPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\CandidateLogic\\CandidateLogic.csproj",
+        "packagesPath": "C:\\Users\\User\\.nuget\\packages\\",
+        "outputPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\CandidateLogic\\obj\\",
+        "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\User\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net8.0"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net8.0": {
+            "targetAlias": "net8.0",
+            "projectReferences": {
+              "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Framework\\Infrastructure\\Infrastructure.csproj": {
+                "projectPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Framework\\Infrastructure\\Infrastructure.csproj"
+              },
+              "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Candidate\\Candidate.Infrastructure\\Candidate.Infrastructure.csproj": {
+                "projectPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Candidate\\Candidate.Infrastructure\\Candidate.Infrastructure.csproj"
+              },
+              "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Evaluator\\Evaluator.Infrastructure\\Evaluator.Infrastructure.csproj": {
+                "projectPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Evaluator\\Evaluator.Infrastructure\\Evaluator.Infrastructure.csproj"
+              },
+              "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Experties\\Experties.Infrastructure\\Experties.Infrastructure.csproj": {
+                "projectPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Experties\\Experties.Infrastructure\\Experties.Infrastructure.csproj"
+              },
+              "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Interviews\\Interviews.Infrastructure\\Interviews.Infrastructure.csproj": {
+                "projectPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Interviews\\Interviews.Infrastructure\\Interviews.Infrastructure.csproj"
+              },
+              "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Jobs\\Jobs.Infrastructure\\Jobs.Infrastructure.csproj": {
+                "projectPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Jobs\\Jobs.Infrastructure\\Jobs.Infrastructure.csproj"
+              },
+              "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Notifications\\Notifications.Infrastructure\\Notifications.Infrastructure.csproj": {
+                "projectPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Notifications\\Notifications.Infrastructure\\Notifications.Infrastructure.csproj"
+              },
+              "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Quizzes\\Quizzes.Infrastructure\\Quizzes.Infrastructure.csproj": {
+                "projectPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Quizzes\\Quizzes.Infrastructure\\Quizzes.Infrastructure.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        },
+        "SdkAnalysisLevel": "9.0.200"
+      },
+      "frameworks": {
+        "net8.0": {
+          "targetAlias": "net8.0",
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.200/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Candidate\\Candidate.Application\\Candidate.Application.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Candidate\\Candidate.Application\\Candidate.Application.csproj",
+        "projectName": "Candidate.Application",
+        "projectPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Candidate\\Candidate.Application\\Candidate.Application.csproj",
+        "packagesPath": "C:\\Users\\User\\.nuget\\packages\\",
+        "outputPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Candidate\\Candidate.Application\\obj\\",
+        "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\User\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net8.0"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net8.0": {
+            "targetAlias": "net8.0",
+            "projectReferences": {
+              "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Framework\\Core\\Core.csproj": {
+                "projectPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Framework\\Core\\Core.csproj"
+              },
+              "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Candidate\\Candidate.Domain\\Candidate.Domain.csproj": {
+                "projectPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Candidate\\Candidate.Domain\\Candidate.Domain.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        },
+        "SdkAnalysisLevel": "9.0.200"
+      },
+      "frameworks": {
+        "net8.0": {
+          "targetAlias": "net8.0",
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.200/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Candidate\\Candidate.Domain\\Candidate.Domain.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Candidate\\Candidate.Domain\\Candidate.Domain.csproj",
+        "projectName": "Candidate.Domain",
+        "projectPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Candidate\\Candidate.Domain\\Candidate.Domain.csproj",
+        "packagesPath": "C:\\Users\\User\\.nuget\\packages\\",
+        "outputPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Candidate\\Candidate.Domain\\obj\\",
+        "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\User\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net8.0"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net8.0": {
+            "targetAlias": "net8.0",
+            "projectReferences": {
+              "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Framework\\Core\\Core.csproj": {
+                "projectPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Framework\\Core\\Core.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        },
+        "SdkAnalysisLevel": "9.0.200"
+      },
+      "frameworks": {
+        "net8.0": {
+          "targetAlias": "net8.0",
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.200/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Candidate\\Candidate.Infrastructure\\Candidate.Infrastructure.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Candidate\\Candidate.Infrastructure\\Candidate.Infrastructure.csproj",
+        "projectName": "Candidate.Infrastructure",
+        "projectPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Candidate\\Candidate.Infrastructure\\Candidate.Infrastructure.csproj",
+        "packagesPath": "C:\\Users\\User\\.nuget\\packages\\",
+        "outputPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Candidate\\Candidate.Infrastructure\\obj\\",
+        "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\User\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net8.0"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net8.0": {
+            "targetAlias": "net8.0",
+            "projectReferences": {
+              "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Framework\\Infrastructure\\Infrastructure.csproj": {
+                "projectPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Framework\\Infrastructure\\Infrastructure.csproj"
+              },
+              "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Candidate\\Candidate.Application\\Candidate.Application.csproj": {
+                "projectPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Candidate\\Candidate.Application\\Candidate.Application.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        },
+        "SdkAnalysisLevel": "9.0.200"
+      },
+      "frameworks": {
+        "net8.0": {
+          "targetAlias": "net8.0",
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.200/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Evaluator\\Evaluator.Application\\Evaluator.Application.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Evaluator\\Evaluator.Application\\Evaluator.Application.csproj",
+        "projectName": "Evaluator.Application",
+        "projectPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Evaluator\\Evaluator.Application\\Evaluator.Application.csproj",
+        "packagesPath": "C:\\Users\\User\\.nuget\\packages\\",
+        "outputPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Evaluator\\Evaluator.Application\\obj\\",
+        "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\User\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net8.0"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net8.0": {
+            "targetAlias": "net8.0",
+            "projectReferences": {
+              "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Framework\\Core\\Core.csproj": {
+                "projectPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Framework\\Core\\Core.csproj"
+              },
+              "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Evaluator\\Evaluator.Domain\\Evaluator.Domain.csproj": {
+                "projectPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Evaluator\\Evaluator.Domain\\Evaluator.Domain.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        },
+        "SdkAnalysisLevel": "9.0.200"
+      },
+      "frameworks": {
+        "net8.0": {
+          "targetAlias": "net8.0",
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.200/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Evaluator\\Evaluator.Domain\\Evaluator.Domain.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Evaluator\\Evaluator.Domain\\Evaluator.Domain.csproj",
+        "projectName": "Evaluator.Domain",
+        "projectPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Evaluator\\Evaluator.Domain\\Evaluator.Domain.csproj",
+        "packagesPath": "C:\\Users\\User\\.nuget\\packages\\",
+        "outputPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Evaluator\\Evaluator.Domain\\obj\\",
+        "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\User\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net8.0"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net8.0": {
+            "targetAlias": "net8.0",
+            "projectReferences": {
+              "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Framework\\Core\\Core.csproj": {
+                "projectPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Framework\\Core\\Core.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        },
+        "SdkAnalysisLevel": "9.0.200"
+      },
+      "frameworks": {
+        "net8.0": {
+          "targetAlias": "net8.0",
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.200/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Evaluator\\Evaluator.Infrastructure\\Evaluator.Infrastructure.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Evaluator\\Evaluator.Infrastructure\\Evaluator.Infrastructure.csproj",
+        "projectName": "Evaluator.Infrastructure",
+        "projectPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Evaluator\\Evaluator.Infrastructure\\Evaluator.Infrastructure.csproj",
+        "packagesPath": "C:\\Users\\User\\.nuget\\packages\\",
+        "outputPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Evaluator\\Evaluator.Infrastructure\\obj\\",
+        "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\User\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net8.0"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net8.0": {
+            "targetAlias": "net8.0",
+            "projectReferences": {
+              "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Framework\\Infrastructure\\Infrastructure.csproj": {
+                "projectPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Framework\\Infrastructure\\Infrastructure.csproj"
+              },
+              "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Evaluator\\Evaluator.Application\\Evaluator.Application.csproj": {
+                "projectPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Evaluator\\Evaluator.Application\\Evaluator.Application.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        },
+        "SdkAnalysisLevel": "9.0.200"
+      },
+      "frameworks": {
+        "net8.0": {
+          "targetAlias": "net8.0",
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.200/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Experties\\Experties.Application\\Experties.Application.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Experties\\Experties.Application\\Experties.Application.csproj",
+        "projectName": "Experties.Application",
+        "projectPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Experties\\Experties.Application\\Experties.Application.csproj",
+        "packagesPath": "C:\\Users\\User\\.nuget\\packages\\",
+        "outputPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Experties\\Experties.Application\\obj\\",
+        "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\User\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net8.0"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net8.0": {
+            "targetAlias": "net8.0",
+            "projectReferences": {
+              "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Framework\\Core\\Core.csproj": {
+                "projectPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Framework\\Core\\Core.csproj"
+              },
+              "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Framework\\Infrastructure\\Infrastructure.csproj": {
+                "projectPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Framework\\Infrastructure\\Infrastructure.csproj"
+              },
+              "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Experties\\Experties.Domain\\Experties.Domain.csproj": {
+                "projectPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Experties\\Experties.Domain\\Experties.Domain.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        },
+        "SdkAnalysisLevel": "9.0.200"
+      },
+      "frameworks": {
+        "net8.0": {
+          "targetAlias": "net8.0",
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.200/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Experties\\Experties.Domain\\Experties.Domain.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Experties\\Experties.Domain\\Experties.Domain.csproj",
+        "projectName": "Experties.Domain",
+        "projectPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Experties\\Experties.Domain\\Experties.Domain.csproj",
+        "packagesPath": "C:\\Users\\User\\.nuget\\packages\\",
+        "outputPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Experties\\Experties.Domain\\obj\\",
+        "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\User\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net8.0"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net8.0": {
+            "targetAlias": "net8.0",
+            "projectReferences": {
+              "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Framework\\Core\\Core.csproj": {
+                "projectPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Framework\\Core\\Core.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        },
+        "SdkAnalysisLevel": "9.0.200"
+      },
+      "frameworks": {
+        "net8.0": {
+          "targetAlias": "net8.0",
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.200/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Experties\\Experties.Infrastructure\\Experties.Infrastructure.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Experties\\Experties.Infrastructure\\Experties.Infrastructure.csproj",
+        "projectName": "Experties.Infrastructure",
+        "projectPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Experties\\Experties.Infrastructure\\Experties.Infrastructure.csproj",
+        "packagesPath": "C:\\Users\\User\\.nuget\\packages\\",
+        "outputPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Experties\\Experties.Infrastructure\\obj\\",
+        "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\User\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net8.0"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net8.0": {
+            "targetAlias": "net8.0",
+            "projectReferences": {
+              "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Framework\\Infrastructure\\Infrastructure.csproj": {
+                "projectPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Framework\\Infrastructure\\Infrastructure.csproj"
+              },
+              "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Experties\\Experties.Application\\Experties.Application.csproj": {
+                "projectPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Experties\\Experties.Application\\Experties.Application.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        },
+        "SdkAnalysisLevel": "9.0.200"
+      },
+      "frameworks": {
+        "net8.0": {
+          "targetAlias": "net8.0",
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.200/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\HRView\\HRView.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\HRView\\HRView.csproj",
+        "projectName": "HRView",
+        "projectPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\HRView\\HRView.csproj",
+        "packagesPath": "C:\\Users\\User\\.nuget\\packages\\",
+        "outputPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\HRView\\obj\\",
+        "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\User\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net8.0"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net8.0": {
+            "targetAlias": "net8.0",
+            "projectReferences": {
+              "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Framework\\Infrastructure\\Infrastructure.csproj": {
+                "projectPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Framework\\Infrastructure\\Infrastructure.csproj"
+              },
+              "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Candidate\\Candidate.Infrastructure\\Candidate.Infrastructure.csproj": {
+                "projectPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Candidate\\Candidate.Infrastructure\\Candidate.Infrastructure.csproj"
+              },
+              "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Evaluator\\Evaluator.Infrastructure\\Evaluator.Infrastructure.csproj": {
+                "projectPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Evaluator\\Evaluator.Infrastructure\\Evaluator.Infrastructure.csproj"
+              },
+              "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Experties\\Experties.Infrastructure\\Experties.Infrastructure.csproj": {
+                "projectPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Experties\\Experties.Infrastructure\\Experties.Infrastructure.csproj"
+              },
+              "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Interviews\\Interviews.Infrastructure\\Interviews.Infrastructure.csproj": {
+                "projectPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Interviews\\Interviews.Infrastructure\\Interviews.Infrastructure.csproj"
+              },
+              "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Jobs\\Jobs.Infrastructure\\Jobs.Infrastructure.csproj": {
+                "projectPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Jobs\\Jobs.Infrastructure\\Jobs.Infrastructure.csproj"
+              },
+              "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Notifications\\Notifications.Infrastructure\\Notifications.Infrastructure.csproj": {
+                "projectPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Notifications\\Notifications.Infrastructure\\Notifications.Infrastructure.csproj"
+              },
+              "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Quizzes\\Quizzes.Infrastructure\\Quizzes.Infrastructure.csproj": {
+                "projectPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Quizzes\\Quizzes.Infrastructure\\Quizzes.Infrastructure.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        },
+        "SdkAnalysisLevel": "9.0.200"
+      },
+      "frameworks": {
+        "net8.0": {
+          "targetAlias": "net8.0",
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.200/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\InterviewerView\\InterviewerView.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\InterviewerView\\InterviewerView.csproj",
+        "projectName": "InterviewerView",
+        "projectPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\InterviewerView\\InterviewerView.csproj",
+        "packagesPath": "C:\\Users\\User\\.nuget\\packages\\",
+        "outputPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\InterviewerView\\obj\\",
+        "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\User\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net8.0"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net8.0": {
+            "targetAlias": "net8.0",
+            "projectReferences": {
+              "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Framework\\Infrastructure\\Infrastructure.csproj": {
+                "projectPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Framework\\Infrastructure\\Infrastructure.csproj"
+              },
+              "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Candidate\\Candidate.Infrastructure\\Candidate.Infrastructure.csproj": {
+                "projectPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Candidate\\Candidate.Infrastructure\\Candidate.Infrastructure.csproj"
+              },
+              "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Evaluator\\Evaluator.Infrastructure\\Evaluator.Infrastructure.csproj": {
+                "projectPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Evaluator\\Evaluator.Infrastructure\\Evaluator.Infrastructure.csproj"
+              },
+              "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Experties\\Experties.Infrastructure\\Experties.Infrastructure.csproj": {
+                "projectPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Experties\\Experties.Infrastructure\\Experties.Infrastructure.csproj"
+              },
+              "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Interviews\\Interviews.Infrastructure\\Interviews.Infrastructure.csproj": {
+                "projectPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Interviews\\Interviews.Infrastructure\\Interviews.Infrastructure.csproj"
+              },
+              "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Jobs\\Jobs.Infrastructure\\Jobs.Infrastructure.csproj": {
+                "projectPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Jobs\\Jobs.Infrastructure\\Jobs.Infrastructure.csproj"
+              },
+              "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Notifications\\Notifications.Infrastructure\\Notifications.Infrastructure.csproj": {
+                "projectPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Notifications\\Notifications.Infrastructure\\Notifications.Infrastructure.csproj"
+              },
+              "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Quizzes\\Quizzes.Infrastructure\\Quizzes.Infrastructure.csproj": {
+                "projectPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Quizzes\\Quizzes.Infrastructure\\Quizzes.Infrastructure.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        },
+        "SdkAnalysisLevel": "9.0.200"
+      },
+      "frameworks": {
+        "net8.0": {
+          "targetAlias": "net8.0",
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.200/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Interviews\\Interviews.Application\\Interviews.Application.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Interviews\\Interviews.Application\\Interviews.Application.csproj",
+        "projectName": "Interviews.Application",
+        "projectPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Interviews\\Interviews.Application\\Interviews.Application.csproj",
+        "packagesPath": "C:\\Users\\User\\.nuget\\packages\\",
+        "outputPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Interviews\\Interviews.Application\\obj\\",
+        "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\User\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net8.0"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net8.0": {
+            "targetAlias": "net8.0",
+            "projectReferences": {
+              "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Framework\\Core\\Core.csproj": {
+                "projectPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Framework\\Core\\Core.csproj"
+              },
+              "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Framework\\Infrastructure\\Infrastructure.csproj": {
+                "projectPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Framework\\Infrastructure\\Infrastructure.csproj"
+              },
+              "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Interviews\\Interviews.Domain\\Interviews.Domain.csproj": {
+                "projectPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Interviews\\Interviews.Domain\\Interviews.Domain.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        },
+        "SdkAnalysisLevel": "9.0.200"
+      },
+      "frameworks": {
+        "net8.0": {
+          "targetAlias": "net8.0",
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.200/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Interviews\\Interviews.Domain\\Interviews.Domain.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Interviews\\Interviews.Domain\\Interviews.Domain.csproj",
+        "projectName": "Interviews.Domain",
+        "projectPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Interviews\\Interviews.Domain\\Interviews.Domain.csproj",
+        "packagesPath": "C:\\Users\\User\\.nuget\\packages\\",
+        "outputPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Interviews\\Interviews.Domain\\obj\\",
+        "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\User\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net8.0"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net8.0": {
+            "targetAlias": "net8.0",
+            "projectReferences": {
+              "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Framework\\Core\\Core.csproj": {
+                "projectPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Framework\\Core\\Core.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        },
+        "SdkAnalysisLevel": "9.0.200"
+      },
+      "frameworks": {
+        "net8.0": {
+          "targetAlias": "net8.0",
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.200/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Interviews\\Interviews.Infrastructure\\Interviews.Infrastructure.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Interviews\\Interviews.Infrastructure\\Interviews.Infrastructure.csproj",
+        "projectName": "Interviews.Infrastructure",
+        "projectPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Interviews\\Interviews.Infrastructure\\Interviews.Infrastructure.csproj",
+        "packagesPath": "C:\\Users\\User\\.nuget\\packages\\",
+        "outputPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Interviews\\Interviews.Infrastructure\\obj\\",
+        "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\User\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net8.0"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net8.0": {
+            "targetAlias": "net8.0",
+            "projectReferences": {
+              "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Framework\\Infrastructure\\Infrastructure.csproj": {
+                "projectPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Framework\\Infrastructure\\Infrastructure.csproj"
+              },
+              "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Interviews\\Interviews.Application\\Interviews.Application.csproj": {
+                "projectPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Interviews\\Interviews.Application\\Interviews.Application.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        },
+        "SdkAnalysisLevel": "9.0.200"
+      },
+      "frameworks": {
+        "net8.0": {
+          "targetAlias": "net8.0",
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.200/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Jobs\\Jobs.Application\\Jobs.Application.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Jobs\\Jobs.Application\\Jobs.Application.csproj",
+        "projectName": "Jobs.Application",
+        "projectPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Jobs\\Jobs.Application\\Jobs.Application.csproj",
+        "packagesPath": "C:\\Users\\User\\.nuget\\packages\\",
+        "outputPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Jobs\\Jobs.Application\\obj\\",
+        "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\User\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net8.0"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net8.0": {
+            "targetAlias": "net8.0",
+            "projectReferences": {
+              "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Framework\\Core\\Core.csproj": {
+                "projectPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Framework\\Core\\Core.csproj"
+              },
+              "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Framework\\Infrastructure\\Infrastructure.csproj": {
+                "projectPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Framework\\Infrastructure\\Infrastructure.csproj"
+              },
+              "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Jobs\\Jobs.Domain\\Jobs.Domain.csproj": {
+                "projectPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Jobs\\Jobs.Domain\\Jobs.Domain.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        },
+        "SdkAnalysisLevel": "9.0.200"
+      },
+      "frameworks": {
+        "net8.0": {
+          "targetAlias": "net8.0",
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.200/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Jobs\\Jobs.Domain\\Jobs.Domain.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Jobs\\Jobs.Domain\\Jobs.Domain.csproj",
+        "projectName": "Jobs.Domain",
+        "projectPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Jobs\\Jobs.Domain\\Jobs.Domain.csproj",
+        "packagesPath": "C:\\Users\\User\\.nuget\\packages\\",
+        "outputPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Jobs\\Jobs.Domain\\obj\\",
+        "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\User\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net8.0"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net8.0": {
+            "targetAlias": "net8.0",
+            "projectReferences": {
+              "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Framework\\Core\\Core.csproj": {
+                "projectPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Framework\\Core\\Core.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        },
+        "SdkAnalysisLevel": "9.0.200"
+      },
+      "frameworks": {
+        "net8.0": {
+          "targetAlias": "net8.0",
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.200/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Jobs\\Jobs.Infrastructure\\Jobs.Infrastructure.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Jobs\\Jobs.Infrastructure\\Jobs.Infrastructure.csproj",
+        "projectName": "Jobs.Infrastructure",
+        "projectPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Jobs\\Jobs.Infrastructure\\Jobs.Infrastructure.csproj",
+        "packagesPath": "C:\\Users\\User\\.nuget\\packages\\",
+        "outputPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Jobs\\Jobs.Infrastructure\\obj\\",
+        "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\User\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net8.0"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net8.0": {
+            "targetAlias": "net8.0",
+            "projectReferences": {
+              "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Framework\\Infrastructure\\Infrastructure.csproj": {
+                "projectPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Framework\\Infrastructure\\Infrastructure.csproj"
+              },
+              "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Jobs\\Jobs.Application\\Jobs.Application.csproj": {
+                "projectPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Jobs\\Jobs.Application\\Jobs.Application.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        },
+        "SdkAnalysisLevel": "9.0.200"
+      },
+      "frameworks": {
+        "net8.0": {
+          "targetAlias": "net8.0",
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.200/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Notifications\\Notifications.Application\\Notifications.Application.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Notifications\\Notifications.Application\\Notifications.Application.csproj",
+        "projectName": "Notifications.Application",
+        "projectPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Notifications\\Notifications.Application\\Notifications.Application.csproj",
+        "packagesPath": "C:\\Users\\User\\.nuget\\packages\\",
+        "outputPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Notifications\\Notifications.Application\\obj\\",
+        "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\User\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net8.0"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net8.0": {
+            "targetAlias": "net8.0",
+            "projectReferences": {
+              "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Framework\\Core\\Core.csproj": {
+                "projectPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Framework\\Core\\Core.csproj"
+              },
+              "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Framework\\Infrastructure\\Infrastructure.csproj": {
+                "projectPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Framework\\Infrastructure\\Infrastructure.csproj"
+              },
+              "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Notifications\\Notifications.Domain\\Notifications.Domain.csproj": {
+                "projectPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Notifications\\Notifications.Domain\\Notifications.Domain.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        },
+        "SdkAnalysisLevel": "9.0.200"
+      },
+      "frameworks": {
+        "net8.0": {
+          "targetAlias": "net8.0",
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.200/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Notifications\\Notifications.Domain\\Notifications.Domain.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Notifications\\Notifications.Domain\\Notifications.Domain.csproj",
+        "projectName": "Notifications.Domain",
+        "projectPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Notifications\\Notifications.Domain\\Notifications.Domain.csproj",
+        "packagesPath": "C:\\Users\\User\\.nuget\\packages\\",
+        "outputPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Notifications\\Notifications.Domain\\obj\\",
+        "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\User\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net8.0"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net8.0": {
+            "targetAlias": "net8.0",
+            "projectReferences": {
+              "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Framework\\Core\\Core.csproj": {
+                "projectPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Framework\\Core\\Core.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        },
+        "SdkAnalysisLevel": "9.0.200"
+      },
+      "frameworks": {
+        "net8.0": {
+          "targetAlias": "net8.0",
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.200/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Notifications\\Notifications.Infrastructure\\Notifications.Infrastructure.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Notifications\\Notifications.Infrastructure\\Notifications.Infrastructure.csproj",
+        "projectName": "Notifications.Infrastructure",
+        "projectPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Notifications\\Notifications.Infrastructure\\Notifications.Infrastructure.csproj",
+        "packagesPath": "C:\\Users\\User\\.nuget\\packages\\",
+        "outputPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Notifications\\Notifications.Infrastructure\\obj\\",
+        "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\User\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net8.0"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net8.0": {
+            "targetAlias": "net8.0",
+            "projectReferences": {
+              "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Framework\\Infrastructure\\Infrastructure.csproj": {
+                "projectPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Framework\\Infrastructure\\Infrastructure.csproj"
+              },
+              "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Candidate\\Candidate.Infrastructure\\Candidate.Infrastructure.csproj": {
+                "projectPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Candidate\\Candidate.Infrastructure\\Candidate.Infrastructure.csproj"
+              },
+              "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Evaluator\\Evaluator.Infrastructure\\Evaluator.Infrastructure.csproj": {
+                "projectPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Evaluator\\Evaluator.Infrastructure\\Evaluator.Infrastructure.csproj"
+              },
+              "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Experties\\Experties.Infrastructure\\Experties.Infrastructure.csproj": {
+                "projectPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Experties\\Experties.Infrastructure\\Experties.Infrastructure.csproj"
+              },
+              "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Interviews\\Interviews.Infrastructure\\Interviews.Infrastructure.csproj": {
+                "projectPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Interviews\\Interviews.Infrastructure\\Interviews.Infrastructure.csproj"
+              },
+              "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Jobs\\Jobs.Infrastructure\\Jobs.Infrastructure.csproj": {
+                "projectPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Jobs\\Jobs.Infrastructure\\Jobs.Infrastructure.csproj"
+              },
+              "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Notifications\\Notifications.Application\\Notifications.Application.csproj": {
+                "projectPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Notifications\\Notifications.Application\\Notifications.Application.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        },
+        "SdkAnalysisLevel": "9.0.200"
+      },
+      "frameworks": {
+        "net8.0": {
+          "targetAlias": "net8.0",
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.200/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Quizzes\\Quizzes.Application\\Quizzes.Application.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Quizzes\\Quizzes.Application\\Quizzes.Application.csproj",
+        "projectName": "Quizzes.Application",
+        "projectPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Quizzes\\Quizzes.Application\\Quizzes.Application.csproj",
+        "packagesPath": "C:\\Users\\User\\.nuget\\packages\\",
+        "outputPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Quizzes\\Quizzes.Application\\obj\\",
+        "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\User\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net8.0"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net8.0": {
+            "targetAlias": "net8.0",
+            "projectReferences": {
+              "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Framework\\Core\\Core.csproj": {
+                "projectPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Framework\\Core\\Core.csproj"
+              },
+              "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Quizzes\\Quizzes.Domain\\Quizzes.Domain.csproj": {
+                "projectPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Quizzes\\Quizzes.Domain\\Quizzes.Domain.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        },
+        "SdkAnalysisLevel": "9.0.200"
+      },
+      "frameworks": {
+        "net8.0": {
+          "targetAlias": "net8.0",
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.200/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Quizzes\\Quizzes.Domain\\Quizzes.Domain.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Quizzes\\Quizzes.Domain\\Quizzes.Domain.csproj",
+        "projectName": "Quizzes.Domain",
+        "projectPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Quizzes\\Quizzes.Domain\\Quizzes.Domain.csproj",
+        "packagesPath": "C:\\Users\\User\\.nuget\\packages\\",
+        "outputPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Quizzes\\Quizzes.Domain\\obj\\",
+        "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\User\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net8.0"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net8.0": {
+            "targetAlias": "net8.0",
+            "projectReferences": {
+              "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Framework\\Core\\Core.csproj": {
+                "projectPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Framework\\Core\\Core.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        },
+        "SdkAnalysisLevel": "9.0.200"
+      },
+      "frameworks": {
+        "net8.0": {
+          "targetAlias": "net8.0",
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.200/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Quizzes\\Quizzes.Infrastructure\\Quizzes.Infrastructure.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Quizzes\\Quizzes.Infrastructure\\Quizzes.Infrastructure.csproj",
+        "projectName": "Quizzes.Infrastructure",
+        "projectPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Quizzes\\Quizzes.Infrastructure\\Quizzes.Infrastructure.csproj",
+        "packagesPath": "C:\\Users\\User\\.nuget\\packages\\",
+        "outputPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Quizzes\\Quizzes.Infrastructure\\obj\\",
+        "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\User\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net8.0"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net8.0": {
+            "targetAlias": "net8.0",
+            "projectReferences": {
+              "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Framework\\Infrastructure\\Infrastructure.csproj": {
+                "projectPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Framework\\Infrastructure\\Infrastructure.csproj"
+              },
+              "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Quizzes\\Quizzes.Application\\Quizzes.Application.csproj": {
+                "projectPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Quizzes\\Quizzes.Application\\Quizzes.Application.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        },
+        "SdkAnalysisLevel": "9.0.200"
+      },
+      "frameworks": {
+        "net8.0": {
+          "targetAlias": "net8.0",
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.200/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Quizzes\\Quizzes.Test\\Quizzes.Test.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Quizzes\\Quizzes.Test\\Quizzes.Test.csproj",
+        "projectName": "Quizzes.Test",
+        "projectPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Quizzes\\Quizzes.Test\\Quizzes.Test.csproj",
+        "packagesPath": "C:\\Users\\User\\.nuget\\packages\\",
+        "outputPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Quizzes\\Quizzes.Test\\obj\\",
+        "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\User\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net8.0"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net8.0": {
+            "targetAlias": "net8.0",
+            "projectReferences": {
+              "E:\\FullStack\\learnathon\\earendel\\backend\\Test\\Test.csproj": {
+                "projectPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Test\\Test.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        },
+        "SdkAnalysisLevel": "9.0.200"
+      },
+      "frameworks": {
+        "net8.0": {
+          "targetAlias": "net8.0",
+          "dependencies": {
+            "Microsoft.NET.Test.Sdk": {
+              "target": "Package",
+              "version": "[17.8.0, )"
+            },
+            "coverlet.collector": {
+              "target": "Package",
+              "version": "[6.0.0, )"
+            },
+            "xunit": {
+              "target": "Package",
+              "version": "[2.5.3, )"
+            },
+            "xunit.runner.visualstudio": {
+              "target": "Package",
+              "version": "[2.5.3, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.200/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Server\\Server.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Server\\Server.csproj",
+        "projectName": "Server",
+        "projectPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Server\\Server.csproj",
+        "packagesPath": "C:\\Users\\User\\.nuget\\packages\\",
+        "outputPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Server\\obj\\",
+        "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\User\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net8.0"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net8.0": {
+            "targetAlias": "net8.0",
+            "projectReferences": {
+              "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Framework\\Core\\Core.csproj": {
+                "projectPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Framework\\Core\\Core.csproj"
+              },
+              "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Framework\\Infrastructure\\Infrastructure.csproj": {
+                "projectPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Framework\\Infrastructure\\Infrastructure.csproj"
+              },
+              "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Migrations\\PGSql\\PGSql.csproj": {
+                "projectPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Migrations\\PGSql\\PGSql.csproj"
+              },
+              "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\CandidateLogic\\CandidateLogic.csproj": {
+                "projectPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\CandidateLogic\\CandidateLogic.csproj"
+              },
+              "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Candidate\\Candidate.Infrastructure\\Candidate.Infrastructure.csproj": {
+                "projectPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Candidate\\Candidate.Infrastructure\\Candidate.Infrastructure.csproj"
+              },
+              "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Evaluator\\Evaluator.Infrastructure\\Evaluator.Infrastructure.csproj": {
+                "projectPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Evaluator\\Evaluator.Infrastructure\\Evaluator.Infrastructure.csproj"
+              },
+              "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Experties\\Experties.Infrastructure\\Experties.Infrastructure.csproj": {
+                "projectPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Experties\\Experties.Infrastructure\\Experties.Infrastructure.csproj"
+              },
+              "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\HRView\\HRView.csproj": {
+                "projectPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\HRView\\HRView.csproj"
+              },
+              "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\InterviewerView\\InterviewerView.csproj": {
+                "projectPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\InterviewerView\\InterviewerView.csproj"
+              },
+              "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Interviews\\Interviews.Infrastructure\\Interviews.Infrastructure.csproj": {
+                "projectPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Interviews\\Interviews.Infrastructure\\Interviews.Infrastructure.csproj"
+              },
+              "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Jobs\\Jobs.Infrastructure\\Jobs.Infrastructure.csproj": {
+                "projectPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Jobs\\Jobs.Infrastructure\\Jobs.Infrastructure.csproj"
+              },
+              "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Notifications\\Notifications.Infrastructure\\Notifications.Infrastructure.csproj": {
+                "projectPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Notifications\\Notifications.Infrastructure\\Notifications.Infrastructure.csproj"
+              },
+              "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Quizzes\\Quizzes.Infrastructure\\Quizzes.Infrastructure.csproj": {
+                "projectPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Module\\Quizzes\\Quizzes.Infrastructure\\Quizzes.Infrastructure.csproj"
+              },
+              "E:\\FullStack\\learnathon\\earendel\\backend\\Aspire\\Aspire.ServiceDefaults\\Aspire.ServiceDefaults.csproj": {
+                "projectPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Aspire\\Aspire.ServiceDefaults\\Aspire.ServiceDefaults.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        },
+        "SdkAnalysisLevel": "9.0.200"
+      },
+      "frameworks": {
+        "net8.0": {
+          "targetAlias": "net8.0",
+          "dependencies": {
+            "Microsoft.EntityFrameworkCore.Design": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
+              "target": "Package",
+              "version": "[9.0.2, )"
+            },
+            "Swashbuckle.AspNetCore": {
+              "target": "Package",
+              "version": "[7.2.0, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.AspNetCore.App": {
+              "privateAssets": "none"
+            },
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.200/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "E:\\FullStack\\learnathon\\earendel\\backend\\Aspire\\Aspire.ServiceDefaults\\Aspire.ServiceDefaults.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "E:\\FullStack\\learnathon\\earendel\\backend\\Aspire\\Aspire.ServiceDefaults\\Aspire.ServiceDefaults.csproj",
+        "projectName": "Aspire.ServiceDefaults",
+        "projectPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Aspire\\Aspire.ServiceDefaults\\Aspire.ServiceDefaults.csproj",
+        "packagesPath": "C:\\Users\\User\\.nuget\\packages\\",
+        "outputPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Aspire\\Aspire.ServiceDefaults\\obj\\",
+        "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\User\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net8.0"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net8.0": {
+            "targetAlias": "net8.0",
+            "projectReferences": {}
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        },
+        "SdkAnalysisLevel": "9.0.200"
+      },
+      "frameworks": {
+        "net8.0": {
+          "targetAlias": "net8.0",
+          "dependencies": {
+            "Microsoft.Extensions.Http.Resilience": {
+              "target": "Package",
+              "version": "[9.2.0, )"
+            },
+            "Microsoft.Extensions.ServiceDiscovery": {
+              "target": "Package",
+              "version": "[9.0.0, )"
+            },
+            "Npgsql.OpenTelemetry": {
+              "target": "Package",
+              "version": "[9.0.2, )"
+            },
+            "OpenTelemetry.Exporter.Console": {
+              "target": "Package",
+              "version": "[1.11.1, )"
+            },
+            "OpenTelemetry.Exporter.OpenTelemetryProtocol": {
+              "target": "Package",
+              "version": "[1.11.1, )"
+            },
+            "OpenTelemetry.Exporter.Prometheus.AspNetCore": {
+              "target": "Package",
+              "version": "[1.11.0-beta.1, )"
+            },
+            "OpenTelemetry.Extensions.Hosting": {
+              "target": "Package",
+              "version": "[1.11.1, )"
+            },
+            "OpenTelemetry.Instrumentation.AspNetCore": {
+              "target": "Package",
+              "version": "[1.11.0, )"
+            },
+            "OpenTelemetry.Instrumentation.EntityFrameworkCore": {
+              "target": "Package",
+              "version": "[1.11.0-beta.1, )"
+            },
+            "OpenTelemetry.Instrumentation.Http": {
+              "target": "Package",
+              "version": "[1.11.0, )"
+            },
+            "OpenTelemetry.Instrumentation.Runtime": {
+              "target": "Package",
+              "version": "[1.11.0, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.AspNetCore.App": {
+              "privateAssets": "none"
+            },
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.200/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "E:\\FullStack\\learnathon\\earendel\\backend\\Shared\\Shared.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "E:\\FullStack\\learnathon\\earendel\\backend\\Shared\\Shared.csproj",
+        "projectName": "Shared",
+        "projectPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Shared\\Shared.csproj",
+        "packagesPath": "C:\\Users\\User\\.nuget\\packages\\",
+        "outputPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Shared\\obj\\",
+        "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\User\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net8.0"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net8.0": {
+            "targetAlias": "net8.0",
+            "projectReferences": {}
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        },
+        "SdkAnalysisLevel": "9.0.200"
+      },
+      "frameworks": {
+        "net8.0": {
+          "targetAlias": "net8.0",
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.200/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    },
+    "E:\\FullStack\\learnathon\\earendel\\backend\\Test\\Test.csproj": {
+      "version": "1.0.0",
+      "restore": {
+        "projectUniqueName": "E:\\FullStack\\learnathon\\earendel\\backend\\Test\\Test.csproj",
+        "projectName": "Test",
+        "projectPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Test\\Test.csproj",
+        "packagesPath": "C:\\Users\\User\\.nuget\\packages\\",
+        "outputPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Test\\obj\\",
+        "projectStyle": "PackageReference",
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+        ],
+        "configFilePaths": [
+          "C:\\Users\\User\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+        ],
+        "originalTargetFrameworks": [
+          "net8.0"
+        ],
+        "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "https://api.nuget.org/v3/index.json": {}
+        },
+        "frameworks": {
+          "net8.0": {
+            "targetAlias": "net8.0",
+            "projectReferences": {
+              "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Server\\Server.csproj": {
+                "projectPath": "E:\\FullStack\\learnathon\\earendel\\backend\\Api\\Server\\Server.csproj"
+              }
+            }
+          }
+        },
+        "warningProperties": {
+          "warnAsError": [
+            "NU1605"
+          ]
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
+        },
+        "SdkAnalysisLevel": "9.0.200"
+      },
+      "frameworks": {
+        "net8.0": {
+          "targetAlias": "net8.0",
+          "dependencies": {
+            "Microsoft.NET.Test.Sdk": {
+              "target": "Package",
+              "version": "[17.8.0, )"
+            },
+            "Moq": {
+              "target": "Package",
+              "version": "[4.20.72, )"
+            },
+            "coverlet.collector": {
+              "target": "Package",
+              "version": "[6.0.0, )"
+            },
+            "xunit": {
+              "target": "Package",
+              "version": "[2.5.3, )"
+            },
+            "xunit.runner.visualstudio": {
+              "target": "Package",
+              "version": "[2.5.3, )"
+            }
+          },
+          "imports": [
+            "net461",
+            "net462",
+            "net47",
+            "net471",
+            "net472",
+            "net48",
+            "net481"
+          ],
+          "assetTargetFallback": true,
+          "warn": true,
+          "frameworkReferences": {
+            "Microsoft.NETCore.App": {
+              "privateAssets": "all"
+            }
+          },
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.200/PortableRuntimeIdentifierGraph.json"
+        }
+      }
+    }
+  }
+}
