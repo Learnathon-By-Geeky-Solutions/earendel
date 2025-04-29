@@ -33,7 +33,7 @@ export interface JobApplication {
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class JobService {
   constructor(private http: HttpClient) {}
@@ -41,21 +41,24 @@ export class JobService {
   getJobs(filters: JobFilter): Observable<Job[]> {
     // Add the endpoint to the endpoint.ts file
     const apiUrl = `${endpoint.jobViewUrl}`;
-    
+
     let params = new HttpParams();
-    
+
     if (filters.name) params = params.set('name', filters.name);
-    if (filters.description) params = params.set('description', filters.description);
-    if (filters.requirements) params = params.set('requirements', filters.requirements);
+    if (filters.description)
+      params = params.set('description', filters.description);
+    if (filters.requirements)
+      params = params.set('requirements', filters.requirements);
     if (filters.location) params = params.set('location', filters.location);
     if (filters.jobType) params = params.set('jobType', filters.jobType);
-    if (filters.experienceLevel) params = params.set('experienceLevel', filters.experienceLevel);
+    if (filters.experienceLevel)
+      params = params.set('experienceLevel', filters.experienceLevel);
     if (filters.page) params = params.set('page', filters.page.toString());
 
     // Get auth token from session storage (following login pattern)
     const userDataStr = sessionStorage.getItem('loggedInUser');
     let headers = new HttpHeaders();
-    
+
     if (userDataStr) {
       try {
         const userData = JSON.parse(userDataStr);
@@ -67,20 +70,43 @@ export class JobService {
       }
     }
 
-    return this.http.get<Job[]>(apiUrl, { 
+    return this.http.get<Job[]>(apiUrl, {
       params,
-      headers
+      headers,
     });
   }
 
+  // interviewer.service.ts (or wherever)
+  getJobApplications(
+    jobId: string,
+    candidateId: string
+  ): Observable<JobApplication[]> {
+    const apiUrl = `${
+      endpoint.jobViewUrl.split('/JobView')[0]
+    }/job/jobapplications/search`;
+    const body = { jobId, candidateId };
+    let headers = new HttpHeaders();
+    const userData = sessionStorage.getItem('loggedInUser');
+    if (userData) {
+      try {
+        const u = JSON.parse(userData);
+        if (u.token)
+          headers = headers.set('Authorization', `Bearer ${u.token}`);
+      } catch {}
+    }
+    return this.http.post<JobApplication[]>(apiUrl, body, { headers });
+  }
+
   applyForJob(jobId: string, coverLetter: string): Observable<any> {
-    const apiUrl = `${endpoint.jobViewUrl.split('/JobView')[0]}/job/jobapplications`;
-    
+    const apiUrl = `${
+      endpoint.jobViewUrl.split('/JobView')[0]
+    }/job/jobapplications`;
+
     // Get user data from session storage
     const userDataStr = sessionStorage.getItem('loggedInUser');
     let headers = new HttpHeaders();
     let candidateId = '';
-    
+
     if (userDataStr) {
       try {
         const userData = JSON.parse(userDataStr);
@@ -97,7 +123,7 @@ export class JobService {
     const applicationData: JobApplication = {
       jobId: jobId,
       candidateId: candidateId,
-      coverLetter: coverLetter
+      coverLetter: coverLetter,
     };
 
     return this.http.post(apiUrl, applicationData, { headers });

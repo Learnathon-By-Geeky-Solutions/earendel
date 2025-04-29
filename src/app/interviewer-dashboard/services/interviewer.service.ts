@@ -9,6 +9,7 @@ export interface InterviewSearchParams {
   pageNumber?: number;
   pageSize?: number;
   interviewerId?: string;
+  candidateId?: string;
   status?: 'Pending' | 'Accepted' | 'Declined';
 }
 
@@ -110,33 +111,43 @@ export interface InterviewFeedback {
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class InterviewerService {
-
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {}
 
   /**
    * Search for interviews with the given parameters
    * @param params Search parameters like status, interviewerId, etc.
    */
-  searchInterviews(params: InterviewSearchParams): Observable<InterviewResponse> {
+  searchInterviews(
+    params: InterviewSearchParams
+  ): Observable<InterviewResponse> {
     const userId = this.getUserId();
-    
+
     // Set interviewerId to userId if not provided
     if (!params.interviewerId && userId) {
       params.interviewerId = userId;
     }
-    
-    return this.http.post<InterviewResponse>(endpoint.interviewSearchUrl, params)
+
+    return this.http
+      .post<InterviewResponse>(endpoint.interviewSearchUrl, params)
       .pipe(
-        catchError(error => {
+        catchError((error) => {
           console.error('Error searching interviews:', error);
-          return of({ items: [], pageNumber: 1, pageSize: 10, totalCount: 0, totalPages: 0, hasPrevious: false, hasNext: false });
+          return of({
+            items: [],
+            pageNumber: 1,
+            pageSize: 10,
+            totalCount: 0,
+            totalPages: 0,
+            hasPrevious: false,
+            hasNext: false,
+          });
         })
       );
   }
-  
+
   /**
    * Get job details by ID
    * @param jobId The ID of the job to fetch
@@ -146,80 +157,90 @@ export class InterviewerService {
       console.error('No job ID provided');
       return of(null);
     }
-    
+
     const headers = this.getAuthHeaders();
-    
-    return this.http.get<JobDetails>(`${endpoint.jobDetailsUrl}/${jobId}`, { headers })
+
+    return this.http
+      .get<JobDetails>(`${endpoint.jobDetailsUrl}/${jobId}`, { headers })
       .pipe(
-        catchError(error => {
-          console.error(`Error fetching job details for job ID ${jobId}:`, error);
+        catchError((error) => {
+          console.error(
+            `Error fetching job details for job ID ${jobId}:`,
+            error
+          );
           return of(null);
         })
       );
   }
-  
+
   /**
    * Get pending interview requests for the current user
    */
   getPendingInterviews(): Observable<InterviewRequest[]> {
     const userId = this.getUserId();
-    
+
     if (!userId) {
       // Return empty array if no user ID is found
       console.error('No user ID found in session');
       return of([]);
     }
-    
+
     const params: InterviewSearchParams = {
       interviewerId: userId,
       status: 'Pending',
       pageNumber: 1,
-      pageSize: 200
+      pageSize: 200,
     };
-    
+
     return this.searchInterviews(params).pipe(
-      switchMap(response => {
+      switchMap((response) => {
         // Create an array of observables for each interview to fetch job details
-        const interviewsWithJobDetails$ = response.items.map(interview => {
+        const interviewsWithJobDetails$ = response.items.map((interview) => {
           if (interview.jobId) {
             // If there's a jobId, fetch the job details
             return this.getJobDetails(interview.jobId).pipe(
-              map(jobDetails => ({
+              map((jobDetails) => ({
                 interview,
-                jobDetails
+                jobDetails,
               }))
             );
           } else {
             // If no jobId, just return the interview with null job details
             return of({
               interview,
-              jobDetails: null
+              jobDetails: null,
             });
           }
         });
-        
+
         // Wait for all job details to be fetched
-        return interviewsWithJobDetails$.length > 0 
-          ? forkJoin(interviewsWithJobDetails$) 
+        return interviewsWithJobDetails$.length > 0
+          ? forkJoin(interviewsWithJobDetails$)
           : of([]);
       }),
-      map(interviewsWithDetails => {
+      map((interviewsWithDetails) => {
         // Transform the combined data to the format expected by the component
         return interviewsWithDetails.map(({ interview, jobDetails }) => {
           // Calculate requested date as interview date - 1 day
           const interviewDate = new Date(interview.interviewDate);
           interviewDate.setDate(interviewDate.getDate() - 1);
-          
+
           // Create the interview request object with job details if available
           const interviewRequest: InterviewRequest = {
             id: interview.id,
-            candidate: interview.candidate || `Candidate (${interview.applicationId.substring(0, 8)})`,
-            role: jobDetails?.name || interview.role || 'Position not specified',
-            company: jobDetails?.postedById || interview.company || 'Posted by not specified',
+            candidate:
+              interview.candidate ||
+              `Candidate (${interview.applicationId.substring(0, 8)})`,
+            role:
+              jobDetails?.name || interview.role || 'Position not specified',
+            company:
+              jobDetails?.postedById ||
+              interview.company ||
+              'Posted by not specified',
             requestedDate: interviewDate.toISOString().split('T')[0],
-            status: interview.status.toLowerCase()
+            status: interview.status.toLowerCase(),
           };
-          
+
           // Add job details if available
           if (jobDetails) {
             interviewRequest.description = jobDetails.description;
@@ -227,73 +248,79 @@ export class InterviewerService {
             interviewRequest.experienceLevel = jobDetails.experienceLevel;
             interviewRequest.postedBy = jobDetails.postedById;
           }
-          
+
           return interviewRequest;
         });
       })
     );
   }
-  
+
   /**
    * Get accepted interview requests for the current user
    */
   getAcceptedInterviews(): Observable<InterviewRequest[]> {
     const userId = this.getUserId();
-    
+
     if (!userId) {
       // Return empty array if no user ID is found
       console.error('No user ID found in session');
       return of([]);
     }
-    
+
     const params: InterviewSearchParams = {
       interviewerId: userId,
       status: 'Accepted',
       pageNumber: 1,
-      pageSize: 100
+      pageSize: 100,
     };
-    
+
     return this.searchInterviews(params).pipe(
-      switchMap(response => {
+      switchMap((response) => {
         // Create an array of observables for each interview to fetch job details
-        const interviewsWithJobDetails$ = response.items.map(interview => {
+        const interviewsWithJobDetails$ = response.items.map((interview) => {
           if (interview.jobId) {
             // If there's a jobId, fetch the job details
             return this.getJobDetails(interview.jobId).pipe(
-              map(jobDetails => ({
+              map((jobDetails) => ({
                 interview,
-                jobDetails
+                jobDetails,
               }))
             );
           } else {
             // If no jobId, just return the interview with null job details
             return of({
               interview,
-              jobDetails: null
+              jobDetails: null,
             });
           }
         });
-        
+
         // Wait for all job details to be fetched
-        return interviewsWithJobDetails$.length > 0 
-          ? forkJoin(interviewsWithJobDetails$) 
+        return interviewsWithJobDetails$.length > 0
+          ? forkJoin(interviewsWithJobDetails$)
           : of([]);
       }),
-      map(interviewsWithDetails => {
+      map((interviewsWithDetails) => {
         // Transform the combined data to the format expected by the component
         return interviewsWithDetails.map(({ interview, jobDetails }) => {
           // Create the interview request object with job details if available
           const interviewRequest: InterviewRequest = {
             id: interview.id,
-            candidate: interview.candidate || `Candidate (${interview.applicationId.substring(0, 8)})`,
-            role: jobDetails?.name || interview.role || 'Position not specified',
-            company: jobDetails?.postedById || interview.company || 'Posted by not specified',
+            candidate:
+              interview.candidate ||
+              `Candidate (${interview.applicationId.substring(0, 8)})`,
+            role:
+              jobDetails?.name || interview.role || 'Position not specified',
+            company:
+              jobDetails?.postedById ||
+              interview.company ||
+              'Posted by not specified',
             requestedDate: interview.interviewDate, // Keep the original ISO string for proper parsing
             status: interview.status.toLowerCase(),
             meetingId: interview.meetingId, // Include the meetingId
-            interviewerId: interview.interviewerId || userId // Include the interviewerId
+            interviewerId: interview.interviewerId || userId, // Include the interviewerId
           };
-          
+
           // Add job details if available
           if (jobDetails) {
             interviewRequest.description = jobDetails.description;
@@ -301,62 +328,138 @@ export class InterviewerService {
             interviewRequest.experienceLevel = jobDetails.experienceLevel;
             interviewRequest.postedBy = jobDetails.postedById;
           }
-          
+
           return interviewRequest;
         });
       })
     );
   }
-  
+
+  getAcceptedCandidateInterviews(): Observable<InterviewRequest[]> {
+    const userId = this.getUserId();
+
+    if (!userId) {
+      // Return empty array if no user ID is found
+      console.error('No user ID found in session');
+      return of([]);
+    }
+
+    const params: InterviewSearchParams = {
+      candidateId: userId,
+      status: 'Accepted',
+      pageNumber: 1,
+      pageSize: 100,
+    };
+
+    return this.searchInterviews(params).pipe(
+      switchMap((response) => {
+        // Create an array of observables for each interview to fetch job details
+        const interviewsWithJobDetails$ = response.items.map((interview) => {
+          if (interview.jobId) {
+            // If there's a jobId, fetch the job details
+            return this.getJobDetails(interview.jobId).pipe(
+              map((jobDetails) => ({
+                interview,
+                jobDetails,
+              }))
+            );
+          } else {
+            // If no jobId, just return the interview with null job details
+            return of({
+              interview,
+              jobDetails: null,
+            });
+          }
+        });
+
+        // Wait for all job details to be fetched
+        return interviewsWithJobDetails$.length > 0
+          ? forkJoin(interviewsWithJobDetails$)
+          : of([]);
+      }),
+      map((interviewsWithDetails) => {
+        // Transform the combined data to the format expected by the component
+        return interviewsWithDetails.map(({ interview, jobDetails }) => {
+          // Create the interview request object with job details if available
+          const interviewRequest: InterviewRequest = {
+            id: interview.id,
+            candidate:
+              `Interviewer (${interview.interviewerId.substring(0, 8)})`,
+            role:
+              jobDetails?.name || interview.role || 'Position not specified',
+            company:
+              jobDetails?.postedById ||
+              interview.company ||
+              'Posted by not specified',
+            requestedDate: interview.interviewDate, // Keep the original ISO string for proper parsing
+            status: interview.status.toLowerCase(),
+            meetingId: interview.meetingId, // Include the meetingId
+            interviewerId: interview.interviewerId || userId, // Include the interviewerId
+          };
+
+          // Add job details if available
+          if (jobDetails) {
+            interviewRequest.description = jobDetails.description;
+            interviewRequest.requirements = jobDetails.requirments;
+            interviewRequest.experienceLevel = jobDetails.experienceLevel;
+            interviewRequest.postedBy = jobDetails.postedById;
+          }
+
+          return interviewRequest;
+        });
+      })
+    );
+  }
+
   /**
    * Get past interviews for the current user
    * Returns interviews that have already occurred (interview date is in the past)
    */
   getPastInterviews(): Observable<InterviewRequest[]> {
     const userId = this.getUserId();
-    
+
     if (!userId) {
       // Return empty array if no user ID is found
       console.error('No user ID found in session');
       return of([]);
     }
-    
+
     const params: InterviewSearchParams = {
       interviewerId: userId,
       status: 'Accepted',
       pageNumber: 1,
-      pageSize: 100
+      pageSize: 100,
     };
-    
+
     return this.searchInterviews(params).pipe(
-      switchMap(response => {
+      switchMap((response) => {
         // Create an array of observables for each interview to fetch job details
-        const interviewsWithJobDetails$ = response.items.map(interview => {
+        const interviewsWithJobDetails$ = response.items.map((interview) => {
           if (interview.jobId) {
             // If there's a jobId, fetch the job details
             return this.getJobDetails(interview.jobId).pipe(
-              map(jobDetails => ({
+              map((jobDetails) => ({
                 interview,
-                jobDetails
+                jobDetails,
               }))
             );
           } else {
             // If no jobId, just return the interview with null job details
             return of({
               interview,
-              jobDetails: null
+              jobDetails: null,
             });
           }
         });
-        
+
         // Wait for all job details to be fetched
-        return interviewsWithJobDetails$.length > 0 
-          ? forkJoin(interviewsWithJobDetails$) 
+        return interviewsWithJobDetails$.length > 0
+          ? forkJoin(interviewsWithJobDetails$)
           : of([]);
       }),
-      map(interviewsWithDetails => {
+      map((interviewsWithDetails) => {
         const now = new Date();
-        
+
         // Filter to only include past interviews and transform the data
         return interviewsWithDetails
           .filter(({ interview }) => {
@@ -367,15 +470,21 @@ export class InterviewerService {
             // Create the interview request object with job details if available
             const interviewRequest: InterviewRequest = {
               id: interview.id,
-              candidate: interview.candidate || `Candidate (${interview.applicationId.substring(0, 8)})`,
-              role: jobDetails?.name || interview.role || 'Position not specified',
-              company: jobDetails?.postedById || interview.company || 'Posted by not specified',
+              candidate:
+                interview.candidate ||
+                `Candidate (${interview.applicationId.substring(0, 8)})`,
+              role:
+                jobDetails?.name || interview.role || 'Position not specified',
+              company:
+                jobDetails?.postedById ||
+                interview.company ||
+                'Posted by not specified',
               requestedDate: interview.interviewDate, // Keep the original ISO string for proper parsing
               status: interview.status.toLowerCase(),
               meetingId: interview.meetingId, // Include the meetingId
-              interviewerId: interview.interviewerId || userId // Include the interviewerId
+              interviewerId: interview.interviewerId || userId, // Include the interviewerId
             };
-            
+
             // Add job details if available
             if (jobDetails) {
               interviewRequest.description = jobDetails.description;
@@ -383,99 +492,116 @@ export class InterviewerService {
               interviewRequest.experienceLevel = jobDetails.experienceLevel;
               interviewRequest.postedBy = jobDetails.postedById;
             }
-            
+
             return interviewRequest;
           });
       })
     );
   }
-  
+
   /**
    * Get available time slots for the interviewer
    * Groups time slots by date and returns them in the format expected by the component
    */
   getAvailableTimeSlots(): Observable<AvailableDate[]> {
     const userId = this.getUserId();
-    
+
     if (!userId) {
       console.error('No user ID found in session');
       return of([]);
     }
-    
+
     const request = {
       pageNumber: 1,
       pageSize: 1000,
       interviewerId: userId,
-      isAvailable: true
+      isAvailable: true,
     };
-    
+
     const headers = this.getAuthHeaders();
-    
-    return this.http.post<AvailabilityResponse>(
-      endpoint.interviewerAvailabilitySearchUrl, 
-      request, 
-      { headers }
-    ).pipe(
-      map(response => this.transformAvailabilityData(response.items)),
-      catchError(error => {
-        console.error('Error fetching availability slots:', error);
-        return of([]);
-      })
-    );
+
+    return this.http
+      .post<AvailabilityResponse>(
+        endpoint.interviewerAvailabilitySearchUrl,
+        request,
+        { headers }
+      )
+      .pipe(
+        map((response) => this.transformAvailabilityData(response.items)),
+        catchError((error) => {
+          console.error('Error fetching availability slots:', error);
+          return of([]);
+        })
+      );
   }
-  
+
   /**
    * Transform availability data from API to the format expected by the component
    */
-  private transformAvailabilityData(items: AvailabilityItem[]): AvailableDate[] {
+  private transformAvailabilityData(
+    items: AvailabilityItem[]
+  ): AvailableDate[] {
     // Group slots by date
     const slotsByDate: Record<string, AvailabilityItem[]> = {};
-    
+
     // Process all slots
-    items.forEach(slot => {
+    items.forEach((slot) => {
       const startDate = new Date(slot.startTime);
       const dateKey = startDate.toISOString().split('T')[0]; // YYYY-MM-DD format
-      
+
       if (!slotsByDate[dateKey]) {
         slotsByDate[dateKey] = [];
       }
-      
+
       slotsByDate[dateKey].push(slot);
     });
-    
+
     // Convert to array format
-    return Object.keys(slotsByDate).map(dateKey => {
-      const date = new Date(dateKey);
-      const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-      const dayOfWeek = dayNames[date.getDay()];
-      
-      // Sort slots by start time
-      const sortedSlots = slotsByDate[dateKey].sort((a, b) => {
-        return new Date(a.startTime).getTime() - new Date(b.startTime).getTime();
-      });
-      
-      // Transform to TimeSlot format
-      const timeSlots = sortedSlots.map(slot => {
-        const startTime = new Date(slot.startTime);
-        const endTime = new Date(slot.endTime);
-        
-        return {
-          id: slot.id,
-          start: this.formatTimeForDisplay(startTime),
-          end: this.formatTimeForDisplay(endTime)
-        };
-      });
-      
-      return {
-        date: dateKey,
-        dayOfWeek,
-        slots: timeSlots
-      };
-    })
-    // Sort dates in ascending order
-    .sort((a, b) => a.date.localeCompare(b.date));
+    return (
+      Object.keys(slotsByDate)
+        .map((dateKey) => {
+          const date = new Date(dateKey);
+          const dayNames = [
+            'Sunday',
+            'Monday',
+            'Tuesday',
+            'Wednesday',
+            'Thursday',
+            'Friday',
+            'Saturday',
+          ];
+          const dayOfWeek = dayNames[date.getDay()];
+
+          // Sort slots by start time
+          const sortedSlots = slotsByDate[dateKey].sort((a, b) => {
+            return (
+              new Date(a.startTime).getTime() - new Date(b.startTime).getTime()
+            );
+          });
+
+          // Transform to TimeSlot format
+          const timeSlots = sortedSlots.map((slot) => {
+            const startTime = new Date(slot.startTime);
+            const endTime = new Date(slot.endTime);
+
+            return {
+              id: slot.id,
+              start: this.formatTimeForDisplay(startTime),
+              end: this.formatTimeForDisplay(endTime),
+            };
+          });
+
+          return {
+            date: dateKey,
+            dayOfWeek,
+            slots: timeSlots,
+          };
+        })
+        // Sort dates in ascending order
+        .sort((a, b) => a.date.localeCompare(b.date))
+    );
   }
-  
+
   /**
    * Format a date to 24-hour time format (HH:MM)
    */
@@ -490,11 +616,13 @@ export class InterviewerService {
    */
   private getAuthHeaders(): HttpHeaders {
     let headers = new HttpHeaders({
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
     });
-    
+
     try {
-      const userData = sessionStorage.getItem('userData') || sessionStorage.getItem('loggedInUser');
+      const userData =
+        sessionStorage.getItem('userData') ||
+        sessionStorage.getItem('loggedInUser');
       if (userData) {
         const parsed = JSON.parse(userData);
         if (parsed && parsed.token) {
@@ -504,16 +632,18 @@ export class InterviewerService {
     } catch (error) {
       console.error('Error setting auth headers:', error);
     }
-    
+
     return headers;
   }
-  
+
   /**
    * Gets the current user ID from session storage
    */
   private getUserId(): string | null {
     try {
-      const userData = sessionStorage.getItem('userData') || sessionStorage.getItem('loggedInUser');
+      const userData =
+        sessionStorage.getItem('userData') ||
+        sessionStorage.getItem('loggedInUser');
       if (userData) {
         const parsed = JSON.parse(userData);
         return parsed.userId || parsed.id || null;
@@ -524,7 +654,7 @@ export class InterviewerService {
       return null;
     }
   }
-  
+
   /**
    * Update interview with selected time
    * @param interviewId The ID of the interview to update
@@ -538,89 +668,116 @@ export class InterviewerService {
     }
 
     const headers = this.getAuthHeaders();
-    const url = `${endpoint.interviewSearchUrl.replace('/search', '')}/${interviewId}`;
-    
+    const url = `${endpoint.interviewSearchUrl.replace(
+      '/search',
+      ''
+    )}/${interviewId}`;
+
     // First get the current interview data to ensure we have all required fields
     return this.http.get<any>(`${url}`, { headers }).pipe(
-      switchMap(currentInterview => {
+      switchMap((currentInterview) => {
         // Create the payload with updated interview date and status
         // Maintain all existing fields except for the ones we're updating
         const updateData = {
           ...currentInterview,
           interviewDate,
-          status: 'Accepted'
+          status: 'Accepted',
         };
-        
+
         console.log(`Updating interview ID: ${interviewId}`);
         console.log(`New interview date (UTC): ${interviewDate}`);
         console.log('Update payload:', JSON.stringify(updateData));
-        
+
         // Make PUT request to update the interview
-        return this.http.put(url, updateData, { 
-          headers,
-          observe: 'response' // Get full response with status
-        }).pipe(
-          map(response => {
-            console.log('Update successful:', response.status);
-            return response.body;
-          }),
-          catchError(error => {
-            console.error('Error updating interview:', error);
-            console.error('Request payload:', JSON.stringify(updateData));
-            console.error('Response status:', error.status);
-            console.error('Response body:', error.error);
-            
-            // Rethrow with more context
-            return throwError(() => new Error(`Failed to update interview: ${error.message || error.status}`));
+        return this.http
+          .put(url, updateData, {
+            headers,
+            observe: 'response', // Get full response with status
           })
-        );
+          .pipe(
+            map((response) => {
+              console.log('Update successful:', response.status);
+              return response.body;
+            }),
+            catchError((error) => {
+              console.error('Error updating interview:', error);
+              console.error('Request payload:', JSON.stringify(updateData));
+              console.error('Response status:', error.status);
+              console.error('Response body:', error.error);
+
+              // Rethrow with more context
+              return throwError(
+                () =>
+                  new Error(
+                    `Failed to update interview: ${
+                      error.message || error.status
+                    }`
+                  )
+              );
+            })
+          );
       }),
-      catchError(error => {
-        console.error(`Error fetching interview details for ID ${interviewId}:`, error);
-        return throwError(() => new Error(`Failed to get interview details: ${error.message || error.status}`));
+      catchError((error) => {
+        console.error(
+          `Error fetching interview details for ID ${interviewId}:`,
+          error
+        );
+        return throwError(
+          () =>
+            new Error(
+              `Failed to get interview details: ${
+                error.message || error.status
+              }`
+            )
+        );
       })
     );
   }
-  
+
   /* Placeholder to avoid errors */
   searchAvailabilities(): Observable<any> {
-    return this.getAvailableTimeSlots().pipe(
-      map(data => ({ items: data }))
-    );
+    return this.getAvailableTimeSlots().pipe(map((data) => ({ items: data })));
   }
 
   /**
    * Get notifications for the current user
-   * 
+   *
    * @param pageNumber Page number to fetch (default 1)
    * @param pageSize Number of notifications per page (default 1000)
    * @returns Observable with notification data
    */
-  getNotifications(pageNumber: number = 1, pageSize: number = 1000): Observable<any> {
+  getNotifications(
+    pageNumber: number = 1,
+    pageSize: number = 1000
+  ): Observable<any> {
     const userId = this.getUserId();
-    
+
     if (!userId) {
       console.error('Cannot fetch notifications: No user ID found');
       return throwError(() => new Error('User ID not available'));
     }
-    
+
     console.log('Fetching notifications for user ID:', userId);
-    
+
     // Correctly format the request according to the API specification
     const request = {
       pageNumber: pageNumber,
       pageSize: pageSize,
-      userId: userId
+      userId: userId,
     };
 
     const headers = this.getAuthHeaders();
-    
+
     console.log('Notification search request:', request);
-    console.log('Notification search endpoint:', endpoint.notificationSearchUrl);
-    
-    return this.http.post(endpoint.notificationSearchUrl, request, { headers })
+    console.log(
+      'Notification search endpoint:',
+      endpoint.notificationSearchUrl
+    );
+
+    return this.http
+      .post(endpoint.notificationSearchUrl, request, { headers })
       .pipe(
-        catchError(error => {
+        catchError((error) => {
           console.error('API Error searching notifications:', error);
           return throwError(() => error);
         })
@@ -634,40 +791,48 @@ export class InterviewerService {
    */
   submitInterviewFeedback(feedback: InterviewFeedback): Observable<any> {
     const headers = this.getAuthHeaders();
-    
+
     // Log the request payload for debugging
-    console.log('Submitting feedback with payload:', JSON.stringify(feedback, null, 2));
-    
-    const url = endpoint.interviewFeedbackUrl;
-    
-    // Use standard Angular HTTP client for submission
-    return this.http.post(url, feedback, { 
-      headers,
-      observe: 'response' // Get the full response to access status codes
-    }).pipe(
-      map(response => {
-        console.log('Feedback submission successful:', response.status);
-        return response.body;
-      }),
-      catchError(error => {
-        console.error('Error submitting feedback:', error);
-        
-        // Add more detailed logging for 400 errors
-        if (error.status === 400) {
-          console.error('Bad Request (400) details:', {
-            error: error.error,
-            url: url,
-            requestBody: JSON.stringify(feedback),
-            headers: Array.from(headers.keys()).reduce((obj: Record<string, string | null>, key) => {
-              obj[key] = headers.get(key);
-              return obj;
-            }, {})
-          });
-        }
-        
-        return throwError(() => error);
-      })
+    console.log(
+      'Submitting feedback with payload:',
+      JSON.stringify(feedback, null, 2)
     );
+
+    const url = endpoint.interviewFeedbackUrl;
+
+    // Use standard Angular HTTP client for submission
+    return this.http
+      .post(url, feedback, {
+        headers,
+        observe: 'response', // Get the full response to access status codes
+      })
+      .pipe(
+        map((response) => {
+          console.log('Feedback submission successful:', response.status);
+          return response.body;
+        }),
+        catchError((error) => {
+          console.error('Error submitting feedback:', error);
+
+          // Add more detailed logging for 400 errors
+          if (error.status === 400) {
+            console.error('Bad Request (400) details:', {
+              error: error.error,
+              url: url,
+              requestBody: JSON.stringify(feedback),
+              headers: Array.from(headers.keys()).reduce(
+                (obj: Record<string, string | null>, key) => {
+                  obj[key] = headers.get(key);
+                  return obj;
+                },
+                {}
+              ),
+            });
+          }
+
+          return throwError(() => error);
+        })
+      );
   }
 
   /**
@@ -680,7 +845,7 @@ export class InterviewerService {
       return of([]);
     }
 
-    const submissionObservables = feedbackItems.map(feedback => 
+    const submissionObservables = feedbackItems.map((feedback) =>
       this.submitInterviewFeedback(feedback)
     );
 

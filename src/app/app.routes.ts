@@ -57,6 +57,7 @@ import { PendingRequestComponent } from './interviewer-dashboard/pending-request
 import { PastInterviewsComponent } from './interviewer-dashboard/past-interviews/past-interviews.component';
 import { FeedbackComponent } from './interviewer-dashboard/feedback/feedback.component';
 import { InterviewReportComponent } from './hr-dashboard/jobs/interview-report/interview-report.component';
+import { CandidateUpcomingInterviewsComponent } from './candidate-dashboard/upcoming-interviews/upcoming-interviews.component';
 
 export const routes: Routes = [
   { path: '', component: LandingComponent },
@@ -79,6 +80,10 @@ export const routes: Routes = [
       { path: 'notifications', component: CandidateNotificationsComponent },
       { path: 'interview-setup', component: InterviewSetupComponent },
       {
+        path: 'upcoming-interview',
+        component: CandidateUpcomingInterviewsComponent,
+      },
+      {
         path: 'interviewer-registration',
         component: InterviewerRegistrationComponent,
       },
@@ -88,7 +93,7 @@ export const routes: Routes = [
 
   { path: 'coding-playground', component: CodeComponent },
   { path: 'meeting', component: ZoomsdkComponent },
-  
+
   {
     path: 'register',
     component: RegistrationComponent,
