@@ -86,6 +86,9 @@ export const routes: Routes = [
     ],
   },
 
+  { path: 'coding-playground', component: CodeComponent },
+  { path: 'meeting', component: ZoomsdkComponent },
+  
   {
     path: 'register',
     component: RegistrationComponent,
@@ -122,18 +125,19 @@ export const routes: Routes = [
         path: 'customized/:domain/:tech/:seniority',
         component: CustomizedInterviewComponent,
       },
-      { path: 'job-post/technology-selection',
-        component: TechnologySelectionComponent 
+      {
+        path: 'job-post/technology-selection',
+        component: TechnologySelectionComponent,
       },
-      { path: 'job-post/seniority-selection',
-        component: SenioritySelectionComponent 
+      {
+        path: 'job-post/seniority-selection',
+        component: SenioritySelectionComponent,
       },
-      { path: 'job-post/customize-interview',
-        component: CustomizedInterviewComponent 
+      {
+        path: 'job-post/customize-interview',
+        component: CustomizedInterviewComponent,
       },
-      { path: 'jobs/interview-report',
-        component: InterviewReportComponent 
-      },
+      { path: 'jobs/interview-report', component: InterviewReportComponent },
 
       { path: '', redirectTo: 'overview', pathMatch: 'full' },
     ],
