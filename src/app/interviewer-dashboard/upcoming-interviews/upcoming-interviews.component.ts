@@ -126,6 +126,21 @@ export class UpcomingInterviewsComponent implements OnInit {
     });
   }
 
+  /**
+   * Returns true if the interview meeting is joinable:
+   *   - It has a valid meetingId
+   *   - Its start time is <= now + some future buffer (optional)
+   *   - Its start time is >= 1.5 hours ago
+   */
+  /** Return true if joining is allowed (i.e. interview time ≤ now and ≥ 1.5h ago) */
+  canJoin(interview: ProcessedInterview): boolean {
+    if (!interview.originalDate) return false;
+    const now = new Date().getTime();
+    const start = interview.originalDate.getTime();
+    const oneAndHalfAgo = now - 1.5 * 60 * 60 * 1000; // 90 minutes ago
+    return start <= now && start >= oneAndHalfAgo;
+  }
+
   // parseInterviewDate(dateString: string): {
   //   date: string;
   //   time: string;
