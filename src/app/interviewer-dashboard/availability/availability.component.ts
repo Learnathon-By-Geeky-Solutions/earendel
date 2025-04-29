@@ -522,10 +522,11 @@ export class AvailabilityComponent implements OnInit {
     const availabilitySlots: AvailabilitySlot[] = this.timeRanges.map(range => {
 
              // Get year, month, day from the selected UTC date
-             const year = this.selectedDate!.getUTCFullYear();
-             const month = this.selectedDate!.getUTCMonth(); // 0-indexed (May is 4)
-             const day = this.selectedDate!.getUTCDate();
-
+             const year = this.selectedDate!.getFullYear();
+             const month = this.selectedDate!.getMonth(); // 0-indexed (May is 4)
+             const day = this.selectedDate!.getDate();
+            
+             console.log(year, month, day)
                // Get hours and minutes from the HH:MM input
                const startHour = parseInt(range.startTime.split(':')[0], 10);
                const startMinute = parseInt(range.startTime.split(':')[1], 10);
