@@ -132,7 +132,7 @@ export interface QuizResult {
         </mat-tab>
       </mat-tab-group>
 
-      <div class="modal-footer">
+      <div class="modal-footer" *ngIf="data.stage !== 'rejected'">
         <button mat-flat-button color="primary" (click)="moveForward()">Move Forward</button>
         <button mat-stroked-button color="warn" (click)="reject()">Reject</button>
       </div>

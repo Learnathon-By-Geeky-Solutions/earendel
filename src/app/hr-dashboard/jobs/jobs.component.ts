@@ -13,6 +13,7 @@ import { catchError, switchMap, map, tap } from 'rxjs/operators';
 import { FormsModule } from '@angular/forms';
 import { QuizService } from '../../candidate-dashboard/services/quiz.service';
 import { finalize } from 'rxjs/operators';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 interface Candidate {
   id: number;
@@ -74,7 +75,8 @@ interface Job {
     MatPaginatorModule, 
     MatProgressSpinnerModule,
     MatSnackBarModule,
-    FormsModule
+    FormsModule,
+    MatTooltipModule
   ],
   template: `
     <div class="d-flex">
@@ -403,7 +405,6 @@ interface Job {
                               )
                             "
                             class="candidate-card p-3 mb-2 bg-white rounded shadow-sm"
-                            (click)="openCandidateProfile(candidate, $event)"
                           >
                             <div class="d-flex flex-column">
                               <!-- Candidate info -->
@@ -414,6 +415,12 @@ interface Job {
                                     {{ candidate.email }}
                                   </p>
                                 </div>
+                                <button 
+                                  class="btn btn-sm btn-link p-0 text-primary"
+                                  (click)="openCandidateProfile(candidate, $event)"
+                                >
+                                  <small>View profile</small>
+                                </button>
                               </div>
                               
                               <!-- Interviewer selection -->
@@ -516,19 +523,22 @@ interface Job {
                                 </button>
                                 <button
                                   class="btn btn-sm btn-outline-success"
-                                  (click)="moveForward(candidate)"
+                                  (click)="moveForward(candidate); $event.stopPropagation()"
                                 >
                                   Move Forward
                                 </button>
                                 <button
                                   class="btn btn-sm btn-outline-warning"
-                                  (click)="moveBack(candidate)"
+                                  [disabled]="true"
+                                  (click)="showInterviewedMoveBackMessage(); $event.stopPropagation()"
+                                  matTooltip="Candidate is currently in Interviews stage. You cannot move back the candidate."
+                                  matTooltipPosition="above"
                                 >
                                   Move Back
                                 </button>
                                 <button
                                   class="btn btn-sm btn-outline-danger"
-                                  (click)="openRejectModal(candidate)"
+                                  (click)="openRejectModal(candidate); $event.stopPropagation()"
                                 >
                                   Reject
                                 </button>
@@ -1492,8 +1502,8 @@ export class JobComponent implements OnInit {
 
   openCandidateProfile(candidate: Candidate, event?: Event) {
     // If this is triggered by a button click within the card, don't open the profile
-    if (event && (event.target as HTMLElement).closest('button')) {
-      return;
+    if (event) {
+      event.stopPropagation(); // Stop event propagation
     }
     
     this.selectedCandidate = candidate;
@@ -1553,7 +1563,8 @@ export class JobComponent implements OnInit {
       quizResult: this.candidateQuizResults, // Include already fetched results if available
       position: candidate.userDetails?.userName ? `${candidate.userDetails.userName} - Candidate` : 'Candidate',
       location: candidate.userDetails?.email || '',
-      avatarUrl: candidate.userDetails?.id ? `https://ui-avatars.com/api/?name=${encodeURIComponent(candidate.name)}&background=random` : null
+      avatarUrl: candidate.userDetails?.id ? `https://ui-avatars.com/api/?name=${encodeURIComponent(candidate.name)}&background=random` : null,
+      stage: candidate.stage // Include the candidate's current stage
     };
 
     // Open the dialog
@@ -1723,5 +1734,14 @@ export class JobComponent implements OnInit {
 
     const url = `hr-dashboard/jobs/interview-report?candidateId=${candidate.candidateId}&jobId=${this.selectedJob.id}`;
     window.open(url, '_blank');
+  }
+
+  // Show a message when trying to move back from interviewed stage
+  showInterviewedMoveBackMessage(): void {
+    this.snackBar.open(
+      'Candidate is currently in the Interview stage. You cannot move back the candidate at this point.',
+      'Got it',
+      { duration: 5000 }
+    );
   }
 }
