@@ -19,7 +19,7 @@
     "@angular/material": "^17.3.10",
     "@angular/platform-browser": "^17.3.0",
     "@angular/platform-browser-dynamic": "^17.3.0",
-    "@angular/router": "^17.3.0",
+    "@angular/router": "^17.3.12",
     "@microsoft/signalr": "^8.0.7",
     "@zoom/meetingsdk": "^3.13.0",
     "chart.js": "^4.4.7",

@@ -52,6 +52,7 @@ import { SenioritiesComponent } from './admin-dashboard/seniorities/seniorities.
 import { QuizzesComponent } from './admin-dashboard/quizzes/quizzes.component';
 import { ZoomsdkComponent } from './zoomsdk/zoomsdk.component';
 import { CodeComponent } from './code/code.component';
+import { InterviewerNotificationComponent } from './interviewer-dashboard/notifications/notifications.component';
 import { PendingRequestComponent } from './interviewer-dashboard/pending-request/pending-request.component';
 import { PastInterviewsComponent } from './interviewer-dashboard/past-interviews/past-interviews.component';
 import { NotificationComponent as InterviewerNotificationComponent } from './interviewer-dashboard/notification/notification.component';
@@ -151,7 +152,7 @@ export const routes: Routes = [
       { path: 'past-interviews', component: PastInterviewsComponent },
       { path: 'earnings', component: EarningsComponent },
       { path: 'profile', component: ProfileComponent },
-      { path: 'notification', component: InterviewerNotificationComponent },
+      { path: 'notifications', component: InterviewerNotificationComponent },
       { path: 'interview-feedback', component: FeedbackComponent },
     ],
   },

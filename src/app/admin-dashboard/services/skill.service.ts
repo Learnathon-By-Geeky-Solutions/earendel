@@ -13,6 +13,8 @@ export class SkillService {
   skillUpdatedUrl = `${endpoint.skillUpdatedUrl}`;
   skillDeletedUrl = `${endpoint.skillDeletedUrl}`;
 
+  userNotificationGetUrl = `${endpoint.userNotificationGetUrl}`;
+
   subskillCreatedUrl = `${endpoint.subskillCreatedUrl}`;
   subskillUpdatedUrl = `${endpoint.subskillUpdatedUrl}`;
   subskillDeletedUrl = `${endpoint.subskillDeletedUrl}`;
@@ -104,5 +106,9 @@ export class SkillService {
 
   quizQuestionDeleteData(id: string): Observable<any> {
     return this.http.delete(`${this.quizQuestionDeletedUrl}/${id}`);
+  }
+
+  userNotificationDetailsData(notificationData: any): Observable<any> {
+    return this.http.post(this.userNotificationGetUrl.trim(), notificationData);
   }
 }

@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, Subject } from 'rxjs';
 import * as signalR from '@microsoft/signalr';
 
 @Injectable({
@@ -12,6 +12,8 @@ export class NotificationhubService {
     'https://talentmesh.genericsolution.net/notifications?access_token=';
 
   public userNotifications$ = new BehaviorSubject<string | null>(null);
+
+  public systemAlerts$ = new Subject<any>();
 
   constructor() {}
 
@@ -43,6 +45,11 @@ export class NotificationhubService {
     this.hubConnection.on('ReceiveMessage', (message: any) => {
       console.log('User Notification:', message);
       this.userNotifications$.next(message);
+    });
+
+    this.hubConnection.on('SystemAlert', (alert: any) => {
+      console.log('System Alert:', alert);
+      this.systemAlerts$.next(alert);
     });
   }
 
