@@ -186,7 +186,8 @@ public sealed class TokenService : ITokenService
         // Invalidate refresh token
         user.RefreshToken = null;
         user.RefreshTokenExpiryTime = DateTime.UtcNow;
-
+        
+        
         // Update user
         var result = await _userManager.UpdateAsync(user);
 

@@ -22,6 +22,8 @@ COPY Api/Module/Jobs/ Api/Module/Jobs/
 COPY Api/Module/Notifications/ Api/Module/Notifications/
 COPY Api/Module/Quizzes/ Api/Module/Quizzes/
 COPY Api/Module/Evaluator/ Api/Module/Evaluator/
+COPY Api/Module/CandidateLogic.Test Api/Module/CandidateLogic.Test
+COPY Api/Module/HRView.Test Api/Module/HRView.Test
 COPY Shared/ Shared/
 COPY Test/ Test/
 
