@@ -226,8 +226,6 @@ namespace TalentMesh.Framework.Infrastructure.Identity.Users.Services
 
             var url = QueryHelpers.AddQueryString(_sslCommerzValidationUrl, queryParams);
 
-            _logger.LogInformation("Validating SSLCommerz payment with val_id: {ValId}", valId);
-
             var response = await _httpClient.GetAsync(url).ConfigureAwait(false);
             string responseContent = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
 

@@ -37,11 +37,7 @@ namespace TalentMesh.Module.Experties.Application.Skills.EventHandlers
 
             // Combined user context logging
             ClaimsPrincipal? user = _httpContextAccessor.HttpContext?.User;
-            _logger.LogInformation("Handling SkillCreated event for Skill ID: {SkillId} (User: {UserId}, Email: {Email})",
-                skillId,
-                user?.GetUserId(),
-                user?.GetEmail());
-
+            
             var skillMessage = new
             {
                 SkillId = skillId,
