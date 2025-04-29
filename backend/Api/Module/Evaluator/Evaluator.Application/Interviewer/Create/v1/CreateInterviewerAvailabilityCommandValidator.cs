@@ -25,8 +25,8 @@ namespace TalentMesh.Module.Evaluator.Application.Interviewer.Create.v1
             {
                 slot.RuleFor(x => x.StartTime)
                     .NotEmpty().WithMessage("StartTime must be provided.")
-                    .Must(BeAtLeastCurrentBangladeshTime)
-                    .WithMessage("StartTime cannot be in the past (BST - Bangladesh Time).");
+                    .Must(BeWithinLastSixHoursBangladeshTime)
+                    .WithMessage("StartTime cannot be more than 6 hours in the past (BST).");
 
                 slot.RuleFor(x => x.EndTime)
                     .NotEmpty().WithMessage("EndTime must be provided.")
@@ -41,13 +41,23 @@ namespace TalentMesh.Module.Evaluator.Application.Interviewer.Create.v1
             return !slots.Any(slot1 => slots.Any(slot2 =>
                 slot1 != slot2 &&
                 slot1.StartTime < slot2.EndTime &&
-                slot2.StartTime < slot1.EndTime));
+                slot2.StartTime < slot1.EndTime
+            ));
         }
 
-        private static bool BeAtLeastCurrentBangladeshTime(DateTime startTime)
+        /// <summary>
+        /// Validates that StartTime is no earlier than 6 hours before now in Bangladesh Standard Time.
+        /// </summary>
+        private static bool BeWithinLastSixHoursBangladeshTime(DateTime startTime)
         {
-            var bangladeshTime = DateTime.UtcNow.AddHours(6); // Convert UTC to BST
-            return startTime >= bangladeshTime;
+            // Compute current BST (UTC+6)
+            var nowUtc = DateTime.UtcNow;
+            var nowBst = nowUtc.AddHours(6);
+
+            // Earliest allowable time is 6 hours before BST now
+            var earliestAllowed = nowBst.AddHours(-6);
+
+            return startTime >= earliestAllowed;
         }
     }
 }
