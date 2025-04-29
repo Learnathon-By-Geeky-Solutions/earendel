@@ -148,8 +148,7 @@ import { SkillService } from '../../admin-dashboard/services/skill.service';
   styles: [
     `
       .main-content {
-        margin-left: 240px;
-        width: calc(100% - 240px);
+        width: calc(100% - 200px); /* match the new sidebar offset */
         min-height: 100vh;
       }
 
@@ -189,7 +188,7 @@ import { SkillService } from '../../admin-dashboard/services/skill.service';
     `,
   ],
 })
-export class NotificationComponent implements OnInit, OnDestroy {
+export class InterviewerNotificationComponent implements OnInit, OnDestroy {
   notifications: any[] = [];
   isLoading = false;
   error: string | null = null;

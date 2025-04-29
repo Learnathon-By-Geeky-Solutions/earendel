@@ -51,6 +51,7 @@ import { SenioritiesComponent } from './admin-dashboard/seniorities/seniorities.
 import { QuizzesComponent } from './admin-dashboard/quizzes/quizzes.component';
 import { ZoomsdkComponent } from './zoomsdk/zoomsdk.component';
 import { CodeComponent } from './code/code.component';
+import { InterviewerNotificationComponent } from './interviewer-dashboard/notifications/notifications.component';
 
 export const routes: Routes = [
   { path: '', component: LandingComponent },
@@ -134,6 +135,7 @@ export const routes: Routes = [
       { path: 'upcoming', component: UpcomingInterviewsComponent },
       { path: 'earnings', component: EarningsComponent },
       { path: 'profile', component: ProfileComponent },
+      { path: 'notifications', component: InterviewerNotificationComponent },
     ],
   },
 
