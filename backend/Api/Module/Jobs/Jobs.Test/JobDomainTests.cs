@@ -55,7 +55,20 @@ namespace TalentMesh.Module.Job.Tests
             var job = Jobs.Create(jobInfo);
 
             // Act
-            job.Update(name: null, description: null, requirments: null, location: null, jobType: null, experienceLevel: null, salary: null, paymentStatus: null);
+            var jobUpdateDetails = new JobUpdateDetails
+            {
+                Name = null,
+                Description = null,
+                Requirments = null,
+                Location = null,
+                JobType = null,
+                ExperienceLevel = null,
+                Salary = null,
+                PaymentStatus = "Pending"
+            };
+
+            // Update the job using the new structure
+            job.Update(jobUpdateDetails);
 
             // Assert
             Assert.Equal(jobInfo.Name, job.Name);
@@ -95,9 +108,20 @@ namespace TalentMesh.Module.Job.Tests
             var newSalary = "120,000 - 150,000";
             var newPaymentStatus = "Paid";
 
-            // Act
-            job.Update(name: newName, description: newDescription, requirments: newRequirements, location: newLocation, jobType: newJobType, experienceLevel: newExperienceLevel, salary: newSalary, paymentStatus: newPaymentStatus);
+            var jobUpdateDetails = new JobUpdateDetails
+            {
+                Name = newName,
+                Description = newDescription,
+                Requirments = newRequirements,
+                Location = newLocation,
+                JobType = newJobType,
+                ExperienceLevel = newExperienceLevel,
+                Salary = newSalary,
+                PaymentStatus = newPaymentStatus
+            };
 
+            // Act
+            job.Update(jobUpdateDetails);
             // Assert
             Assert.Equal(newName, job.Name);
             Assert.Equal(newDescription, job.Description);

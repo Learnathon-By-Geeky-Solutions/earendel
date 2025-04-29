@@ -13,17 +13,6 @@ public class SearchRubricSpecs : EntitiesByPaginationFilterSpec<Rubric, RubricRe
     public SearchRubricSpecs(SearchRubricsCommand command)
         : base(command)
     {
-        // Combined filters into a single expression to eliminate branching
-        // Query.Where(r =>
-        //     r.DeletedBy == null
-        //     && (string.IsNullOrEmpty(command.Keyword) || r.Title.Contains(command.Keyword))
-        //     && (!command.SubSkillId.HasValue || r.SubSkillId == command.SubSkillId)
-        //     && (!command.SeniorityId.HasValue || r.SeniorityId == command.SeniorityId)
-        // );
-
-        // // Default ordering without conditional statements
-        // Query.OrderBy(r => r.Title, !command.HasOrderBy());
-
 
         // Filter out deleted records
         Query.Where(r => r.DeletedBy == null);

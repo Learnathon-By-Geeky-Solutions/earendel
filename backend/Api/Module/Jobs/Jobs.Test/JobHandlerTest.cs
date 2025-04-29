@@ -224,8 +224,21 @@ namespace TalentMesh.Module.Job.Tests
                 Salary = "100,000 - 120,000",
                 PostedById = Guid.NewGuid()
             });
-            job1.Update(name: null, description: null, requirments: null, location: null,
-                        jobType: null, experienceLevel: null, salary: null, paymentStatus: "Pending");
+
+            var jobUpdateDetails = new JobUpdateDetails
+            {
+                Name = null,
+                Description = null,
+                Requirments = null,
+                Location = null,
+                JobType = null,
+                ExperienceLevel = null,
+                Salary = null,
+                PaymentStatus = "Pending"
+            };
+
+            // Update the job using the new structure
+            job1.Update(jobUpdateDetails);
 
             var job2 = Jobs.Create(new JobInfo
             {
@@ -238,8 +251,20 @@ namespace TalentMesh.Module.Job.Tests
                 Salary = "90,000 - 110,000",
                 PostedById = Guid.NewGuid()
             });
-            job2.Update(name: null, description: null, requirments: null, location: null,
-                        jobType: null, experienceLevel: null, salary: null, paymentStatus: "Paid");
+            var jobUpdateDetails1 = new JobUpdateDetails
+            {
+                Name = null,
+                Description = null,
+                Requirments = null,
+                Location = null,
+                JobType = null,
+                ExperienceLevel = null,
+                Salary = null,
+                PaymentStatus = "Pending"
+            };
+
+            // Update the job using the new structure
+            job2.Update(jobUpdateDetails1);
 
             var jobs = new List<Jobs> { job1, job2 };
 

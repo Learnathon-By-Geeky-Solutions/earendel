@@ -4,6 +4,7 @@ using TalentMesh.Module.Job.Domain.Exceptions;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Hangfire.Common;
 
 namespace TalentMesh.Module.Job.Application.Jobs.Update.v1;
 
@@ -23,15 +24,19 @@ public sealed class UpdateJobHandler(
             throw new JobNotFoundException(request.Id);
         }
 
-        var updatedBrand = brand.Update(
-            request.Name,
-            request.Description,
-            request.Requirments,
-            request.Location,
-            request.JobType,
-            request.ExperienceLevel,
-            request.Salary
-            );
+        var jobUpdateDetails = new JobUpdateDetails
+        {
+            Name = request.Name,
+            Description = request.Description,
+            Requirments = request.Requirments,
+            Location = request.Location,
+            JobType = request.JobType,
+            ExperienceLevel = request.ExperienceLevel,
+            Salary = request.Salary
+        };
+
+
+        var updatedBrand = brand.Update(jobUpdateDetails);
 
         await repository.UpdateAsync(updatedBrand, cancellationToken);
 

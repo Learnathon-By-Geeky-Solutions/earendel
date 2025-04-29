@@ -64,16 +64,20 @@ namespace TalentMesh.Module.Job.Tests
             var beforeCount = ((AuditableEntity)job).DomainEvents.Count;
 
             // Act: update everything
-            job.Update(
-                name: "Frontend Developer",
-                description: "Build UIs",
-                requirments: "Vue.js, HTML",
-                location: "Chittagong",
-                jobType: "Contract",
-                experienceLevel: "Senior",
-                salary: "80000",
-                paymentStatus: "Paid"
-            );
+            var jobUpdateDetails = new JobUpdateDetails
+            {
+                Name = "Frontend Developer",
+                Description = "Build UIs",
+                Requirments = "Vue.js, HTML",
+                Location = "Chittagong",
+                JobType = "Contract",
+                ExperienceLevel = "Senior",
+                Salary = "80000",
+                PaymentStatus = "Paid"
+            };
+
+            // Update the job using the new structure
+            job.Update(jobUpdateDetails);
 
             // Assert: properties changed
             Assert.Equal("Frontend Developer", job.Name);
@@ -152,16 +156,20 @@ namespace TalentMesh.Module.Job.Tests
             var origPayStat = job.PaymentStatus;
 
             // Act: update using same values (different casing)
-            job.Update(
-                name: "DEVOPS",                 // same ignoring case
-                description: "ci/cd",
-                requirments: "jenkins",
-                location: "onsite",
-                jobType: "FULL-TIME",
-                experienceLevel: "SENIOR",
-                salary: "100000",
-                paymentStatus: "PENDING"
-            );
+            var jobUpdateDetails = new JobUpdateDetails
+            {
+                Name = "DEVOPS",                  // same ignoring case
+                Description = "ci/cd",
+                Requirments = "jenkins",
+                Location = "onsite",
+                JobType = "FULL-TIME",
+                ExperienceLevel = "SENIOR",
+                Salary = "100000",
+                PaymentStatus = "PENDING"
+            };
+
+            // Update the job using the new structure
+            job.Update(jobUpdateDetails);
 
             // Assert: properties unchanged
             Assert.Equal(origName, job.Name);
@@ -198,16 +206,20 @@ namespace TalentMesh.Module.Job.Tests
             var beforeEvents = ((AuditableEntity)job).DomainEvents.Count;
 
             // Act: only update Location and Salary
-            job.Update(
-                name: null,
-                description: null,
-                requirments: null,
-                location: "Headquarters",
-                jobType: null,
-                experienceLevel: null,
-                salary: "75000",
-                paymentStatus: null
-            );
+            var jobUpdateDetails = new JobUpdateDetails
+            {
+                Name = null,                // No update for Name
+                Description = null,         // No update for Description
+                Requirments = null,         // No update for Requirments
+                Location = "Headquarters",  // Location is updated
+                JobType = null,             // No update for JobType
+                ExperienceLevel = null,     // No update for ExperienceLevel
+                Salary = "75000",           // Salary is updated
+                PaymentStatus = null        // No update for PaymentStatus
+            };
+
+            // Update the job using the new structure
+            job.Update(jobUpdateDetails);
 
             // Assert: only those two changed
             Assert.Equal("Headquarters", job.Location);

@@ -24,16 +24,19 @@ public sealed class CreateInterviewHandler(
         logger.LogInformation("Created Zoom meeting with ID: {MeetingId}", meetingId);
 
         // Pass MeetingId to the Create method
-        var interview = Interview.Create(
-            request.ApplicationId,
-            request.InterviewerId,
-            request.CandidateId,
-            request.JobId,
-            request.InterviewDate,
-            request.Status,
-            request.Notes,
-            meetingId 
-        );
+        var details = new InterviewDetails
+        {
+            ApplicationId = request.ApplicationId,
+            InterviewerId = request.InterviewerId,
+            CandidateId = request.CandidateId,
+            JobId = request.JobId,
+            InterviewDate = request.InterviewDate,
+            Status = request.Status,
+            Notes = request.Notes,
+            MeetingId = meetingId
+        };
+
+        var interview = Interview.Create(details);
 
         await repository.AddAsync(interview, cancellationToken);
 

@@ -67,13 +67,28 @@ namespace TalentMesh.Module.Interviews.Tests
             // Arrange
             var applicationId = Guid.NewGuid();
             var interviewerId = Guid.NewGuid();
-            var intervieweDate = DateTime.UtcNow;
+            var candidateId = Guid.NewGuid();
+            var jobId = Guid.NewGuid();
+            var interviewDate = DateTime.UtcNow;
             var status = "Pending";
             var notes = "Interview Note";
             var meetingId = "123456";
 
-            var request = new CreateInterviewCommand(applicationId, interviewerId, Guid.NewGuid(), Guid.NewGuid(), intervieweDate, status, notes, meetingId);
-            var expectedInterview = Interview.Create(request.ApplicationId!, request.InterviewerId!, request.CandidateId!, request.JobId!, request.InterviewDate, request.Status, request.Notes, request.MeetingId);
+            var request = new CreateInterviewCommand(applicationId, interviewerId, candidateId, jobId, interviewDate, status, notes, meetingId);
+
+            var interviewDetails = new InterviewDetails
+            {
+                ApplicationId = applicationId,
+                InterviewerId = interviewerId,
+                CandidateId = candidateId,
+                JobId = jobId,
+                InterviewDate = interviewDate,
+                Status = status,
+                Notes = notes,
+                MeetingId = meetingId
+            };
+
+            var expectedInterview = Interview.Create(interviewDetails);
 
             _repositoryMock.Setup(repo => repo.AddAsync(It.IsAny<Interview>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(expectedInterview);
@@ -86,24 +101,35 @@ namespace TalentMesh.Module.Interviews.Tests
             _repositoryMock.Verify(repo => repo.AddAsync(It.IsAny<Interview>(), It.IsAny<CancellationToken>()), Times.Once);
         }
 
-
         [Fact]
         public async Task DeleteInterview_DeletesSuccessfully()
         {
             // Arrange
-            var existingInterview = Interview.Create(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), DateTime.UtcNow, "Pending", "Interview Notes", "123456");
-            var InterviewId = existingInterview.Id;
+            var existingInterview = Interview.Create(new InterviewDetails
+            {
+                ApplicationId = Guid.NewGuid(),
+                InterviewerId = Guid.NewGuid(),
+                CandidateId = Guid.NewGuid(),
+                JobId = Guid.NewGuid(),
+                InterviewDate = DateTime.UtcNow,
+                Status = "Pending",
+                Notes = "Interview Notes",
+                MeetingId = "123456"
+            });
 
-            _repositoryMock.Setup(repo => repo.GetByIdAsync(InterviewId, It.IsAny<CancellationToken>()))
+            var interviewId = existingInterview.Id;
+
+            _repositoryMock.Setup(repo => repo.GetByIdAsync(interviewId, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(existingInterview);
 
             // Act
-            await _deleteHandler.Handle(new DeleteInterviewCommand(InterviewId), CancellationToken.None);
+            await _deleteHandler.Handle(new DeleteInterviewCommand(interviewId), CancellationToken.None);
 
             // Assert
             _repositoryMock.Verify(repo => repo.DeleteAsync(existingInterview, It.IsAny<CancellationToken>()), Times.Once);
-            _repositoryMock.Verify(repo => repo.GetByIdAsync(InterviewId, It.IsAny<CancellationToken>()), Times.Once);
+            _repositoryMock.Verify(repo => repo.GetByIdAsync(interviewId, It.IsAny<CancellationToken>()), Times.Once);
         }
+
 
         [Fact]
         public async Task DeleteInterview_ThrowsExceptionIfNotFound()
@@ -125,17 +151,28 @@ namespace TalentMesh.Module.Interviews.Tests
         public async Task GetInterview_ReturnsInterviewResponse()
         {
             // Arrange
-            var expectedInterview = Interview.Create(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), DateTime.UtcNow, "Pending", "Interview Notes", "123456");
-            var InterviewId = expectedInterview.Id;
+            var expectedInterview = Interview.Create(new InterviewDetails
+            {
+                ApplicationId = Guid.NewGuid(),
+                InterviewerId = Guid.NewGuid(),
+                CandidateId = Guid.NewGuid(),
+                JobId = Guid.NewGuid(),
+                InterviewDate = DateTime.UtcNow,
+                Status = "Pending",
+                Notes = "Interview Notes",
+                MeetingId = "123456"
+            });
 
-            _readRepositoryMock.Setup(repo => repo.GetByIdAsync(InterviewId, It.IsAny<CancellationToken>()))
+            var interviewId = expectedInterview.Id;
+
+            _readRepositoryMock.Setup(repo => repo.GetByIdAsync(interviewId, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(expectedInterview);
 
             _cacheServiceMock.Setup(cache => cache.GetAsync<InterviewResponse>(It.IsAny<string>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync((InterviewResponse?)null);
 
             // Act
-            var result = await _getHandler.Handle(new GetInterviewRequest(InterviewId), CancellationToken.None);
+            var result = await _getHandler.Handle(new GetInterviewRequest(interviewId), CancellationToken.None);
 
             // Assert
             Assert.NotNull(result);
@@ -144,7 +181,7 @@ namespace TalentMesh.Module.Interviews.Tests
             Assert.Equal(expectedInterview.InterviewerId, result.InterviewerId);
             Assert.Equal(expectedInterview.InterviewDate, result.InterviewDate);
 
-            _readRepositoryMock.Verify(repo => repo.GetByIdAsync(InterviewId, It.IsAny<CancellationToken>()), Times.Once);
+            _readRepositoryMock.Verify(repo => repo.GetByIdAsync(interviewId, It.IsAny<CancellationToken>()), Times.Once);
             _cacheServiceMock.Verify(cache => cache.SetAsync(It.IsAny<string>(), It.IsAny<InterviewResponse>(), It.IsAny<TimeSpan?>(), It.IsAny<CancellationToken>()), Times.Once);
         }
 
@@ -220,25 +257,38 @@ namespace TalentMesh.Module.Interviews.Tests
                 Times.Once
             );
         }
+
         [Fact]
         public async Task UpdateInterview_ReturnsUpdatedInterviewResponse()
         {
             // Arrange
-            var existingInterview = Interview.Create(Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid(), DateTime.UtcNow, "Pending", "Notes", "12345");
-            var InterviewId = existingInterview.Id;
+            var existingInterview = Interview.Create(new InterviewDetails
+            {
+                ApplicationId = Guid.NewGuid(),
+                InterviewerId = Guid.NewGuid(),
+                CandidateId = Guid.NewGuid(),
+                JobId = Guid.NewGuid(),
+                InterviewDate = DateTime.UtcNow,
+                Status = "Pending",
+                Notes = "Notes",
+                MeetingId = "12345"
+            });
+
+            var interviewId = existingInterview.Id;
+
             var request = new UpdateInterviewCommand(
-                InterviewId,
+                interviewId,
                 Guid.NewGuid(),
                 Guid.NewGuid(),
                 Guid.NewGuid(),
                 Guid.NewGuid(),
                 DateTime.UtcNow,
                 "Pending",
-                "Notes",
+                "Updated Notes",
                 "1234"
             );
 
-            _repositoryMock.Setup(repo => repo.GetByIdAsync(InterviewId, It.IsAny<CancellationToken>()))
+            _repositoryMock.Setup(repo => repo.GetByIdAsync(interviewId, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(existingInterview);
 
             // Act
@@ -246,11 +296,12 @@ namespace TalentMesh.Module.Interviews.Tests
 
             // Assert
             Assert.NotNull(result);
-            Assert.Equal(InterviewId, result.Id);
+            Assert.Equal(interviewId, result.Id);
 
-            _repositoryMock.Verify(repo => repo.GetByIdAsync(InterviewId, It.IsAny<CancellationToken>()), Times.Once);
+            _repositoryMock.Verify(repo => repo.GetByIdAsync(interviewId, It.IsAny<CancellationToken>()), Times.Once);
             _repositoryMock.Verify(repo => repo.UpdateAsync(It.IsAny<Interview>(), It.IsAny<CancellationToken>()), Times.Once);
         }
+
 
         [Fact]
         public async Task UpdateInterview_ThrowsExceptionIfNotFound()

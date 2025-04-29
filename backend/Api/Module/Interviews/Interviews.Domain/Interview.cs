@@ -15,18 +15,18 @@ public class Interview : AuditableEntity, IAggregateRoot
     public string MeetingId { get; private set; } = null!; // New field added
 
     // Updated static Create method to include MeetingId
-    public static Interview Create(Guid applicationId, Guid interviewerId, Guid candidateId, Guid jobId, DateTime interviewDate, string status, string? notes, string meetingId)
+    public static Interview Create(InterviewDetails details)
     {
         var interview = new Interview
         {
-            ApplicationId = applicationId,
-            InterviewerId = interviewerId,
-            CandidateId = candidateId,
-            JobId = jobId,
-            InterviewDate = interviewDate,
-            Status = status,
-            Notes = notes ?? string.Empty,
-            MeetingId = meetingId // Set MeetingId
+            ApplicationId = details.ApplicationId,
+            InterviewerId = details.InterviewerId,
+            CandidateId = details.CandidateId,
+            JobId = details.JobId,
+            InterviewDate = details.InterviewDate,
+            Status = details.Status,
+            Notes = details.Notes ?? string.Empty,
+            MeetingId = details.MeetingId
         };
 
         interview.QueueDomainEvent(new InterviewCreated() { Interview = interview });
@@ -35,32 +35,24 @@ public class Interview : AuditableEntity, IAggregateRoot
     }
 
     // Updated Update method to include MeetingId
-    public Interview Update(Guid applicationId, Guid interviewerId, Guid candidateId, Guid jobId, DateTime interviewDate, string status, string? notes, string? meetingId)
+    public Interview Update(InterviewDetails details)
     {
-        if (ApplicationId != applicationId)
-            ApplicationId = applicationId;
-
-        if (InterviewerId != interviewerId)
-            InterviewerId = interviewerId;
-
-        if (CandidateId != candidateId)
-            CandidateId = candidateId;
-
-        if (JobId != jobId)
-            JobId = jobId;
-
-        if (InterviewDate != interviewDate)
-            InterviewDate = interviewDate;
-
-        if (!string.IsNullOrWhiteSpace(status) && !Status.Equals(status, StringComparison.OrdinalIgnoreCase))
-            Status = status;
-
-        if (!string.IsNullOrWhiteSpace(notes) && !Notes.Equals(notes, StringComparison.OrdinalIgnoreCase))
-            Notes = notes;
-
-        // Update MeetingId if provided and not the same
-        if (!string.IsNullOrWhiteSpace(meetingId) && !MeetingId.Equals(meetingId, StringComparison.OrdinalIgnoreCase))
-            MeetingId = meetingId;
+        if (ApplicationId != details.ApplicationId)
+            ApplicationId = details.ApplicationId;
+        if (InterviewerId != details.InterviewerId)
+            InterviewerId = details.InterviewerId;
+        if (CandidateId != details.CandidateId)
+            CandidateId = details.CandidateId;
+        if (JobId != details.JobId)
+            JobId = details.JobId;
+        if (InterviewDate != details.InterviewDate)
+            InterviewDate = details.InterviewDate;
+        if (!string.IsNullOrWhiteSpace(details.Status) && !Status.Equals(details.Status, StringComparison.OrdinalIgnoreCase))
+            Status = details.Status;
+        if (!string.IsNullOrWhiteSpace(details.Notes) && !Notes.Equals(details.Notes, StringComparison.OrdinalIgnoreCase))
+            Notes = details.Notes;
+        if (!string.IsNullOrWhiteSpace(details.MeetingId) && !MeetingId.Equals(details.MeetingId, StringComparison.OrdinalIgnoreCase))
+            MeetingId = details.MeetingId;
 
         this.QueueDomainEvent(new InterviewUpdated() { Interview = this });
 
@@ -68,23 +60,22 @@ public class Interview : AuditableEntity, IAggregateRoot
     }
 
     // Updated static Update method to include MeetingId
-    public static Interview Update(Guid id, Guid applicationId, Guid interviewerId, Guid candidateId, Guid jobId, DateTime interviewDate, string status, string? notes, string? meetingId)
+    public static Interview Reconstruct(Guid id, InterviewDetails details)
     {
         var interview = new Interview
         {
             Id = id,
-            ApplicationId = applicationId,
-            InterviewerId = interviewerId,
-            CandidateId = candidateId,
-            JobId = jobId,
-            InterviewDate = interviewDate,
-            Status = status,
-            Notes = notes ?? string.Empty,
-            MeetingId = meetingId ?? string.Empty // Set MeetingId
+            ApplicationId = details.ApplicationId,
+            InterviewerId = details.InterviewerId,
+            CandidateId = details.CandidateId,
+            JobId = details.JobId,
+            InterviewDate = details.InterviewDate,
+            Status = details.Status,
+            Notes = details.Notes ?? string.Empty,
+            MeetingId = details.MeetingId ?? string.Empty
         };
-
         interview.QueueDomainEvent(new InterviewUpdated() { Interview = interview });
-
         return interview;
     }
+
 }

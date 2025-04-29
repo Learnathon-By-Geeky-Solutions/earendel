@@ -27,7 +27,6 @@ namespace TalentMesh.Framework.Infrastructure.SignalR
 
         public override async Task OnConnectedAsync()
         {
-            var user = Context.User;
             var userId = Context.UserIdentifier;
             var appUser = await _userManager.FindByIdAsync(userId!);
 
