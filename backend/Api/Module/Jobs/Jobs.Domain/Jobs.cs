@@ -65,7 +65,7 @@ public class Jobs : AuditableEntity, IAggregateRoot
         return this;
     }
 
-    private void UpdateProperty(string? newValue, Action<string> setter, string? currentValue)
+    private static void UpdateProperty(string? newValue, Action<string> setter, string? currentValue)
     {
         if (newValue != null && (currentValue == null || !currentValue.Equals(newValue, StringComparison.OrdinalIgnoreCase)))
         {
