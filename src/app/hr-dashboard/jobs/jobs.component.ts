@@ -1497,8 +1497,48 @@ export class JobComponent implements OnInit {
     }
     
     this.selectedCandidate = candidate;
-    this.loadingQuizResults = true;
-    this.candidateQuizResults = null;
+    
+    // Start fetching quiz results before opening the dialog if candidateId exists
+    if (candidate.candidateId) {
+      this.loadingQuizResults = true;
+      this.candidateQuizResults = null;
+      this.quizService.getQuizAttempts(candidate.candidateId, 1, 10)
+        .pipe(
+          finalize(() => {
+            this.loadingQuizResults = false;
+          })
+        )
+        .subscribe({
+          next: (results) => {
+            if (results && results.length > 0) {
+              // Get the latest quiz attempt
+              const latestAttempt = results[results.length - 1];
+              
+              // Format quiz result data
+              const quizResult = {
+                score: latestAttempt.score,
+                totalQuestions: latestAttempt.totalQuestions,
+                answers: latestAttempt.answers || [],
+                createdOn: latestAttempt.createdOn
+              };
+              
+              this.candidateQuizResults = quizResult;
+              
+              // Update dialog data if it's already open
+              if (this.dialog.openDialogs.length > 0) {
+                const dialogRef = this.dialog.openDialogs[0];
+                if (dialogRef.componentInstance) {
+                  dialogRef.componentInstance.data.quizResult = quizResult;
+                }
+              }
+            }
+            console.log('Quiz results loaded:', results);
+          },
+          error: (error) => {
+            console.error('Error fetching quiz results:', error);
+          }
+        });
+    }
 
     // Prepare candidate data in the format expected by the modal
     const candidateData = {
@@ -1510,21 +1550,18 @@ export class JobComponent implements OnInit {
       experience: candidate.experience || [],
       assessments: candidate.assessments || [],
       coverLetter: candidate.coverLetter || '',
-      quizResult: null
+      quizResult: this.candidateQuizResults, // Include already fetched results if available
+      position: candidate.userDetails?.userName ? `${candidate.userDetails.userName} - Candidate` : 'Candidate',
+      location: candidate.userDetails?.email || '',
+      avatarUrl: candidate.userDetails?.id ? `https://ui-avatars.com/api/?name=${encodeURIComponent(candidate.name)}&background=random` : null
     };
 
-    // Open the dialog immediately
+    // Open the dialog
     const dialogRef = this.dialog.open(CandidateProfileModalComponent, {
-      width: '800px',
-      data: candidateData
+      width: '700px',
+      data: candidateData,
+      panelClass: 'custom-dialog-container'
     });
-
-    // Fetch candidate's quiz results if they have a candidateId
-    if (candidate.candidateId) {
-      this.fetchCandidateQuizResults(candidate.candidateId, dialogRef);
-    } else {
-      this.loadingQuizResults = false;
-    }
 
     dialogRef.afterClosed().subscribe((result) => {
       if (result?.action === 'move') {
@@ -1546,7 +1583,7 @@ export class JobComponent implements OnInit {
         next: (results) => {
           if (results && results.length > 0) {
             // Get the latest quiz attempt
-            const latestAttempt = results[0];
+            const latestAttempt = results[results.length - 1];
             
             // Format quiz result data
             const quizResult = {

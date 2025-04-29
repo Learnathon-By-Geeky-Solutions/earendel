@@ -1,4 +1,4 @@
-import { Component, Inject } from '@angular/core';
+import { Component, Inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {
@@ -13,28 +13,13 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatDividerModule } from '@angular/material/divider';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatBadgeModule } from '@angular/material/badge';
 
-
-
-interface Assessment {
-  type: string;
-  score: number;
-  maxScore: number;
-  status: 'passed' | 'failed';
-}
-
-interface QuizAnswer {
-  id: string;
-  questionId: string;
-  selectedOption: number;
-  isCorrect: boolean;
-  createdOn: string;
-}
-
-interface QuizResult {
+export interface QuizResult {
   score: number;
   totalQuestions: number;
-  answers?: QuizAnswer[];
+  answers?: any[];
   createdOn?: string;
 }
 
@@ -51,541 +36,371 @@ interface QuizResult {
     MatIconModule,
     MatChipsModule,
     MatProgressBarModule,
-    MatDividerModule
+    MatDividerModule,
+    MatProgressSpinnerModule,
+    MatBadgeModule
   ],
   template: `
-    <div class="candidate-profile-modal">
+    <div class="modal-container">
       <div class="modal-header">
-        <div class="candidate-info">
-          <div class="avatar">
-            {{ getInitials(data.name) }}
+        <div class="candidate-avatar">
+          <div *ngIf="data.avatarUrl; else initials">
+            <img [src]="data.avatarUrl" alt="{{ data.name }}" />
           </div>
-          <div class="info">
-            <h2>{{ data.name }}</h2>
-            <p>{{ data.email }}</p>
-          </div>
+          <ng-template #initials>
+            <div class="avatar-initials">{{ getInitials(data.name) }}</div>
+          </ng-template>
         </div>
-        <div class="action-buttons">
-          <button mat-raised-button color="primary" (click)="moveForward()">
-            Move Forward
-          </button>
-          <button mat-stroked-button color="warn" (click)="reject()">
-            Reject
-          </button>
-        </div>
-      </div>
-
-      <div class="modal-body">
-        <div class="skills-section" *ngIf="data.skills && data.skills.length > 0">
-          <h3>Skills</h3>
-          <div class="skills-list">
+        <div class="candidate-details">
+          <h2>{{ data.name }}</h2>
+          <p class="email">{{ data.email }}</p>
+          <p class="phone" *ngIf="data.phone">{{ data.phone }}</p>
+          <div class="skills-container" *ngIf="data.skills && data.skills.length > 0">
             <span class="skill-tag" *ngFor="let skill of data.skills">{{ skill }}</span>
           </div>
         </div>
+        <button mat-icon-button class="close-button" (click)="onClose()">
+          <mat-icon>close</mat-icon>
+        </button>
+      </div>
 
-        <mat-tab-group>
-          <mat-tab label="Cover Letter" *ngIf="data.coverLetter">
-            <div class="tab-content">
-              <div class="cover-letter-section">
-                <h3>Cover Letter</h3>
-                <div class="cover-letter-content">
-                  <p>{{ data.coverLetter }}</p>
+      <mat-tab-group mat-stretch-tabs="false" mat-align-tabs="start">
+        <mat-tab label="Cover Letter">
+          <div class="tab-content">
+            <div class="cover-letter" *ngIf="data.coverLetter">
+              <p>{{ data.coverLetter }}</p>
+            </div>
+            <div class="no-data-message" *ngIf="!data.coverLetter">
+              <p>No cover letter provided</p>
+            </div>
+          </div>
+        </mat-tab>
+
+        <mat-tab label="Quiz Results">
+          <div class="tab-content">
+            <!-- Loading state -->
+            <div class="loading-container" *ngIf="!data.quizResult && !noQuizData">
+              <mat-spinner diameter="40"></mat-spinner>
+              <p>Loading quiz results...</p>
+            </div>
+
+            <!-- No data state -->
+            <div class="no-data-message" *ngIf="noQuizData">
+              <p>No quiz results available for this candidate</p>
+            </div>
+
+            <!-- Quiz results -->
+            <div class="quiz-results" *ngIf="data.quizResult">
+              <div class="results-summary">
+                <div class="score-card">
+                  <div class="score-circle" [style.background-color]="getScoreColor(data.quizResult.score, data.quizResult.totalQuestions)">
+                    <div class="score-value">{{ getScorePercentage(data.quizResult.score, data.quizResult.totalQuestions) }}%</div>
+                  </div>
+                  <div class="score-text">
+                    <strong>{{ data.quizResult.score }}</strong> out of {{ data.quizResult.totalQuestions }} correct
+                  </div>
+                  <!-- <div class="completed-date" *ngIf="data.quizResult.createdOn">
+                    Completed {{ formatDate(data.quizResult.createdOn) }}
+                  </div> -->
+                </div>
+
+                <div class="score-progress">
+                  <mat-progress-bar 
+                    mode="determinate" 
+                    [value]="getScorePercentage(data.quizResult.score, data.quizResult.totalQuestions)"
+                    [color]="getProgressBarColor(data.quizResult.score / data.quizResult.totalQuestions)">
+                  </mat-progress-bar>
                 </div>
               </div>
-            </div>
-          </mat-tab>
 
-
-          <mat-tab label="Quiz Results" *ngIf="data.quizResult">
-            <div class="tab-content">
-              <div class="quiz-results-section">
-                <div class="results-header">
-                  <div class="header-content">
-                    <h3>Quiz Results</h3>
-                    <p class="date" *ngIf="data.quizResult.createdOn">Completed on {{ formatDate(data.quizResult.createdOn) }}</p>
-                  </div>
-                  <div class="score-badge" [ngClass]="getScoreBadgeClass(data.quizResult.score, data.quizResult.totalQuestions)">
-                    {{ getScorePercentage(data.quizResult.score, data.quizResult.totalQuestions) }}%
-                  </div>
-                </div>
-                
-                <mat-divider></mat-divider>
-                
-                <div class="score-visualization">
-                  <div class="score-chart">
-                    <div class="score-circle" [style.background]="getScoreColor(data.quizResult.score, data.quizResult.totalQuestions)">
-                      <span class="score-text">{{ data.quizResult.score }}</span>
-                      <span class="total-text">/ {{ data.quizResult.totalQuestions }}</span>
+              <div class="quiz-answers" *ngIf="data.quizResult.answers && data.quizResult.answers.length > 0">
+                <h3>Question Details</h3>
+                <div class="answers-grid">
+                  <div class="answer-item" *ngFor="let answer of data.quizResult.answers; let i = index">
+                    <div class="answer-header" [class.correct]="answer.isCorrect" [class.incorrect]="!answer.isCorrect">
+                      <span class="question-number">Q{{ i + 1 }}</span>
+                      <mat-icon>{{ answer.isCorrect ? 'check_circle' : 'cancel' }}</mat-icon>
                     </div>
-                  </div>
-                  
-                  <div class="score-details">
-                    <div class="detail-card correct">
-                      <div class="detail-icon">
-                        <mat-icon>check_circle</mat-icon>
-                      </div>
-                      <div class="detail-text">
-                        <span class="detail-value">{{ data.quizResult.score }}</span>
-                        <span class="detail-label">Correct</span>
-                      </div>
+                    <div class="answer-body">
+                      <p class="answer-text">Option {{ answer.selectedOption || 'Not answered' }}</p>
                     </div>
-                    
-                    <div class="detail-card incorrect">
-                      <div class="detail-icon">
-                        <mat-icon>cancel</mat-icon>
-                      </div>
-                      <div class="detail-text">
-                        <span class="detail-value">{{ data.quizResult.totalQuestions - data.quizResult.score }}</span>
-                        <span class="detail-label">Incorrect</span>
-                      </div>
-                    </div>
-                    
-                    <div class="detail-card total">
-                      <div class="detail-icon">
-                        <mat-icon>assignment</mat-icon>
-                      </div>
-                      <div class="detail-text">
-                        <span class="detail-value">{{ data.quizResult.totalQuestions }}</span>
-                        <span class="detail-label">Total</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                
-                <mat-divider></mat-divider>
-                
-                <div *ngIf="data.quizResult.answers && data.quizResult.answers.length > 0" class="answers-section">
-                  <h3>Question Breakdown</h3>
-                  
-                  <div class="answer-list">
-                    <mat-card *ngFor="let answer of data.quizResult.answers; let i = index" class="answer-card" [ngClass]="{'correct': answer.isCorrect, 'incorrect': !answer.isCorrect}">
-                      <div class="answer-header">
-                        <span class="question-number">Question {{ i + 1 }}</span>
-                        <mat-chip [color]="answer.isCorrect ? 'primary' : 'warn'" selected>
-                          {{ answer.isCorrect ? 'Correct' : 'Incorrect' }}
-                        </mat-chip>
-                      </div>
-                      
-                      <div class="answer-content">
-                        <div class="answer-detail">
-                          <strong>Answer:</strong> Option {{ answer.selectedOption || 'Not answered' }}
-                        </div>
-                      </div>
-                    </mat-card>
                   </div>
                 </div>
               </div>
             </div>
-          </mat-tab>
-        </mat-tab-group>
+          </div>
+        </mat-tab>
+      </mat-tab-group>
+
+      <div class="modal-footer">
+        <button mat-flat-button color="primary" (click)="moveForward()">Move Forward</button>
+        <button mat-stroked-button color="warn" (click)="reject()">Reject</button>
       </div>
     </div>
   `,
-  styles: [
-    `
-      .candidate-profile-modal {
-        max-width: 800px;
-        margin: 0 auto;
-      }
-
-      .modal-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-start;
-        padding: 24px;
-        background-color: #f8f9fa;
-        border-bottom: 1px solid #e9ecef;
-      }
-
-      .candidate-info {
-        display: flex;
-        align-items: center;
-        gap: 16px;
-      }
-
-      .avatar {
-        width: 64px;
-        height: 64px;
-        border-radius: 50%;
-        background-color: #007bff;
-        color: white;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 24px;
-        font-weight: bold;
-      }
-
-      .info h2 {
-        margin: 0;
-        font-size: 24px;
-        font-weight: 600;
-      }
-
-      .info p {
-        margin: 4px 0 0;
-        color: #6c757d;
-      }
-
-      .action-buttons {
-        display: flex;
-        gap: 8px;
-      }
-
-      .modal-body {
-        padding: 24px;
-      }
-
-      .skills-section {
-        margin-bottom: 24px;
-      }
-
-      .skills-section h3 {
-        font-size: 18px;
-        font-weight: 600;
-        margin-bottom: 12px;
-      }
-
-      .skills-list {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 8px;
-      }
-
-      .skill-tag {
-        background-color: #e9ecef;
-        color: #495057;
-        padding: 4px 12px;
-        border-radius: 16px;
-        font-size: 14px;
-      }
-
-      ::ng-deep .mat-tab-labels {
-        background-color: #f8f9fa;
-      }
-
-      ::ng-deep .mat-tab-label {
-        height: 48px;
-        padding: 0 24px;
-        opacity: 1;
-        color: #495057;
-      }
-
-      ::ng-deep .mat-tab-label-active {
-        color: #007bff;
-        font-weight: 600;
-      }
-
-      ::ng-deep .mat-ink-bar {
-        background-color: #007bff !important;
-      }
-
-      .tab-content {
-        padding: 24px 0;
-      }
-
-      .education-item,
-      .experience-item,
-      .assessment-item {
-        margin-bottom: 24px;
-      }
-
-      .education-item h4,
-      .experience-item h4 {
-        font-size: 18px;
-        font-weight: 600;
-        margin: 0 0 8px;
-      }
-
-      .education-item p,
-      .experience-item p {
-        margin: 0 0 4px;
-        color: #6c757d;
-      }
-
-      .education-details {
-        display: flex;
-        justify-content: space-between;
-        color: #6c757d;
-        font-size: 14px;
-      }
-
-      .experience-item .duration {
-        font-style: italic;
-        color: #6c757d;
-      }
-
-      .assessment-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 8px;
-      }
-
-      .assessment-header h4 {
-        font-size: 18px;
-        font-weight: 600;
-        margin: 0;
-      }
-
-      .status-badge {
-        padding: 4px 8px;
-        border-radius: 4px;
-        font-size: 14px;
-        font-weight: 600;
-      }
-
-      .status-badge.passed {
-        background-color: #d4edda;
-        color: #155724;
-      }
-
-      .status-badge.failed {
-        background-color: #f8d7da;
-        color: #721c24;
-      }
-
-      .progress-bar {
-        height: 8px;
-        background-color: #e9ecef;
-        border-radius: 4px;
-        overflow: hidden;
-        margin-bottom: 8px;
-      }
-
-      .progress {
-        height: 100%;
-        background-color: #007bff;
-      }
-
-      .score {
-        font-size: 14px;
-        color: #6c757d;
-        margin: 0;
-      }
-
-      /* Cover Letter styles */
-      .cover-letter-section h3 {
-        font-size: 18px;
-        font-weight: 600;
-        margin-bottom: 16px;
-      }
-
-      .cover-letter-content {
-        background-color: #f8f9fa;
-        border-radius: 8px;
-        padding: 16px;
-        color: #495057;
-        line-height: 1.6;
-        white-space: pre-line;
-      }
-
-      /* Quiz Results styles */
-      .quiz-results-section {
-        padding: 0;
-      }
-
-      .results-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 24px;
-      }
-        
-      .header-content h3 {
-        font-size: 20px;
-        font-weight: 600;
-        margin: 0 0 8px;
-        color: #2a3f5f;
-      }
-        
-      .date {
-        color: #6c757d;
-        margin: 0;
-        font-size: 14px;
-      }
-        
-      .score-badge {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 60px;
-        height: 60px;
-        border-radius: 50%;
-        font-size: 18px;
-        font-weight: 700;
-        color: white;
-      }
-        
-      .score-badge.excellent {
-        background: #28a745;
-      }
-        
-      .score-badge.good {
-        background: #17a2b8;
-      }
-        
-      .score-badge.average {
-        background: #ffc107;
-      }
-        
-      .score-badge.poor {
-        background: #dc3545;
-      }
-      
-      .score-visualization {
-        display: flex;
-        flex-direction: row;
-        align-items: center;
-        justify-content: space-between;
-        margin: 24px 0;
-      }
-      
-      .score-chart {
-        display: flex;
-        justify-content: center;
-        flex: 1;
-      }
-      
-      .score-circle {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        width: 120px;
-        height: 120px;
-        border-radius: 50%;
-        color: white;
-      }
-      
-      .score-text {
-        font-size: 36px;
-        font-weight: 700;
-        line-height: 1;
-        margin-bottom: 4px;
-      }
-      
-      .total-text {
-        font-size: 16px;
-        opacity: 0.9;
-      }
-      
-      .score-details {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 16px;
-        justify-content: space-between;
-        flex: 1;
-      }
-      
-      .detail-card {
-        display: flex;
-        align-items: center;
-        background: #f8f9fa;
-        padding: 12px;
-        border-radius: 8px;
-        min-width: 100px;
-      }
-      
-      .detail-icon {
-        margin-right: 12px;
-      }
-      
-      .detail-icon mat-icon {
-        width: 24px;
-        height: 24px;
-        font-size: 24px;
-      }
-      
-      .detail-text {
-        display: flex;
-        flex-direction: column;
-      }
-      
-      .detail-value {
-        font-size: 16px;
-        font-weight: 600;
-        color: #333;
-      }
-      
-      .detail-label {
-        font-size: 12px;
-        color: #6c757d;
-      }
-      
-      .detail-card.correct .detail-icon mat-icon {
-        color: #28a745;
-      }
-      
-      .detail-card.incorrect .detail-icon mat-icon {
-        color: #dc3545;
-      }
-      
-      .detail-card.total .detail-icon mat-icon {
-        color: #17a2b8;
-      }
-      
-      .answers-section {
-        margin: 24px 0;
-      }
-      
-      .answers-section h3 {
-        font-size: 18px;
-        font-weight: 500;
-        margin: 0 0 16px;
-        color: #2a3f5f;
-      }
-      
-      .answer-list {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-        gap: 16px;
-      }
-      
-      .answer-card {
-        padding: 16px;
-        border-left: 4px solid #ccc;
-      }
-      
-      .answer-card.correct {
-        border-left-color: #28a745;
-      }
-      
-      .answer-card.incorrect {
-        border-left-color: #dc3545;
-      }
-      
-      .answer-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 12px;
-      }
-      
-      .question-number {
-        font-weight: 500;
-        color: #2a3f5f;
-      }
-      
-      .answer-content .answer-detail {
-        margin-bottom: 8px;
-        font-size: 14px;
-      }
-    `,
-  ],
+  styles: [`
+    .modal-container {
+      display: flex;
+      flex-direction: column;
+      max-height: 90vh;
+      width: 600px;
+      overflow: hidden;
+    }
+    
+    .modal-header {
+      display: flex;
+      padding: 24px;
+      background-color: #f9f9fb;
+      position: relative;
+    }
+    
+    .candidate-avatar {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      overflow: hidden;
+      margin-right: 20px;
+      background-color: #e0e0e0;
+      flex-shrink: 0;
+      border: 2px solid white;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    
+    .candidate-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    
+    .avatar-initials {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: #3f51b5;
+      color: white;
+      font-size: 28px;
+      font-weight: 500;
+    }
+    
+    .candidate-details {
+      flex: 1;
+    }
+    
+    .candidate-details h2 {
+      margin: 0 0 8px 0;
+      font-size: 24px;
+      font-weight: 500;
+      color: #333;
+    }
+    
+    .email, .phone {
+      margin: 0 0 4px 0;
+      color: #666;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+    }
+    
+    .skills-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+    }
+    
+    .skill-tag {
+      background-color: #f0f4ff;
+      color: #3f51b5;
+      padding: 4px 12px;
+      border-radius: 16px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+    
+    .close-button {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+    }
+    
+    .tab-content {
+      padding: 24px;
+      overflow-y: auto;
+      max-height: 50vh;
+    }
+    
+    .cover-letter {
+      background-color: #f9f9fb;
+      padding: 20px;
+      border-radius: 8px;
+      border-left: 3px solid #3f51b5;
+      white-space: pre-line;
+      line-height: 1.6;
+    }
+    
+    .loading-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 0;
+    }
+    
+    .loading-container p {
+      margin-top: 16px;
+      color: #666;
+    }
+    
+    .no-data-message {
+      text-align: center;
+      padding: 40px 0;
+      color: #666;
+      background-color: #f9f9fb;
+      border-radius: 8px;
+    }
+    
+    .quiz-results {
+      padding: 0;
+    }
+    
+    .results-summary {
+      margin-bottom: 24px;
+    }
+    
+    .score-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+    
+    .score-circle {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 16px;
+    }
+    
+    .score-value {
+      color: white;
+      font-size: 24px;
+      font-weight: 600;
+    }
+    
+    .score-text {
+      font-size: 16px;
+      color: #333;
+      margin-bottom: 8px;
+    }
+    
+    .completed-date {
+      font-size: 13px;
+      color: #666;
+    }
+    
+    .score-progress {
+      margin-top: 16px;
+    }
+    
+    .quiz-answers h3 {
+      margin: 24px 0 16px;
+      font-size: 18px;
+      font-weight: 500;
+      color: #333;
+    }
+    
+    .answers-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 16px;
+    }
+    
+    .answer-item {
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+      background-color: white;
+    }
+    
+    .answer-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px;
+      background-color: #f1f1f1;
+    }
+    
+    .answer-header.correct {
+      background-color: rgba(76, 175, 80, 0.15);
+    }
+    
+    .answer-header.incorrect {
+      background-color: rgba(244, 67, 54, 0.15);
+    }
+    
+    .answer-header mat-icon {
+      font-size: 18px;
+    }
+    
+    .answer-header.correct mat-icon {
+      color: #4caf50;
+    }
+    
+    .answer-header.incorrect mat-icon {
+      color: #f44336;
+    }
+    
+    .question-number {
+      font-weight: 500;
+      color: #333;
+    }
+    
+    .answer-body {
+      padding: 12px;
+    }
+    
+    .answer-text {
+      margin: 0;
+      font-size: 14px;
+    }
+    
+    .modal-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+      padding: 16px 24px;
+      border-top: 1px solid #e0e0e0;
+      background-color: #f9f9fb;
+    }
+  `]
 })
-export class CandidateProfileModalComponent {
+export class CandidateProfileModalComponent implements OnInit {
+  noQuizData = false;
+  quizDataTimeout: any;
+
   constructor(
     public dialogRef: MatDialogRef<CandidateProfileModalComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any
   ) {}
 
-  moveForward() {
-    this.dialogRef.close({ action: 'move' });
+  ngOnInit(): void {
+    // Set a timeout to show "No quiz data" message if results don't load within 5 seconds
+    this.quizDataTimeout = setTimeout(() => {
+      if (!this.data.quizResult) {
+        this.noQuizData = true;
+      }
+    }, 5000);
   }
 
-  reject() {
-    this.dialogRef.close({ action: 'reject' });
+  ngOnDestroy(): void {
+    if (this.quizDataTimeout) {
+      clearTimeout(this.quizDataTimeout);
+    }
   }
 
   getInitials(name: string): string {
@@ -602,9 +417,9 @@ export class CandidateProfileModalComponent {
     if (!dateString) return '';
     const date = new Date(dateString);
     return date.toLocaleDateString('en-US', {
-      month: 'long',
+      month: 'short',
       day: 'numeric',
-      year: 'numeric',
+      year: 'numeric'
     });
   }
 
@@ -613,19 +428,30 @@ export class CandidateProfileModalComponent {
     return Math.round((score / totalQuestions) * 100);
   }
 
-  getScoreBadgeClass(score: number, totalQuestions: number): string {
-    const percentage = this.getScorePercentage(score, totalQuestions);
-    if (percentage >= 90) return 'excellent';
-    if (percentage >= 75) return 'good';
-    if (percentage >= 60) return 'average';
-    return 'poor';
-  }
-
   getScoreColor(score: number, totalQuestions: number): string {
     const percentage = this.getScorePercentage(score, totalQuestions);
-    if (percentage >= 90) return '#28a745'; // Green
-    if (percentage >= 75) return '#17a2b8'; // Blue
-    if (percentage >= 60) return '#ffc107'; // Yellow
-    return '#dc3545'; // Red
+    if (percentage >= 90) return '#4caf50';
+    if (percentage >= 75) return '#2196f3';
+    if (percentage >= 60) return '#ff9800';
+    return '#f44336';
+  }
+
+  getProgressBarColor(score: number): string {
+    if (score >= 0.9) return 'primary';
+    if (score >= 0.75) return 'accent';
+    if (score >= 0.6) return 'warn';
+    return 'warn';
+  }
+
+  moveForward(): void {
+    this.dialogRef.close({ action: 'move' });
+  }
+
+  reject(): void {
+    this.dialogRef.close({ action: 'reject' });
+  }
+
+  onClose(): void {
+    this.dialogRef.close();
   }
 }
