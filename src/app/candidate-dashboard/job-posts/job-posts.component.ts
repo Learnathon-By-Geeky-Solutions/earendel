@@ -104,10 +104,44 @@ interface Job extends BaseJob {
             </mat-option>
           </mat-select>
         </mat-form-field>
+        
+        <mat-form-field appearance="outline" class="filter-field">
+          <mat-label>Sort By</mat-label>
+          <mat-select
+            [(ngModel)]="sortBy"
+            (selectionChange)="sortJobs()"
+          >
+            <mat-option value="newest">
+              <div class="sort-option">
+      
+                <span>Newest Posts</span>
+              </div>
+            </mat-option>
+            <mat-option value="oldest">
+              <div class="sort-option">
+                <mat-icon>arrow_downward</mat-icon>
+                <span>Oldest Posts</span>
+              </div>
+            </mat-option>
+            <mat-option value="salaryHigh">
+              <div class="sort-option">
+                <mat-icon>trending_up</mat-icon>
+                <span>Highest Salary</span>
+              </div>
+            </mat-option>
+            <mat-option value="salaryLow">
+              <div class="sort-option">
+                <mat-icon>trending_down</mat-icon>
+                <span>Lowest Salary</span>
+              </div>
+            </mat-option>
+          </mat-select>
+          <mat-icon matSuffix>sort</mat-icon>
+        </mat-form-field>
       </div>
 
       <!-- Active Filters as Chips -->
-      <div class="active-filters" *ngIf="hasActiveFilters()">
+      <div class="active-filters" *ngIf="hasActiveFilters() || sortBy !== 'newest'">
         <span class="filters-label">Active Filters:</span>
         <mat-chip-listbox>
           <mat-chip *ngIf="searchTerm" (removed)="removeFilter('search')">
@@ -140,6 +174,16 @@ interface Job extends BaseJob {
               <mat-icon>cancel</mat-icon>
             </button>
           </mat-chip>
+          <mat-chip
+            *ngIf="sortBy !== 'newest'"
+            (removed)="resetSort()"
+            class="sort-chip"
+          >
+            Sorted by: {{ getSortLabel() }}
+            <button matChipRemove>
+              <mat-icon>cancel</mat-icon>
+            </button>
+          </mat-chip>
         </mat-chip-listbox>
         <button mat-button color="primary" (click)="clearAllFilters()">
           Clear All
@@ -153,6 +197,18 @@ interface Job extends BaseJob {
       >
         <mat-icon>info</mat-icon>
         <span>Currently only one job post is available</span>
+      </div>
+      
+      <!-- Job count and sort info -->
+      <div class="job-count-info" *ngIf="jobs.length > 0 && !loading">
+        <div class="count-info">
+          <mat-icon>work</mat-icon>
+          <span>Showing <strong>{{ jobs.length }}</strong> jobs</span>
+        </div>
+        <div class="sort-info">
+          <mat-icon [ngClass]="getSortIcon()"></mat-icon>
+          <span>Sorted by <strong>{{ getSortLabel() }}</strong></span>
+        </div>
       </div>
 
       <!-- STEP 3: Setup Infinite Scrolling with Jobs List -->
@@ -259,7 +315,7 @@ interface Job extends BaseJob {
 
       .search-filter-container {
         display: grid;
-        grid-template-columns: 2fr 1fr 1fr 1fr;
+        grid-template-columns: 2fr 1fr 1fr 1fr 1fr;
         gap: 16px;
         margin-bottom: 16px;
         position: sticky;
@@ -518,6 +574,58 @@ interface Job extends BaseJob {
           grid-template-columns: 1fr;
         }
       }
+
+      .sort-option {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .sort-chip {
+        background-color: rgba(25, 118, 210, 0.1);
+        color: #1976d2;
+      }
+
+      .job-count-info {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px 16px;
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        margin-bottom: 16px;
+        color: #555;
+      }
+      
+      .count-info, .sort-info {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 14px;
+      }
+      
+      .count-info mat-icon, .sort-info mat-icon {
+        font-size: 18px;
+        width: 18px;
+        height: 18px;
+        color: #666;
+      }
+      
+      .sort-info .arrow-down {
+        color: #1976d2;
+      }
+      
+      .sort-info .arrow-up {
+        color: #9c27b0;
+      }
+      
+      .sort-info .trending-up {
+        color: #4caf50;
+      }
+      
+      .sort-info .trending-down {
+        color: #ff9800;
+      }
     `,
   ],
 })
@@ -537,6 +645,7 @@ export class JobPostsComponent implements OnInit, OnDestroy {
   isModalOpen = false;
   locations: string[] = [];
   allDataLoaded = false;
+  sortBy: string = 'newest'; // Default sort by newest
   private destroy$ = new Subject<void>();
   private searchSubject = new Subject<string>();
   private previousJobIds = new Set<string>(); // Track previously loaded job IDs
@@ -668,6 +777,7 @@ export class JobPostsComponent implements OnInit, OnDestroy {
     this.selectedExperience = '';
     this.selectedJobType = '';
     this.selectedLocation = '';
+    this.sortBy = 'newest'; // Reset sort as well
     this._hasActiveFiltersCache.dirty = true;
     this.resetAndFetch();
   }
@@ -684,7 +794,7 @@ export class JobPostsComponent implements OnInit, OnDestroy {
   private getCacheKey(filters: JobFilter, page: number): string {
     return `${filters.name || ''}-${filters.experienceLevel || ''}-${
       filters.jobType || ''
-    }-${filters.location || ''}-${page}`;
+    }-${filters.location || ''}-${page}-${this.sortBy}`;
   }
 
   // STEP 1: Integrate the Job List API with the UI - modified to handle single job case
@@ -768,6 +878,10 @@ export class JobPostsComponent implements OnInit, OnDestroy {
 
     // Append new jobs to existing jobs
     this.jobs = [...this.jobs, ...newJobs];
+    
+    // Sort jobs according to current sort option
+    this.sortJobs();
+    
     this.loading = false;
     this.updateLocations();
     this.updateExperienceLevels();
@@ -872,5 +986,72 @@ export class JobPostsComponent implements OnInit, OnDestroy {
           this.closeModal();
         }
       });
+  }
+
+  sortJobs() {
+    this.jobs = [...this.jobs].sort((a, b) => {
+      switch (this.sortBy) {
+        case 'newest':
+          return new Date(b.createdOn).getTime() - new Date(a.createdOn).getTime();
+        case 'oldest':
+          return new Date(a.createdOn).getTime() - new Date(b.createdOn).getTime();
+        case 'salaryHigh':
+          return this.extractSalary(b.salary || '0') - this.extractSalary(a.salary || '0');
+        case 'salaryLow':
+          return this.extractSalary(a.salary || '0') - this.extractSalary(b.salary || '0');
+        default:
+          return 0;
+      }
+    });
+  }
+
+  // Helper method to extract numeric salary value for sorting
+  private extractSalary(salaryString: string): number {
+    if (!salaryString) return 0;
+    
+    // Extract numbers from the salary string
+    const matches = salaryString.match(/\$?([\d,]+)(?:\s*-\s*\$?([\d,]+))?/);
+    if (!matches) return 0;
+    
+    // If there's a range, use the higher value for "salaryHigh" and lower for "salaryLow"
+    const min = parseInt(matches[1].replace(/,/g, ''), 10);
+    const max = matches[2] ? parseInt(matches[2].replace(/,/g, ''), 10) : min;
+    
+    return this.sortBy === 'salaryHigh' ? max : min;
+  }
+
+  resetSort() {
+    this.sortBy = 'newest';
+    this.sortJobs();
+  }
+
+  getSortLabel(): string {
+    switch (this.sortBy) {
+      case 'newest':
+        return 'Newest Posts';
+      case 'oldest':
+        return 'Oldest Posts';
+      case 'salaryHigh':
+        return 'Highest Salary';
+      case 'salaryLow':
+        return 'Lowest Salary';
+      default:
+        return 'Newest Posts';
+    }
+  }
+
+  getSortIcon(): string {
+    switch (this.sortBy) {
+      case 'newest':
+        return 'arrow-down';
+      case 'oldest':
+        return 'arrow-up';
+      case 'salaryHigh':
+        return 'trending-up';
+      case 'salaryLow':
+        return 'trending-down';
+      default:
+        return '';
+    }
   }
 }
