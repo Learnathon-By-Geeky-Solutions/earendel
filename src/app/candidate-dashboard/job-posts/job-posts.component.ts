@@ -16,7 +16,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatChipsModule } from '@angular/material/chips';
 import { JobDetailsModalComponent } from '../job-details/job-details.component';
-import { JobService, Job, JobFilter } from '../services/job.service';
+import { JobService, Job as BaseJob, JobFilter } from '../services/job.service';
 import {
   Subject,
   debounceTime,
@@ -25,6 +25,13 @@ import {
   of,
 } from 'rxjs';
 import { catchError, shareReplay, finalize, switchMap } from 'rxjs/operators';
+
+// Extend the base Job interface to include optional properties needed for our UI
+interface Job extends BaseJob {
+  featured?: boolean;
+  salary?: string;
+  description: string;
+}
 
 @Component({
   selector: 'app-job-posts',
@@ -152,35 +159,63 @@ import { catchError, shareReplay, finalize, switchMap } from 'rxjs/operators';
       <div class="jobs-list" #jobsList>
         <div *ngFor="let job of jobs; trackBy: trackByJobId" class="job-card">
           <div class="card-header">
-            <h3>{{ job.name }}</h3>
-          </div>
-          <div class="card-content">
-            <div class="company-info">
-              <span class="posted-date">Posted {{ job.createdOn | date }}</span>
+            <div class="title-container">
+              <h3>{{ job.name }}</h3>
+              <span *ngIf="job.featured" class="featured-badge">Featured</span>
             </div>
+            <div class="posted-date">
+              <mat-icon class="small-icon">schedule</mat-icon>
+              <span>Posted {{ job.createdOn | date }}</span>
+            </div>
+          </div>
+          
+          <div class="card-content">
             <div class="detail-row">
-              <mat-icon>work</mat-icon>
+              <mat-icon class="detail-icon experience-icon">military_tech</mat-icon>
+              <span class="salary-label">Position:</span>
+
               <span>{{ job.experienceLevel }}</span>
             </div>
             <div class="detail-row">
-              <mat-icon>location_on</mat-icon>
+              <mat-icon class="detail-icon location-icon">location_on</mat-icon>
+              <span class="salary-label">Location:</span>
               <span>{{ job.location }}</span>
             </div>
             <div class="detail-row">
-              <mat-icon>business</mat-icon>
+            
+              <mat-icon class="detail-icon jobtype-icon">business_center</mat-icon>
+              <span class="salary-label">Job Type:</span>
               <span>{{ job.jobType }}</span>
             </div>
-            <div class="skills-list">
-              <span class="skill-tag">{{ job.requirments }}</span>
+            <div class="detail-row">
+            <mat-icon class="detail-icon salary-icon">attach_money</mat-icon>
+            <span class="salary-label">Salary:</span>
+        
+              <span class="salary-text">{{ job.salary || '' }}</span>
+            </div>
+            
+            <div class="separator"></div>
+            
+            <div class="description-section">
+            <p class="description-label">Description:</p>
+              <p class="description-text">{{ job.description || job.requirments }}</p>
+              
+              <div class="requirements-section">
+                <p class="requirements-label">Requirements:</p>
+                <p class="requirements-text">{{ job.requirments }}</p>
+              </div>
             </div>
           </div>
+          
           <div class="card-actions">
             <button
               mat-raised-button
               color="primary"
+              class="view-details-btn"
               (click)="viewJobDetails(job)"
             >
-              View Details
+              <mat-icon>visibility</mat-icon>
+              <span>View Details</span>
             </button>
           </div>
         </div>
@@ -283,16 +318,26 @@ import { catchError, shareReplay, finalize, switchMap } from 'rxjs/operators';
         display: flex;
         flex-direction: column;
         height: 100%;
-        transition: transform 0.2s, box-shadow 0.2s;
+        transition: transform 0.2s, box-shadow 0.2s, border-color 0.3s;
+        border: 1px solid rgba(0, 0, 0, 0.08);
+        overflow: hidden;
       }
 
       .job-card:hover {
         transform: translateY(-2px);
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        border-color: rgba(25, 118, 210, 0.3);
       }
 
       .card-header {
         margin-bottom: 16px;
+      }
+
+      .title-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 8px;
       }
 
       .card-header h3 {
@@ -308,52 +353,145 @@ import { catchError, shareReplay, finalize, switchMap } from 'rxjs/operators';
         min-height: 50px;
       }
 
-      .card-content {
-        flex-grow: 1;
-      }
-
-      .company-info {
-        margin-bottom: 16px;
+      .featured-badge {
+        background-color: rgba(255, 193, 7, 0.2);
+        color: #f57c00;
+        padding: 4px 8px;
+        border-radius: 16px;
+        font-size: 12px;
+        font-weight: 500;
       }
 
       .posted-date {
+        display: flex;
+        align-items: center;
         font-size: 12px;
         color: #666;
+      }
+
+      .small-icon {
+        font-size: 14px;
+        width: 14px;
+        height: 14px;
+        margin-right: 4px;
+      }
+
+      .card-content {
+        flex-grow: 1;
       }
 
       .detail-row {
         display: flex;
         align-items: center;
         gap: 8px;
-        margin-bottom: 8px;
+        margin-bottom: 10px;
         color: #666;
+        transition: transform 0.2s;
       }
 
-      .detail-row mat-icon {
+      .detail-row:hover {
+        transform: translateX(3px);
+      }
+
+      .detail-icon {
         font-size: 18px;
         width: 18px;
         height: 18px;
-        color: #999;
       }
 
-      .skills-list {
-        margin: 16px 0;
-        min-height: 40px;
+      .experience-icon {
+        color: rgba(25, 118, 210, 0.7);
       }
 
-      .skill-tag {
-        display: inline-block;
-        padding: 4px 12px;
-        background: #f5f5f5;
-        border-radius: 16px;
+      .location-icon {
+        color: rgba(244, 67, 54, 0.7);
+      }
+
+      .jobtype-icon {
+        color: rgba(76, 175, 80, 0.7);
+      }
+
+      .salary-icon {
+        color: rgba(255, 193, 7, 0.7);
+      }
+
+      .salary-text {
+        font-weight: 500;
+      }
+
+      .separator {
+        height: 1px;
+        background-color: rgba(0, 0, 0, 0.1);
+        margin: 12px 0;
+      }
+
+      .description-section {
+        margin-top: 10px;
+      }
+
+      .description-text {
         font-size: 12px;
         color: #666;
-        margin: 4px;
+        margin-bottom: 10px;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+      }
+
+      .requirements-section {
+        margin-top: 5px;
+      }
+
+      .requirements-label {
+        font-size: 12px;
+        font-weight: 500;
+        margin-bottom: 4px;
+      }
+
+      .salary-label {
+        font-size: 15px;
+        font-weight: 600;
+      }
+
+
+      .description-label {
+        font-size: 13px;
+        font-weight: 500;
+        margin-bottom: 4px;
+      }
+
+      .requirements-text {
+        font-size: 12px;
+        color: #666;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
       }
 
       .card-actions {
         margin-top: auto;
         padding-top: 16px;
+      }
+
+      .view-details-btn {
+        width: 100%;
+        background: linear-gradient(to right, rgba(25, 118, 210, 0.9), rgba(25, 118, 210, 1));
+        transition: all 0.3s;
+      }
+
+      .view-details-btn:hover {
+        background: linear-gradient(to right, rgba(25, 118, 210, 1), rgba(25, 118, 210, 0.9));
+      }
+
+      .view-details-btn mat-icon {
+        margin-right: 8px;
+        transition: transform 0.3s;
+      }
+
+      .view-details-btn:hover mat-icon {
+        transform: scale(1.1);
       }
 
       .loading-spinner {
@@ -689,35 +827,6 @@ export class JobPostsComponent implements OnInit, OnDestroy {
     this.isModalOpen = false;
     this.selectedJob = null;
   }
-
-  // applyForJob(jobData: {job: Job, coverLetter: string}) {
-  //   this.loading = true;
-
-  //   this.jobService.applyForJob(jobData.job.id, jobData.coverLetter)
-  //     .pipe(
-  //       takeUntil(this.destroy$),
-  //       catchError(error => {
-  //         console.error('Error applying for job:', error);
-  //         this.snackBar.open('Failed to submit application. Please try again later.', 'Close', {
-  //           duration: 5000,
-  //           panelClass: ['snack-bar-error']
-  //         });
-  //         return of(null);
-  //       }),
-  //       finalize(() => {
-  //         this.loading = false;
-  //       })
-  //     )
-  //     .subscribe(response => {
-  //       if (response) {
-  //         this.snackBar.open('Application submitted successfully!', 'Close', {
-  //           duration: 3000,
-  //           panelClass: ['snack-bar-success']
-  //         });
-  //         this.closeModal();
-  //       }
-  //     });
-  // }
 
   applyForJob(jobData: { job: Job; coverLetter: string }) {
     this.loading = true;
