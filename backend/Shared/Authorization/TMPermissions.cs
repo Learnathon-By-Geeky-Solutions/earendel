@@ -178,6 +178,10 @@ new(TMActions.Delete, TMResources.QuizQuestions,      "Delete Quiz Questions"),
             (p.Resource == TMResources.SeniorityLevelJunctions && p.Action == TMActions.View) ||
             (p.Resource == TMResources.Skills && p.Action == TMActions.View) ||
             (p.Resource == TMResources.Subskills && p.Action == TMActions.View) ||
+            (p.Resource == TMResources.QuizQuestions && p.Action == TMActions.View) ||
+
+            (p.Resource == TMResources.Notifications && (p.Action == TMActions.View || p.Action == TMActions.Create)) ||
+
 
              (p.Resource == TMResources.Interviews && (p.Action == TMActions.View || p.Action == TMActions.Create || p.Action == TMActions.Update)) ||
 
@@ -188,7 +192,7 @@ new(TMActions.Delete, TMResources.QuizQuestions,      "Delete Quiz Questions"),
     (p.Resource == TMResources.InterviewQuestions && p.Action == TMActions.View) ||
 
     // — HR access to InterviewSignature (view only)
-    (p.Resource == TMResources.InterviewSignatures && p.Action == TMActions.View) ||
+    (p.Resource == TMResources.InterviewSignatures && (p.Action == TMActions.View || p.Action == TMActions.Create || p.Action == TMActions.Update)) ||
 
       (p.Resource == TMResources.JobRequiredSkills && p.Action == TMActions.View) ||
     (p.Resource == TMResources.JobRequiredSubskills && p.Action == TMActions.View) ||
@@ -202,8 +206,10 @@ new(TMActions.Delete, TMResources.QuizQuestions,      "Delete Quiz Questions"),
             (p.Resource == TMResources.JobApplications && (p.Action == TMActions.View || p.Action == TMActions.Create)) ||
             (p.Resource == TMResources.InterviewerAvailabilities && p.Action == TMActions.View) ||
 
+            (p.Resource == TMResources.Notifications && (p.Action == TMActions.View || p.Action == TMActions.Create)) ||
+
             (p.Resource == TMResources.InterviewerEntryForms && (p.Action == TMActions.View || p.Action == TMActions.Create)) ||
-            
+
             (p.Resource == TMResources.InterviewerApplications && (p.Action == TMActions.View || p.Action == TMActions.Create)) ||
 
 
@@ -213,6 +219,7 @@ new(TMActions.Delete, TMResources.QuizQuestions,      "Delete Quiz Questions"),
             (p.Resource == TMResources.SeniorityLevelJunctions && p.Action == TMActions.View) ||
             (p.Resource == TMResources.Skills && p.Action == TMActions.View) ||
             (p.Resource == TMResources.Subskills && p.Action == TMActions.View) ||
+            (p.Resource == TMResources.QuizQuestions && p.Action == TMActions.View) ||
 
     // — Candidate view Interviews
     (p.Resource == TMResources.Interviews && p.Action == TMActions.View) ||
@@ -224,7 +231,7 @@ new(TMActions.Delete, TMResources.QuizQuestions,      "Delete Quiz Questions"),
     (p.Resource == TMResources.InterviewQuestions && p.Action == TMActions.View) ||
 
     // — Candidate view InterviewSignature
-    (p.Resource == TMResources.InterviewSignatures && p.Action == TMActions.View) ||
+    (p.Resource == TMResources.InterviewSignatures && (p.Action == TMActions.View || p.Action == TMActions.Create || p.Action == TMActions.Update)) ||
 
      (p.Resource == TMResources.JobRequiredSkills && p.Action == TMActions.View) ||
     (p.Resource == TMResources.JobRequiredSubskills && p.Action == TMActions.View) ||
@@ -244,6 +251,8 @@ new(TMActions.Delete, TMResources.QuizQuestions,      "Delete Quiz Questions"),
             (p.Resource == TMResources.InterviewerApplications && (p.Action == TMActions.View || p.Action == TMActions.Create)) ||
             (p.Resource == TMResources.InterviewerAvailabilities && (p.Action == TMActions.View || p.Action == TMActions.Create)) ||
             (p.Resource == TMResources.InterviewerEntryForms && (p.Action == TMActions.View || p.Action == TMActions.Create || p.Action == TMActions.Update)) ||
+
+            (p.Resource == TMResources.Notifications && (p.Action == TMActions.View || p.Action == TMActions.Create)) ||
 
             // — New resources for Interviewer: full CRUD
             (p.Resource == TMResources.Rubrics && (p.Action == TMActions.View || p.Action == TMActions.Create || p.Action == TMActions.Update || p.Action == TMActions.Delete)) ||
