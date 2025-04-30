@@ -1,18 +1,18 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { SidebarComponent } from '../sidebar/sidebar.component';
-import { PaginationComponent } from '../pagination/pagination.component';
+import { Component, OnDestroy, OnInit } from "@angular/core";
+import { CommonModule } from "@angular/common";
+import { FormsModule } from "@angular/forms";
+import { SidebarComponent } from "../sidebar/sidebar.component";
+import { PaginationComponent } from "../pagination/pagination.component";
 import {
   Subscription,
   Subject,
   debounceTime,
   distinctUntilChanged,
   filter,
-} from 'rxjs';
-import { NotificationhubService } from '../../shared/services/signalr/notificationhub.service';
-import { HrService } from '../services/hr.service';
-import { HttpClientModule } from '@angular/common/http';
+} from "rxjs";
+import { NotificationhubService } from "../../shared/services/signalr/notificationhub.service";
+import { HrService } from "../services/hr.service";
+import { HttpClientModule } from "@angular/common/http";
 
 interface HRPersonnel {
   id: string;
@@ -35,7 +35,7 @@ interface HRNotificationMessage {
 }
 
 @Component({
-  selector: 'app-hr',
+  selector: "app-hr",
   standalone: true,
   imports: [
     CommonModule,
@@ -60,35 +60,7 @@ interface HRNotificationMessage {
           <!-- Header -->
           <div class="d-flex justify-content-between align-items-center mb-4">
             <h1 class="h4 mb-0">HR Personnel</h1>
-            <div class="d-flex gap-3 align-items-center">
-              <div class="search-box">
-                <input
-                  type="text"
-                  class="form-control"
-                  placeholder="Search HR personnel"
-                  [(ngModel)]="searchQuery"
-                  (input)="onSearchInput()"
-                />
-              </div>
-              <div class="dropdown">
-                <button
-                  class="btn btn-outline-secondary dropdown-toggle"
-                  type="button"
-                  data-bs-toggle="dropdown"
-                >
-                  <i class="bi bi-funnel me-2"></i>
-                  Filter
-                </button>
-                <ul class="dropdown-menu">
-                  <li><a class="dropdown-item" href="#">Department</a></li>
-                  <li><a class="dropdown-item" href="#">Active Jobs</a></li>
-                </ul>
-              </div>
-              <button class="btn btn-dark" (click)="openAddModal()">
-                <i class="bi bi-plus me-2"></i>
-                Add HR Personnel
-              </button>
-            </div>
+           
           </div>
 
           <!-- Stats Cards -->
@@ -106,7 +78,7 @@ interface HRNotificationMessage {
                 <div class="card-body">
                   <h6 class="text-muted mb-2">Average Active Jobs</h6>
                   <h2 class="mb-0">
-                    {{ averageActiveJobs | number : '1.1-1' }}
+                    {{ averageActiveJobs | number : "1.1-1" }}
                   </h2>
                 </div>
               </div>
@@ -174,13 +146,13 @@ interface HRNotificationMessage {
                           class="btn btn-link p-0 text-decoration-none"
                           (click)="openEditModal(person)"
                         >
-                          Edit
+                          ---
                         </button>
                         <button
                           class="btn btn-link p-0 text-decoration-none"
                           (click)="openRemoveModal(person)"
                         >
-                          Remove
+                          ---
                         </button>
                       </div>
                     </td>
@@ -289,7 +261,7 @@ export class HrComponent implements OnInit, OnDestroy {
   totalRecords = 0;
   currentPage = 1;
   pageSize = 6;
-  searchQuery = '';
+  searchQuery = "";
   sortBy: any = null;
   sortDirection: any = null;
   loading = false;
@@ -315,7 +287,7 @@ export class HrComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    const user = JSON.parse(sessionStorage.getItem('loggedInUser') || '{}');
+    const user = JSON.parse(sessionStorage.getItem("loggedInUser") || "{}");
     this.notificationHubService.startConnection(user?.token);
 
     const connectionSub = this.notificationHubService.connectionEstablished$
@@ -335,12 +307,12 @@ export class HrComponent implements OnInit, OnDestroy {
 
   private parseNotification(message: unknown): HRNotificationMessage | null {
     try {
-      if (typeof message === 'string') {
+      if (typeof message === "string") {
         return JSON.parse(message) as HRNotificationMessage;
       }
       return message as HRNotificationMessage;
     } catch (error) {
-      console.error('Error parsing notification:', error);
+      console.error("Error parsing notification:", error);
       return null;
     }
   }
@@ -383,7 +355,7 @@ export class HrComponent implements OnInit, OnDestroy {
           this.loading = false;
         },
         error: (error) => {
-          console.error('Error loading HR data:', error);
+          console.error("Error loading HR data:", error);
           this.loading = false;
         },
       });
@@ -396,7 +368,7 @@ export class HrComponent implements OnInit, OnDestroy {
       id: hr.Id,
       name: hr.UserName,
       email: hr.Email,
-      department: 'HR',
+      department: "HR",
       activeJobs: hr.JobCount,
     }));
 
@@ -410,18 +382,18 @@ export class HrComponent implements OnInit, OnDestroy {
 
   toggleSort(field: string): void {
     if (this.sortBy === field) {
-      this.sortDirection = this.sortDirection === 'asc' ? 'desc' : 'asc';
+      this.sortDirection = this.sortDirection === "asc" ? "desc" : "asc";
     } else {
       this.sortBy = field;
-      this.sortDirection = 'asc';
+      this.sortDirection = "asc";
     }
     this.currentPage = 1;
     this.loadHRData();
   }
 
   getSortIcon(field: string): string {
-    if (this.sortBy !== field) return 'bi-chevron-expand';
-    return this.sortDirection === 'asc' ? 'bi-chevron-up' : 'bi-chevron-down';
+    if (this.sortBy !== field) return "bi-chevron-expand";
+    return this.sortDirection === "asc" ? "bi-chevron-up" : "bi-chevron-down";
   }
 
   onPageChange(page: number): void {

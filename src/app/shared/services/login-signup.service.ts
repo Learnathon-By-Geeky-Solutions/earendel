@@ -12,6 +12,7 @@ export class LoginSignupService {
   githubLoginUrl = endpoint.githubLoginUrl;
   userRegistrationUrl = endpoint.userRegistrationUrl;
   userLoginUrl = endpoint.userLoginUrl;
+  logOutUrl = endpoint.LogOutUrl;
 
   constructor(private http: HttpClient, private apiService: ApiService) {}
 
@@ -27,5 +28,10 @@ export class LoginSignupService {
 
   userLogin(loginData: any): Observable<any> {
     return this.http.post(this.userLoginUrl.trim(), loginData);
+  }
+
+  logOut(data: any): Observable<any> {
+    console.log(data)
+    return this.http.post(this.logOutUrl.trim(), data);
   }
 }
