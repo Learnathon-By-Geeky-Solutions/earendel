@@ -479,7 +479,7 @@ interface Job {
                           class="timeline-header"
                           (click)="toggleStage('interviewed')"
                         >
-                          <h6 class="mb-0">Interviewed</h6>
+                          <h6 class="mb-0">Interview in Progress</h6>
                           <span class="badge bg-light text-dark">
                             {{ getCandidatesByStage('interviewed').length }}
                           </span>
