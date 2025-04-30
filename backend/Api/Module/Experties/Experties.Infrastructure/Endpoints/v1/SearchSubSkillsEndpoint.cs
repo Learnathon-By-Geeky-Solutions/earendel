@@ -26,7 +26,7 @@ public static class SearchSubSkillsEndpoint
             .WithSummary("Gets a list of subskills")
             .WithDescription("Gets a list of subskills with pagination and filtering support")
             .Produces<PagedList<SubSkillResponse>>()
-            .RequirePermission("Permissions.SubSkills.View")    // ← added
+            .RequirePermission("Permissions.Subskills.View")    // ← added
             .MapToApiVersion(1);
     }
 }

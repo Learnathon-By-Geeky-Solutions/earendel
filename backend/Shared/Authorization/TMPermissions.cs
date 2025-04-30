@@ -14,9 +14,9 @@ public static class TMPermissions
         new(TMActions.Delete, TMResources.Jobs, "Delete Jobs"),
 
         new(TMActions.View,   TMResources.CandidateProfiles, "View Candidate Profiles"),
-new(TMActions.Create, TMResources.CandidateProfiles, "Create Candidate Profiles"),
-new(TMActions.Update, TMResources.CandidateProfiles, "Update Candidate Profiles"),
-new(TMActions.Delete, TMResources.CandidateProfiles, "Delete Candidate Profiles"), // optional if you’ll ever need Delete
+        new(TMActions.Create, TMResources.CandidateProfiles, "Create Candidate Profiles"),
+        new(TMActions.Update, TMResources.CandidateProfiles, "Update Candidate Profiles"),
+        new(TMActions.Delete, TMResources.CandidateProfiles, "Delete Candidate Profiles"), // optional if you’ll ever need Delete
 
 
         new(TMActions.View, TMResources.JobApplications, "View Job Applications", IsBasic: true),
@@ -93,9 +93,9 @@ new(TMActions.Delete, TMResources.CandidateProfiles, "Delete Candidate Profiles"
         new(TMActions.Delete, TMResources.Subskills, "Delete Subskills"),
 
         new(TMActions.View, TMResources.Interviews, "View Interviews"),
-new(TMActions.Create, TMResources.Interviews, "Create Interviews"),
-new(TMActions.Update, TMResources.Interviews, "Update Interviews"),
-new(TMActions.Delete, TMResources.Interviews, "Delete Interviews"), // Not needed now but adding for consistency
+        new(TMActions.Create, TMResources.Interviews, "Create Interviews"),
+        new(TMActions.Update, TMResources.Interviews, "Update Interviews"),
+        new(TMActions.Delete, TMResources.Interviews, "Delete Interviews"), // Not needed now but adding for consistency
 
 // — New permissions for InterviewFeedbacks
 new(TMActions.View, TMResources.InterviewFeedbacks, "View Interview Feedbacks"),
