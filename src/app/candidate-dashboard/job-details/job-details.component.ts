@@ -1,15 +1,23 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatDialogModule, MatDialog } from '@angular/material/dialog';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { Job } from '../services/job.service';
+import {
+  Component,
+  Input,
+  Output,
+  EventEmitter,
+  SimpleChanges,
+} from "@angular/core";
+import { CommonModule } from "@angular/common";
+import { FormsModule } from "@angular/forms";
+import { MatButtonModule } from "@angular/material/button";
+import { MatIconModule } from "@angular/material/icon";
+import { MatDialogModule, MatDialog } from "@angular/material/dialog";
+import { MatFormFieldModule } from "@angular/material/form-field";
+import { MatInputModule } from "@angular/material/input";
+import { Job } from "../services/job.service";
+import { SkillService } from "../../admin-dashboard/services/skill.service";
+import { catchError, forkJoin, map, of } from "rxjs";
 
 @Component({
-  selector: 'app-cover-letter-dialog',
+  selector: "app-cover-letter-dialog",
   standalone: true,
   imports: [
     CommonModule,
@@ -17,7 +25,7 @@ import { Job } from '../services/job.service';
     MatButtonModule,
     MatDialogModule,
     MatFormFieldModule,
-    MatInputModule
+    MatInputModule,
   ],
   template: `
     <h2 mat-dialog-title>Add Cover Letter</h2>
@@ -35,18 +43,30 @@ import { Job } from '../services/job.service';
     </mat-dialog-content>
     <mat-dialog-actions align="end">
       <button mat-button mat-dialog-close>Cancel</button>
-      <button mat-raised-button color="primary" [mat-dialog-close]="coverLetter">Submit Application</button>
+      <button
+        mat-raised-button
+        color="primary"
+        [mat-dialog-close]="coverLetter"
+      >
+        Submit Application
+      </button>
     </mat-dialog-actions>
-  `
+  `,
 })
 export class CoverLetterDialogComponent {
-  coverLetter = '';
+  coverLetter = "";
 }
 
 @Component({
-  selector: 'app-job-details-modal',
+  selector: "app-job-details-modal",
   standalone: true,
-  imports: [CommonModule, MatButtonModule, MatIconModule, MatDialogModule, FormsModule],
+  imports: [
+    CommonModule,
+    MatButtonModule,
+    MatIconModule,
+    MatDialogModule,
+    FormsModule,
+  ],
   template: `
     <div *ngIf="isOpen" class="modal-overlay" (click)="close()">
       <div class="modal-content" (click)="$event.stopPropagation()">
@@ -95,21 +115,23 @@ export class CoverLetterDialogComponent {
             <p>{{ job.requirments }}</p>
           </div>
 
-          <div class="section" *ngIf="job.requiredSkillIds && job.requiredSkillIds.length > 0">
+          <div class="section" *ngIf="job.requiredSkillIds?.length">
             <h3>Required Skills</h3>
-            <div class="skills-list">
-              <span *ngFor="let skillId of job.requiredSkillIds" class="skill-tag">
-                {{ skillId }}
-              </span>
+            <div *ngIf="loadingLookups">Loading skills…</div>
+            <div class="skills-list" *ngIf="!loadingLookups">
+              <span *ngFor="let name of skillNames" class="skill-tag">{{
+                name
+              }}</span>
             </div>
           </div>
-          
-          <div class="section" *ngIf="job.requiredSubskillIds && job.requiredSubskillIds.length > 0">
+
+          <div class="section" *ngIf="job.requiredSubskillIds?.length">
             <h3>Required Subskills</h3>
-            <div class="skills-list">
-              <span *ngFor="let subskillId of job.requiredSubskillIds" class="skill-tag">
-                {{ subskillId }}
-              </span>
+            <div *ngIf="loadingLookups">Loading subskills…</div>
+            <div class="skills-list" *ngIf="!loadingLookups">
+              <span *ngFor="let name of subskillNames" class="skill-tag">{{
+                name
+              }}</span>
             </div>
           </div>
         </div>
@@ -263,9 +285,54 @@ export class JobDetailsModalComponent {
   @Input() isOpen = false;
   @Input() job!: Job;
   @Output() closeModal = new EventEmitter<void>();
-  @Output() applyForJob = new EventEmitter<{job: Job, coverLetter: string}>();
+  @Output() applyForJob = new EventEmitter<{ job: Job; coverLetter: string }>();
 
-  constructor(private dialog: MatDialog) {}
+  skillNames: string[] = [];
+  subskillNames: string[] = [];
+  loadingLookups = false;
+
+  constructor(private dialog: MatDialog, private skillService: SkillService) {}
+
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes["job"] && this.job) {
+      this.loadLookups();
+    }
+  }
+
+  private loadLookups() {
+    this.loadingLookups = true;
+    this.skillNames = [];
+    this.subskillNames = [];
+
+    const skillCalls = (this.job.requiredSkillIds || []).map((id) =>
+      this.skillService.skillDetailsData({ id }).pipe(
+        map((page) => page.items[0]?.name ?? `(unknown ${id})`),
+        catchError(() => of(`(unknown ${id})`))
+      )
+    );
+
+    const subskillCalls = (this.job.requiredSubskillIds || []).map((id) =>
+      this.skillService.subskillDetailsData({ id }).pipe(
+        map((page) => page.items[0]?.name ?? `(unknown ${id})`),
+        catchError(() => of(`(unknown ${id})`))
+      )
+    );
+
+    forkJoin({
+      skills: skillCalls.length ? forkJoin(skillCalls) : of([]),
+      subskills: subskillCalls.length ? forkJoin(subskillCalls) : of([]),
+    }).subscribe(
+      ({ skills, subskills }) => {
+        this.skillNames = skills;
+        this.subskillNames = subskills;
+        this.loadingLookups = false;
+      },
+      () => {
+        // on any error, at least stop the spinner
+        this.loadingLookups = false;
+      }
+    );
+  }
 
   close() {
     this.closeModal.emit();
@@ -273,12 +340,12 @@ export class JobDetailsModalComponent {
 
   apply() {
     const dialogRef = this.dialog.open(CoverLetterDialogComponent, {
-      width: '600px'
+      width: "600px",
     });
 
-    dialogRef.afterClosed().subscribe(coverLetter => {
+    dialogRef.afterClosed().subscribe((coverLetter) => {
       if (coverLetter) {
-        this.applyForJob.emit({job: this.job, coverLetter});
+        this.applyForJob.emit({ job: this.job, coverLetter });
       }
     });
   }
