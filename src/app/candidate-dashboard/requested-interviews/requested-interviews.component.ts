@@ -48,7 +48,7 @@ export class RequestedInterviewsComponent implements OnInit, OnDestroy {
 
   searchTerm = "";
   currentPage = 1;
-  pageSize = 4;
+  pageSize = 15;
   totalPages = 1;
 
   private subs = new Subscription();

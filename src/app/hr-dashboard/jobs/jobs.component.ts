@@ -22,10 +22,9 @@ interface Candidate {
   phone: string;
   stage:
     | 'applied'
-    | 'passed_mcq'
     | 'shortlisted'
     | 'select_interviewer'
-    | 'interviewed'
+    | 'interview_in_progress'
     | 'selected'
     | 'rejected';
   timestamp: Date;
@@ -221,79 +220,9 @@ interface Job {
                       </div>
                     </div>
 
-                    <!-- Passed MCQ Stage -->
-                    <div class="timeline-item">
-                      <div class="timeline-marker bg-info">2</div>
-                      <div class="timeline-content">
-                        <div
-                          class="timeline-header"
-                          (click)="toggleStage('passed_mcq')"
-                        >
-                          <h6 class="mb-0">Passed MCQ</h6>
-                          <span class="badge bg-light text-dark">
-                            {{ getCandidatesByStage('passed_mcq').length }}
-                          </span>
-                          <i
-                            class="bi"
-                            [class.bi-chevron-down]="!expandedStages.passed_mcq"
-                            [class.bi-chevron-up]="expandedStages.passed_mcq"
-                          ></i>
-                        </div>
-
-                        <div
-                          class="timeline-body"
-                          *ngIf="expandedStages.passed_mcq"
-                        >
-                          <div
-                            *ngFor="
-                              let candidate of getCandidatesByStage(
-                                'passed_mcq'
-                              )
-                            "
-                            class="candidate-card p-3 mb-2 bg-white rounded shadow-sm"
-                            (click)="openCandidateProfile(candidate, $event)"
-                          >
-                            <div
-                              class="d-flex justify-content-between align-items-center"
-                            >
-                              <div>
-                                <h6 class="mb-1">{{ candidate.name }}</h6>
-                                <p class="text-muted small mb-0">
-                                  {{ candidate.email }}
-                                </p>
-                                <p class="text-muted small mb-0" *ngIf="candidate.applicationDate">
-                                  Applied on: {{ candidate.applicationDate | date:'mediumDate' }}
-                                </p>
-                              </div>
-                              <div class="d-flex gap-2">
-                                <button
-                                  class="btn btn-sm btn-outline-success"
-                                  (click)="moveForward(candidate); $event.stopPropagation()"
-                                >
-                                  Move Forward
-                                </button>
-                                <button
-                                  class="btn btn-sm btn-outline-warning"
-                                  (click)="moveBack(candidate); $event.stopPropagation()"
-                                >
-                                  Move Back
-                                </button>
-                                <button
-                                  class="btn btn-sm btn-outline-danger"
-                                  (click)="openRejectModal(candidate); $event.stopPropagation()"
-                                >
-                                  Reject
-                                </button>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
                     <!-- Shortlisted Stage -->
                     <div class="timeline-item">
-                      <div class="timeline-marker bg-warning">3</div>
+                      <div class="timeline-marker bg-warning">2</div>
                       <div class="timeline-content">
                         <div
                           class="timeline-header"
@@ -362,7 +291,7 @@ interface Job {
 
                     <!-- Select Interviewer Stage -->
                     <div class="timeline-item">
-                      <div class="timeline-marker bg-info">4</div>
+                      <div class="timeline-marker bg-info">3</div>
                       <div class="timeline-content">
                         <div
                           class="timeline-header"
@@ -471,35 +400,35 @@ interface Job {
                       </div>
                     </div>
 
-                    <!-- Interviewed Stage -->
+                    <!-- Interview In Progress Stage -->
                     <div class="timeline-item">
-                      <div class="timeline-marker bg-success">5</div>
+                      <div class="timeline-marker bg-success">4</div>
                       <div class="timeline-content">
                         <div
                           class="timeline-header"
-                          (click)="toggleStage('interviewed')"
+                          (click)="toggleStage('interview_in_progress')"
                         >
                           <h6 class="mb-0">Interview in Progress</h6>
                           <span class="badge bg-light text-dark">
-                            {{ getCandidatesByStage('interviewed').length }}
+                            {{ getCandidatesByStage('interview_in_progress').length }}
                           </span>
                           <i
                             class="bi"
                             [class.bi-chevron-down]="
-                              !expandedStages.interviewed
+                              !expandedStages.interview_in_progress
                             "
-                            [class.bi-chevron-up]="expandedStages.interviewed"
+                            [class.bi-chevron-up]="expandedStages.interview_in_progress"
                           ></i>
                         </div>
 
                         <div
                           class="timeline-body"
-                          *ngIf="expandedStages.interviewed"
+                          *ngIf="expandedStages.interview_in_progress"
                         >
                           <div
                             *ngFor="
                               let candidate of getCandidatesByStage(
-                                'interviewed'
+                                'interview_in_progress'
                               )
                             "
                             class="candidate-card p-3 mb-2 bg-white rounded shadow-sm"
@@ -531,7 +460,7 @@ interface Job {
                                   class="btn btn-sm btn-outline-warning"
                                   [disabled]="true"
                                   (click)="showInterviewedMoveBackMessage(); $event.stopPropagation()"
-                                  matTooltip="Candidate is currently in Interviews stage. You cannot move back the candidate."
+                                  matTooltip="Candidate is currently in Interview-in-progress stage. You cannot move back the candidate."
                                   matTooltipPosition="above"
                                 >
                                   Move Back
@@ -551,7 +480,7 @@ interface Job {
 
                     <!-- Selected Stage -->
                     <div class="timeline-item">
-                      <div class="timeline-marker bg-primary">6</div>
+                      <div class="timeline-marker bg-primary">5</div>
                       <div class="timeline-content">
                         <div
                           class="timeline-header"
@@ -604,7 +533,7 @@ interface Job {
 
                     <!-- Rejected Stage -->
                     <div class="timeline-item">
-                      <div class="timeline-marker bg-danger">7</div>
+                      <div class="timeline-marker bg-danger">6</div>
                       <div class="timeline-content">
                         <div
                           class="timeline-header"
@@ -791,10 +720,9 @@ export class JobComponent implements OnInit {
 
   expandedStages = {
     applied: true,
-    passed_mcq: true,
     shortlisted: false,
     select_interviewer: false,
-    interviewed: false,
+    interview_in_progress: false,
     selected: false,
     rejected: false,
   };
@@ -832,10 +760,9 @@ export class JobComponent implements OnInit {
     // Initialize loading states for all stages
     const stages: Candidate['stage'][] = [
       'applied',
-      'passed_mcq',
       'shortlisted',
       'select_interviewer',
-      'interviewed',
+      'interview_in_progress',
       'selected',
       'rejected'
     ];
@@ -1050,7 +977,7 @@ export class JobComponent implements OnInit {
         break;
       case 'screened':
       case 'mcq passed':
-        stage = 'passed_mcq';
+        stage = 'shortlisted';
         break;
       case 'shortlisted':
         stage = 'shortlisted';
@@ -1059,7 +986,8 @@ export class JobComponent implements OnInit {
         stage = 'select_interviewer';
         break;
       case 'interviewed':
-        stage = 'interviewed';
+      case 'interview-in-progress':
+        stage = 'interview_in_progress';
         break;
       case 'selected':
       case 'hired':
@@ -1178,7 +1106,7 @@ export class JobComponent implements OnInit {
         id: 'unknown',
         title: 'Unknown Job',
         department: 'Unknown',
-        status: 'closed',
+        status: 'active',
         postedDate: new Date(),
         candidates: []
       };
@@ -1256,10 +1184,9 @@ export class JobComponent implements OnInit {
   moveForward(candidate: Candidate) {
     const stages: Candidate['stage'][] = [
       'applied',
-      'passed_mcq',
       'shortlisted',
       'select_interviewer',
-      'interviewed',
+      'interview_in_progress',
       'selected',
     ];
     const currentIndex = stages.indexOf(candidate.stage);
@@ -1339,10 +1266,9 @@ export class JobComponent implements OnInit {
   moveBack(candidate: Candidate) {
     const stages: Candidate['stage'][] = [
       'applied',
-      'passed_mcq',
       'shortlisted',
       'select_interviewer',
-      'interviewed',
+      'interview_in_progress',
       'selected',
     ];
     const currentIndex = stages.indexOf(candidate.stage);
@@ -1415,14 +1341,12 @@ export class JobComponent implements OnInit {
     switch (stage) {
       case 'applied':
         return 'Applied';
-      case 'passed_mcq':
-        return 'MCQ Passed';
       case 'shortlisted':
         return 'Shortlisted';
       case 'select_interviewer':
         return 'Select Interviewer';
-      case 'interviewed':
-        return 'Interviewed';
+      case 'interview_in_progress':
+        return 'Interview-in-progress';
       case 'selected':
         return 'Selected';
       case 'rejected':
@@ -1667,10 +1591,10 @@ export class JobComponent implements OnInit {
           console.log('Interview created successfully:', response);
           
           // Optimistically update the UI
-          const newStage: Candidate['stage'] = 'interviewed';
+          const newStage: Candidate['stage'] = 'interview_in_progress';
           candidate.stage = newStage;
           
-          // Update the application status to interviewed since we've scheduled an interview
+          // Update the application status to Interview-in-progress since we've scheduled an interview
           this.jobPostingService.updateJobApplicationStatus(
             applicationId, 
             {
@@ -1736,10 +1660,10 @@ export class JobComponent implements OnInit {
     window.open(url, '_blank');
   }
 
-  // Show a message when trying to move back from interviewed stage
+  // Show a message when trying to move back from interview in progress stage
   showInterviewedMoveBackMessage(): void {
     this.snackBar.open(
-      'Candidate is currently in the Interview stage. You cannot move back the candidate at this point.',
+      'Candidate is currently in the Interview-in-progress stage. You cannot move back the candidate at this point.',
       'Got it',
       { duration: 5000 }
     );

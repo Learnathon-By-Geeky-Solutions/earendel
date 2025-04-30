@@ -99,7 +99,7 @@ export class JobService {
 
   getApplications(candidateId: string): Observable<JobApplication[]> {
     const apiUrl = `${endpoint.jobApplicationDetailsUrl}`;
-    const body = { candidateId, pageNumber: 1, pageSize: 10 };
+    const body = { candidateId, pageNumber: 1, pageSize: 1000 };
     let headers = new HttpHeaders();
     const userData = sessionStorage.getItem('loggedInUser');
     if (userData) {

@@ -436,10 +436,14 @@ export class RegistrationComponent implements AfterViewInit {
         this.loginService.userRegistration(registrationData).subscribe(
           (data: any) => {
             if (data && data.userId) {
-              this.snackBar.open('Registration successful!', 'Close', {
-                duration: 3000, // duration in milliseconds
-                panelClass: ['snack-bar-success'], // You can define custom styles in your CSS
-              });
+              this.snackBar.open(
+                'Please check your mail inbox or spam to receive the registration confirmation mail!',
+                'Close',
+                {
+                  duration: 5000, // duration in milliseconds
+                  panelClass: ['snack-bar-success'], // You can define custom styles in your CSS
+                }
+              );
 
               // Redirect to the login page after successful registration
               this.router.navigateByUrl('/login');
@@ -487,9 +491,16 @@ export class RegistrationComponent implements AfterViewInit {
         // Proceed with hiring registration...
         this.loginService.userRegistration(registrationData).subscribe(
           (data) => {
-            console.log(data);
+            this.snackBar.open(
+              'Please check your mail inbox or spam to receive the registration confirmation mail!',
+              'Close',
+              {
+                duration: 5000, // duration in milliseconds
+                panelClass: ['snack-bar-success'], // You can define custom styles in your CSS
+              }
+            );
             // Redirect to login or another page after successful registration
-            // this.router.navigateByUrl('/login');
+            this.router.navigateByUrl('/login');
           },
           (error) => {
             // Handle error response and display messages
