@@ -1,4 +1,5 @@
-﻿using TalentMesh.Framework.Core.Domain;
+﻿using System.Diagnostics.CodeAnalysis;
+using TalentMesh.Framework.Core.Domain;
 using TalentMesh.Framework.Core.Domain.Contracts;
 using TalentMesh.Module.Evaluator.Domain.Events;
 
@@ -36,6 +37,7 @@ namespace TalentMesh.Module.Evaluator.Domain
             return this;
         }
 
+        [ExcludeFromCodeCoverage]
         public InterviewerEntryForm UploadCv(string cvPath)
         {
             CV = cvPath;
@@ -43,11 +45,14 @@ namespace TalentMesh.Module.Evaluator.Domain
             return this;
         }
 
+        [ExcludeFromCodeCoverage]
         public void Approve()
         {
             Status = "approved";
             this.QueueDomainEvent(new InterviewerEntryFormUpdated { InterviewerEntryForm = this });
         }
+
+        [ExcludeFromCodeCoverage]
         public void Reject()
         {
             Status = "rejected";

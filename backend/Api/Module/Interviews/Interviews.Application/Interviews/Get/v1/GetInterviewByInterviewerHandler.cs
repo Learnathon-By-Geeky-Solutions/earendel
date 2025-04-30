@@ -9,10 +9,12 @@ using System.Threading.Tasks;
 using TalentMesh.Framework.Core.Caching;
 using System.Linq;
 using Microsoft.AspNetCore.Http;
-using TalentMesh.Shared.Authorization; // for GetUserId() extension method
+using TalentMesh.Shared.Authorization;
+using System.Diagnostics.CodeAnalysis; // for GetUserId() extension method
 
 namespace TalentMesh.Module.Interviews.Application.Interviews.Get.v1
 {
+    [ExcludeFromCodeCoverage]
     public sealed class GetInterviewByInterviewerHandler(
         [FromKeyedServices("interviews:interviewReadOnly")] IReadRepository<Interview> repository,
         IMessageBus messageBus,

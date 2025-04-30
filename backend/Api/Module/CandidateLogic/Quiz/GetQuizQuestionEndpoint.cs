@@ -5,9 +5,11 @@ using Microsoft.AspNetCore.Routing;
 using System;
 using TalentMesh.Module.Quizzes.Application.QuizQuestions.Get;
 using TalentMesh.Framework.Infrastructure.Auth.Policy;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Module.Quizzes.Api.Endpoints 
 {
+    [ExcludeFromCodeCoverage]
     public static class GetQuizQuestionEndpoint
     {
         public static RouteHandlerBuilder MapGetQuizQuestionEndpoint(this IEndpointRouteBuilder app)

@@ -54,7 +54,6 @@ internal static class Extensions
         return services;
     }
     [ExcludeFromCodeCoverage]
-
     public static WebApplication UseMultitenancy(this WebApplication app)
     {
         ArgumentNullException.ThrowIfNull(app);

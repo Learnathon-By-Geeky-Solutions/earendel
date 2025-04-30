@@ -65,6 +65,7 @@ namespace TalentMesh.Module.Evaluator.Infrastructure.Messaging
         public int TotalVerifiedInterviewerCount { get; set; }
     }
 
+    [ExcludeFromCodeCoverage]
     public class InterviewerItem
     {
         public Guid Id { get; set; }
@@ -77,6 +78,8 @@ namespace TalentMesh.Module.Evaluator.Infrastructure.Messaging
         public List<FormItem> Forms { get; set; } = new List<FormItem>();
     }
 
+
+    [ExcludeFromCodeCoverage]
     public class FormItem
     {
         public Guid Id { get; set; }

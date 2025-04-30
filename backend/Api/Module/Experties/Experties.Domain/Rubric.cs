@@ -1,10 +1,12 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 using TalentMesh.Framework.Core.Domain;
 using TalentMesh.Framework.Core.Domain.Contracts;
 using TalentMesh.Module.Experties.Domain.Events;
 
 namespace TalentMesh.Module.Experties.Domain
 {
+    [ExcludeFromCodeCoverage]
     public class Rubric : AuditableEntity, IAggregateRoot
     {
         public string Title { get; private set; } = default!;

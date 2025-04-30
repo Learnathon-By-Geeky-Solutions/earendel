@@ -1,11 +1,12 @@
-﻿using MediatR;
+﻿using System.Diagnostics.CodeAnalysis;
+using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc; // For [FromBody]
 using Microsoft.AspNetCore.Routing;
 using TalentMesh.Framework.Infrastructure.Auth.Policy;
 
-namespace TalentMesh.Module.HRView.HRFunc 
+namespace TalentMesh.Module.HRView.HRFunc
 {
     // Request body structure matching the command
     public class CreateJobRequest
@@ -17,12 +18,13 @@ namespace TalentMesh.Module.HRView.HRFunc
         public string JobType { get; set; } = default!;
         public string ExperienceLevel { get; set; } = default!;
         public string? Salary { get; set; }
-        public Guid PostedBy { get; set; } 
+        public Guid PostedBy { get; set; }
         public int NumberOfInterviews { get; set; }
         public List<Guid>? RequiredSkillIds { get; set; } = new List<Guid>();
         public List<Guid>? RequiredSubskillIds { get; set; } = new List<Guid>();
     }
 
+    [ExcludeFromCodeCoverage]
     public static class CreateJobEndpoint
     {
         public static RouteHandlerBuilder MapCreateJobEndpoint(this IEndpointRouteBuilder app)

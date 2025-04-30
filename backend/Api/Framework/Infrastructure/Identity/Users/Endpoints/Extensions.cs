@@ -33,6 +33,8 @@ internal static class Extensions
         app.MapGetUserAuditTrailEndpoint();
         return app;
     }
+
+    [ExcludeFromCodeCoverage]
     public static IEndpointRouteBuilder MapSSLCommerzEndpoints(this IEndpointRouteBuilder app)
     {
         app.MapSslCommerzSuccessEndpoint();

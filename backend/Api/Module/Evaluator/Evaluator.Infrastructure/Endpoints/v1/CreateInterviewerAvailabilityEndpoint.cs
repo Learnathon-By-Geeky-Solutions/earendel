@@ -24,7 +24,7 @@ namespace TalentMesh.Module.Evaluator.Infrastructure.Endpoints.v1
                 .WithSummary("Creates Interviewer Availability")
                 .WithDescription("Creates Interviewer Availability")
                 .Produces<CreateInterviewerAvailabilityResponse>()
-                .RequirePermission("Permissions.InterviewerAvailabilities.Create")
+                .RequirePermission("Permissions.InterviewerApplications.Create")
                 .MapToApiVersion(1);
         }
     }

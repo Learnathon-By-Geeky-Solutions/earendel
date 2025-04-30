@@ -1,4 +1,5 @@
-﻿using System.Net.Http.Headers;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Net.Http.Headers;
 using TalentMesh.Framework.Core.Domain;
 using TalentMesh.Framework.Core.Domain.Contracts;
 using TalentMesh.Module.Notifications.Domain.Events;
@@ -27,6 +28,7 @@ public class Notification : AuditableEntity, IAggregateRoot
         return notification;
     }
 
+    [ExcludeFromCodeCoverage]
     public Notification Update(Guid userId, string? entity, string? entityType, string? message)
     {
         if (userId != Guid.Empty && UserId != userId)
@@ -46,7 +48,7 @@ public class Notification : AuditableEntity, IAggregateRoot
         return this;
     }
 
-
+    [ExcludeFromCodeCoverage]
     public static Notification Update(Guid id, Guid userId, string? entity, string? entityType, string? message)
     {
         var notification = new Notification

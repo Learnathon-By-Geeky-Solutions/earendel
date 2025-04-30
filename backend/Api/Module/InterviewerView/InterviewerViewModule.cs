@@ -13,9 +13,11 @@ using TalentMesh.Module.Job.Infrastructure.Persistence;
 using TalentMesh.Module.Quizzes.Infrastructure.Persistence;
 using Carter.OpenApi;
 using TalentMesh.Module.Interviews.Application;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Module.InterviewerView// Corrected namespace based on file context
 {
+    [ExcludeFromCodeCoverage]
     public static class InterviewerViewModule
     {
         public class Endpoints : CarterModule

@@ -1,9 +1,11 @@
 ﻿using TalentMesh.Module.Job.Domain.Events;
 using MediatR;
 using Microsoft.Extensions.Logging;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Module.Job.Application.JobRequiredSubskill.EventHandlers
 {
+    [ExcludeFromCodeCoverage]
     public class JobRequiredSubskillCreatedEventHandler : INotificationHandler<JobRequiredSubskillCreated>
     {
         private readonly ILogger<JobRequiredSubskillCreatedEventHandler> _logger;

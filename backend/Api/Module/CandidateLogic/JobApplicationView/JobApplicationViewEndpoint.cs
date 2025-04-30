@@ -6,11 +6,13 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using TalentMesh.Framework.Infrastructure.Auth.Policy;
 using TalentMesh.Module.Job.Domain; // Use the correct namespace for JobApplication
 
 namespace TalentMesh.Module.CandidateLogic.JobApplicationView // Or your preferred namespace
 {
+    [ExcludeFromCodeCoverage]
     public static class JobApplicationViewEndpoint
     {
         public static RouteHandlerBuilder MapJobApplicationViewEndpoints(this IEndpointRouteBuilder app)

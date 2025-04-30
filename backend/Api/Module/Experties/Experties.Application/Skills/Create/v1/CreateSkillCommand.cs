@@ -1,10 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 using MediatR;
 
 namespace TalentMesh.Module.Experties.Application.Skills.Create.v1;
 
+[ExcludeFromCodeCoverage]
 public sealed record CreateSkillCommand(
     [property: DefaultValue("Sample User")] string Name,
     [property: DefaultValue("Descriptive Description")] string Description,

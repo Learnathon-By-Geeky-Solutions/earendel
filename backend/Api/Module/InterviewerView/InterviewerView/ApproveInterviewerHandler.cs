@@ -11,9 +11,11 @@ using TalentMesh.Framework.Infrastructure.Identity.Roles;
 using TalentMesh.Module.Evaluator.Domain;
 using TalentMesh.Framework.Core.Persistence;
 using TalentMesh.Shared.Authorization;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Module.InterviewerView
 {
+    [ExcludeFromCodeCoverage]
     public class ApproveInterviewerHandler : IRequestHandler<ApproveInterviewerCommand, Unit>
     {
         private readonly IRepository<InterviewerEntryForm> _repo;

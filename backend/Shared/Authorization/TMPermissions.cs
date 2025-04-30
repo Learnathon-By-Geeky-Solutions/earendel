@@ -1,8 +1,10 @@
 using System.Collections.ObjectModel;
+using System.Diagnostics.CodeAnalysis;
 using TalentMesh.Shared.Authorization;
 
 namespace TalentMesh.Shared.Authorization;
 
+[ExcludeFromCodeCoverage]
 public static class TMPermissions
 {
     private static readonly FshPermission[] AllPermissions =
@@ -288,6 +290,7 @@ new(TMActions.Delete, TMResources.QuizQuestions,      "Delete Quiz Questions"),
     }
 }
 
+[ExcludeFromCodeCoverage]
 public record FshPermission(string Action, string Resource, string Description, bool IsBasic = false, bool IsRoot = false)
 {
     public string Name => NameFor(Action, Resource);

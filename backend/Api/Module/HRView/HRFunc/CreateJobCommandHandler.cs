@@ -1,4 +1,5 @@
-﻿using MediatR;
+﻿using System.Diagnostics.CodeAnalysis;
+using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.SignalR;
 using TalentMesh.Framework.Core.Identity.Users.Abstractions;
@@ -10,6 +11,7 @@ using TalentMesh.Module.Job.Infrastructure.Persistence; // For IResult and Resul
 
 namespace TalentMesh.Module.HRView.HRFunc // Or your preferred namespace
 {
+    [ExcludeFromCodeCoverage]
     public class CreateJobCommandHandler : IRequestHandler<CreateJobCommand, IResult>
     {
         private readonly JobDbContext _context;

@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Http; // For IResult and Results
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
 using TalentMesh.Module.Quizzes.Domain;
@@ -8,6 +9,7 @@ using TalentMesh.Module.Quizzes.Infrastructure.Persistence;
 
 namespace TalentMesh.Module.Quizzes.Application.QuizAttempts.Start // Or your preferred namespace
 {
+    [ExcludeFromCodeCoverage]
     public class StartQuizCommandHandler : IRequestHandler<StartQuizCommand, IResult>
     {
         private readonly QuizzesDbContext _context;

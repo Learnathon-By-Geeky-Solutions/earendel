@@ -61,7 +61,7 @@ public static class Extensions
             ["deployment.environment"] = builder.Environment.EnvironmentName.ToLowerInvariant()
         };
         var resourceBuilder = ResourceBuilder.CreateDefault()
-            .AddService(serviceName: resourceServiceName, serviceVersion: resourceServiceVersion)
+            .AddService(serviceName: resourceServiceName!, serviceVersion: resourceServiceVersion)
             .AddTelemetrySdk()
             //.AddEnvironmentVariableDetector()
             .AddAttributes(attributes);

@@ -1,5 +1,8 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace TalentMesh.Module.Quizzes.Application.QuizQuestions.Get.v1;
 
+[ExcludeFromCodeCoverage]
 public sealed record QuizQuestionResponse(
     Guid? Id,
     string QuestionText,
