@@ -10,9 +10,10 @@ export const endpoint = {
   githubLoginUrl: `${base}/api/users/github-login`,
   userRegistrationUrl: `${base}/api/users/self-register`,
   userLoginUrl: `${base}/api/token`,
+  LogOutUrl: `${base}/api/token/logout`,
   refreshTokenUrl: `${base}/api/token/refresh`,
 
-  //HR Details  
+  //HR Details
   hrDetailsUrl: `${base}/api/users/hr`,
 
   //Interviewer Availability
@@ -30,13 +31,13 @@ export const endpoint = {
 
   //Interviewer Pending Interview Request
   interviewSearchUrl: `${base}/api/v1/interviews/interviews/search`,
-  
+
   //Interview Feedback
   interviewFeedbackUrl: `${base}/api/v1/interviews/interviewfeedbacks`,
-  
+
   //Notifications
   notificationSearchUrl: `${base}/api/v1/notifications/notifications/search`,
-  
+
   //Job Details
   jobDetailsUrl: `${base}/api/v1/job/jobs`,
 
@@ -61,6 +62,7 @@ export const endpoint = {
   subskillCreatedUrl: `${base}/api/v1/experties/subskills`,
   subskillUpdatedUrl: `${base}/api/v1/experties/subskills`,
   subskillDeletedUrl: `${base}/api/v1/experties/subskills`,
+  subskillDetailsUrl: `${base}/api/v1/experties/subskills/search`,
 
   seniorityDetailsUrl: `${base}/api/v1/experties/seniorities/search`,
   seniorityCreatedUrl: `${base}/api/v1/experties/seniorities`,

@@ -5,7 +5,7 @@ import { ApiService } from '../../core/service/api.service';
 import { Observable } from 'rxjs';
 
 @Injectable({
-  providedIn: 'root',
+  providedIn: "root",
 })
 export class SkillService {
   skillDetailsUrl = `${endpoint.skillDetailsUrl}`;
@@ -15,6 +15,7 @@ export class SkillService {
 
   userNotificationGetUrl = `${endpoint.userNotificationGetUrl}`;
 
+  subskillDetailsUrl = `${endpoint.subskillDetailsUrl}`;
   subskillCreatedUrl = `${endpoint.subskillCreatedUrl}`;
   subskillUpdatedUrl = `${endpoint.subskillUpdatedUrl}`;
   subskillDeletedUrl = `${endpoint.subskillDeletedUrl}`;
@@ -39,6 +40,10 @@ export class SkillService {
   }
   skillCreatedData(skillData: any): Observable<any> {
     return this.http.post(this.skillCreatedUrl.trim(), skillData);
+  }
+
+  subskillDetailsData(subskillData: any): Observable<any> {
+    return this.http.post(this.subskillDetailsUrl.trim(), subskillData);
   }
   subskillCreatedData(skillId: string, subskillData: any): Observable<any> {
     return this.http.post(this.subskillCreatedUrl.trim(), {

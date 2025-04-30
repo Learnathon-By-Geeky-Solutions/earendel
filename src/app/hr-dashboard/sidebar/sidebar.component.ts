@@ -5,16 +5,17 @@ import {
   OnDestroy,
   OnInit,
   Renderer2,
-} from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
-import { MatDialog } from '@angular/material/dialog';
-import { LogoutModalComponent } from '../logout-modal/logout-modal.component';
-import { filter, Subscription } from 'rxjs';
-import { NotificationhubService } from '../../shared/services/signalr/notificationhub.service';
+} from "@angular/core";
+import { CommonModule } from "@angular/common";
+import { Router, RouterModule } from "@angular/router";
+import { MatDialog } from "@angular/material/dialog";
+import { LogoutModalComponent } from "../logout-modal/logout-modal.component";
+import { filter, Subscription } from "rxjs";
+import { NotificationhubService } from "../../shared/services/signalr/notificationhub.service";
+import { LoginSignupService } from "../../shared/services/login-signup.service";
 
 @Component({
-  selector: 'app-sidebar',
+  selector: "app-sidebar",
   standalone: true,
   imports: [CommonModule, RouterModule],
   template: `
@@ -63,18 +64,6 @@ import { NotificationhubService } from '../../shared/services/signalr/notificati
               >
                 <i class="bi bi-briefcase"></i>
                 <span>Jobs</span>
-              </a>
-            </li>
-
-            <li class="nav-item">
-              <a
-                class="nav-link d-flex align-items-center gap-2"
-                routerLink="/hr-dashboard/payments"
-                routerLinkActive="active"
-                (click)="closeSidebarOnMobile()"
-              >
-                <i class="bi bi-credit-card"></i>
-                <span>Payments</span>
               </a>
             </li>
 
@@ -291,7 +280,9 @@ export class SidebarComponent implements AfterViewInit, OnInit, OnDestroy {
   constructor(
     private dialog: MatDialog,
     private notificationHubService: NotificationhubService,
-    private renderer: Renderer2
+    private renderer: Renderer2,
+    private logOutService: LoginSignupService,
+    private router: Router
   ) {}
 
   ngAfterViewInit() {
@@ -299,13 +290,13 @@ export class SidebarComponent implements AfterViewInit, OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    const user = JSON.parse(sessionStorage.getItem('loggedInUser') || '{}');
+    const user = JSON.parse(sessionStorage.getItem("loggedInUser") || "{}");
     this.notificationHubService.startConnection(user?.token);
 
     this.subscriptions.push(
       this.notificationHubService.connectionEstablished$
         .pipe(filter((connected) => connected))
-        .subscribe(() => console.log('Connected')),
+        .subscribe(() => console.log("Connected")),
 
       this.notificationHubService.systemAlerts$.subscribe((message: any) => {
         this.handleNotification(message);
@@ -326,7 +317,7 @@ export class SidebarComponent implements AfterViewInit, OnInit, OnDestroy {
     setTimeout(() => (this.isAnimatingNotification = false), 10000);
     const notificationId = `notification-${Date.now()}`;
     const notificationMessage =
-      message.message || 'You have a new notification';
+      message.message || "You have a new notification";
 
     // Add to DOM
     this.showNotificationToast(notificationId, notificationMessage);
@@ -334,26 +325,26 @@ export class SidebarComponent implements AfterViewInit, OnInit, OnDestroy {
 
   showNotificationToast(id: string, message: string): void {
     // Create notification element
-    const notificationElement = this.renderer.createElement('div');
-    this.renderer.addClass(notificationElement, 'notification-toast');
-    this.renderer.setAttribute(notificationElement, 'id', id);
+    const notificationElement = this.renderer.createElement("div");
+    this.renderer.addClass(notificationElement, "notification-toast");
+    this.renderer.setAttribute(notificationElement, "id", id);
 
     // Create message content
-    const messageElement = this.renderer.createElement('span');
-    this.renderer.addClass(messageElement, 'notification-message');
+    const messageElement = this.renderer.createElement("span");
+    this.renderer.addClass(messageElement, "notification-message");
     const messageText = this.renderer.createText(message);
     this.renderer.appendChild(messageElement, messageText);
 
     // Create close button
-    const closeButton = this.renderer.createElement('button');
-    this.renderer.addClass(closeButton, 'notification-close');
-    const closeIcon = this.renderer.createElement('i');
-    this.renderer.addClass(closeIcon, 'bi');
-    this.renderer.addClass(closeIcon, 'bi-x');
+    const closeButton = this.renderer.createElement("button");
+    this.renderer.addClass(closeButton, "notification-close");
+    const closeIcon = this.renderer.createElement("i");
+    this.renderer.addClass(closeIcon, "bi");
+    this.renderer.addClass(closeIcon, "bi-x");
     this.renderer.appendChild(closeButton, closeIcon);
 
     // Add event listener to close button
-    this.renderer.listen(closeButton, 'click', () => {
+    this.renderer.listen(closeButton, "click", () => {
       this.dismissNotification(id);
     });
 
@@ -376,7 +367,7 @@ export class SidebarComponent implements AfterViewInit, OnInit, OnDestroy {
     setTimeout(() => {
       const element = document.getElementById(id);
       if (element) {
-        this.renderer.addClass(element, 'show');
+        this.renderer.addClass(element, "show");
       }
     }, 10);
   }
@@ -385,8 +376,8 @@ export class SidebarComponent implements AfterViewInit, OnInit, OnDestroy {
     const element = document.getElementById(id);
     if (element) {
       // Animate out
-      this.renderer.removeClass(element, 'show');
-      this.renderer.addClass(element, 'hide');
+      this.renderer.removeClass(element, "show");
+      this.renderer.addClass(element, "hide");
 
       // Remove after animation
       setTimeout(() => {
@@ -402,7 +393,7 @@ export class SidebarComponent implements AfterViewInit, OnInit, OnDestroy {
     }
   }
 
-  @HostListener('window:resize', ['$event'])
+  @HostListener("window:resize", ["$event"])
   onResize(event: any) {
     this.updateSidebar(event.target.innerWidth);
   }
@@ -421,7 +412,29 @@ export class SidebarComponent implements AfterViewInit, OnInit, OnDestroy {
   }
 
   openLogoutModal() {
-    const ref = this.dialog.open(LogoutModalComponent, { width: '300px' });
-    ref.afterClosed().subscribe((res) => res && console.log('Logout'));
+    const ref = this.dialog.open(LogoutModalComponent, { width: "300px" });
+    ref.afterClosed().subscribe((result) => {
+      if (!result) {
+        return;
+      }
+      if (result) {
+        const user = JSON.parse(sessionStorage.getItem("loggedInUser") || "{}");
+        const userId = user.userId;
+
+        // 1. Call logout API
+        this.logOutService.logOut({ userId }).subscribe({
+          next: () => {
+            // 2. On success: clear storage, navigate
+            sessionStorage.removeItem("loggedInUser");
+            this.router.navigate(["/login"]);
+            console.log("Logged out successfully, navigating to login.");
+          },
+          error: (err) => {
+            console.error("Logout failed", err);
+            // Optionally show an error toast/snackbar
+          },
+        });
+      }
+    });
   }
 }

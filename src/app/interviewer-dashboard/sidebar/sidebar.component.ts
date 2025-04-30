@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+import { CommonModule } from "@angular/common";
 import {
   Component,
   ElementRef,
@@ -7,15 +7,16 @@ import {
   Output,
   Renderer2,
   ViewChild,
-} from '@angular/core';
-import { RouterModule } from '@angular/router';
-import { LogoutModalComponent } from '../../hr-dashboard/logout-modal/logout-modal.component';
-import { filter, Subscription } from 'rxjs';
-import { MatDialog } from '@angular/material/dialog';
-import { NotificationhubService } from '../../shared/services/signalr/notificationhub.service';
+} from "@angular/core";
+import { Router, RouterModule } from "@angular/router";
+import { LogoutModalComponent } from "../../hr-dashboard/logout-modal/logout-modal.component";
+import { filter, Subscription } from "rxjs";
+import { MatDialog } from "@angular/material/dialog";
+import { NotificationhubService } from "../../shared/services/signalr/notificationhub.service";
+import { LoginSignupService } from "../../shared/services/login-signup.service";
 
 @Component({
-  selector: 'app-sidebar',
+  selector: "app-sidebar",
   standalone: true,
   imports: [RouterModule, CommonModule],
   template: `
@@ -76,15 +77,7 @@ import { NotificationhubService } from '../../shared/services/signalr/notificati
           >
             Past Interviews
           </a>
-        
-          <a
-            class="nav-link px-3 py-2 rounded-2"
-            routerLinkActive="active"
-            [routerLinkActiveOptions]="{ exact: true }"
-            routerLink="/interviewer-dashboard/earnings"
-          >
-            Earnings
-          </a>
+
           <a
             class="nav-link px-3 py-2 rounded-2"
             routerLinkActive="active"
@@ -92,6 +85,9 @@ import { NotificationhubService } from '../../shared/services/signalr/notificati
             routerLink="/interviewer-dashboard/profile"
           >
             Profile
+          </a>
+          <a class="nav-link px-3 py-2 rounded-2" (click)="openLogoutModal()">
+            Logout
           </a>
         </nav>
       </div>
@@ -134,7 +130,7 @@ import { NotificationhubService } from '../../shared/services/signalr/notificati
       }
 
       .notification-indicator::after {
-        content: '';
+        content: "";
         position: absolute;
         top: -2px;
         right: -2px;
@@ -253,7 +249,7 @@ import { NotificationhubService } from '../../shared/services/signalr/notificati
 })
 export class SidebarComponent {
   @Output() sidebarToggle = new EventEmitter<boolean>();
-  @ViewChild('notificationContainer') notificationContainer!: ElementRef;
+  @ViewChild("notificationContainer") notificationContainer!: ElementRef;
 
   unreadNotificationsCount = 0;
   isOpen = false;
@@ -267,17 +263,19 @@ export class SidebarComponent {
   constructor(
     private dialog: MatDialog,
     private notificationHubService: NotificationhubService,
-    private renderer: Renderer2
+    private renderer: Renderer2,
+    private logOutService: LoginSignupService,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
-    const user = JSON.parse(sessionStorage.getItem('loggedInUser') || '{}');
+    const user = JSON.parse(sessionStorage.getItem("loggedInUser") || "{}");
     this.notificationHubService.startConnection(user?.token);
 
     const connectionSub = this.notificationHubService.connectionEstablished$
       .pipe(filter((connected) => connected))
       .subscribe(() =>
-        console.log('Connection established with notification hub')
+        console.log("Connection established with notification hub")
       );
 
     const notificationSub = this.notificationHubService.systemAlerts$.subscribe(
@@ -300,7 +298,7 @@ export class SidebarComponent {
   }
 
   handleNotification(message: any): void {
-    console.log('Received notification:', message);
+    console.log("Received notification:", message);
 
     // Increment unread count
     this.hasUnreadNotifications = true;
@@ -314,7 +312,7 @@ export class SidebarComponent {
     // Create notification toast
     const notificationId = `notification-${Date.now()}`;
     const notificationMessage =
-      message.message || 'You have a new notification';
+      message.message || "You have a new notification";
 
     // Add to DOM
     this.showNotificationToast(notificationId, notificationMessage);
@@ -322,26 +320,26 @@ export class SidebarComponent {
 
   showNotificationToast(id: string, message: string): void {
     // Create notification element
-    const notificationElement = this.renderer.createElement('div');
-    this.renderer.addClass(notificationElement, 'notification-toast');
-    this.renderer.setAttribute(notificationElement, 'id', id);
+    const notificationElement = this.renderer.createElement("div");
+    this.renderer.addClass(notificationElement, "notification-toast");
+    this.renderer.setAttribute(notificationElement, "id", id);
 
     // Create message content
-    const messageElement = this.renderer.createElement('span');
-    this.renderer.addClass(messageElement, 'notification-message');
+    const messageElement = this.renderer.createElement("span");
+    this.renderer.addClass(messageElement, "notification-message");
     const messageText = this.renderer.createText(message);
     this.renderer.appendChild(messageElement, messageText);
 
     // Create close button
-    const closeButton = this.renderer.createElement('button');
-    this.renderer.addClass(closeButton, 'notification-close');
-    const closeIcon = this.renderer.createElement('i');
-    this.renderer.addClass(closeIcon, 'bi');
-    this.renderer.addClass(closeIcon, 'bi-x');
+    const closeButton = this.renderer.createElement("button");
+    this.renderer.addClass(closeButton, "notification-close");
+    const closeIcon = this.renderer.createElement("i");
+    this.renderer.addClass(closeIcon, "bi");
+    this.renderer.addClass(closeIcon, "bi-x");
     this.renderer.appendChild(closeButton, closeIcon);
 
     // Add event listener to close button
-    this.renderer.listen(closeButton, 'click', () => {
+    this.renderer.listen(closeButton, "click", () => {
       this.dismissNotification(id);
     });
 
@@ -364,7 +362,7 @@ export class SidebarComponent {
     setTimeout(() => {
       const element = document.getElementById(id);
       if (element) {
-        this.renderer.addClass(element, 'show');
+        this.renderer.addClass(element, "show");
       }
     }, 10);
   }
@@ -373,8 +371,8 @@ export class SidebarComponent {
     const element = document.getElementById(id);
     if (element) {
       // Animate out
-      this.renderer.removeClass(element, 'show');
-      this.renderer.addClass(element, 'hide');
+      this.renderer.removeClass(element, "show");
+      this.renderer.addClass(element, "hide");
 
       // Remove after animation
       setTimeout(() => {
@@ -395,7 +393,7 @@ export class SidebarComponent {
     this.updateSidebar(window.innerWidth);
   }
 
-  @HostListener('window:resize', ['$event'])
+  @HostListener("window:resize", ["$event"])
   onResize(event: any) {
     this.updateSidebar(event.target.innerWidth);
   }
@@ -420,13 +418,28 @@ export class SidebarComponent {
   }
 
   openLogoutModal() {
-    const dialogRef = this.dialog.open(LogoutModalComponent, {
-      width: '300px',
-    });
-    dialogRef.afterClosed().subscribe((result) => {
+    const ref = this.dialog.open(LogoutModalComponent, { width: "300px" });
+    ref.afterClosed().subscribe((result) => {
+      if (!result) {
+        return;
+      }
       if (result) {
-        // Perform logout action here
-        console.log('User confirmed logout');
+        const user = JSON.parse(sessionStorage.getItem("loggedInUser") || "{}");
+        const userId = user.userId;
+
+        // 1. Call logout API
+        this.logOutService.logOut({ userId }).subscribe({
+          next: () => {
+            // 2. On success: clear storage, navigate
+            sessionStorage.removeItem("loggedInUser");
+            this.router.navigate(["/login"]);
+            console.log("Logged out successfully, navigating to login.");
+          },
+          error: (err) => {
+            console.error("Logout failed", err);
+            // Optionally show an error toast/snackbar
+          },
+        });
       }
     });
   }
