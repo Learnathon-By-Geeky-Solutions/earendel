@@ -89,6 +89,7 @@ export class InterviewReportComponent implements OnInit, OnDestroy {
   maxPossibleScore = 0;
 
   candidateName = 'Candidate';
+  candidateEmail = '';
   jobTitle = 'Job Position';
   interviewDate = '';
 
@@ -203,6 +204,9 @@ export class InterviewReportComponent implements OnInit, OnDestroy {
         .pipe(catchError(() => of(null)))
         .subscribe((res) => {
           if (res?.userName) this.candidateName = res.userName;
+           if (res.email) {
+             this.candidateEmail = res.email;
+           }
         })
     );
   }

@@ -40,8 +40,13 @@ export const endpoint = {
   //Job Details
   jobDetailsUrl: `${base}/api/v1/job/jobs`,
 
+  jobApplicationDetailsUrl: `${base}/api/v1/job/jobapplications/search`,
+
   //Job View
   jobViewUrl: `${base}/api/v1/JobView/candidateview/JobView`,
+
+  getJobUrl: `${base}/api/v1/job/jobs`,
+
   // Quiz related endpoints
   quizStartUrl: `${quizBase}/start`,
   quizQuestionUrl: quizBase,

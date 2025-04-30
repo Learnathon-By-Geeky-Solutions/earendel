@@ -232,7 +232,6 @@ import { SkillService } from '../services/skill.service';
                     <div>
                       <p class="mb-0">{{ notification.message }}</p>
                       <small class="text-muted">
-                        {{ notification.timestamp | date : 'medium' }}
                         <span
                           *ngIf="notification.entityType"
                           class="badge bg-light text-dark ms-2"

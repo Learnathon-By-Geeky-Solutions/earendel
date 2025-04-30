@@ -69,8 +69,7 @@
                                 <div class="notification-details flex-grow-1">
                                     <div class="d-flex justify-content-between align-items-start mb-1">
                                         <h6 class="notification-title mb-0">{{ notification.title }}</h6>
-                                        <span class="notification-time text-muted small">{{
-                                            formatDate(notification.createdOn) }}</span>
+                                        <span class="notification-time text-muted small">
                                     </div>
                                     <p class="notification-message mb-0">{{ notification.message }}</p>
                                     <div class="mt-2" *ngIf="!notification.isRead">

@@ -1,1 +1,67 @@
-<p>requested-interviews works!</p>
+<div class="interviews-container">
+  <h2>Your Applications</h2>
+
+
+  <div class="interviews-list">
+    <div *ngFor="let iv of paginatedInterviews" class="interview-card">
+      <div class="card-header">
+        <h3>{{ iv.companyName }}</h3>
+        <span class="status-badge" [ngClass]="iv.status">
+          {{ iv.status }}
+        </span>
+      </div>
+
+      <div class="card-content">
+        <div class="detail-row">
+          <i class="bi bi-briefcase"></i>
+          <span>{{ iv.position }}</span>
+        </div>
+        <div class="detail-row">
+          <i class="bi bi-calendar"></i>
+          <span>{{ iv.location }}</span>
+        </div>
+        <div class="detail-row">
+          <i class="bi bi-clock"></i>
+          <span>{{ iv.jobType }}</span>
+        </div>
+        <div class="detail-row">
+          <i class="bi bi-person"></i>
+          <span>{{ iv.salary }}</span>
+        </div>
+      </div>
+
+      <div class="card-actions">
+        <button
+          class="action-btn"
+          *ngIf="iv.status === 'scheduled'"
+        >
+          Join Interview
+        </button>
+        <button
+          class="cancel-btn"
+          *ngIf="iv.status === 'pending'"
+        >
+          Cancel Request
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="pagination">
+    <button
+      (click)="changePage(-1)"
+      [disabled]="currentPage === 1"
+      class="pagination-btn"
+    >
+      Previous
+    </button>
+    <span>Page {{ currentPage }} of {{ totalPages }}</span>
+    <button
+      (click)="changePage(1)"
+      [disabled]="currentPage === totalPages"
+      class="pagination-btn"
+    >
+      Next
+    </button>
+  </div>
+</div>
