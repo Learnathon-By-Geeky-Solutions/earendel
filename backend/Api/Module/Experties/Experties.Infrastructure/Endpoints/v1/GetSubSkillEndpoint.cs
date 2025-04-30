@@ -23,7 +23,7 @@ public static class GetSubSkillEndpoint
             .WithSummary("gets subskill by id")
             .WithDescription("gets subskill by id")
             .Produces<SubSkillResponse>()
-            .RequirePermission("Permissions.SubSkills.View")    // ← added
+            .RequirePermission("Permissions.Subskills.View")    // ← added
             .MapToApiVersion(1);
     }
 }

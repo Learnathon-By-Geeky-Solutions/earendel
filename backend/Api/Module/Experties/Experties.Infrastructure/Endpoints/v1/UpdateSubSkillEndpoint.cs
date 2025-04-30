@@ -23,7 +23,7 @@ public static class UpdateSubSkillEndpoint
             .WithSummary("update a subskill")
             .WithDescription("update a subskill")
             .Produces<UpdateSubSkillResponse>()
-            .RequirePermission("Permissions.SubSkills.Update")    // ← added
+            .RequirePermission("Permissions.Subskills.Update")    // ← added
             .MapToApiVersion(1);
     }
 }
