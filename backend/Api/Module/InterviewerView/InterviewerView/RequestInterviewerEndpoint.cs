@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using TalentMesh.Module.Evaluator.Application.Interviewer;
 using TalentMesh.Framework.Infrastructure.Auth.Policy;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Module.InterviewerView
 {
@@ -18,6 +19,7 @@ namespace TalentMesh.Module.InterviewerView
         public string? AdditionalInfo { get; set; }
     }
 
+    [ExcludeFromCodeCoverage]
     public static class RequestInterviewerEndpoint
     {
         public static IEndpointRouteBuilder MapRequestInterviewer(this IEndpointRouteBuilder app)

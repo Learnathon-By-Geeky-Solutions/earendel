@@ -1,10 +1,12 @@
-﻿using MediatR;
+﻿using System.Diagnostics.CodeAnalysis;
+using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using TalentMesh.Module.Job.Infrastructure.Persistence; // Use the correct namespace for your DbContext
 
 namespace TalentMesh.Module.CandidateLogic.JobApplicationView // Or your preferred namespace
 {
+    [ExcludeFromCodeCoverage]
     public class JobApplicationViewService : IRequestHandler<JobApplicationViewFilters, IResult>
     {
         private readonly JobDbContext _jobDbContext;

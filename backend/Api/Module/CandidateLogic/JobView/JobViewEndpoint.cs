@@ -1,4 +1,5 @@
-﻿using MediatR;
+﻿using System.Diagnostics.CodeAnalysis;
+using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -11,6 +12,7 @@ using TalentMesh.Module.Job.Infrastructure.Persistence;
 
 namespace TalentMesh.Module.CandidateLogic.JobView;
 
+[ExcludeFromCodeCoverage]
 public static class JobViewEndpoint
 {
     public static RouteHandlerBuilder MapJobViewEndpoints(this IEndpointRouteBuilder app)

@@ -8,9 +8,11 @@ using System.Collections.Generic;
 using TalentMesh.Module.Quizzes.Application.QuizAttempts.Get; // Namespace for DTO
 using TalentMesh.Module.Quizzes.Application.QuizAttempts.GetUserAttempts; // Namespace for Query
 using TalentMesh.Framework.Infrastructure.Auth.Policy;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Module.Quizzes.Api.Endpoints // Or your preferred namespace
 {
+    [ExcludeFromCodeCoverage]
     public static class GetUserQuizAttemptsEndpoint
     {
         public static RouteHandlerBuilder MapGetUserQuizAttemptsEndpoint(this IEndpointRouteBuilder app)

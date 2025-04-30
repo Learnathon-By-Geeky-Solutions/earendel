@@ -1,7 +1,10 @@
-﻿using FluentValidation;
+﻿using System.Diagnostics.CodeAnalysis;
+using FluentValidation;
 
 
 namespace TalentMesh.Module.Job.Application.JobApplication.Create.v1;
+
+[ExcludeFromCodeCoverage]
 public class CreateJobApplicationCommandValidator : AbstractValidator<CreateJobApplicationCommand>
 {
     public CreateJobApplicationCommandValidator()

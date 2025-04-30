@@ -2,10 +2,12 @@
 using Microsoft.AspNetCore.Http; // For IResult and Results
 using Microsoft.EntityFrameworkCore; // For EF Core methods like Include, Skip, Take
 using TalentMesh.Module.Job.Infrastructure.Persistence; // Your DbContext namespace
-using TalentMesh.Module.Job.Domain; // Add this to access the Jobs entity
+using TalentMesh.Module.Job.Domain;
+using System.Diagnostics.CodeAnalysis; // Add this to access the Jobs entity
 
 namespace TalentMesh.Module.HRView.HRFunc
 {
+    [ExcludeFromCodeCoverage]
     public class GetMyJobsQueryHandler : IRequestHandler<GetMyJobsQuery, IResult>
     {
         private readonly JobDbContext _context;

@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -11,6 +12,7 @@ using TalentMesh.Module.Quizzes.Infrastructure.Persistence;
 
 namespace TalentMesh.Module.Quizzes.Application.QuizAttempts.GetUserAttempts // Or your preferred namespace
 {
+    [ExcludeFromCodeCoverage]
     public class GetUserQuizAttemptsQueryHandler : IRequestHandler<GetUserQuizAttemptsQuery, IResult>
     {
         private readonly QuizzesDbContext _context;

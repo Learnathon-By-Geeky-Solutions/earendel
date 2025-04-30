@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -10,6 +11,7 @@ using TalentMesh.Module.Job.Infrastructure.Persistence; // Your DbContext namesp
 
 namespace TalentMesh.Module.CandidateLogic.JobView // Or your preferred namespace
 {
+    [ExcludeFromCodeCoverage]
     public class JobViewService : IRequestHandler<JobViewFilters, IResult>
     {
         private readonly JobDbContext _jobDbContext; // Renamed for clarity

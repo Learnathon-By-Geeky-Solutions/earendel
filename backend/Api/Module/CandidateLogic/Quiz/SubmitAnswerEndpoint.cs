@@ -6,16 +6,18 @@ using Microsoft.AspNetCore.Routing;
 using System;
 using TalentMesh.Module.Quizzes.Application.QuizAttempts.SubmitAnswer; // Namespace for Command
 using TalentMesh.Framework.Infrastructure.Auth.Policy;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Module.Quizzes.Api.Endpoints // Or your preferred namespace
 {
+    [ExcludeFromCodeCoverage]
     // Request body for submitting an answer
     public class SubmitAnswerRequest
     {
         public Guid QuestionId { get; set; }
         public int SelectedOption { get; set; } // e.g., 1, 2, 3, or 4
     }
-
+    [ExcludeFromCodeCoverage]
     public static class SubmitAnswerEndpoint
     {
         public static RouteHandlerBuilder MapSubmitAnswerEndpoint(this IEndpointRouteBuilder app)

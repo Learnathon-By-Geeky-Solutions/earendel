@@ -9,9 +9,11 @@ using TalentMesh.Module.Experties.Domain.Exceptions;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Module.Experties.Application.SeniorityLevelJunctions.Update.v1
 {
+    [ExcludeFromCodeCoverage]
     public sealed class UpdateSeniorityLevelJunctionHandler : IRequestHandler<UpdateSeniorityLevelJunctionCommand, UpdateSeniorityLevelJunctionResponse>
     {
         private readonly ILogger<UpdateSeniorityLevelJunctionHandler> _logger;

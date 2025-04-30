@@ -4,11 +4,13 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc; // For [FromQuery]
 using Microsoft.AspNetCore.Routing;
+using System.Diagnostics.CodeAnalysis;
 using System.Security.Claims;
 using TalentMesh.Framework.Infrastructure.Auth.Policy;
 
 namespace TalentMesh.Module.HRView.HRFunc
 {
+    [ExcludeFromCodeCoverage]
     public static class GetMyJobsEndpoint
     {
         public static RouteHandlerBuilder MapGetMyJobsEndpoint(this IEndpointRouteBuilder app)

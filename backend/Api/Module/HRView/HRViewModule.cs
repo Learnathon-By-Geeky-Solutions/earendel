@@ -1,4 +1,5 @@
-﻿using Carter;
+﻿using System.Diagnostics.CodeAnalysis;
+using Carter;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
@@ -11,6 +12,8 @@ using TalentMesh.Module.Job.Infrastructure.Persistence;
 using TalentMesh.Module.Quizzes.Infrastructure.Persistence;
 
 namespace TalentMesh.Module.HRView;
+
+[ExcludeFromCodeCoverage]
 public static class HRViewModule
 {
     public class Endpoints : CarterModule

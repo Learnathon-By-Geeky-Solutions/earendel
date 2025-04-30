@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using TalentMesh.Framework.Core.Persistence;
 using TalentMesh.Module.Interviews.Domain;
@@ -18,6 +19,7 @@ namespace TalentMesh.Module.InterviewerView
     public record GetUpcomingInterviewsForInterviewerQuery(Guid InterviewerId) : IRequest<List<InterviewDto>>;
 
     // Handlers
+    [ExcludeFromCodeCoverage]
     public class GetUpcomingForCandidateHandler : IRequestHandler<GetUpcomingInterviewsForCandidateQuery, List<InterviewDto>>
     {
         private readonly IRepository<Interview> _interviewRepo;

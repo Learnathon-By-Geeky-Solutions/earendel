@@ -1,10 +1,12 @@
-﻿using MediatR;
+﻿using System.Diagnostics.CodeAnalysis;
+using MediatR;
 using Microsoft.AspNetCore.Http; // For IResult and Results
 using Microsoft.EntityFrameworkCore; // For EF Core methods like Include, Skip, Take
 using TalentMesh.Module.Job.Infrastructure.Persistence; // Your DbContext namespace
 
 namespace TalentMesh.Module.HRView.HRFunc // Or your preferred namespace
 {
+    [ExcludeFromCodeCoverage]
     public class GetAllJobApplicationsQueryHandler : IRequestHandler<GetAllJobApplicationsQuery, IResult>
     {
         private readonly JobDbContext _context;

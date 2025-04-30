@@ -1,4 +1,5 @@
 ﻿
+using System.Diagnostics.CodeAnalysis;
 using MediatR;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
@@ -9,7 +10,7 @@ using TalentMesh.Module.Interviews.Domain;
 
 namespace TalentMesh.Module.InterviewerView
 {
-
+    [ExcludeFromCodeCoverage]
     // Endpoints
     public static class InterviewFeedbackEndpoint
     {

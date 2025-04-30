@@ -7,9 +7,11 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using TalentMesh.Module.Evaluator.Application.Interviewer;
 using TalentMesh.Framework.Infrastructure.Auth.Policy;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Module.InterviewerView
 {
+    [ExcludeFromCodeCoverage]
     public static class ApproveInterviewerEndpoint
     {
         public static IEndpointRouteBuilder MapApproveInterviewer(this IEndpointRouteBuilder app)

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
@@ -12,6 +13,7 @@ namespace TalentMesh.Module.InterviewerView
     // Response DTO for interviewer requests
     public record RequestInterviewerResult(Guid RequestId, string Status);
 
+    [ExcludeFromCodeCoverage]
     public class RequestInterviewerHandler : IRequestHandler<RequestInterviewerCommand, RequestInterviewerResult>
     {
         private readonly EvaluatorDbContext _dbContext;

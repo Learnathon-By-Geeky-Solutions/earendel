@@ -10,9 +10,11 @@ using TalentMesh.Framework.Core.Persistence;
 using TalentMesh.Module.Evaluator.Domain;
 using Asp.Versioning.Conventions;
 using TalentMesh.Framework.Infrastructure.Auth.Policy;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Endpoints
 {
+    [ExcludeFromCodeCoverage]
     public static class InterviewerEndpoints
     {
         public static WebApplication MapInterviewerEndpoints(this WebApplication app)

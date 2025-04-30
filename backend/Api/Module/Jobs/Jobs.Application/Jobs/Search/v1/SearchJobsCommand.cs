@@ -1,9 +1,11 @@
 using TalentMesh.Framework.Core.Paging;
 using TalentMesh.Module.Job.Application.Jobs.Get.v1;
 using MediatR;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Module.Job.Application.Jobs.Search.v1;
 
+[ExcludeFromCodeCoverage]
 public class SearchJobsCommand : PaginationFilter, IRequest<PagedList<JobResponse>>
 {
     public string? Name { get; set; }

@@ -105,6 +105,7 @@ namespace TalentMesh.Framework.Infrastructure.Identity.Users.Services
 
     }
 
+    [ExcludeFromCodeCoverage]
     public static class LoggerHelper
     {
         public static void LogReceivedMessage(ILogger logger, string message)
@@ -112,18 +113,20 @@ namespace TalentMesh.Framework.Infrastructure.Identity.Users.Services
             logger.LogInformation("Received {Message}.", message);
         }
 
+        [ExcludeFromCodeCoverage]
         public static void LogInformation(ILogger logger, string message, string data)
         {
             logger.LogInformation("{Message}: {Data}", message, data);
         }
 
-
+        [ExcludeFromCodeCoverage]
         public static void LogWarning(ILogger logger, string message)
         {
             logger.LogWarning("Warning: {Message}", message);
         }
     }
 
+    [ExcludeFromCodeCoverage]
     public class InterviewMessage
     {
         public Guid InterviewerId { get; set; }
@@ -131,6 +134,7 @@ namespace TalentMesh.Framework.Infrastructure.Identity.Users.Services
         public List<InterviewItem> Interviews { get; set; } = new();
     }
 
+    [ExcludeFromCodeCoverage]
     public class InterviewItem
     {
         public Guid Id { get; set; }

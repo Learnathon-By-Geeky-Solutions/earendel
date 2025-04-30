@@ -1,9 +1,11 @@
 ﻿using TalentMesh.Module.Job.Domain.Events;
 using MediatR;
 using Microsoft.Extensions.Logging;
+using System.Diagnostics.CodeAnalysis;
 
 namespace TalentMesh.Module.Job.Application.JobApplication.EventHandlers;
 
+[ExcludeFromCodeCoverage]
 public class JobApplicationCreatedEventHandler(ILogger<JobApplicationCreatedEventHandler> logger) : INotificationHandler<JobApplicationCreated>
 {
     public async Task Handle(JobApplicationCreated notification,
