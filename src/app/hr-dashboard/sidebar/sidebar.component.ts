@@ -34,7 +34,7 @@ import { LoginSignupService } from "../../shared/services/login-signup.service";
         <div
           class="sidebar-header p-4 border-bottom d-flex justify-content-between align-items-center"
         >
-          <h1 class="h5 mb-0 fw-bold">HR</h1>
+          <h1 class="h5 mb-0 fw-bold">Recruiter Dashboard</h1>
           <button class="btn btn-link d-lg-none" (click)="toggleSidebar()">
             <i class="bi bi-x-lg"></i>
           </button>

@@ -26,7 +26,7 @@ import { LoginSignupService } from "../../shared/services/login-signup.service";
       style="width: 240px; height: 100vh;"
     >
       <div class="p-4">
-        <h2 class="h6 mb-4">Menu</h2>
+        <h4 class="h4 mb-4">Interviewer Dashboard</h4>
         <nav class="nav flex-column gap-2">
           <a
             class="nav-link px-3 py-2 rounded-2"
@@ -185,6 +185,17 @@ import { LoginSignupService } from "../../shared/services/login-signup.service";
         opacity: 0;
         transition: transform 0.3s ease, opacity 0.3s ease;
       }
+
+  
+
+        h4 {
+          font-size: 18px;
+          font-weight: 800;
+          margin: 0;
+          color: #333;
+        }
+      
+
 
       .notification-toast.show {
         transform: translateX(0);

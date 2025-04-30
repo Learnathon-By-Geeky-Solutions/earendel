@@ -1,4 +1,4 @@
-import { AfterViewInit, Component } from '@angular/core';
+import { AfterViewInit, Component, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatInputModule } from '@angular/material/input';
@@ -9,6 +9,10 @@ import { environment } from '../../environments/environment';
 import { HttpClientModule } from '@angular/common/http';
 import { LoginSignupService } from '../shared/services/login-signup.service';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { BearAvatarComponent } from '../shared/components/bear-avatar/bear-avatar.component';
+import { AnimatedInputComponent } from '../shared/components/animated-input/animated-input.component';
+import { BearAnimationService } from '../shared/services/bear-animation.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-login',
@@ -23,6 +27,8 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
     HttpClientModule,
     ReactiveFormsModule,
     MatSnackBarModule,
+    BearAvatarComponent,
+    AnimatedInputComponent
   ],
   template: `
     <div
@@ -31,36 +37,77 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
       <div class="card shadow-lg" style="max-width: 400px; width: 100%;">
         <div class="card-body p-5">
           <h2 class="text-center mb-4">Login</h2>
+          
+          <!-- Bear Avatar -->
+          <div class="d-flex justify-content-center mb-4">
+            <div style="width: 130px; height: 130px;" class="position-relative">
+              <div class="position-absolute top-0 start-0 bottom-0 end-0 d-flex align-items-center justify-content-center">
+                <app-bear-avatar 
+                  [currentImage]="bearAnimationService.currentBearImage || ''" 
+                  [size]="130"
+                ></app-bear-avatar>
+              </div>
+            </div>
+          </div>
+          
           <form (ngSubmit)="onSubmit()">
-            <mat-form-field appearance="outline" class="w-100 mb-3">
-              <mat-label>Email</mat-label>
-              <input
-                matInput
+            <!-- Email Input with Animation -->
+            <div class="w-100 mb-3">
+              <app-animated-input
                 type="email"
-                [(ngModel)]="email"
+                placeholder="Email"
                 name="email"
-                required
-              />
-            </mat-form-field>
-            <mat-form-field appearance="outline" class="w-100 mb-3">
-              <mat-label>Password</mat-label>
-              <input
-                matInput
-                type="password"
-                [(ngModel)]="password"
+                [autocomplete]="'email'"
+                [(ngModel)]="email"
+                (ngModelChange)="onEmailChange()"
+                (focus)="onEmailFocus()"
+                (input)="updateAnimation()"
+              ></app-animated-input>
+            </div>
+            
+            <!-- Password Input with Animation and Toggle -->
+            <div class="w-100 mb-3 position-relative">
+              <app-animated-input
+                [type]="showPassword ? 'text' : 'password'"
+                placeholder="Password"
                 name="password"
-                required
-              />
-            </mat-form-field>
+                [autocomplete]="'current-password'"
+                [(ngModel)]="password"
+                (focus)="onPasswordFocus()"
+              ></app-animated-input>
+              
+              <!-- Password Toggle Button -->
+              <button
+                type="button"
+                (click)="togglePassword()"
+                [disabled]="bearAnimationService.isAnimating"
+                class="btn position-absolute top-50 end-0 translate-middle-y me-2"
+                style="background: none; border: none;"
+              >
+                <img 
+                  [src]="showPassword ? '/assets/icons/eye_off.svg' : '/assets/icons/eye_on.svg'" 
+                  [alt]="showPassword ? 'Hide password' : 'Show password'"
+                  width="24"
+                  height="24"
+                  class="transition"
+                  style="transition: transform 0.3s; transform: rotate(0); cursor: pointer;"
+                  onmouseover="this.style.transform='scale(1.1)'"
+                  onmouseout="this.style.transform='scale(1)'"
+                />
+              </button>
+            </div>
+            
             <button
               mat-raised-button
               color="primary"
-              class="w-100 mb-3"
+              class="w-100 mb-3 py-2"
               type="submit"
+              style="background-color: #ff731d;"
             >
               Login
             </button>
           </form>
+          
           <div class="text-center">
             <p class="mb-3">Or login with</p>
 
@@ -105,12 +152,8 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
       .card {
         border-radius: 15px;
       }
-      mat-form-field {
-        width: 100%;
-      }
-      .g_id_signin,
-      #g_id_onload {
-        cursor: default !important;
+      .transition {
+        transition: all 0.3s ease;
       }
       .google-icon-container {
         display: flex;
@@ -139,21 +182,35 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
     `,
   ],
 })
-export class LoginComponent implements AfterViewInit {
+export class LoginComponent implements AfterViewInit, OnInit, OnDestroy {
   email = '';
   password = '';
   token!: string;
   googleClientId = environment.googleClientId;
   githubClientId = environment.githubClientId;
+  showPassword = false;
+  
+  private subscription = new Subscription();
 
   constructor(
     private formBuilder: FormBuilder,
     private router: Router,
     private loginService: LoginSignupService,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    public bearAnimationService: BearAnimationService
   ) {}
 
+  ngOnInit(): void {
+    // Set initial focus to EMAIL
+    this.bearAnimationService.setCurrentFocus('EMAIL');
+  }
+
   ngAfterViewInit() {
+    // Initial animation update
+    setTimeout(() => {
+      this.updateAnimation();
+    }, 100);
+    
     this.loadGoogleScript()
       .then(() => {
         this.initializeGoogleSignIn();
@@ -161,6 +218,38 @@ export class LoginComponent implements AfterViewInit {
       .catch((error) => {
         console.error('Google Sign-In failed to load:', error);
       });
+  }
+
+  ngOnDestroy(): void {
+    this.subscription.unsubscribe();
+  }
+
+  onEmailFocus(): void {
+    this.bearAnimationService.setCurrentFocus('EMAIL');
+    this.updateAnimation();
+  }
+
+  onPasswordFocus(): void {
+    this.bearAnimationService.setCurrentFocus('PASSWORD');
+    this.updateAnimation();
+  }
+
+  onEmailChange(): void {
+    // Update animation when email changes - will be called for each keystroke with ngModelChange
+    if (this.bearAnimationService.currentFocus === 'EMAIL') {
+      this.updateAnimation();
+    }
+  }
+
+  togglePassword(): void {
+    if (!this.bearAnimationService.isAnimating) {
+      this.showPassword = !this.showPassword;
+      this.updateAnimation();
+    }
+  }
+
+  public updateAnimation(): void {
+    this.bearAnimationService.updateAnimation(this.email.length, this.showPassword);
   }
 
   private loadGoogleScript(): Promise<void> {
