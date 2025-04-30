@@ -6,8 +6,6 @@
 
 <img src="public/images/talentmesh-banner.png" alt="TalentMesh Banner" width="100%">
 
-
-
 ### Explore Our Wiki, API Docs, and Project Management Tools!
 
 [![Explore the Wiki](https://img.shields.io/badge/Explore-Wiki-0077B5?style=for-the-badge&logo=readthedocs&logoColor=white)](https://github.com/Learnathon-By-Geeky-Solutions/earendel/wiki)
@@ -25,11 +23,9 @@
 [![Nginx](https://img.shields.io/badge/Nginx-009639?style=for-the-badge&logo=nginx&logoColor=white)](https://nginx.org/)
 [![Grafana](https://img.shields.io/badge/Grafana-0e0e0e?style=for-the-badge&logo=grafana&logoColor=white)](#grafana)
 [![Prometheus](https://img.shields.io/badge/Prometheus-EC5858?style=for-the-badge&logo=prometheus&logoColor=white)](https://prometheus.io/)
-[![Kubernetes](https://img.shields.io/badge/Kubernetes-326CE5?style=for-the-badge&logo=kubernetes&logoColor=white)](https://kubernetes.io/)
 [![RabbitMQ](https://img.shields.io/badge/RabbitMQ-FF6600?style=for-the-badge&logo=rabbitmq&logoColor=white)](#rabbitmq)
 [![Aspire Dashboard](https://img.shields.io/badge/Aspire%20Dashboard-dcd5f6?style=for-the-badge&logo=pydantic&logoColor=7455dd)](#aspire)
 [![Hangfire](https://img.shields.io/badge/Hangfire%20Background%20Jobs-2b4a7b?style=for-the-badge&logo=hetzner&logoColor=white)](#hangfire)
-
 
 <br>
 
@@ -55,7 +51,6 @@
 </table>
 
 </div>
-
 
 <div align="center">
 
@@ -92,9 +87,7 @@
 
 </div>
 
-
 ---
-
 
 # 🤖 About TalentMesh
 
@@ -102,9 +95,9 @@
 <tr>
 <td>
  
-Welcome to the <b>TalentMesh</b> GitHub Repo!  
+Welcome to the <b>TalentMesh</b> GitHub Repo!
 
-TalentMesh is a next-generation **Interview as a Service (IaaS)** platform designed to streamline technical hiring. Our platform helps companies conduct **standardized, scalable, and efficient** interviews by providing a seamless experience for both interviewers and candidates.  
+TalentMesh is a next-generation **Interview as a Service (IaaS)** platform designed to streamline technical hiring. Our platform helps companies conduct **standardized, scalable, and efficient** interviews by providing a seamless experience for both interviewers and candidates.
 
 ## 🔥 Why TalentMesh?
 
@@ -112,27 +105,26 @@ Traditional hiring processes come with several challenges:
 ✅ **Fragmented evaluations** – Assessments often lack standardization, leading to inconsistent results.  
 ✅ **Scheduling delays** – Coordinating interviews can be time-consuming and inefficient.  
 ✅ **Interviewer burnout** – Companies struggle with interviewer availability and bandwidth.  
-✅ **Candidate drop-offs** – Lengthy hiring cycles increase the risk of losing top talent.  
+✅ **Candidate drop-offs** – Lengthy hiring cycles increase the risk of losing top talent.
 
 TalentMesh **solves these problems** by offering an **on-demand interview outsourcing platform**, ensuring:  
 🔹 Faster interview scheduling  
 🔹 High-quality and standardized evaluations  
 🔹 A pay-per-interview pricing model  
 🔹 Real-time assessments with a collaborative coding environment  
-🔹 **Reports** and detailed feedback are generated instantly. 
+🔹 **Reports** and detailed feedback are generated instantly.
 
 ## 🌍 Market Opportunity
 
-- **The global recruitment outsourcing market** was valued at **$7.33 billion** in 2022 and is projected to grow at **16.1% CAGR** from 2023 to 2030.  
-- Companies are shifting towards **outsourced interview solutions** to cut costs and improve hiring efficiency.  
+- **The global recruitment outsourcing market** was valued at **$7.33 billion** in 2022 and is projected to grow at **16.1% CAGR** from 2023 to 2030.
+- Companies are shifting towards **outsourced interview solutions** to cut costs and improve hiring efficiency.
 
 ## 💡 Key Benefits
 
-- **Reduced time-to-hire** – Faster scheduling and instant reports eliminate hiring delays.  
-- **Cost-effective** – Pay-per-interview model ensures budget control for businesses.  
-- **Access to top interviewers** – A network of industry experts conducts interviews.  
+- **Reduced time-to-hire** – Faster scheduling and instant reports eliminate hiring delays.
+- **Cost-effective** – Pay-per-interview model ensures budget control for businesses.
+- **Access to top interviewers** – A network of industry experts conducts interviews.
 - **Comprehensive reporting** - Companies receive detailed insights to evaluate candidates effectively.
-
 
 </td> 
 </tr>
@@ -140,14 +132,19 @@ TalentMesh **solves these problems** by offering an **on-demand interview outsou
 
 ## 🏗 System Architecture
 
-### 📌 ER Diagram  
+<img src="public/images/system-architecture_diagram.png" alt="System Architecture Diagram" width="100%">
+
+### 📌 User Flow Diagram
+
+<img src="public/images/user-flow-diagram.png" alt="User Flow Diagram" width="100%">
+
+### 📌 ER Diagram
 
 <img src="public/images/ER-Diagram.png" alt="ER Diagram" width="100%">
 
+## 📊 Dashboards
 
-## 📊 Dashboards  
-We used various monitoring and visualization tools to track our system health and metrics:  
-
+We used various monitoring and visualization tools to track our system health and metrics:
 
 <h4 id="grafana"> <b>Grafana</b> – Real-time application monitoring </h4> 
 <table>
@@ -166,7 +163,6 @@ We used various monitoring and visualization tools to track our system health an
 </table>
 <img src="public/images/grafana-dashboard.png" alt="Grafana Dashboard" width="100%">
 
-
 <h4 id="prometheus"> <b>Prometheus</b> – Monitoring system & time series database </h4> 
 <table>
 <tr>
@@ -183,7 +179,6 @@ We used various monitoring and visualization tools to track our system health an
 </tr>
 </table>
 <img src="public/images/prometheus-dashboard.png" alt="Prometheus Dashboard" width="100%">
-
 
 <h4 id="aspire"> <b>Aspire</b> –  API and service management </h4> 
 <img src="public/images/aspire-logging-system.png" alt="Aspire Dashboard" width="100%">
@@ -224,26 +219,26 @@ We used various monitoring and visualization tools to track our system health an
 
 ---
 
-## 🔀 Git Workflow Strategy  
-We follow **GitFlow** branching strategy to maintain code quality and streamline development.  
+## 🔀 Git Workflow Strategy
+
+We follow **GitFlow** branching strategy to maintain code quality and streamline development.
 
 <img src="public/images/GitFlow-Branching-Strategy.png" alt="Gitflow Diagram" width="100%" alt="Gitflow Image">
 
 ---
 
-## 📜 API Documentation  
-We provide a fully interactive **Swagger UI** for API testing and documentation.  
+## 📜 API Documentation
+
+We provide a fully interactive **Swagger UI** for API testing and documentation.
 
 [![Swagger](https://img.shields.io/badge/Swagger-85EA2D?style=for-the-badge&logo=swagger&logoColor=black)](http://173.249.54.173/swagger/index.html)
 
- 
 ---
-
 
 <div align="center">
 
 # 🖥️ Talent Mesh Frontend
- 
+
 </div>
 
 <div align="center">
@@ -260,58 +255,35 @@ While this repository only hosts our backend services. But for convenience, we h
 </div>
 
 ---
- 
-## 🛠 Technical Architecture
 
-### Architecture Overview
+## 🛠 Technical Architecture
 
 ```yaml
 Core Architecture:
   - Pattern: Modular Monolithic
-  - Design: Clean Architecture
-  - Principles: SOLID, DDD
+  - Design: Clean Architecture, Multi-tenancy
+  - Principles: SOLID
 
 Modules:
-  User Management:
+  Identity:
     - Identity & Access Control
     - Profile Management
-  Recruitment:
+  Jobs:
     - Job Management
-    - Candidate Tracking
-  Analytics:
-    - Reporting Engine
-    - Performance Metrics
+    - Candidate Application
+  Interviewer:
+    - Zoom SDK
+    - Codeing Playground (Code Compiler)
 
 Technology Stack:
   Framework: ASP.NET Core 8.0
   Database: PostgreSQL 15
   Caching: Redis
   Real-time: SignalR
+  Analytics: Grafana, Prometheus, Hangfire, Aspire Dashboard
 
 Development Practices:
   - Domain-Driven Design
   - CQRS Pattern
-  - Event-Driven Communication
+  - Event-Driven Architecture
 ```
-
-### Infrastructure & Deployment
-
-- **🏛️ Application Architecture**
-
-  - Modular Monolithic Design
-  - Containerized with Docker
-  - GitHub Actions CI/CD Pipeline
-
-- **🔐 Security & Authentication**
-
-  - ASP.NET Core Identity
-  - JWT Authentication
-  - Role-based Access Control (RBAC)
-  - API Key Management
-
-- **📈 Monitoring & Logging**
-  - Application Insights Integration
-  - Structured Logging with Serilog
-  - Health Checks & Diagnostics
-  - Performance Monitoring
-
