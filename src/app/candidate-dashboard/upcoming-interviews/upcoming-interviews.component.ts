@@ -68,6 +68,7 @@ export class CandidateUpcomingInterviewsComponent implements OnInit {
 
     this.interviewerService.getAcceptedCandidateInterviews().subscribe({
       next: (data: any) => {
+        console.log(data);
         // Process the interviews to add formatted date and time
         const processedInterviews = data.map((interview: any) => {
           const { date, time, originalDate } = this.parseInterviewDate(
@@ -80,6 +81,8 @@ export class CandidateUpcomingInterviewsComponent implements OnInit {
             originalDate,
           };
         });
+
+
 
         // Filter interviews to show only upcoming and those within the 1-hour grace period
         this.interviews = this.filterUpcomingInterviews(processedInterviews);
@@ -125,6 +128,9 @@ export class CandidateUpcomingInterviewsComponent implements OnInit {
       return interview.originalDate >= oneAndHalfHoursAgo;
     });
   }
+
+
+  
 
   /**
    * Returns true if the interview meeting is joinable:

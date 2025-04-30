@@ -681,9 +681,9 @@ export class CustomizedInterviewComponent implements OnInit {
           // Show success message for a short time before redirecting
           this.errorMessage = `Job created successfully. Redirecting to payment...`;
           
-          // Redirect to payment page after a short delay
+          // Open payment page in a new tab
           setTimeout(() => {
-            window.location.href = response.payment;
+            window.open(response.payment, '_blank');
           }, 1500);
         } else {
           // If no payment URL, just navigate to dashboard

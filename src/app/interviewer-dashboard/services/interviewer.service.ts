@@ -125,9 +125,38 @@ export class InterviewerService {
   ): Observable<InterviewResponse> {
     const userId = this.getUserId();
 
-    // Set interviewerId to userId if not provided
+    //Set interviewerId to userId if not provided
     if (!params.interviewerId && userId) {
       params.interviewerId = userId;
+    }
+
+   
+
+    return this.http
+      .post<InterviewResponse>(endpoint.interviewSearchUrl, params)
+      .pipe(
+        catchError((error) => {
+          console.error('Error searching interviews:', error);
+          return of({
+            items: [],
+            pageNumber: 1,
+            pageSize: 10,
+            totalCount: 0,
+            totalPages: 0,
+            hasPrevious: false,
+            hasNext: false,
+          });
+        })
+      );
+  }
+
+  searchCandidateInterviews(
+    params: InterviewSearchParams
+  ): Observable<InterviewResponse> {
+    const userId = this.getUserId();
+
+    if (!params.candidateId && userId) {
+      params.candidateId = userId;
     }
 
     return this.http
@@ -147,6 +176,8 @@ export class InterviewerService {
         })
       );
   }
+
+
 
   /**
    * Get job details by ID
@@ -337,6 +368,7 @@ export class InterviewerService {
 
   getAcceptedCandidateInterviews(): Observable<InterviewRequest[]> {
     const userId = this.getUserId();
+    console.log(userId);
 
     if (!userId) {
       // Return empty array if no user ID is found
@@ -351,8 +383,9 @@ export class InterviewerService {
       pageSize: 100,
     };
 
-    return this.searchInterviews(params).pipe(
+    return this.searchCandidateInterviews(params).pipe(
       switchMap((response) => {
+        console.log(response);
         // Create an array of observables for each interview to fetch job details
         const interviewsWithJobDetails$ = response.items.map((interview) => {
           if (interview.jobId) {
@@ -378,6 +411,7 @@ export class InterviewerService {
           : of([]);
       }),
       map((interviewsWithDetails) => {
+        console.log(interviewsWithDetails);
         // Transform the combined data to the format expected by the component
         return interviewsWithDetails.map(({ interview, jobDetails }) => {
           // Create the interview request object with job details if available
