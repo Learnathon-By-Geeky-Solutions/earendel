@@ -404,84 +404,87 @@ interface EnrichedInterview {
 }
 
 @Component({
-  selector: 'app-requested-interviews',
+  selector: "app-requested-interviews",
   standalone: true,
   imports: [CommonModule, FormsModule],
-  template: `
-    <div class="interviews-container">
-      <h2>Requested Interviews</h2>
-      <div class="search-container">
-        <input
-          type="text"
-          [(ngModel)]="searchTerm"
-          (ngModelChange)="applyFilter()"
-          placeholder="Search interviews..."
-          class="search-input"
-        />
-      </div>
-      <div class="interviews-list">
-        <div *ngFor="let iv of paginatedInterviews" class="interview-card">
-          <div class="card-header">
-            <h3>{{ iv.companyName }}</h3>
-            <span [class]="'status-badge ' + iv.status">
-              {{ iv.status }}
-            </span>
-          </div>
-          <div class="card-content">
-            <div class="detail-row">
-              <i class="bi bi-briefcase"></i>
-              <span>{{ iv.position }}</span>
-            </div>
-            <div class="detail-row">
-              <i class="bi bi-calendar"></i>
-              <span>{{ iv.date }}</span>
-            </div>
-            <div class="detail-row">
-              <i class="bi bi-clock"></i>
-              <span>{{ iv.time }}</span>
-            </div>
-            <div class="detail-row">
-              <i class="bi bi-person"></i>
-              <span>{{ iv.interviewerName }}</span>
-            </div>
-          </div>
-          <div class="card-actions">
-            <button class="action-btn" *ngIf="iv.status === 'scheduled'">
-              Join Interview
-            </button>
-            <button class="cancel-btn" *ngIf="iv.status === 'pending'">
-              Cancel Request
-            </button>
-          </div>
-        </div>
-      </div>
-      <div class="pagination">
-        <button
-          (click)="changePage(-1)"
-          [disabled]="currentPage === 1"
-          class="pagination-btn"
-        >
-          Previous
-        </button>
-        <span>Page {{ currentPage }} of {{ totalPages }}</span>
-        <button
-          (click)="changePage(1)"
-          [disabled]="currentPage === totalPages"
-          class="pagination-btn"
-        >
-          Next
-        </button>
-      </div>
-    </div>
-  `,
+  // template: `
+  //   <div class="interviews-container">
+  //     <h2>Requested Interviews</h2>
+  //     <div class="search-container">
+  //       <input
+  //         type="text"
+  //         [(ngModel)]="searchTerm"
+  //         (ngModelChange)="applyFilter()"
+  //         placeholder="Search interviews..."
+  //         class="search-input"
+  //       />
+  //     </div>
+  //     <div class="interviews-list">
+  //       <div *ngFor="let iv of paginatedInterviews" class="interview-card">
+  //         <div class="card-header">
+  //           <h3>{{ iv.companyName }}</h3>
+  //           <span [class]="'status-badge ' + iv.status">
+  //             {{ iv.status }}
+  //           </span>
+  //         </div>
+  //         <div class="card-content">
+  //           <div class="detail-row">
+  //             <i class="bi bi-briefcase"></i>
+  //             <span>{{ iv.position }}</span>
+  //           </div>
+  //           <div class="detail-row">
+  //             <i class="bi bi-calendar"></i>
+  //             <span>{{ iv.date }}</span>
+  //           </div>
+  //           <div class="detail-row">
+  //             <i class="bi bi-clock"></i>
+  //             <span>{{ iv.time }}</span>
+  //           </div>
+  //           <div class="detail-row">
+  //             <i class="bi bi-person"></i>
+  //             <span>{{ iv.interviewerName }}</span>
+  //           </div>
+  //         </div>
+  //         <div class="card-actions">
+  //           <button class="action-btn" *ngIf="iv.status === 'scheduled'">
+  //             Join Interview
+  //           </button>
+  //           <button class="cancel-btn" *ngIf="iv.status === 'pending'">
+  //             Cancel Request
+  //           </button>
+  //         </div>
+  //       </div>
+  //     </div>
+  //     <div class="pagination">
+  //       <button
+  //         (click)="changePage(-1)"
+  //         [disabled]="currentPage === 1"
+  //         class="pagination-btn"
+  //       >
+  //         Previous
+  //       </button>
+  //       <span>Page {{ currentPage }} of {{ totalPages }}</span>
+  //       <button
+  //         (click)="changePage(1)"
+  //         [disabled]="currentPage === totalPages"
+  //         class="pagination-btn"
+  //       >
+  //         Next
+  //       </button>
+  //     </div>
+  //   </div>
+  // `,
+
+  templateUrl: `./requested-interviews.component.html`,
+  styleUrls: ["./requested-interviews.component.css"],
 })
 export class RequestedInterviewsComponent implements OnInit, OnDestroy {
-  rawApps: any[] = [];
+  rawApps: Application[] = [];
   interviews: any[] = [];
   filtered: any[] = [];
   paginatedInterviews: any[] = [];
 
-  searchTerm = '';
+  searchTerm = "";
   currentPage = 1;
   pageSize = 4;
   totalPages = 1;
@@ -491,48 +494,53 @@ export class RequestedInterviewsComponent implements OnInit, OnDestroy {
   constructor(private jobSvc: JobService) {}
 
   ngOnInit() {
-    const user = JSON.parse(sessionStorage.getItem('loggedInUser') || '{}');
+    const user = JSON.parse(sessionStorage.getItem("loggedInUser") || "{}");
     const candidateId = user.userId;
-    if (!candidateId) {
-      return;
-    }
+    if (!candidateId) return;
 
     this.subs.add(
       this.jobSvc
         .getApplications(candidateId)
         .pipe(
-          switchMap((appsResponse) => {
-            // Guard: if not an array, treat as empty
-            this.rawApps = Array.isArray(appsResponse) ? appsResponse : [];
+          switchMap((appsResponse: any) => {
+            // Handle paginated response
+            this.rawApps = appsResponse.items || [];
+
             if (this.rawApps.length === 0) {
-              return of([] as Job[]);
+              this.interviews = [];
+              return of([]);
             }
 
-            // fan‐out job calls
-            const calls = this.rawApps.map((app) =>
+            // Fetch job details for each application
+            const jobCalls = this.rawApps.map((app) =>
               this.jobSvc.getJob(app.jobId).pipe(catchError(() => of(null)))
             );
-            return forkJoin(calls);
+
+            return forkJoin(jobCalls);
           })
         )
-        .subscribe((jobs) => {
-          console.log(jobs)
-          // now map rawApps + jobs → enriched interviews
-          this.interviews = this.rawApps.map((app, idx) => ({
+        .subscribe((jobs: (any | null)[]) => {
+          // Map applications with job data
+          this.interviews = this.rawApps.map((app, index) => ({
             applicationId: app.id,
             jobId: app.jobId,
-            companyName: jobs[idx]?.name || 'Unknown',
-            position: jobs[idx]?.experienceLevel || 'Unknown',
-            date: app.date,
-            time: app.time,
+            companyName: jobs[index]?.name || "Unknown Company",
+            position: jobs[index]?.experienceLevel || "Unknown Position",
+            location: jobs[index]?.location || "Unknown Position",
+            jobType: jobs[index]?.jobType || "Unknown Position",
+            salary: jobs[index]?.salary || "Unknown Position",
+            date: app.date ? new Date(app.date).toLocaleDateString() : "N/A",
+            time: app.time || "N/A",
             status: app.status,
             interviewerName: app.interviewerName,
           }));
+
           this.applyFilter();
         })
     );
   }
 
+  // Keep existing filter and pagination methods
   applyFilter() {
     const term = this.searchTerm.toLowerCase();
     this.filtered = this.interviews.filter(

@@ -33,16 +33,9 @@ import { LogoutModalComponent } from '../../hr-dashboard/logout-modal/logout-mod
           class="nav-item"
         >
           <i class="bi bi-calendar-check"></i>
-          Requested
+          Applications
         </a>
-        <a
-          routerLink="/candidate-dashboard/completed"
-          routerLinkActive="active"
-          class="nav-item"
-        >
-          <i class="bi bi-check-circle"></i>
-          Completed
-        </a>
+      
         <a
           routerLink="/candidate-dashboard/jobs"
           routerLinkActive="active"
