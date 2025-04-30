@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using TalentMesh.Framework.Core.Persistence;
 using TalentMesh.Module.Evaluator.Domain;
 using Asp.Versioning.Conventions;
+using TalentMesh.Framework.Infrastructure.Auth.Policy;
 
 namespace TalentMesh.Endpoints
 {
@@ -32,6 +33,7 @@ namespace TalentMesh.Endpoints
                .DisableAntiforgery()    // <- declare this endpoint is v1.0
                .WithName("UploadInterviewerCv")
                .WithTags("InterviewerFileHandler")
+               .RequirePermission("Permissions.InterviewerEntryForms.Create")
                .Produces<InterviewerEntryForm>(StatusCodes.Status200OK)
                .ProducesProblem(StatusCodes.Status400BadRequest)
                .ProducesProblem(StatusCodes.Status404NotFound)
@@ -47,6 +49,7 @@ namespace TalentMesh.Endpoints
                .MapToApiVersion(1.0)
                .WithName("DownloadInterviewerCv")
                .WithTags("InterviewerFileHandler")
+                .RequirePermission("Permissions.InterviewerEntryForms.View")
                .Produces(StatusCodes.Status200OK)
                .ProducesProblem(StatusCodes.Status404NotFound);
 
