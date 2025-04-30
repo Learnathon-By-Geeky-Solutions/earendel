@@ -28,6 +28,9 @@ namespace TalentMesh.Module.Evaluator.Application.Interviewer.Create.v1
 
             foreach (var slot in request.AvailabilitySlots)
             {
+                logger.LogWarning("Interviewer {InterviewerId} has an overlapping availability slot {StartTime} - {EndTime}",
+                                        request.InterviewerId, slot.StartTime, slot.EndTime);
+
                 if (IsOverlapping(slot, existingAvailabilities))
                 {
                     logger.LogWarning("Interviewer {InterviewerId} has an overlapping availability slot {StartTime} - {EndTime}",
