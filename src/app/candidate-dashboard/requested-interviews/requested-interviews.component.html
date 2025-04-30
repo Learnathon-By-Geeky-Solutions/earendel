@@ -1,66 +1,85 @@
 <div class="interviews-container">
   <h2>Your Applications</h2>
 
+  <div class="search-box" *ngIf="!isLoading && !hasError && !noData">
+    <input type="text" [(ngModel)]="searchTerm" (ngModelChange)="applyFilter()" placeholder="Search applications..."
+      class="search-input" />
+  </div>
 
-  <div class="interviews-list">
-    <div *ngFor="let iv of paginatedInterviews" class="interview-card">
-      <div class="card-header">
+  <!-- Loading State -->
+  <div class="state-container" *ngIf="isLoading">
+    <div class="loading-spinner"></div>
+    <p>Loading your applications...</p>
+  </div>
+
+  <!-- Error State -->
+  <div class="state-container error-state" *ngIf="hasError">
+    <i class="bi bi-exclamation-triangle"></i>
+    <p>{{ errorMessage }}</p>
+    <button class="retry-btn" (click)="retryLoading()">Try Again</button>
+  </div>
+
+  <!-- No Data State -->
+  <div class="state-container" *ngIf="noData && !isLoading && !hasError">
+    <i class="bi bi-inbox"></i>
+    <p>No applications found</p>
+  </div>
+
+  <!-- Applications List -->
+  <div class="applications-grid" *ngIf="!isLoading && !hasError && !noData">
+    <div *ngFor="let iv of paginatedInterviews" class="application-card">
+      <div class="card-header" [ngClass]="iv.status">
         <h3>{{ iv.companyName }}</h3>
         <span class="status-badge" [ngClass]="iv.status">
           {{ iv.status }}
         </span>
       </div>
 
-      <div class="card-content">
-        <div class="detail-row">
+      <div class="card-body">
+        <div class="detail-item">
           <i class="bi bi-briefcase"></i>
           <span>{{ iv.position }}</span>
         </div>
-        <div class="detail-row">
-          <i class="bi bi-calendar"></i>
+        <div class="detail-item">
+          <i class="bi bi-geo-alt"></i>
           <span>{{ iv.location }}</span>
         </div>
-        <div class="detail-row">
+        <div class="detail-item">
           <i class="bi bi-clock"></i>
           <span>{{ iv.jobType }}</span>
         </div>
-        <div class="detail-row">
+        <div class="detail-item" *ngIf="iv.status === 'scheduled'">
+          <i class="bi bi-calendar"></i>
+          <span>{{ iv.date }}</span>
+        </div>
+        <div class="detail-item" *ngIf="iv.status === 'scheduled'">
+          <i class="bi bi-alarm"></i>
+          <span>{{ iv.time }}</span>
+        </div>
+        <div class="detail-item" *ngIf="iv.interviewerName !== 'Not assigned'">
           <i class="bi bi-person"></i>
-          <span>{{ iv.salary }}</span>
+          <span>{{ iv.interviewerName }}</span>
         </div>
       </div>
 
-      <div class="card-actions">
-        <button
-          class="action-btn"
-          *ngIf="iv.status === 'scheduled'"
-        >
+      <div class="card-footer">
+        <button class="btn primary-btn" *ngIf="iv.status === 'scheduled'">
           Join Interview
         </button>
-        <button
-          class="cancel-btn"
-          *ngIf="iv.status === 'pending'"
-        >
+        <button class="btn secondary-btn" *ngIf="iv.status === 'pending'">
           Cancel Request
         </button>
       </div>
     </div>
   </div>
 
-  <div class="pagination">
-    <button
-      (click)="changePage(-1)"
-      [disabled]="currentPage === 1"
-      class="pagination-btn"
-    >
+  <!-- Pagination -->
+  <div class="pagination-container" *ngIf="!isLoading && !hasError && !noData && filtered.length > 0">
+    <button (click)="changePage(-1)" [disabled]="currentPage === 1" class="page-btn">
       Previous
     </button>
-    <span>Page {{ currentPage }} of {{ totalPages }}</span>
-    <button
-      (click)="changePage(1)"
-      [disabled]="currentPage === totalPages"
-      class="pagination-btn"
-    >
+    <span class="page-info">Page {{ currentPage }} of {{ totalPages }}</span>
+    <button (click)="changePage(1)" [disabled]="currentPage === totalPages" class="page-btn">
       Next
     </button>
   </div>

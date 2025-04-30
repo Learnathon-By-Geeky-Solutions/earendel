@@ -34,7 +34,7 @@ import { LoginSignupService } from "../../shared/services/login-signup.service";
           class="nav-item"
         >
           <i class="bi bi-calendar-check"></i>
-          Applications
+          My Applications
         </a>
 
         <a
@@ -43,7 +43,7 @@ import { LoginSignupService } from "../../shared/services/login-signup.service";
           class="nav-item"
         >
           <i class="bi bi-briefcase"></i>
-          Job Posts
+          Explore Jobs
         </a>
         <a
           routerLink="/candidate-dashboard/upcoming-interview"
