@@ -34,7 +34,7 @@ namespace TalentMesh.Module.Quizzes.Api.Endpoints // Or your preferred namespace
                 // Add .RequireAuthorization() if needed based on your security policy
                 .WithTags("QuizView")
                 .WithName("GetUserQuizAttempts")
-                .RequirePermission("Permissions.QuizAttempts.View")   // ← view permission
+                .RequirePermission("Permissions.Seniorities.View")   // ← view permission
                 .Produces<List<QuizAttemptDto>>(StatusCodes.Status200OK) // Specify DTO list
                 .Produces(StatusCodes.Status404NotFound) // If user or attempts not found (can be handled in handler)
                 .Produces(StatusCodes.Status401Unauthorized) // If authorization fails

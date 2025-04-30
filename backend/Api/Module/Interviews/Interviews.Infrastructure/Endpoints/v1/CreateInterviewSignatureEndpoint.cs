@@ -23,7 +23,7 @@ public static class CreateInterviewSignatureEndpoint
             .WithSummary("Interview Signature")
             .WithDescription("Interview Signature")
             .Produces<CreateInterviewSignatureResponse>()
-            .RequirePermission("Permissions.InterviewSignatures.Create") // ✅ Corrected permission
+            .RequirePermission("Permissions.InterviewSignatures.View") // ✅ Corrected permission
             .MapToApiVersion(1);
     }
 }
