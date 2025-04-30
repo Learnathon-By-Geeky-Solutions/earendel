@@ -111,7 +111,7 @@ interface VerificationApplication {
             </div>
 
             <div class="form-group">
-              <label for="resume">Resume/CV</label>
+              <label for="resume">Resume/CV (Max limit: PDF below 1MB)</label>
               <div class="file-input-container">
                 <input
                   type="file"
