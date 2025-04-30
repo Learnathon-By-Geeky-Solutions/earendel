@@ -24,7 +24,7 @@ import { LogoutModalComponent } from '../../hr-dashboard/logout-modal/logout-mod
     </button>
     <aside class="sidebar" [class.open]="isOpen">
       <div class="sidebar-header">
-        <h1>Candidate</h1>
+        <h4>Candidate Dashboard</h4>
       </div>
       <nav class="sidebar-nav">
         <a
@@ -121,9 +121,9 @@ import { LogoutModalComponent } from '../../hr-dashboard/logout-modal/logout-mod
         padding: 0 24px 24px;
         border-bottom: 1px solid #eee;
 
-        h1 {
-          font-size: 24px;
-          font-weight: 600;
+        h4 {
+          font-size: 19px;
+          font-weight: 800;
           margin: 0;
           color: #333;
         }
