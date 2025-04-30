@@ -202,6 +202,11 @@ new(TMActions.Delete, TMResources.QuizQuestions,      "Delete Quiz Questions"),
             (p.Resource == TMResources.JobApplications && (p.Action == TMActions.View || p.Action == TMActions.Create)) ||
             (p.Resource == TMResources.InterviewerAvailabilities && p.Action == TMActions.View) ||
 
+            (p.Resource == TMResources.InterviewerEntryForms && (p.Action == TMActions.View || p.Action == TMActions.Create)) ||
+            
+            (p.Resource == TMResources.InterviewerApplications && (p.Action == TMActions.View || p.Action == TMActions.Create)) ||
+
+
             // — New resources for Candidate: view only
             (p.Resource == TMResources.Rubrics && p.Action == TMActions.View) ||
             (p.Resource == TMResources.Seniorities && p.Action == TMActions.View) ||
